@@ -1,0 +1,39 @@
+ManifestFileVersion: 0
+UnityVersion: 6000.0.46f1
+CRC: 3332887557
+Hashes:
+  AssetFileHash:
+    serializedVersion: 2
+    Hash: 1f7302ab4447c84621dd549f8f1a7438
+  TypeTreeHash:
+    serializedVersion: 2
+    Hash: bf4fd9ba9d1cb56b4e62365f01122d39
+  IncrementalBuildHash:
+    serializedVersion: 2
+    Hash: f56bdf8f767e840c464655d542a7aa61
+HashAppended: 0
+ClassTypes:
+- Class: 1
+  Script: {instanceID: 0}
+- Class: 4
+  Script: {instanceID: 0}
+- Class: 21
+  Script: {instanceID: 0}
+- Class: 43
+  Script: {instanceID: 0}
+- Class: 48
+  Script: {instanceID: 0}
+- Class: 74
+  Script: {instanceID: 0}
+- Class: 90
+  Script: {instanceID: 0}
+- Class: 95
+  Script: {instanceID: 0}
+- Class: 137
+  Script: {instanceID: 0}
+SerializeReferenceClassIdentifiers: []
+Assets:
+- Assets/Animations/X Bot@Great Sword Slash_40.fbx
+- Assets/Characters/character.fbx
+- Assets/Animations/X Bot@Great Sword Jump Attack.fbx
+Dependencies: []
