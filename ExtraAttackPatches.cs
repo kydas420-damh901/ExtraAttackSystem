@@ -8,6 +8,7 @@ namespace ExtraAttackSystem
     public static class ExtraAttackPatches
     {
         private static readonly Dictionary<Player, Animator> playerAnimators = new();
+<<<<<<< HEAD
         private static readonly Dictionary<string, AnimationClip> originalClips = new();
 
         // Helper method to get secondary attack clip name
@@ -59,6 +60,8 @@ namespace ExtraAttackSystem
                 ExtraAttackPlugin.ExtraAttackLogger.LogError($"Error initializing AOC: {ex.Message}");
             }
         }
+=======
+>>>>>>> e233f14d20c2c5b8b9cabdc94021f07d78cf3d58
 
         // Cache animator via Harmony injection
         [HarmonyPatch(typeof(CharacterAnimEvent), "CustomFixedUpdate")]
@@ -77,6 +80,10 @@ namespace ExtraAttackSystem
                             playerAnimators[player] = ___m_animator;
                             ExtraAttackPlugin.ExtraAttackLogger.LogInfo("Animator cached successfully");
 
+<<<<<<< HEAD
+=======
+                            // DEBUG: Animation Parameters (once per session)
+>>>>>>> e233f14d20c2c5b8b9cabdc94021f07d78cf3d58
                             if (ExtraAttackPlugin.DebugAnimationParameters.Value && !parametersLogged)
                             {
                                 parametersLogged = true;
@@ -111,16 +118,24 @@ namespace ExtraAttackSystem
             }
         }
 
+<<<<<<< HEAD
         // Block vanilla secondary attack input using Reflection
         [HarmonyPatch(typeof(Player), "PlayerAttackInput")]
         public static class Player_PlayerAttackInput_Patch
         {
             private static System.Reflection.FieldInfo? queuedSecondAttackTimerField;
 
+=======
+        // Initialize AnimatorOverrideControllers and keep Original as default
+        [HarmonyPatch(typeof(Player), "Start")]
+        public static class Player_Start_Patch
+        {
+>>>>>>> e233f14d20c2c5b8b9cabdc94021f07d78cf3d58
             public static void Postfix(Player __instance)
             {
                 try
                 {
+<<<<<<< HEAD
                     if (ExtraAttackPlugin.IsExtraAttackKeyPressed())
                     {
                         // Cache field info for performance
@@ -138,16 +153,45 @@ namespace ExtraAttackSystem
                                 queuedSecondAttackTimerField.SetValue(__instance, 0f);
                                 ExtraAttackPlugin.ExtraAttackLogger.LogInfo("BLOCKED vanilla secondary attack (PlayerAttackInput)");
                             }
+=======
+                    if (AnimationManager.CustomRuntimeControllers.Count == 0 && Player.m_localPlayer is not null)
+                    {
+                        if (playerAnimators.TryGetValue(__instance, out Animator animator) && animator != null)
+                        {
+                            // Create Original controller (no replacements)
+                            AnimationManager.CustomRuntimeControllers["Original"] = AnimationManager.MakeAOC(
+                                new Dictionary<string, string>(), animator.runtimeAnimatorController);
+                            ExtraAttackPlugin.ExtraAttackLogger.LogInfo("Original AnimatorOverrideController initialized");
+
+                            // Create ExtraAttack controller (with replacements)
+                            if (AnimationManager.ReplacementMap.ContainsKey("ExtraAttack") &&
+                                AnimationManager.ReplacementMap["ExtraAttack"].Count > 0)
+                            {
+                                AnimationManager.CustomRuntimeControllers["ExtraAttack"] = AnimationManager.MakeAOC(
+                                    AnimationManager.ReplacementMap["ExtraAttack"], animator.runtimeAnimatorController);
+                                ExtraAttackPlugin.ExtraAttackLogger.LogInfo("ExtraAttack AnimatorOverrideController initialized");
+                            }
+
+                            // Set Original as default controller
+                            animator.runtimeAnimatorController = AnimationManager.CustomRuntimeControllers["Original"];
+                            animator.Update(Time.deltaTime);
+                            ExtraAttackPlugin.ExtraAttackLogger.LogInfo("Set Original controller as default");
+>>>>>>> e233f14d20c2c5b8b9cabdc94021f07d78cf3d58
                         }
                     }
                 }
                 catch (Exception ex)
                 {
+<<<<<<< HEAD
                     ExtraAttackPlugin.ExtraAttackLogger.LogError($"Error in PlayerAttackInput_Patch: {ex.Message}");
+=======
+                    ExtraAttackPlugin.ExtraAttackLogger.LogError($"Error in Player_Start_Patch: {ex.Message}");
+>>>>>>> e233f14d20c2c5b8b9cabdc94021f07d78cf3d58
                 }
             }
         }
 
+<<<<<<< HEAD
         // Apply AOC for Extra Attack animations
         [HarmonyPatch(typeof(ZSyncAnimation), "RPC_SetTrigger")]
         public static class ZSyncAnimation_RPC_SetTrigger_Patch
@@ -240,6 +284,18 @@ namespace ExtraAttackSystem
             catch (Exception ex)
             {
                 ExtraAttackPlugin.ExtraAttackLogger.LogError($"Error initializing AOC: {ex.Message}");
+=======
+        // Block vanilla secondary attack when Extra Attack key is pressed
+        [HarmonyPatch(typeof(Player), "SetControls")]
+        public static class Player_SetControls_Patch
+        {
+            public static void Prefix(ref bool secondaryAttack)
+            {
+                if (ExtraAttackPlugin.IsExtraAttackKeyPressed())
+                {
+                    secondaryAttack = false;
+                }
+>>>>>>> e233f14d20c2c5b8b9cabdc94021f07d78cf3d58
             }
         }
 
@@ -250,6 +306,10 @@ namespace ExtraAttackSystem
             private static bool extraAttackTriggered = false;
             private static bool testButton1Pressed = false;
             private static bool testButton2Pressed = false;
+<<<<<<< HEAD
+=======
+            private static bool controllerSwitched = false; // NEW: Track if we already switched
+>>>>>>> e233f14d20c2c5b8b9cabdc94021f07d78cf3d58
 
             public static void Postfix(Player __instance)
             {
@@ -258,19 +318,34 @@ namespace ExtraAttackSystem
 
                 try
                 {
+<<<<<<< HEAD
+=======
+                    // Original Extra Attack functionality
+>>>>>>> e233f14d20c2c5b8b9cabdc94021f07d78cf3d58
                     if (ExtraAttackPlugin.IsExtraAttackKeyPressed())
                     {
                         if (!extraAttackTriggered && CanPerformExtraAttack(__instance))
                         {
                             TriggerExtraAttack(__instance);
                             extraAttackTriggered = true;
+<<<<<<< HEAD
+=======
+                            controllerSwitched = true; // Mark that we switched
+>>>>>>> e233f14d20c2c5b8b9cabdc94021f07d78cf3d58
                         }
                     }
                     else
                     {
                         extraAttackTriggered = false;
+<<<<<<< HEAD
                     }
 
+=======
+                        controllerSwitched = false; // Reset when key released
+                    }
+
+                    // Test buttons (keep existing functionality)
+>>>>>>> e233f14d20c2c5b8b9cabdc94021f07d78cf3d58
                     if (ExtraAttackPlugin.IsTestButton1Pressed() && !testButton1Pressed)
                     {
                         PlayTestAnimation(__instance, 1);
@@ -299,12 +374,16 @@ namespace ExtraAttackSystem
 
             private static bool CanPerformExtraAttack(Player player)
             {
+<<<<<<< HEAD
                 if (player.InAttack())
                 {
                     ExtraAttackPlugin.ExtraAttackLogger.LogInfo("Cannot use Extra Attack: Already attacking");
                     return false;
                 }
 
+=======
+                // Check cooldown
+>>>>>>> e233f14d20c2c5b8b9cabdc94021f07d78cf3d58
                 if (ExtraAttackUtils.IsPlayerOnCooldown(player))
                 {
                     float remaining = ExtraAttackUtils.GetPlayerCooldownRemaining(player);
@@ -312,6 +391,10 @@ namespace ExtraAttackSystem
                     return false;
                 }
 
+<<<<<<< HEAD
+=======
+                // Check if weapon equipped
+>>>>>>> e233f14d20c2c5b8b9cabdc94021f07d78cf3d58
                 ItemDrop.ItemData weapon = player.GetCurrentWeapon();
                 if (weapon == null)
                 {
@@ -319,6 +402,10 @@ namespace ExtraAttackSystem
                     return false;
                 }
 
+<<<<<<< HEAD
+=======
+                // Check stamina
+>>>>>>> e233f14d20c2c5b8b9cabdc94021f07d78cf3d58
                 float staminaCost = ExtraAttackPlugin.GetStaminaCost(weapon.m_shared.m_skillType);
                 if (player.GetStamina() < staminaCost)
                 {
@@ -333,6 +420,7 @@ namespace ExtraAttackSystem
             {
                 try
                 {
+<<<<<<< HEAD
                     ExtraAttackPlugin.ExtraAttackLogger.LogInfo("============= EXTRA ATTACK TRIGGERED =============");
 
                     ItemDrop.ItemData weapon = player.GetCurrentWeapon();
@@ -362,6 +450,36 @@ namespace ExtraAttackSystem
 
                     ExtraAttackPlugin.ExtraAttackLogger.LogInfo("StartAttack called - AOC will handle animation replacement");
                     ExtraAttackPlugin.ExtraAttackLogger.LogInfo("==================================================");
+=======
+                    ItemDrop.ItemData weapon = player.GetCurrentWeapon();
+                    if (weapon == null) return;
+
+                    // Only switch if not already switched
+                    if (!controllerSwitched && playerAnimators.TryGetValue(player, out Animator animator) && animator != null)
+                    {
+                        if (AnimationManager.CustomRuntimeControllers.TryGetValue("ExtraAttack", out var controller))
+                        {
+                            animator.runtimeAnimatorController = controller;
+                            animator.Update(Time.deltaTime);
+                            ExtraAttackPlugin.ExtraAttackLogger.LogInfo("Switched to ExtraAttack controller");
+                        }
+                    }
+
+                    // Set extra attack state (for damage multiplier)
+                    ExtraAttackUtils.SetExtraAttackState(player, true);
+
+                    // Consume stamina
+                    float staminaCost = ExtraAttackPlugin.GetStaminaCost(weapon.m_shared.m_skillType);
+                    player.UseStamina(staminaCost);
+
+                    // Set cooldown
+                    ExtraAttackUtils.SetPlayerCooldown(player);
+
+                    // Use vanilla StartAttack - it handles all the parameter passing internally
+                    player.StartAttack(null, true); // null = no target, true = secondary attack
+
+                    ExtraAttackPlugin.ExtraAttackLogger.LogInfo("Started secondary attack with custom animations");
+>>>>>>> e233f14d20c2c5b8b9cabdc94021f07d78cf3d58
 
                     // Show message
                     ExtraAttackUtils.ShowMessage(player, "extra_attack_triggered");
@@ -369,7 +487,10 @@ namespace ExtraAttackSystem
                 catch (Exception ex)
                 {
                     ExtraAttackPlugin.ExtraAttackLogger.LogError($"Error in TriggerExtraAttack: {ex.Message}");
+<<<<<<< HEAD
                     ExtraAttackUtils.SetExtraAttackState(player, false);
+=======
+>>>>>>> e233f14d20c2c5b8b9cabdc94021f07d78cf3d58
                 }
             }
 
@@ -377,6 +498,10 @@ namespace ExtraAttackSystem
             {
                 try
                 {
+<<<<<<< HEAD
+=======
+                    // Get animation clip from AssetBundle
+>>>>>>> e233f14d20c2c5b8b9cabdc94021f07d78cf3d58
                     string clipName = buttonNumber == 1 ? "Great Sword Slash_40External" : "Great Sword Jump AttackExternal";
 
                     if (!AnimationManager.ExternalAnimations.TryGetValue(clipName, out AnimationClip clip))
@@ -386,18 +511,30 @@ namespace ExtraAttackSystem
                         return;
                     }
 
+<<<<<<< HEAD
+=======
+                    // Temporarily disable Animator to allow Animation component to work
+>>>>>>> e233f14d20c2c5b8b9cabdc94021f07d78cf3d58
                     if (playerAnimators.TryGetValue(player, out Animator animator) && animator != null)
                     {
                         animator.enabled = false;
                         ExtraAttackPlugin.ExtraAttackLogger.LogInfo("Temporarily disabled Animator");
                     }
 
+<<<<<<< HEAD
+=======
+                    // Clone the clip and force legacy mode
+>>>>>>> e233f14d20c2c5b8b9cabdc94021f07d78cf3d58
                     AnimationClip legacyClip = UnityEngine.Object.Instantiate(clip);
                     legacyClip.legacy = true;
                     legacyClip.wrapMode = WrapMode.Once;
 
                     ExtraAttackPlugin.ExtraAttackLogger.LogInfo($"Created legacy clip: {legacyClip.name}, legacy={legacyClip.legacy}, length={legacyClip.length}");
 
+<<<<<<< HEAD
+=======
+                    // Get or add Animation component for legacy playback
+>>>>>>> e233f14d20c2c5b8b9cabdc94021f07d78cf3d58
                     Animation animComponent = player.GetComponent<Animation>();
                     if (animComponent == null)
                     {
@@ -406,15 +543,29 @@ namespace ExtraAttackSystem
                         ExtraAttackPlugin.ExtraAttackLogger.LogInfo("Added Animation component for debug playback");
                     }
 
+<<<<<<< HEAD
+=======
+                    // Remove old clip if exists
+>>>>>>> e233f14d20c2c5b8b9cabdc94021f07d78cf3d58
                     string animName = $"TestAnim{buttonNumber}";
                     if (animComponent.GetClip(animName) != null)
                     {
                         animComponent.RemoveClip(animName);
                     }
 
+<<<<<<< HEAD
                     animComponent.AddClip(legacyClip, animName);
                     animComponent.Play(animName);
 
+=======
+                    // Add clip to Animation component
+                    animComponent.AddClip(legacyClip, animName);
+
+                    // Play the animation
+                    animComponent.Play(animName);
+
+                    // Re-enable Animator after a delay (animation length)
+>>>>>>> e233f14d20c2c5b8b9cabdc94021f07d78cf3d58
                     player.StartCoroutine(ReEnableAnimatorAfterDelay(player, legacyClip.length));
 
                     player.Message(MessageHud.MessageType.Center, $"Test Animation {buttonNumber}!");
@@ -425,6 +576,10 @@ namespace ExtraAttackSystem
                     ExtraAttackPlugin.ExtraAttackLogger.LogError($"Error playing test animation: {ex.Message}");
                     ExtraAttackPlugin.ExtraAttackLogger.LogError($"Stack trace: {ex.StackTrace}");
 
+<<<<<<< HEAD
+=======
+                    // Make sure to re-enable Animator on error
+>>>>>>> e233f14d20c2c5b8b9cabdc94021f07d78cf3d58
                     if (playerAnimators.TryGetValue(player, out Animator animator) && animator != null)
                     {
                         animator.enabled = true;
@@ -444,7 +599,11 @@ namespace ExtraAttackSystem
             }
         }
 
+<<<<<<< HEAD
         // Damage multiplier patch
+=======
+        // Damage multiplier patch for Extra Attack
+>>>>>>> e233f14d20c2c5b8b9cabdc94021f07d78cf3d58
         [HarmonyPatch(typeof(Attack), "DoMeleeAttack")]
         public static class Attack_DoMeleeAttack_Patch
         {
@@ -454,13 +613,34 @@ namespace ExtraAttackSystem
                 {
                     if (___m_character is Player player && ExtraAttackUtils.IsPlayerInExtraAttack(player))
                     {
+<<<<<<< HEAD
                         ExtraAttackPlugin.ExtraAttackLogger.LogInfo("============= DAMAGE CALCULATION START =============");
+=======
+                        // Double-check: Only apply multiplier if using ExtraAttack controller
+                        if (playerAnimators.TryGetValue(player, out Animator animator) && animator != null)
+                        {
+                            var currentController = animator.runtimeAnimatorController;
+                            bool isExtraAttackController = AnimationManager.CustomRuntimeControllers.TryGetValue("ExtraAttack", out var extraController)
+                                && currentController == extraController;
+
+                            if (!isExtraAttackController)
+                            {
+                                // Not using ExtraAttack controller, so don't apply multiplier
+                                ExtraAttackPlugin.ExtraAttackLogger.LogInfo("Skipping multiplier - not using ExtraAttack controller");
+                                return;
+                            }
+                        }
+>>>>>>> e233f14d20c2c5b8b9cabdc94021f07d78cf3d58
 
                         ItemDrop.ItemData weapon = player.GetCurrentWeapon();
                         if (weapon != null)
                         {
                             float multiplier = ExtraAttackPlugin.GetDamageMultiplier(weapon.m_shared.m_skillType);
 
+<<<<<<< HEAD
+=======
+                            // Multiply all damage types
+>>>>>>> e233f14d20c2c5b8b9cabdc94021f07d78cf3d58
                             weapon.m_shared.m_damages.m_damage *= multiplier;
                             weapon.m_shared.m_damages.m_blunt *= multiplier;
                             weapon.m_shared.m_damages.m_slash *= multiplier;
@@ -487,6 +667,7 @@ namespace ExtraAttackSystem
             {
                 try
                 {
+<<<<<<< HEAD
                     if (___m_character is Player player)
                     {
                         if (ExtraAttackUtils.IsPlayerInExtraAttack(player))
@@ -515,12 +696,54 @@ namespace ExtraAttackSystem
                             ExtraAttackUtils.SetExtraAttackState(player, false);
 
                             ExtraAttackPlugin.ExtraAttackLogger.LogInfo("============= EXTRA ATTACK COMPLETED =============");
+=======
+                    if (___m_character is Player player && ExtraAttackUtils.IsPlayerInExtraAttack(player))
+                    {
+                        ItemDrop.ItemData weapon = player.GetCurrentWeapon();
+                        if (weapon != null)
+                        {
+                            // Restore original damage values
+                            float multiplier = ExtraAttackPlugin.GetDamageMultiplier(weapon.m_shared.m_skillType);
+                            float divisor = 1f / multiplier;
+
+                            weapon.m_shared.m_damages.m_damage *= divisor;
+                            weapon.m_shared.m_damages.m_blunt *= divisor;
+                            weapon.m_shared.m_damages.m_slash *= divisor;
+                            weapon.m_shared.m_damages.m_pierce *= divisor;
+                            weapon.m_shared.m_damages.m_chop *= divisor;
+                            weapon.m_shared.m_damages.m_pickaxe *= divisor;
+                            weapon.m_shared.m_damages.m_fire *= divisor;
+                            weapon.m_shared.m_damages.m_frost *= divisor;
+                            weapon.m_shared.m_damages.m_lightning *= divisor;
+                            weapon.m_shared.m_damages.m_poison *= divisor;
+                            weapon.m_shared.m_damages.m_spirit *= divisor;
+
+                            ExtraAttackPlugin.ExtraAttackLogger.LogInfo("Restored original damage values");
+                        }
+
+                        // Reset extra attack state
+                        ExtraAttackUtils.SetExtraAttackState(player, false);
+
+                        // Switch back to Original controller
+                        if (playerAnimators.TryGetValue(player, out Animator animator) && animator != null)
+                        {
+                            if (AnimationManager.CustomRuntimeControllers.TryGetValue("Original", out var controller))
+                            {
+                                animator.runtimeAnimatorController = controller;
+                                animator.Update(Time.deltaTime);
+                                ExtraAttackPlugin.ExtraAttackLogger.LogInfo("Switched back to Original controller");
+                            }
+>>>>>>> e233f14d20c2c5b8b9cabdc94021f07d78cf3d58
                         }
                     }
                 }
                 catch (Exception ex)
                 {
+<<<<<<< HEAD
                     ExtraAttackPlugin.ExtraAttackLogger.LogError($"Error in DoMeleeAttack Postfix: {ex.Message}");
+=======
+                    ExtraAttackPlugin.ExtraAttackLogger.LogError($"Error restoring damage values: {ex.Message}");
+>>>>>>> e233f14d20c2c5b8b9cabdc94021f07d78cf3d58
                 }
             }
         }

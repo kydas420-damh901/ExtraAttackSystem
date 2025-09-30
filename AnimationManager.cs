@@ -40,7 +40,10 @@ namespace ExtraAttackSystem
                     ExtraAttackPlugin.ExtraAttackLogger.LogInfo($"Successfully loaded {animationClips.Length} animations from AssetBundle");
                     ExtraAttackPlugin.ExtraAttackLogger.LogInfo($"ExternalAnimations dictionary now has {ExternalAnimations.Count} entries");
 
+<<<<<<< HEAD
                     // Add AnimationEvents to external animations for attack detection
+=======
+>>>>>>> e233f14d20c2c5b8b9cabdc94021f07d78cf3d58
                     AnimationEventManager.AddEventsToExternalAnimations();
                 }
                 else
@@ -208,11 +211,14 @@ namespace ExtraAttackSystem
                     {
                         ExtraAttackPlugin.ExtraAttackLogger.LogWarning($"Animation override FAILED: {name} -> {replacement[name]} (External animation not found)");
                     }
+<<<<<<< HEAD
                     else if (name.Contains("Secondary") || name.Contains("secondary"))
                     {
                         // DEBUG: Log secondary clips that are NOT in replacement map
                         ExtraAttackPlugin.ExtraAttackLogger.LogInfo($"Secondary clip NOT in replacement map: [{name}]");
                     }
+=======
+>>>>>>> e233f14d20c2c5b8b9cabdc94021f07d78cf3d58
                 }
             }
 
