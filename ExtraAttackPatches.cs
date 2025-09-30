@@ -8,7 +8,6 @@ namespace ExtraAttackSystem
     public static class ExtraAttackPatches
     {
         private static readonly Dictionary<Player, Animator> playerAnimators = new();
-        private static readonly Dictionary<string, AnimationClip> originalClips = new();
 
         // Helper method to get secondary attack clip name
         private static string GetSecondaryAttackClipName(ItemDrop.ItemData weapon)
@@ -22,42 +21,6 @@ namespace ExtraAttackSystem
                 Skills.SkillType.Spears => "atgeir_secondary",
                 _ => "Greatsword Secondary Attack"
             };
-        }
-
-        // Initialize AOC lazily when needed
-        private static void EnsureAOCInitialized(Player player, Animator animator)
-        {
-            try
-            {
-                if (animator.runtimeAnimatorController is AnimatorOverrideController)
-                {
-                    return;
-                }
-
-                // Save current animator state
-                AnimatorStateInfo currentState = animator.GetCurrentAnimatorStateInfo(0);
-                float normalizedTime = currentState.normalizedTime;
-                int currentStateHash = currentState.fullPathHash;
-
-                // Create ONE AnimatorOverrideController
-                AnimatorOverrideController aoc = new(animator.runtimeAnimatorController);
-
-                // Apply it
-                animator.runtimeAnimatorController = aoc;
-
-                // Immediately restore state to prevent transition glitch
-                animator.Play(currentStateHash, 0, normalizedTime);
-                animator.Update(0f);
-
-                // Store reference
-                AnimationManager.CustomRuntimeControllers["Main"] = aoc;
-
-                ExtraAttackPlugin.ExtraAttackLogger.LogInfo("Main AnimatorOverrideController initialized (lazy init)");
-            }
-            catch (Exception ex)
-            {
-                ExtraAttackPlugin.ExtraAttackLogger.LogError($"Error initializing AOC: {ex.Message}");
-            }
         }
 
         // Cache animator via Harmony injection

@@ -39,8 +39,6 @@ namespace ExtraAttackSystem
 
                     ExtraAttackPlugin.ExtraAttackLogger.LogInfo($"Successfully loaded {animationClips.Length} animations from AssetBundle");
                     ExtraAttackPlugin.ExtraAttackLogger.LogInfo($"ExternalAnimations dictionary now has {ExternalAnimations.Count} entries");
-
-                    // Add AnimationEvents to external animations for attack detection
                     AnimationEventManager.AddEventsToExternalAnimations();
                 }
                 else
