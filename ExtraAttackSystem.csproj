@@ -1,0 +1,107 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+	<PropertyGroup>
+		<TargetFramework>net472</TargetFramework>
+		<LangVersion>latest</LangVersion>
+		<Nullable>enable</Nullable>
+		<Deterministic>true</Deterministic>
+	</PropertyGroup>
+	<ItemGroup>
+	  <None Remove="Resources\AssetBundles" />
+	  <None Remove="Resources\AssetBundles.manifest" />
+	  <None Remove="Resources\extraattack" />
+	  <None Remove="Resources\extraattack.manifest" />
+	</ItemGroup>
+	<ItemGroup>
+	  <EmbeddedResource Include="Resources\AssetBundles" />
+	  <EmbeddedResource Include="Resources\AssetBundles.manifest" />
+	  <EmbeddedResource Include="Resources\extraattack" />
+	  <EmbeddedResource Include="Resources\extraattack.manifest" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<Reference Include="BepInEx">
+			<HintPath>D:\90_games\50_valheim_ori-mod\00_lib\BepInEx.dll</HintPath>
+			<Private>false</Private>
+		</Reference>
+		<Reference Include="0Harmony">
+			<HintPath>D:\90_games\50_valheim_ori-mod\00_lib\0Harmony.dll</HintPath>
+			<Private>false</Private>
+		</Reference>
+		<Reference Include="UnityEngine">
+			<HintPath>D:\90_games\50_valheim_ori-mod\00_lib\UnityEngine.dll</HintPath>
+			<Private>false</Private>
+		</Reference>
+		<Reference Include="UnityEngine.CoreModule">
+			<HintPath>D:\90_games\50_valheim_ori-mod\00_lib\UnityEngine.CoreModule.dll</HintPath>
+			<Private>false</Private>
+		</Reference>
+		<Reference Include="UnityEngine.PhysicsModule">
+		  <HintPath>..\00_lib\UnityEngine.PhysicsModule.dll</HintPath>
+		  <Private>False</Private>
+		</Reference>
+		<Reference Include="YamlDotNet">
+			<HintPath>D:\90_games\50_valheim_ori-mod\00_lib\YamlDotNet.dll</HintPath>
+			<Private>false</Private>
+		</Reference>
+		<Reference Include="Assembly-CSharp Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
+			<HintPath>D:\90_games\50_valheim_ori-mod\00_lib\publicized_assemblies\Assembly-CSharp_publicized.dll</HintPath>
+			<Private>false</Private>
+		</Reference>
+		<Reference Include="assembly_valheim Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
+			<HintPath>D:\90_games\50_valheim_ori-mod\00_lib\publicized_assemblies\assembly_valheim_publicized.dll</HintPath>
+			<Private>false</Private>
+		</Reference>
+		<Reference Include="assembly_utils Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
+			<HintPath>D:\90_games\50_valheim_ori-mod\00_lib\publicized_assemblies\assembly_utils_publicized.dll</HintPath>
+			<Private>false</Private>
+		</Reference>
+		<Reference Include="Jotunn">
+			<HintPath>D:\90_games\50_valheim_ori-mod\00_lib\Jotunn.dll</HintPath>
+			<Private>false</Private>
+		</Reference>
+		<Reference Include="Engine.AssetBundleModule">
+			<HintPath>D:\90_games\50_valheim_ori-mod\00_lib\UnityEngine.AssetBundleModule.dll</HintPath>
+			<Private>false</Private>
+		</Reference>
+		<Reference Include="AnimationModule">
+			<HintPath>D:\90_games\50_valheim_ori-mod\00_lib\UnityEngine.AnimationModule.dll</HintPath>
+			<Private>false</Private>
+		</Reference>
+		<Reference Include="UnityEngine.InputLegacyModule">
+			<HintPath>D:\90_games\50_valheim_ori-mod\00_lib\UnityEngine.InputLegacyModule.dll</HintPath>
+			<Private>false</Private>
+		</Reference>
+	</ItemGroup>
+
+	<ItemGroup>
+	  <Compile Update="Properties\Resources.Designer.cs">
+	    <DesignTime>True</DesignTime>
+	    <AutoGen>True</AutoGen>
+	    <DependentUpon>Resources.resx</DependentUpon>
+	  </Compile>
+	  <Compile Update="Properties\Settings.Designer.cs">
+	    <DesignTimeSharedInput>True</DesignTimeSharedInput>
+	    <AutoGen>True</AutoGen>
+	    <DependentUpon>Settings.settings</DependentUpon>
+	  </Compile>
+	</ItemGroup>
+
+	<ItemGroup>
+	  <EmbeddedResource Update="Properties\Resources.resx">
+	    <Generator>ResXFileCodeGenerator</Generator>
+	    <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+	  </EmbeddedResource>
+	</ItemGroup>
+
+	<ItemGroup>
+	  <None Update="Properties\Settings.settings">
+	    <Generator>SettingsSingleFileGenerator</Generator>
+	    <LastGenOutput>Settings.Designer.cs</LastGenOutput>
+	  </None>
+	</ItemGroup>
+
+	<PropertyGroup>
+		<AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+		<OutputPath>E:\r2modman\Valheim\profiles\mod test\BepInEx\plugins</OutputPath>
+	</PropertyGroup>
+</Project>
