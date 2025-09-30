@@ -1,0 +1,89 @@
+ManifestFileVersion: 0
+UnityVersion: 6000.0.46f1
+CRC: 3697975208
+Hashes:
+  AssetFileHash:
+    serializedVersion: 2
+    Hash: 57686b7f10b7fb834e6a65ae17152c33
+  TypeTreeHash:
+    serializedVersion: 2
+    Hash: 3d2c39ca734f68b3e568c3d30a78b1c2
+  IncrementalBuildHash:
+    serializedVersion: 2
+    Hash: 658d2afa0f8d8368c53090ebcd467e03
+HashAppended: 0
+ClassTypes:
+- Class: 1
+  Script: {instanceID: 0}
+- Class: 4
+  Script: {instanceID: 0}
+- Class: 21
+  Script: {instanceID: 0}
+- Class: 23
+  Script: {instanceID: 0}
+- Class: 28
+  Script: {instanceID: 0}
+- Class: 33
+  Script: {instanceID: 0}
+- Class: 43
+  Script: {instanceID: 0}
+- Class: 48
+  Script: {instanceID: 0}
+- Class: 74
+  Script: {instanceID: 0}
+- Class: 90
+  Script: {instanceID: 0}
+- Class: 95
+  Script: {instanceID: 0}
+- Class: 137
+  Script: {instanceID: 0}
+SerializeReferenceClassIdentifiers: []
+Assets:
+- Assets/80_Package/Samurai_Katana/Animations/Action/0kanata_StrongAttk3.FBX
+- Assets/80_Package/dl_DoubleL/One Hand Up/Attack_A/Sw-Ma-GS-Up_Attack_A_3.fbx
+- Assets/80_Package/dl_Frank_RPG_2Handed/Assets/Animations/FBX_Animation/Root_Motion/2Hand_Combo05.FBX
+- Assets/Animations/Eas_GreatSword_SlideAttack.fbx
+- Assets/80_Package/dl_Frank_RPG_2Handed/Assets/Animations/FBX_Animation/Root_Motion/2Hand_Combo02.FBX
+- Assets/80_Package/Samurai_Katana/Animations/Action/0kanata_HardAttk 1.FBX
+- Assets/80_Package/Kevin Iglesias/Melee Warrior Animations/Animations/OneHanded/Shield/Shield@ShieldAttack01.fbx
+- Assets/80_Package/dl_Frank_RPG_2Handed/Assets/Animations/FBX_Animation/Root_Motion/2Hand_Combo04.FBX
+- Assets/80_Package/Samurai_Katana/Animations/Action/0kanata_ChargeAttk 1.FBX
+- Assets/Animations/Eas_GreatSword_Casting.fbx
+- Assets/80_Package/MassiveGreatSword_AnimSet/Animations/Humanoid/0MGSA_Attack_Dash02.fbx
+- Assets/80_Package/dl_DoubleL/One Hand Up/Attack_A/Sw-Ma-GS-Up_Attack_A_1.fbx
+- Assets/80_Package/MassiveGreatSword_AnimSet/Animations/Humanoid/0MGSA_Attack_Dash01.fbx
+- Assets/80_Package/Samurai_Katana/Animations/Action/0kanata_StrongAttk4.FBX
+- Assets/80_Package/dl_Frank_RPG_2Handed/Assets/Animations/FBX_Animation/Root_Motion/2Hand_ComboAlt03-1.FBX
+- Assets/80_Package/dl_Frank_RPG_2Handed/Assets/Animations/FBX_Animation/Root_Motion/2Hand_ComboAlt02.FBX
+- Assets/Animations/Eas_SwordAndShield_PowerUp.fbx
+- Assets/Animations/Eas_SwordAndShield_JumpSlash.fbx
+- Assets/80_Package/Paladin_Anim_Set/Animation/Humanoid/0Pa_1handShiled_AttackShield01.FBX
+- Assets/Animations/Eas_GreatSword_JumpAttack.fbx
+- Assets/80_Package/dl_DoubleL/One Hand Up/Attack_B/Sw-Ma-GS-Up_Attack_B_2.fbx
+- Assets/Animations/Standing Melee Run Jump Attack.fbx
+- Assets/80_Package/Kevin Iglesias/Melee Warrior Animations/Animations/OneHanded/DualWield/0MWA_DualWield_Attack02.fbx
+- Assets/80_Package/Kevin Iglesias/Melee Warrior Animations/Animations/OneHanded/Shield/Shield@ShieldAttack02.fbx
+- Assets/Animations/Standing Melee Attack 360 Low.fbx
+- Assets/80_Package/dl_ExplosiveLLC/RPG Character Mecanim Animation Pack FREE/Animations/2Hand-Sword/2Hand-Sword-Attack8.FBX
+- Assets/Animations/Standing Melee Combo Attack.fbx
+- Assets/Animations/Flying Knee Punch Combo.fbx
+- Assets/80_Package/Kevin Iglesias/Melee Warrior Animations/Animations/TwoHanded/2H@Attack04.fbx
+- Assets/80_Package/Paladin_Anim_Set/Animation/Humanoid/0Pa_1handShiled_attack02.FBX
+- Assets/80_Package/dl_Frank_RPG_2Handed/Assets/Animations/FBX_Animation/Root_Motion/2Hand_Skill01_WhirlWind.FBX
+- Assets/Animations/Eas_GreatSwordSlash_01.fbx
+- Assets/Dynamic Sword Animset/Animations/RootMotion/0DS_Attack_07.FBX
+- Assets/Animations/Standing Taunt Chest Thump.fbx
+- Assets/80_Package/dl_Frank_RPG_2Handed/Assets/Animations/FBX_Animation/Root_Motion/2Hand_ComboAlt2all.FBX
+- Assets/80_Package/MassiveGreatSword_AnimSet/Animations/Humanoid/0MGSA_Attack_Ground02.fbx
+- Assets/80_Package/dl_DoubleL/One Hand Up/Attack_A/Sw-Ma-GS-Up_Attack_A_2.fbx
+- Assets/80_Package/dl_DoubleL/One Hand Up/Attack_B/Sw-Ma-GS-Up_Attack_B_1.fbx
+- Assets/80_Package/dl_Frank_RPG_2Handed/Assets/Animations/FBX_Animation/Root_Motion/2Hand_Combo01.FBX
+- Assets/80_Package/dl_Frank_RPG_2Handed/Assets/Animations/FBX_Animation/Root_Motion/2Hand_ComboAlt04-4.FBX
+- Assets/80_Package/dl_Frank_RPG_2Handed/Assets/Animations/FBX_Animation/Root_Motion/2Hand_Combo03.FBX
+- Assets/80_Package/Samurai_Katana/Animations/Action/0katana_StrongAttk1.FBX
+- Assets/80_Package/dl_DoubleL/One Hand Up/Attack_B/Sw-Ma-GS-Up_Attack_B_3.fbx
+- Assets/80_Package/MassiveGreatSword_AnimSet/Animations/Humanoid/0MGSA_Attack_Ground01.fbx
+- Assets/Animations/Eas_GreatSword_Combo1.fbx
+- Assets/80_Package/Kevin Iglesias/Melee Warrior Animations/Animations/OneHanded/RightHand/MWA_RightHand_Attack03.fbx
+- Assets/Animations/Eas_Swshield_JumpAttack.fbx
+Dependencies: []

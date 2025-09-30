@@ -5,51 +5,94 @@ namespace ExtraAttackSystem
 {
     public static class ExtraAttackUtils
     {
-        // Extra attack state tracking
-        private static readonly Dictionary<Player, bool> playerExtraAttackStates = new();
-        private static readonly Dictionary<Player, float> playerCooldowns = new();
+        // Attack mode enum
+        public enum AttackMode
+        {
+            Normal,      // Left click (vanilla animation)
+            ExtraQ,      // Q key (secondary attack)
+            ExtraT,      // T key (primary attack 1)
+            ExtraG       // G key (primary attack 2)
+        }
 
-        // State management methods
-        public static void SetExtraAttackState(Player player, bool isExtraAttack)
+        // Attack mode tracking
+        private static readonly Dictionary<Player, AttackMode> playerAttackModes = new();
+        private static readonly Dictionary<Player, Dictionary<AttackMode, float>> playerCooldowns = new();
+
+        // Attack mode management
+        public static void SetAttackMode(Player player, AttackMode mode)
         {
             if (player != null)
             {
-                playerExtraAttackStates[player] = isExtraAttack;
+                playerAttackModes[player] = mode;
             }
+        }
+
+        public static AttackMode GetAttackMode(Player player)
+        {
+            if (player != null && playerAttackModes.TryGetValue(player, out var mode))
+            {
+                return mode;
+            }
+            return AttackMode.Normal;
         }
 
         public static bool IsPlayerInExtraAttack(Player player)
         {
-            return player != null && playerExtraAttackStates.ContainsKey(player) && playerExtraAttackStates[player];
+            var mode = GetAttackMode(player);
+            return mode != AttackMode.Normal;
         }
 
-        public static bool IsPlayerOnCooldown(Player player)
+        // Cooldown management - per button
+        public static bool IsPlayerOnCooldown(Player player, AttackMode mode)
         {
-            return player != null && playerCooldowns.ContainsKey(player) && playerCooldowns[player] > Time.time;
-        }
+            if (player == null || mode == AttackMode.Normal)
+                return false;
 
-        public static float GetPlayerCooldownRemaining(Player player)
-        {
-            if (player != null && playerCooldowns.ContainsKey(player))
+            if (playerCooldowns.TryGetValue(player, out var cooldowns))
             {
-                return Mathf.Max(0f, playerCooldowns[player] - Time.time);
+                if (cooldowns.TryGetValue(mode, out float cooldownTime))
+                {
+                    return cooldownTime > Time.time;
+                }
+            }
+            return false;
+        }
+
+        public static float GetPlayerCooldownRemaining(Player player, AttackMode mode)
+        {
+            if (player == null || mode == AttackMode.Normal)
+                return 0f;
+
+            if (playerCooldowns.TryGetValue(player, out var cooldowns))
+            {
+                if (cooldowns.TryGetValue(mode, out float cooldownTime))
+                {
+                    return Mathf.Max(0f, cooldownTime - Time.time);
+                }
             }
             return 0f;
         }
 
-        public static void SetPlayerCooldown(Player player)
+        public static void SetPlayerCooldown(Player player, AttackMode mode)
         {
-            if (player != null)
+            if (player == null || mode == AttackMode.Normal)
+                return;
+
+            if (!playerCooldowns.ContainsKey(player))
             {
-                playerCooldowns[player] = Time.time + ExtraAttackPlugin.ExtraAttackCooldown.Value;
+                playerCooldowns[player] = new Dictionary<AttackMode, float>();
             }
+
+            // Get button-specific cooldown from config
+            float cooldownDuration = ExtraAttackPlugin.GetCooldown(mode);
+            playerCooldowns[player][mode] = Time.time + cooldownDuration;
         }
 
         public static void CleanupPlayer(Player player)
         {
             if (player != null)
             {
-                playerExtraAttackStates.Remove(player);
+                playerAttackModes.Remove(player);
                 playerCooldowns.Remove(player);
             }
         }

@@ -6,16 +6,10 @@
 		<Deterministic>true</Deterministic>
 	</PropertyGroup>
 	<ItemGroup>
-	  <None Remove="Resources\AssetBundles" />
-	  <None Remove="Resources\AssetBundles.manifest" />
-	  <None Remove="Resources\extraattack" />
-	  <None Remove="Resources\extraattack.manifest" />
-	</ItemGroup>
-	<ItemGroup>
-	  <EmbeddedResource Include="Resources\AssetBundles" />
-	  <EmbeddedResource Include="Resources\AssetBundles.manifest" />
-	  <EmbeddedResource Include="Resources\extraattack" />
-	  <EmbeddedResource Include="Resources\extraattack.manifest" />
+	  <EmbeddedResource Include="Resources\extraattacksystem" />
+	  <EmbeddedResource Include="Resources\extraattacksystem.manifest" />
+	  <EmbeddedResource Include="Resources\Resources" />
+	  <EmbeddedResource Include="Resources\Resources.manifest" />
 	</ItemGroup>
 
 	<ItemGroup>
@@ -71,26 +65,6 @@
 			<HintPath>D:\90_games\50_valheim_ori-mod\00_lib\UnityEngine.InputLegacyModule.dll</HintPath>
 			<Private>false</Private>
 		</Reference>
-	</ItemGroup>
-
-	<ItemGroup>
-	  <Compile Update="Properties\Resources.Designer.cs">
-	    <DesignTime>True</DesignTime>
-	    <AutoGen>True</AutoGen>
-	    <DependentUpon>Resources.resx</DependentUpon>
-	  </Compile>
-	  <Compile Update="Properties\Settings.Designer.cs">
-	    <DesignTimeSharedInput>True</DesignTimeSharedInput>
-	    <AutoGen>True</AutoGen>
-	    <DependentUpon>Settings.settings</DependentUpon>
-	  </Compile>
-	</ItemGroup>
-
-	<ItemGroup>
-	  <EmbeddedResource Update="Properties\Resources.resx">
-	    <Generator>ResXFileCodeGenerator</Generator>
-	    <LastGenOutput>Resources.Designer.cs</LastGenOutput>
-	  </EmbeddedResource>
 	</ItemGroup>
 
 	<ItemGroup>

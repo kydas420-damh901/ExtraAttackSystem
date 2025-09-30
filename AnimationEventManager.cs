@@ -10,7 +10,7 @@ namespace ExtraAttackSystem
         {
             if (clip == null)
             {
-                ExtraAttackPlugin.ExtraAttackLogger.LogWarning("Cannot add events: clip is null");
+                ExtraAttackPlugin.LogWarning("System", "Cannot add events: clip is null");
                 return;
             }
 
@@ -60,7 +60,7 @@ namespace ExtraAttackSystem
             // Apply events to clip
             clip.events = events.ToArray();
 
-            ExtraAttackPlugin.ExtraAttackLogger.LogInfo(
+            ExtraAttackPlugin.LogInfo("System",
                 $"Added {events.Count} AnimationEvents to [{clip.name}]: " +
                 $"TrailOn={trailOnTiming:F3}s, Hit={hitTiming:F3}s, TrailOff={trailOffTiming:F3}s");
         }
@@ -77,7 +77,7 @@ namespace ExtraAttackSystem
                 // Check if clip already has events
                 if (clip.events != null && clip.events.Length > 0)
                 {
-                    ExtraAttackPlugin.ExtraAttackLogger.LogInfo($"[{animName}] already has {clip.events.Length} events, skipping");
+                    ExtraAttackPlugin.LogInfo("System", $"[{animName}] already has {clip.events.Length} events, skipping");
                     continue;
                 }
 
@@ -85,7 +85,7 @@ namespace ExtraAttackSystem
                 count++;
             }
 
-            ExtraAttackPlugin.ExtraAttackLogger.LogInfo($"Added AnimationEvents to {count} clips");
+            ExtraAttackPlugin.LogInfo("System", $"Added AnimationEvents to {count} clips");
         }
     }
 }

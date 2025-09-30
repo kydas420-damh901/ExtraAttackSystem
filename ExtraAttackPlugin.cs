@@ -21,18 +21,39 @@ namespace ExtraAttackSystem
 
         internal static readonly ManualLogSource ExtraAttackLogger = BepInEx.Logging.Logger.CreateLogSource(PluginName);
 
-        // Configuration
+        // Configuration - Shortcut Keys
         public static ConfigEntry<KeyboardShortcut> ExtraAttackKey = null!;
-        public static ConfigEntry<float> ExtraAttackCooldown = null!;
-
-        // Test buttons for animation testing
         public static ConfigEntry<KeyboardShortcut> TestButton1 = null!;
         public static ConfigEntry<KeyboardShortcut> TestButton2 = null!;
 
-        // Debug configurations
+        // Configuration - Cooldowns
+        public static ConfigEntry<float> ExtraAttackQCooldown = null!;
+        public static ConfigEntry<float> ExtraAttackTCooldown = null!;
+        public static ConfigEntry<float> ExtraAttackGCooldown = null!;
+
+        // Debug configurations - Master switch
+        public static ConfigEntry<bool> DebugMasterSwitch = null!;
+
+        // Debug configurations - Individual categories
+        public static ConfigEntry<bool> DebugClipNames = null!;
         public static ConfigEntry<bool> DebugAnimationEvents = null!;
-        public static ConfigEntry<bool> DebugAnimationParameters = null!;
         public static ConfigEntry<bool> DebugAnimationClips = null!;
+        public static ConfigEntry<bool> DebugAnimationParameters = null!;
+        public static ConfigEntry<bool> DebugAttackTriggers = null!;
+        public static ConfigEntry<bool> DebugAOCOperations = null!;
+        public static ConfigEntry<bool> DebugDamageCalculation = null!;
+        public static ConfigEntry<bool> DebugSystemMessages = null!;
+
+        // Cached debug settings for performance
+        private static bool cachedDebugMaster = false;
+        private static bool cachedDebugClipNames = false;
+        private static bool cachedDebugAnimationEvents = false;
+        private static bool cachedDebugAnimationClips = false;
+        private static bool cachedDebugAnimationParameters = false;
+        private static bool cachedDebugAttackTriggers = false;
+        private static bool cachedDebugAOCOperations = false;
+        private static bool cachedDebugDamageCalculation = false;
+        private static bool cachedDebugSystemMessages = false;
 
         // Weapon balancing configurations
         public static readonly Dictionary<Skills.SkillType, WeaponBalancingConfig> BalancingMap = new();
@@ -74,43 +95,35 @@ namespace ExtraAttackSystem
             // Load assets
             AnimationManager.LoadAssets();
 
+            // Initialize animation timing config (load or create YAML)
+            AnimationTimingConfig.Initialize();
+
             // Apply patches
             ApplyPatches();
-
             ExtraAttackLogger.LogInfo($"{PluginName} has loaded!");
         }
 
         private void SetupConfiguration()
         {
-            ExtraAttackKey = Config.Bind("1 - General", "Extra Attack Key", new KeyboardShortcut(UnityEngine.KeyCode.Q),
-                "Key to trigger extra attack");
+            // ========================================================================
+            // 1 - SHORTCUT KEYS
+            // ========================================================================
 
-            ExtraAttackCooldown = Config.Bind("1 - General", "Extra Attack Cooldown", 2f,
-                "Cooldown between extra attacks in seconds");
+            ExtraAttackKey = Config.Bind("1 - Shortcut Keys", "Q Key - Extra Attack",
+                new KeyboardShortcut(UnityEngine.KeyCode.Q),
+                "Key to trigger extra attack (Secondary attack animation)");
 
-            // Test buttons
-            TestButton1 = Config.Bind("3 - Test", "Test Animation Button 1",
-                new KeyboardShortcut(UnityEngine.KeyCode.G),
-                "Key to test custom animation 1 (no gameplay effects)");
-
-            TestButton2 = Config.Bind("3 - Test", "Test Animation Button 2",
+            TestButton2 = Config.Bind("1 - Shortcut Keys", "T Key - Custom Attack 1",
                 new KeyboardShortcut(UnityEngine.KeyCode.T),
-                "Key to test custom animation 2 (no gameplay effects)");
+                "Key to trigger custom attack animation 1 (Primary attack animation)");
 
-            // Debug options
-            DebugAnimationEvents = Config.Bind("4 - Debug", "Debug Animation Events", false,
-                "Log detailed AnimationEvent information for secondary attack clips");
+            TestButton1 = Config.Bind("1 - Shortcut Keys", "G Key - Custom Attack 2",
+                new KeyboardShortcut(UnityEngine.KeyCode.G),
+                "Key to trigger custom attack animation 2 (Primary attack animation)");
 
-            DebugAnimationParameters = Config.Bind("4 - Debug", "Debug Animation Parameters", false,
-                "Log all Animator parameters");
-
-            DebugAnimationClips = Config.Bind("4 - Debug", "Debug Animation Clips", false,
-                "Log detailed AnimationClip information");
-
-            // Subscribe to setting changes for immediate output
-            DebugAnimationEvents.SettingChanged += OnDebugSettingChanged;
-            DebugAnimationParameters.SettingChanged += OnDebugSettingChanged;
-            DebugAnimationClips.SettingChanged += OnDebugSettingChanged;
+            // ========================================================================
+            // 2 - BALANCING
+            // ========================================================================
 
             // Initialize weapon type balancing configurations
             foreach (var kvp in defaultBalancing)
@@ -129,28 +142,71 @@ namespace ExtraAttackSystem
                 };
             }
 
+            // ========================================================================
+            // 3 - COOLDOWNS
+            // ========================================================================
+
+            ExtraAttackQCooldown = Config.Bind("3 - Cooldowns", "Q Key Cooldown", 3f,
+                "Cooldown for Q key extra attack (seconds)");
+
+            ExtraAttackTCooldown = Config.Bind("3 - Cooldowns", "T Key Cooldown", 2f,
+                "Cooldown for T key extra attack (seconds)");
+
+            ExtraAttackGCooldown = Config.Bind("3 - Cooldowns", "G Key Cooldown", 2f,
+                "Cooldown for G key extra attack (seconds)");
+
+            // ========================================================================
+            // 4 - DEBUG
+            // ========================================================================
+
+            // Debug master switch
+            DebugMasterSwitch = Config.Bind("4 - Debug", "0. Debug Master Switch", false,
+                "Enable/Disable ALL debug logging at once");
+            cachedDebugMaster = DebugMasterSwitch.Value;
+            DebugMasterSwitch.SettingChanged += (s, e) => cachedDebugMaster = DebugMasterSwitch.Value;
+
+            // Debug options - Individual categories
+            DebugClipNames = Config.Bind("4 - Debug", "1. Debug Clip Names", false,
+                "Log the actual clip names being played when pressing Q/T/G keys");
+            cachedDebugClipNames = DebugClipNames.Value;
+            DebugClipNames.SettingChanged += (s, e) => cachedDebugClipNames = DebugClipNames.Value;
+
+            DebugAnimationEvents = Config.Bind("4 - Debug", "2. Debug Animation Events", false,
+                "Log detailed AnimationEvent information when creating AOC");
+            cachedDebugAnimationEvents = DebugAnimationEvents.Value;
+            DebugAnimationEvents.SettingChanged += (s, e) => cachedDebugAnimationEvents = DebugAnimationEvents.Value;
+
+            DebugAnimationClips = Config.Bind("4 - Debug", "3. Debug Animation Clips", false,
+                "Log detailed AnimationClip information when creating AOC");
+            cachedDebugAnimationClips = DebugAnimationClips.Value;
+            DebugAnimationClips.SettingChanged += (s, e) => cachedDebugAnimationClips = DebugAnimationClips.Value;
+
+            DebugAnimationParameters = Config.Bind("4 - Debug", "4. Debug Animation Parameters", false,
+                "Log all Animator parameters during initialization");
+            cachedDebugAnimationParameters = DebugAnimationParameters.Value;
+            DebugAnimationParameters.SettingChanged += (s, e) => cachedDebugAnimationParameters = DebugAnimationParameters.Value;
+
+            DebugAttackTriggers = Config.Bind("4 - Debug", "5. Debug Attack Triggers", false,
+                "Log attack trigger detection (primary/secondary)");
+            cachedDebugAttackTriggers = DebugAttackTriggers.Value;
+            DebugAttackTriggers.SettingChanged += (s, e) => cachedDebugAttackTriggers = DebugAttackTriggers.Value;
+
+            DebugAOCOperations = Config.Bind("4 - Debug", "6. Debug AOC Operations", false,
+                "Log AOC creation, switching, and animation override operations");
+            cachedDebugAOCOperations = DebugAOCOperations.Value;
+            DebugAOCOperations.SettingChanged += (s, e) => cachedDebugAOCOperations = DebugAOCOperations.Value;
+
+            DebugDamageCalculation = Config.Bind("4 - Debug", "7. Debug Damage Calculation", false,
+                "Log damage multiplier application and restoration");
+            cachedDebugDamageCalculation = DebugDamageCalculation.Value;
+            DebugDamageCalculation.SettingChanged += (s, e) => cachedDebugDamageCalculation = DebugDamageCalculation.Value;
+
+            DebugSystemMessages = Config.Bind("4 - Debug", "8. Debug System Messages", false,
+                "Log initialization, caching, cleanup, and other system operations");
+            cachedDebugSystemMessages = DebugSystemMessages.Value;
+            DebugSystemMessages.SettingChanged += (s, e) => cachedDebugSystemMessages = DebugSystemMessages.Value;
+
             ExtraAttackLogger.LogInfo("Configuration initialized");
-        }
-
-        private static void OnDebugSettingChanged(object sender, EventArgs e)
-        {
-            // Get local player and animator
-            if (Player.m_localPlayer == null)
-            {
-                ExtraAttackLogger.LogWarning("Cannot output debug info: No local player found");
-                return;
-            }
-
-            var animator = AnimationManager.GetPlayerAnimator(Player.m_localPlayer);
-            if (animator == null)
-            {
-                ExtraAttackLogger.LogWarning("Cannot output debug info: Animator not found");
-                return;
-            }
-
-            // Output debug info based on current settings
-            ExtraAttackLogger.LogInfo("Debug setting changed - outputting debug info...");
-            AnimationManager.OutputDebugInfoOnDemand(animator);
         }
 
         private void ApplyPatches()
@@ -158,11 +214,11 @@ namespace ExtraAttackSystem
             try
             {
                 harmony.PatchAll();
-                ExtraAttackLogger.LogInfo("Harmony patches applied successfully");
+                LogInfo("System", "Harmony patches applied successfully");
             }
             catch (Exception ex)
             {
-                ExtraAttackLogger.LogError($"Failed to apply Harmony patches: {ex.Message}");
+                LogError("System", $"Failed to apply Harmony patches: {ex.Message}");
             }
         }
 
@@ -177,6 +233,17 @@ namespace ExtraAttackSystem
         public static bool IsTestButton1Pressed() => TestButton1.Value.IsDown();
         public static bool IsTestButton2Pressed() => TestButton2.Value.IsDown();
 
+        public static float GetCooldown(ExtraAttackUtils.AttackMode mode)
+        {
+            return mode switch
+            {
+                ExtraAttackUtils.AttackMode.ExtraQ => ExtraAttackQCooldown.Value,
+                ExtraAttackUtils.AttackMode.ExtraT => ExtraAttackTCooldown.Value,
+                ExtraAttackUtils.AttackMode.ExtraG => ExtraAttackGCooldown.Value,
+                _ => 2f
+            };
+        }
+
         public static float GetDamageMultiplier(Skills.SkillType skillType)
         {
             return BalancingMap.TryGetValue(skillType, out var config) ? config.damageMultiplier.Value : 1.5f;
@@ -190,6 +257,59 @@ namespace ExtraAttackSystem
         public static float GetAnimationSpeed(Skills.SkillType skillType)
         {
             return BalancingMap.TryGetValue(skillType, out var config) ? config.animationSpeed.Value : 1.3f;
+        }
+
+        // Debug logging helper methods - Using cached values for performance
+        public static void LogInfo(string category, string message)
+        {
+            if (!cachedDebugMaster) return;
+
+            bool shouldLog = category switch
+            {
+                "ClipNames" => cachedDebugClipNames,
+                "AnimationEvents" => cachedDebugAnimationEvents,
+                "AnimationClips" => cachedDebugAnimationClips,
+                "AnimationParameters" => cachedDebugAnimationParameters,
+                "AttackTriggers" => cachedDebugAttackTriggers,
+                "AOC" => cachedDebugAOCOperations,
+                "Damage" => cachedDebugDamageCalculation,
+                "System" => cachedDebugSystemMessages,
+                _ => false
+            };
+
+            if (shouldLog)
+            {
+                ExtraAttackLogger.LogInfo(message);
+            }
+        }
+
+        public static void LogWarning(string category, string message)
+        {
+            if (!cachedDebugMaster) return;
+
+            bool shouldLog = category switch
+            {
+                "ClipNames" => cachedDebugClipNames,
+                "AnimationEvents" => cachedDebugAnimationEvents,
+                "AnimationClips" => cachedDebugAnimationClips,
+                "AnimationParameters" => cachedDebugAnimationParameters,
+                "AttackTriggers" => cachedDebugAttackTriggers,
+                "AOC" => cachedDebugAOCOperations,
+                "Damage" => cachedDebugDamageCalculation,
+                "System" => cachedDebugSystemMessages,
+                _ => true // Warnings always show if master is on
+            };
+
+            if (shouldLog)
+            {
+                ExtraAttackLogger.LogWarning(message);
+            }
+        }
+
+        public static void LogError(string category, string message)
+        {
+            // Errors always log regardless of debug settings
+            ExtraAttackLogger.LogError(message);
         }
     }
 }
