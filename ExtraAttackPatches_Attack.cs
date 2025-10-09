@@ -1,6 +1,7 @@
-﻿using HarmonyLib;
+using HarmonyLib;
 using System;
 using System.Collections.Generic;
+using UnityEngine;
 
 namespace ExtraAttackSystem
 {
@@ -36,51 +37,43 @@ namespace ExtraAttackSystem
 
                         if (attackMode != ExtraAttackUtils.AttackMode.Normal)
                         {
-                            if (ExtraAttackPatches_Core.TryGetPlayerAnimator(player, out UnityEngine.Animator animator))
+                            if (ExtraAttackPatches_Core.TryGetCurrentClipInfo(player, out string clipName, out AnimationClip clip, out int hitIndex))
                             {
-                                UnityEngine.AnimatorClipInfo[] clipInfos = animator.GetCurrentAnimatorClipInfo(0);
-                                if (clipInfos.Length > 0)
+                                string configKey = ExtraAttackPatches_Core.BuildConfigKey(player, clipName, hitIndex);
+                                var timing = AnimationTimingConfig.GetTiming(configKey);
+
+                                if (!timing.EnableHit)
                                 {
-                                    string clipName = clipInfos[0].clip.name;
-                                    UnityEngine.AnimationClip clip = clipInfos[0].clip;
-
-                                    int hitIndex = GetCurrentHitIndex(animator, clip);
-                                    string configKey = BuildConfigKey(player, clipName, hitIndex);
-                                    var timing = AnimationTimingConfig.GetTiming(configKey);
-
-                                    if (timing.AttackRange <= 0f || timing.AttackAngle <= 0f)
-                                    {
-                                        ExtraAttackPlugin.LogInfo("AOC",
-                                            $"Skipped DoMeleeAttack: [{configKey}] has Range={timing.AttackRange:F2} or Angle={timing.AttackAngle:F1}");
-                                        return false;
-                                    }
-
-                                    originalParams[__instance] = new AttackParams
-                                    {
-                                        attackRange = __instance.m_attackRange,
-                                        attackHeight = __instance.m_attackHeight,
-                                        attackOffset = __instance.m_attackOffset,
-                                        attackAngle = __instance.m_attackAngle,
-                                        attackRayWidth = __instance.m_attackRayWidth,
-                                        attackRayWidthCharExtra = __instance.m_attackRayWidthCharExtra,
-                                        attackHeightChar1 = __instance.m_attackHeightChar1,
-                                        attackHeightChar2 = __instance.m_attackHeightChar2,
-                                        maxYAngle = __instance.m_maxYAngle
-                                    };
-
-                                    __instance.m_attackRange = timing.AttackRange;
-                                    __instance.m_attackHeight = timing.AttackHeight;
-                                    __instance.m_attackOffset = timing.AttackOffset;
-                                    __instance.m_attackAngle = timing.AttackAngle;
-                                    __instance.m_attackRayWidth = timing.AttackRayWidth;
-                                    __instance.m_attackRayWidthCharExtra = timing.AttackRayWidthCharExtra;
-                                    __instance.m_attackHeightChar1 = timing.AttackHeightChar1;
-                                    __instance.m_attackHeightChar2 = timing.AttackHeightChar2;
-                                    __instance.m_maxYAngle = timing.MaxYAngle;
-
                                     ExtraAttackPlugin.LogInfo("AOC",
-                                        $"Applied attack params from YAML: [{configKey}] Range={timing.AttackRange:F2}, Height={timing.AttackHeight:F2}, Angle={timing.AttackAngle:F1}");
+                                        $"Skipped DoMeleeAttack: [{configKey}] EnableHit=false");
+                                    return false;
                                 }
+
+                                originalParams[__instance] = new AttackParams
+                                {
+                                    attackRange = __instance.m_attackRange,
+                                    attackHeight = __instance.m_attackHeight,
+                                    attackOffset = __instance.m_attackOffset,
+                                    attackAngle = __instance.m_attackAngle,
+                                    attackRayWidth = __instance.m_attackRayWidth,
+                                    attackRayWidthCharExtra = __instance.m_attackRayWidthCharExtra,
+                                    attackHeightChar1 = __instance.m_attackHeightChar1,
+                                    attackHeightChar2 = __instance.m_attackHeightChar2,
+                                    maxYAngle = __instance.m_maxYAngle
+                                };
+
+                                __instance.m_attackRange = timing.AttackRange;
+                                __instance.m_attackHeight = timing.AttackHeight;
+                                __instance.m_attackOffset = timing.AttackOffset;
+                                __instance.m_attackAngle = timing.AttackAngle;
+                                __instance.m_attackRayWidth = timing.AttackRayWidth;
+                                __instance.m_attackRayWidthCharExtra = timing.AttackRayWidthCharExtra;
+                                __instance.m_attackHeightChar1 = timing.AttackHeightChar1;
+                                __instance.m_attackHeightChar2 = timing.AttackHeightChar2;
+                                __instance.m_maxYAngle = timing.MaxYAngle;
+
+                                ExtraAttackPlugin.LogInfo("AOC",
+                                    $"Applied attack params from YAML: [{configKey}] Range={timing.AttackRange:F2}, Height={timing.AttackHeight:F2}, Angle={timing.AttackAngle:F1}");
                             }
                         }
                     }
@@ -120,69 +113,105 @@ namespace ExtraAttackSystem
                 }
             }
 
-            private static string BuildConfigKey(Player player, string clipName, int hitIndex)
+            // Use centralized GetCurrentHitIndex from ExtraAttackPatches_Core
+        }
+        [HarmonyPatch(typeof(Attack), "GetAttackStamina")]
+        public static class Attack_GetAttackStamina_Postfix
+        {
+            public static void Postfix(Attack __instance, ref float __result, Humanoid ___m_character, ItemDrop.ItemData ___m_weapon)
             {
                 try
                 {
-                    var attackMode = ExtraAttackUtils.GetAttackMode(player);
-                    string modeSuffix = attackMode switch
-                    {
-                        ExtraAttackUtils.AttackMode.ExtraQ => "_Q",
-                        ExtraAttackUtils.AttackMode.ExtraT => "_T",
-                        ExtraAttackUtils.AttackMode.ExtraG => "_G",
-                        _ => ""
-                    };
+                    if (__instance == null || ___m_character == null)
+                        return;
 
-                    string key1 = $"{clipName}{modeSuffix}_hit{hitIndex}";
-                    string key2 = $"{clipName}{modeSuffix}";
-                    string key3 = $"{clipName}_hit{hitIndex}";
-                    string key4 = clipName;
+                    var player = ___m_character as Player;
+                    if (player == null || player != Player.m_localPlayer)
+                        return;
 
-                    if (AnimationTimingConfig.HasConfig(key1)) return key1;
-                    if (AnimationTimingConfig.HasConfig(key2)) return key2;
-                    if (AnimationTimingConfig.HasConfig(key3)) return key3;
-                    if (AnimationTimingConfig.HasConfig(key4)) return key4;
+                    var mode = ExtraAttackUtils.GetAttackMode(player);
+                    if (mode == ExtraAttackUtils.AttackMode.Normal)
+                        return;
 
-                    return clipName;
+                    var weapon = ___m_weapon;
+                    if (weapon == null)
+                        return;
+
+                    float cost = ExtraAttackUtils.GetEffectiveStaminaCost(__instance, player, weapon, mode);
+                    __result = cost;
                 }
-                catch (Exception ex)
+                catch (System.Exception ex)
                 {
-                    ExtraAttackPlugin.LogError("System", $"Error in BuildConfigKey: {ex.Message}");
-                    return clipName;
+                    ExtraAttackPlugin.LogError("System", $"Error in GetAttackStamina Postfix: {ex.Message}");
                 }
             }
-
-            private static int GetCurrentHitIndex(UnityEngine.Animator animator, UnityEngine.AnimationClip clip)
+        }
+        [HarmonyPatch(typeof(Attack), nameof(Attack.Stop))]
+        public static class Attack_Stop_RevertAOC_Postfix
+        {
+            public static void Postfix(Attack __instance, Character ___m_character)
             {
                 try
                 {
-                    var stateInfo = animator.GetCurrentAnimatorStateInfo(0);
-                    float normalizedTime = stateInfo.normalizedTime % 1f;
-                    float currentTime = normalizedTime * clip.length;
-
-                    float closestTimeDiff = float.MaxValue;
-                    int hitIndex = 0;
-
-                    foreach (var evt in clip.events)
+                    if (__instance == null || ___m_character == null)
                     {
-                        if (evt.functionName == "OnAttackTrigger")
-                        {
-                            float timeDiff = UnityEngine.Mathf.Abs(evt.time - currentTime);
+                        return;
+                    }
 
-                            if (timeDiff < closestTimeDiff && timeDiff < 0.1f)
+                    var player = ___m_character as Player;
+                    if (player == null || player != Player.m_localPlayer)
+                    {
+                        return;
+                    }
+
+                    // Only handle when in our extra attack modes
+                    if (!ExtraAttackUtils.IsPlayerInExtraAttack(player))
+                    {
+                        return;
+                    }
+
+                    // Obtain animator and revert safely when root motion is settled
+                    if (ExtraAttackPatches_Core.TryGetPlayerAnimator(player, out Animator animator) && animator != null)
+                    {
+                        bool settled = true;
+                        try { settled = Character_AddRootMotion_Log_Patch.IsRootMotionSettled(player); } catch { }
+                        if (!settled)
+                        {
+                            if (ExtraAttackPlugin.DebugAOCOperations.Value)
                             {
-                                closestTimeDiff = timeDiff;
-                                hitIndex = evt.intParameter;
+                                ExtraAttackPlugin.LogInfo("AOC", "Attack.Stop: defer revert due to root motion not settled");
+                            }
+                            return; // Defer to Player.Update revert path
+                        }
+
+                        // AOC is now set at equipment change time - no need to revert
+                        // ExtraAttackPatches_Animation.RevertStyleAOC(player, animator);
+                        
+                        // ❌ 削除: Attack.Stopでのモードリセットを削除
+                        // 理由: 次の攻撃のモード設定より先に呼ばれるため、カスタムアニメが失われる
+                        // ExtraAttackUtils.SetAttackMode(player, ExtraAttackUtils.AttackMode.Normal);
+                        // ExtraAttackPlugin.LogInfo("AOC", "Attack.Stop: reset mode to Normal");
+
+                        // Class: ExtraAttackPatches_Attack
+                        // 例: 攻撃終了時の emote_stop ガード開始処理の周辺
+                        if (!ExtraAttackPlugin.AreGuardsDisabled() && ExtraAttackPlugin.EnablePostAttackEmoteStopGuard.Value)
+                        {
+                        // 既存のポスト攻撃ガード処理（タイマー開始など）
+                            float guardSec = Math.Max(0f, ExtraAttackPlugin.PostAttackEmoteStopGuardSeconds.Value);
+                            if (guardSec > 0f)
+                            {
+                                ExtraAttackUtils.SetEmoteStopGuardWindow(player, guardSec);
+                                if (ExtraAttackPlugin.DebugAOCOperations.Value)
+                                {
+                                    ExtraAttackPlugin.LogInfo("AOC", $"PostAttack emote_stop guard started: {guardSec:F2}s");
+                                }
                             }
                         }
                     }
-
-                    return hitIndex;
                 }
                 catch (Exception ex)
                 {
-                    ExtraAttackPlugin.LogError("System", $"Error in GetCurrentHitIndex: {ex.Message}");
-                    return 0;
+                    ExtraAttackPlugin.LogError("System", $"Error in Attack.Stop Postfix: {ex.Message}");
                 }
             }
         }

@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace ExtraAttackSystem
@@ -16,11 +16,14 @@ namespace ExtraAttackSystem
 
             float clipLength = clip.length;
 
-            // Calculate timing based on clip length
-            // Hit should occur around 40-50% through the animation
-            float hitTiming = clipLength * 0.45f;
-            float trailOnTiming = clipLength * 0.35f;
-            float trailOffTiming = clipLength * 0.70f;
+            // Resolve YAML config key from ReplacementMap (vanilla name + style suffix), fallback to clip.name
+            string configKey = ResolveConfigKeyForClip(clip) ?? clip.name;
+            var timing = AnimationTimingConfig.GetTiming(configKey);
+
+            // Calculate timing based on YAML (0.0~1.0 normalized)
+            float hitTiming = clipLength * Mathf.Clamp01(timing.HitTiming);
+            float trailOnTiming = clipLength * Mathf.Clamp01(timing.TrailOnTiming);
+            float trailOffTiming = clipLength * Mathf.Clamp01(timing.TrailOffTiming);
 
             List<AnimationEvent> events = new List<AnimationEvent>();
 
@@ -61,7 +64,7 @@ namespace ExtraAttackSystem
             clip.events = events.ToArray();
 
             ExtraAttackPlugin.LogInfo("System",
-                $"Added {events.Count} AnimationEvents to [{clip.name}]: " +
+                $"Added {events.Count} AnimationEvents to [{clip.name}] using YAML key [{configKey}]: " +
                 $"TrailOn={trailOnTiming:F3}s, Hit={hitTiming:F3}s, TrailOff={trailOffTiming:F3}s");
         }
 
@@ -73,19 +76,61 @@ namespace ExtraAttackSystem
             {
                 string animName = kvp.Key;
                 AnimationClip clip = kvp.Value;
-
-                // Check if clip already has events
-                if (clip.events != null && clip.events.Length > 0)
+        
+                // If YAML key can be resolved, always (re)apply events to match config
+                string? configKey = ResolveConfigKeyForClip(clip);
+                if (configKey != null)
                 {
-                    ExtraAttackPlugin.LogInfo("System", $"[{animName}] already has {clip.events.Length} events, skipping");
+                    AddAnimationEvents(clip);
+                    count++;
                     continue;
                 }
-
+        
+                // Fallback: if clip already has events, keep them; otherwise add default events
+                if (clip.events != null && clip.events.Length > 0)
+                {
+                    ExtraAttackPlugin.LogInfo("System", $"[{animName}] already has {clip.events.Length} events, keeping existing (no YAML match)");
+                    continue;
+                }
+        
                 AddAnimationEvents(clip);
                 count++;
             }
-
-            ExtraAttackPlugin.LogInfo("System", $"Added AnimationEvents to {count} clips");
+        
+            ExtraAttackPlugin.LogInfo("System", $"Added/updated AnimationEvents on {count} clips");
+        }
+        
+        // Resolve YAML key from ReplacementMap by reverse lookup of external clip name
+        // Returns "VanillaClip_secondary_Q/T/G" when found; otherwise null
+        private static string? ResolveConfigKeyForClip(AnimationClip clip)
+        {
+            if (clip == null) return null;
+            string externalName = clip.name;
+        
+            foreach (var entry in AnimationManager.ReplacementMap)
+            {
+                string mapKey = entry.Key;
+                string? suffix = null;
+                if (mapKey.StartsWith("ea_secondary_Q", System.StringComparison.Ordinal)) suffix = "secondary_Q";
+                else if (mapKey.StartsWith("ea_secondary_T", System.StringComparison.Ordinal)) suffix = "secondary_T";
+                else if (mapKey.StartsWith("ea_secondary_G", System.StringComparison.Ordinal)) suffix = "secondary_G";
+                else continue; // ignore legacy style maps here
+        
+                foreach (var kv in entry.Value)
+                {
+                    if (kv.Value == externalName)
+                    {
+                        string vanillaName = kv.Key;
+                        string cfg = $"{vanillaName}_{suffix!}";
+                        if (AnimationTimingConfig.HasConfig(cfg))
+                        {
+                            return cfg;
+                        }
+                    }
+                }
+            }
+        
+            return null;
         }
     }
 }

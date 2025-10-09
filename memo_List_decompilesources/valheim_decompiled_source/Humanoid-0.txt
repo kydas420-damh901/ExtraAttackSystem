@@ -1,0 +1,1250 @@
+using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Linq;
+using UnityEngine;
+
+// Token: 0x02000035 RID: 53
+public class Humanoid : Character
+{
+	// Token: 0x060002AF RID: 687 RVA: 0x00037710 File Offset: 0x00035910
+	protected override void Awake()
+	{
+		base.Awake();
+		this.m_visEquipment = base.GetComponent<VisEquipment>();
+		if (!this.m_nview.IsValid())
+		{
+			return;
+		}
+		this.m_seed = this.m_nview.GetZDO().GetInt(ZDOVars.s_seed, 0);
+		if (this.m_seed == 0)
+		{
+			this.m_seed = this.m_nview.GetZDO().m_uid.GetHashCode();
+			this.m_nview.GetZDO().Set(ZDOVars.s_seed, this.m_seed, true);
+		}
+	}
+
+	// Token: 0x060002B0 RID: 688 RVA: 0x0000C767 File Offset: 0x0000A967
+	protected override void Start()
+	{
+		if (!this.IsPlayer())
+		{
+			this.GiveDefaultItems();
+		}
+	}
+
+	// Token: 0x060002B1 RID: 689 RVA: 0x0000C777 File Offset: 0x0000A977
+	protected override void OnDestroy()
+	{
+		base.OnDestroy();
+	}
+
+	// Token: 0x060002B2 RID: 690 RVA: 0x000377A0 File Offset: 0x000359A0
+	public void GiveDefaultItems()
+	{
+		foreach (GameObject prefab in this.m_defaultItems)
+		{
+			this.GiveDefaultItem(prefab);
+		}
+		if (this.m_randomWeapon.Length != 0 || this.m_randomArmor.Length != 0 || this.m_randomShield.Length != 0 || this.m_randomSets.Length != 0 || this.m_randomItems.Length != 0)
+		{
+			UnityEngine.Random.State state = UnityEngine.Random.state;
+			UnityEngine.Random.InitState(this.m_seed);
+			if (this.m_randomShield.Length != 0)
+			{
+				GameObject gameObject = this.m_randomShield[UnityEngine.Random.Range(0, this.m_randomShield.Length)];
+				if (gameObject)
+				{
+					this.GiveDefaultItem(gameObject);
+				}
+			}
+			if (this.m_randomWeapon.Length != 0)
+			{
+				GameObject gameObject2 = this.m_randomWeapon[UnityEngine.Random.Range(0, this.m_randomWeapon.Length)];
+				if (gameObject2)
+				{
+					this.GiveDefaultItem(gameObject2);
+				}
+			}
+			if (this.m_randomArmor.Length != 0)
+			{
+				GameObject gameObject3 = this.m_randomArmor[UnityEngine.Random.Range(0, this.m_randomArmor.Length)];
+				if (gameObject3)
+				{
+					this.GiveDefaultItem(gameObject3);
+				}
+			}
+			if (this.m_randomSets.Length != 0)
+			{
+				foreach (GameObject prefab2 in this.m_randomSets[UnityEngine.Random.Range(0, this.m_randomSets.Length)].m_items)
+				{
+					this.GiveDefaultItem(prefab2);
+				}
+			}
+			if (this.m_randomItems.Length != 0)
+			{
+				int num = (int)Enum.GetValues(typeof(ItemDrop.ItemData.ItemType)).Cast<ItemDrop.ItemData.ItemType>().Max<ItemDrop.ItemData.ItemType>();
+				this.m_randomItemSlotFilled = new bool[num];
+				foreach (Humanoid.RandomItem randomItem in this.m_randomItems)
+				{
+					if (randomItem.m_prefab && UnityEngine.Random.value > randomItem.m_chance)
+					{
+						int itemType = (int)randomItem.m_prefab.GetComponent<ItemDrop>().m_itemData.m_shared.m_itemType;
+						if (!this.m_randomItemSlotFilled[itemType])
+						{
+							this.m_randomItemSlotFilled[itemType] = true;
+							this.GiveDefaultItem(randomItem.m_prefab);
+						}
+					}
+				}
+			}
+			UnityEngine.Random.state = state;
+		}
+	}
+
+	// Token: 0x060002B3 RID: 691 RVA: 0x00037994 File Offset: 0x00035B94
+	private void GiveDefaultItem(GameObject prefab)
+	{
+		ItemDrop.ItemData itemData = this.PickupPrefab(prefab, 0, false);
+		if (itemData != null && !itemData.IsWeapon())
+		{
+			this.EquipItem(itemData, false);
+		}
+	}
+
+	// Token: 0x060002B4 RID: 692 RVA: 0x0000C77F File Offset: 0x0000A97F
+	public override void CustomFixedUpdate(float fixedDeltaTime)
+	{
+		if (!this.m_nview.IsValid())
+		{
+			return;
+		}
+		if (this.m_nview.IsOwner())
+		{
+			this.UpdateAttack(fixedDeltaTime);
+			this.UpdateEquipment(fixedDeltaTime);
+			this.UpdateBlock(fixedDeltaTime);
+		}
+		this.UpdateUseVisual(fixedDeltaTime);
+		base.CustomFixedUpdate(fixedDeltaTime);
+	}
+
+	// Token: 0x060002B5 RID: 693 RVA: 0x0000C7BF File Offset: 0x0000A9BF
+	public override bool InAttack()
+	{
+		return base.GetNextAnimHash() == Humanoid.s_animatorTagAttack || base.GetCurrentAnimHash() == Humanoid.s_animatorTagAttack;
+	}
+
+	// Token: 0x060002B6 RID: 694 RVA: 0x000379C0 File Offset: 0x00035BC0
+	public override bool StartAttack(Character target, bool secondaryAttack)
+	{
+		if ((this.InAttack() && !this.HaveQueuedChain()) || this.InDodge() || !this.CanMove() || base.IsKnockedBack() || base.IsStaggering() || this.InMinorAction())
+		{
+			return false;
+		}
+		ItemDrop.ItemData currentWeapon = this.GetCurrentWeapon();
+		if (currentWeapon == null)
+		{
+			return false;
+		}
+		if (secondaryAttack && !currentWeapon.HaveSecondaryAttack())
+		{
+			return false;
+		}
+		if (!secondaryAttack && !currentWeapon.HavePrimaryAttack())
+		{
+			return false;
+		}
+		if (this.m_currentAttack != null)
+		{
+			this.m_currentAttack.Stop();
+			this.m_previousAttack = this.m_currentAttack;
+			this.m_currentAttack = null;
+		}
+		Attack attack = secondaryAttack ? currentWeapon.m_shared.m_secondaryAttack.Clone() : currentWeapon.m_shared.m_attack.Clone();
+		if (attack.Start(this, this.m_body, this.m_zanim, this.m_animEvent, this.m_visEquipment, currentWeapon, this.m_previousAttack, this.m_timeSinceLastAttack, this.GetAttackDrawPercentage()))
+		{
+			this.ClearActionQueue();
+			this.StartAttackGroundCheck();
+			this.m_currentAttack = attack;
+			this.m_currentAttackIsSecondary = secondaryAttack;
+			this.m_lastCombatTimer = 0f;
+			return true;
+		}
+		return false;
+	}
+
+	// Token: 0x060002B7 RID: 695 RVA: 0x00037ADC File Offset: 0x00035CDC
+	private void StartAttackGroundCheck()
+	{
+		if (!this.IsPlayer())
+		{
+			return;
+		}
+		Collider lastGroundCollider = base.GetLastGroundCollider();
+		if (!lastGroundCollider)
+		{
+			return;
+		}
+		int layer = lastGroundCollider.gameObject.layer;
+		int num = Character.s_groundRayMask | Character.s_characterLayerMask;
+		if (num == (num | 1 << layer))
+		{
+			this.m_lastGroundColliderOnAttackStart = layer;
+		}
+	}
+
+	// Token: 0x060002B8 RID: 696 RVA: 0x0000C7DD File Offset: 0x0000A9DD
+	private IEnumerator EndAttackGroundCheck()
+	{
+		if (!this.IsPlayer())
+		{
+			yield break;
+		}
+		yield return new WaitForSeconds(0.03f);
+		Collider lastGroundCollider = base.GetLastGroundCollider();
+		if (!lastGroundCollider)
+		{
+			yield break;
+		}
+		int layer = lastGroundCollider.gameObject.layer;
+		bool flag = Character.s_characterLayerMask == (Character.s_characterLayerMask | 1 << layer);
+		bool flag2 = Character.s_characterLayerMask == (Character.s_characterLayerMask | 1 << this.m_lastGroundColliderOnAttackStart);
+		if (this.m_lastGroundColliderOnAttackStart != layer)
+		{
+			if (flag && flag2)
+			{
+				yield break;
+			}
+			if (Character.s_characterLayerMask == (Character.s_characterLayerMask | 1 << layer))
+			{
+				base.TimeoutGroundForce(2f);
+			}
+		}
+		yield break;
+	}
+
+	// Token: 0x060002B9 RID: 697 RVA: 0x0000C7EC File Offset: 0x0000A9EC
+	public override float GetTimeSinceLastAttack()
+	{
+		return this.m_timeSinceLastAttack;
+	}
+
+	// Token: 0x060002BA RID: 698 RVA: 0x00037B2C File Offset: 0x00035D2C
+	public float GetAttackDrawPercentage()
+	{
+		ItemDrop.ItemData currentWeapon = this.GetCurrentWeapon();
+		if (currentWeapon == null || !currentWeapon.m_shared.m_attack.m_bowDraw || this.m_attackDrawTime <= 0f)
+		{
+			return 0f;
+		}
+		float skillFactor = this.GetSkillFactor(currentWeapon.m_shared.m_skillType);
+		float num = Mathf.Lerp(currentWeapon.m_shared.m_attack.m_drawDurationMin, currentWeapon.m_shared.m_attack.m_drawDurationMin * 0.2f, skillFactor);
+		if (num <= 0f)
+		{
+			return 1f;
+		}
+		return Mathf.Clamp01(this.m_attackDrawTime / num);
+	}
+
+	// Token: 0x060002BB RID: 699 RVA: 0x00037BC4 File Offset: 0x00035DC4
+	private void UpdateEquipment(float dt)
+	{
+		if (!this.IsPlayer())
+		{
+			return;
+		}
+		if (base.IsSwimming() && !base.IsOnGround())
+		{
+			this.HideHandItems(false, true);
+		}
+		if (this.m_rightItem != null && this.m_rightItem.m_shared.m_useDurability)
+		{
+			this.DrainEquipedItemDurability(this.m_rightItem, dt);
+		}
+		if (this.m_leftItem != null && this.m_leftItem.m_shared.m_useDurability)
+		{
+			this.DrainEquipedItemDurability(this.m_leftItem, dt);
+		}
+		if (this.m_chestItem != null && this.m_chestItem.m_shared.m_useDurability)
+		{
+			this.DrainEquipedItemDurability(this.m_chestItem, dt);
+		}
+		if (this.m_legItem != null && this.m_legItem.m_shared.m_useDurability)
+		{
+			this.DrainEquipedItemDurability(this.m_legItem, dt);
+		}
+		if (this.m_helmetItem != null && this.m_helmetItem.m_shared.m_useDurability)
+		{
+			this.DrainEquipedItemDurability(this.m_helmetItem, dt);
+		}
+		if (this.m_shoulderItem != null && this.m_shoulderItem.m_shared.m_useDurability)
+		{
+			this.DrainEquipedItemDurability(this.m_shoulderItem, dt);
+		}
+		if (this.m_utilityItem != null && this.m_utilityItem.m_shared.m_useDurability)
+		{
+			this.DrainEquipedItemDurability(this.m_utilityItem, dt);
+		}
+		if (this.m_trinketItem != null && this.m_trinketItem.m_shared.m_useDurability)
+		{
+			this.DrainEquipedItemDurability(this.m_trinketItem, dt);
+		}
+	}
+
+	// Token: 0x060002BC RID: 700 RVA: 0x00037D2C File Offset: 0x00035F2C
+	private void UpdateUseVisual(float dt)
+	{
+		if (this.m_useItemTime > 0f)
+		{
+			this.m_useItemTime -= dt;
+			if (this.m_useItemTime <= 0f)
+			{
+				if (this.m_useItemVisual != null)
+				{
+					this.m_useItemVisual.m_equipEffect.Create(this.m_visEquipment.m_rightHand.position, this.m_visEquipment.m_rightHand.rotation, null, 1f, -1);
+				}
+				this.m_visEquipment.SetRightItemVisual(null);
+				this.m_useItemVisual = null;
+				if (this.m_hidHandsOnEat)
+				{
+					this.ShowHandItems(true, false);
+				}
+			}
+		}
+	}
+
+	// Token: 0x060002BD RID: 701 RVA: 0x00037DC4 File Offset: 0x00035FC4
+	private void DrainEquipedItemDurability(ItemDrop.ItemData item, float dt)
+	{
+		item.m_durability -= item.m_shared.m_durabilityDrain * dt;
+		if (item.m_durability > 0f)
+		{
+			return;
+		}
+		this.Message(MessageHud.MessageType.TopLeft, Localization.instance.Localize("$msg_broke", new string[]
+		{
+			item.m_shared.m_name
+		}), 0, item.GetIcon());
+		this.UnequipItem(item, false);
+		if (item.m_shared.m_destroyBroken)
+		{
+			this.m_inventory.RemoveItem(item);
+		}
+	}
+
+	// Token: 0x060002BE RID: 702 RVA: 0x0000C7F4 File Offset: 0x0000A9F4
+	protected override void OnDamaged(HitData hit)
+	{
+		this.SetCrouch(false);
+	}
+
+	// Token: 0x060002BF RID: 703 RVA: 0x00037E50 File Offset: 0x00036050
+	public ItemDrop.ItemData GetCurrentWeapon()
+	{
+		if (this.m_rightItem != null && this.m_rightItem.IsWeapon())
+		{
+			return this.m_rightItem;
+		}
+		if (this.m_leftItem != null && this.m_leftItem.IsWeapon() && this.m_leftItem.m_shared.m_itemType != ItemDrop.ItemData.ItemType.Torch)
+		{
+			return this.m_leftItem;
+		}
+		if (this.m_unarmedWeapon)
+		{
+			return this.m_unarmedWeapon.m_itemData;
+		}
+		return null;
+	}
+
+	// Token: 0x060002C0 RID: 704 RVA: 0x0000C7FD File Offset: 0x0000A9FD
+	private ItemDrop.ItemData GetCurrentBlocker()
+	{
+		if (this.m_leftItem != null)
+		{
+			return this.m_leftItem;
+		}
+		return this.GetCurrentWeapon();
+	}
+
+	// Token: 0x060002C1 RID: 705 RVA: 0x00037EC4 File Offset: 0x000360C4
+	private void UpdateAttack(float dt)
+	{
+		this.m_lastCombatTimer += dt;
+		if (this.m_currentAttack != null && this.GetCurrentWeapon() != null)
+		{
+			this.m_currentAttack.Update(dt);
+		}
+		if (this.InAttack())
+		{
+			this.m_timeSinceLastAttack = 0f;
+			return;
+		}
+		this.m_timeSinceLastAttack += dt;
+	}
+
+	// Token: 0x060002C2 RID: 706 RVA: 0x0000C814 File Offset: 0x0000AA14
+	protected override float GetAttackSpeedFactorMovement()
+	{
+		if (!this.InAttack() || this.m_currentAttack == null)
+		{
+			return 1f;
+		}
+		if (!base.IsFlying() && !base.IsOnGround())
+		{
+			return 1f;
+		}
+		return this.m_currentAttack.m_speedFactor;
+	}
+
+	// Token: 0x060002C3 RID: 707 RVA: 0x0000C84D File Offset: 0x0000AA4D
+	protected override float GetAttackSpeedFactorRotation()
+	{
+		if (this.InAttack() && this.m_currentAttack != null)
+		{
+			return this.m_currentAttack.m_speedFactorRotation;
+		}
+		return 1f;
+	}
+
+	// Token: 0x060002C4 RID: 708 RVA: 0x0000B5B3 File Offset: 0x000097B3
+	protected virtual bool HaveQueuedChain()
+	{
+		return false;
+	}
+
+	// Token: 0x060002C5 RID: 709 RVA: 0x0000C870 File Offset: 0x0000AA70
+	public override void OnWeaponTrailStart()
+	{
+		if (this.m_nview.IsValid() && this.m_nview.IsOwner() && this.m_currentAttack != null && this.GetCurrentWeapon() != null)
+		{
+			this.m_currentAttack.OnTrailStart();
+		}
+	}
+
+	// Token: 0x060002C6 RID: 710 RVA: 0x00037F20 File Offset: 0x00036120
+	public override void OnAttackTrigger()
+	{
+		if (!this.m_nview.IsValid() || !this.m_nview.IsOwner())
+		{
+			return;
+		}
+		if (this.m_currentAttack != null && this.GetCurrentWeapon() != null)
+		{
+			base.StartCoroutine(this.EndAttackGroundCheck());
+			this.m_currentAttack.OnAttackTrigger();
+		}
+	}
+
+	// Token: 0x060002C7 RID: 711 RVA: 0x00037F70 File Offset: 0x00036170
+	public override void OnStopMoving()
+	{
+		if (!this.m_nview.IsValid() || !this.m_nview.IsOwner())
+		{
+			return;
+		}
+		if (this.m_currentAttack != null)
+		{
+			return;
+		}
+		if (!this.InAttack())
+		{
+			return;
+		}
+		if (this.GetCurrentWeapon() != null)
+		{
+			this.m_currentAttack.m_speedFactor = 0f;
+			this.m_currentAttack.m_speedFactorRotation = 0f;
+		}
+	}
+
+	// Token: 0x060002C8 RID: 712 RVA: 0x0000C8A7 File Offset: 0x0000AAA7
+	public virtual Vector3 GetAimDir(Vector3 fromPoint)
+	{
+		return base.GetLookDir();
+	}
+
+	// Token: 0x060002C9 RID: 713 RVA: 0x00037FD4 File Offset: 0x000361D4
+	public ItemDrop.ItemData PickupPrefab(GameObject prefab, int stackSize = 0, bool autoequip = true)
+	{
+		ZNetView.m_forceDisableInit = true;
+		GameObject gameObject = UnityEngine.Object.Instantiate<GameObject>(prefab);
+		ZNetView.m_forceDisableInit = false;
+		if (stackSize > 0)
+		{
+			ItemDrop component = gameObject.GetComponent<ItemDrop>();
+			component.m_itemData.m_stack = Mathf.Clamp(stackSize, 1, component.m_itemData.m_shared.m_maxStackSize);
+		}
+		if (this.Pickup(gameObject, autoequip, true))
+		{
+			return gameObject.GetComponent<ItemDrop>().m_itemData;
+		}
+		UnityEngine.Object.Destroy(gameObject);
+		return null;
+	}
+
+	// Token: 0x060002CA RID: 714 RVA: 0x0000B5B3 File Offset: 0x000097B3
+	public virtual bool HaveUniqueKey(string name)
+	{
+		return false;
+	}
+
+	// Token: 0x060002CB RID: 715 RVA: 0x0000B1F4 File Offset: 0x000093F4
+	public virtual void AddUniqueKey(string name)
+	{
+	}
+
+	// Token: 0x060002CC RID: 716 RVA: 0x0000B5B3 File Offset: 0x000097B3
+	public virtual bool RemoveUniqueKey(string name)
+	{
+		return false;
+	}
+
+	// Token: 0x060002CD RID: 717 RVA: 0x00038040 File Offset: 0x00036240
+	public bool Pickup(GameObject go, bool autoequip = true, bool autoPickupDelay = true)
+	{
+		if (this.IsTeleporting())
+		{
+			return false;
+		}
+		ItemDrop component = go.GetComponent<ItemDrop>();
+		if (component == null)
+		{
+			return false;
+		}
+		component.Load();
+		if (this.IsPlayer() && (component.m_itemData.m_shared.m_icons == null || component.m_itemData.m_shared.m_icons.Length == 0 || component.m_itemData.m_variant >= component.m_itemData.m_shared.m_icons.Length))
+		{
+			return false;
+		}
+		if (!component.CanPickup(autoPickupDelay))
+		{
+			return false;
+		}
+		if (this.m_inventory.ContainsItem(component.m_itemData))
+		{
+			return false;
+		}
+		if (component.m_itemData.m_shared.m_questItem && this.HaveUniqueKey(component.m_itemData.m_shared.m_name))
+		{
+			this.Message(MessageHud.MessageType.Center, "$msg_cantpickup", 0, null);
+			return false;
+		}
+		int stack = component.m_itemData.m_stack;
+		bool flag = this.m_inventory.AddItem(component.m_itemData);
+		if (this.m_nview.GetZDO() == null)
+		{
+			UnityEngine.Object.Destroy(go);
+			return true;
+		}
+		if (!flag)
+		{
+			this.Message(MessageHud.MessageType.Center, "$msg_noroom", 0, null);
+			return false;
+		}
+		if (component.m_itemData.m_shared.m_questItem)
+		{
+			this.AddUniqueKey(component.m_itemData.m_shared.m_name);
+		}
+		ZNetScene.instance.Destroy(go);
+		if (autoequip && flag && this.IsPlayer() && component.m_itemData.IsWeapon() && this.m_rightItem == null && this.m_hiddenRightItem == null && (this.m_leftItem == null || !this.m_leftItem.IsTwoHanded()) && (this.m_hiddenLeftItem == null || !this.m_hiddenLeftItem.IsTwoHanded()))
+		{
+			this.EquipItem(component.m_itemData, true);
+		}
+		this.m_pickupEffects.Create(base.transform.position, Quaternion.identity, null, 1f, -1);
+		if (this.IsPlayer())
+		{
+			base.ShowPickupMessage(component.m_itemData, stack);
+			if (Player.m_localPlayer == this as Player && Hud.instance.m_radialMenu.Active)
+			{
+				Hud.instance.m_radialMenu.OnAddItem(component.m_itemData);
+			}
+		}
+		return flag;
+	}
+
+	// Token: 0x060002CE RID: 718 RVA: 0x00038264 File Offset: 0x00036464
+	public void EquipBestWeapon(Character targetCreature, StaticTarget targetStatic, Character hurtFriend, Character friend)
+	{
+		List<ItemDrop.ItemData> allItems = this.m_inventory.GetAllItems();
+		if (allItems.Count == 0)
+		{
+			return;
+		}
+		if (this.InAttack())
+		{
+			return;
+		}
+		float num = 0f;
+		if (targetCreature)
+		{
+			float radius = targetCreature.GetRadius();
+			num = Vector3.Distance(targetCreature.transform.position, base.transform.position) - radius;
+		}
+		else if (targetStatic)
+		{
+			num = Vector3.Distance(targetStatic.transform.position, base.transform.position);
+		}
+		float time = Time.time;
+		base.IsFlying();
+		base.IsSwimming();
+		Humanoid.optimalWeapons.Clear();
+		Humanoid.outofRangeWeapons.Clear();
+		Humanoid.allWeapons.Clear();
+		foreach (ItemDrop.ItemData itemData in allItems)
+		{
+			if (itemData.IsWeapon() && this.m_baseAI.CanUseAttack(itemData))
+			{
+				if (itemData.m_shared.m_aiTargetType == ItemDrop.ItemData.AiTarget.Enemy)
+				{
+					if (num >= itemData.m_shared.m_aiAttackRangeMin)
+					{
+						Humanoid.allWeapons.Add(itemData);
+						if ((!(targetCreature == null) || !(targetStatic == null)) && time - itemData.m_lastAttackTime >= itemData.m_shared.m_aiAttackInterval)
+						{
+							if (num > itemData.m_shared.m_aiAttackRange)
+							{
+								Humanoid.outofRangeWeapons.Add(itemData);
+							}
+							else
+							{
+								if (itemData.m_shared.m_aiPrioritized)
+								{
+									this.EquipItem(itemData, true);
+									return;
+								}
+								Humanoid.optimalWeapons.Add(itemData);
+							}
+						}
+					}
+				}
+				else if (itemData.m_shared.m_aiTargetType == ItemDrop.ItemData.AiTarget.FriendHurt)
+				{
+					if (!(hurtFriend == null) && time - itemData.m_lastAttackTime >= itemData.m_shared.m_aiAttackInterval)
+					{
+						if (itemData.m_shared.m_aiPrioritized)
+						{
+							this.EquipItem(itemData, true);
+							return;
+						}
+						Humanoid.optimalWeapons.Add(itemData);
+					}
+				}
+				else if (itemData.m_shared.m_aiTargetType == ItemDrop.ItemData.AiTarget.Friend && !(friend == null) && time - itemData.m_lastAttackTime >= itemData.m_shared.m_aiAttackInterval)
+				{
+					if (itemData.m_shared.m_aiPrioritized)
+					{
+						this.EquipItem(itemData, true);
+						return;
+					}
+					Humanoid.optimalWeapons.Add(itemData);
+				}
+			}
+		}
+		if (Humanoid.optimalWeapons.Count > 0)
+		{
+			foreach (ItemDrop.ItemData itemData2 in Humanoid.optimalWeapons)
+			{
+				if (itemData2.m_shared.m_aiPrioritized)
+				{
+					this.EquipItem(itemData2, true);
+					return;
+				}
+			}
+			this.EquipItem(Humanoid.optimalWeapons[UnityEngine.Random.Range(0, Humanoid.optimalWeapons.Count)], true);
+			return;
+		}
+		if (Humanoid.outofRangeWeapons.Count > 0)
+		{
+			foreach (ItemDrop.ItemData itemData3 in Humanoid.outofRangeWeapons)
+			{
+				if (itemData3.m_shared.m_aiPrioritized)
+				{
+					this.EquipItem(itemData3, true);
+					return;
+				}
+			}
+			this.EquipItem(Humanoid.outofRangeWeapons[UnityEngine.Random.Range(0, Humanoid.outofRangeWeapons.Count)], true);
+			return;
+		}
+		if (Humanoid.allWeapons.Count > 0)
+		{
+			foreach (ItemDrop.ItemData itemData4 in Humanoid.allWeapons)
+			{
+				if (itemData4.m_shared.m_aiPrioritized)
+				{
+					this.EquipItem(itemData4, true);
+					return;
+				}
+			}
+			this.EquipItem(Humanoid.allWeapons[UnityEngine.Random.Range(0, Humanoid.allWeapons.Count)], true);
+			return;
+		}
+		ItemDrop.ItemData currentWeapon = this.GetCurrentWeapon();
+		this.UnequipItem(currentWeapon, false);
+	}
+
+	// Token: 0x060002CF RID: 719 RVA: 0x000386B8 File Offset: 0x000368B8
+	public bool DropItem(Inventory inventory, ItemDrop.ItemData item, int amount)
+	{
+		if (inventory == null)
+		{
+			inventory = this.m_inventory;
+		}
+		if (amount == 0)
+		{
+			return false;
+		}
+		if (item.m_shared.m_questItem)
+		{
+			this.Message(MessageHud.MessageType.Center, "$msg_cantdrop", 0, null);
+			return false;
+		}
+		if (amount > item.m_stack)
+		{
+			amount = item.m_stack;
+		}
+		this.RemoveEquipAction(item);
+		this.UnequipItem(item, false);
+		if (this.m_hiddenLeftItem == item)
+		{
+			this.m_hiddenLeftItem = null;
+			this.SetupVisEquipment(this.m_visEquipment, false);
+		}
+		if (this.m_hiddenRightItem == item)
+		{
+			this.m_hiddenRightItem = null;
+			this.SetupVisEquipment(this.m_visEquipment, false);
+		}
+		if (amount == item.m_stack)
+		{
+			ZLog.Log("drop all " + amount.ToString() + "  " + item.m_stack.ToString());
+			if (!inventory.RemoveItem(item))
+			{
+				ZLog.Log("Was not removed");
+				return false;
+			}
+		}
+		else
+		{
+			ZLog.Log("drop some " + amount.ToString() + "  " + item.m_stack.ToString());
+			inventory.RemoveItem(item, amount);
+		}
+		ItemDrop itemDrop = ItemDrop.DropItem(item, amount, base.transform.position + base.transform.forward + base.transform.up, base.transform.rotation);
+		if (this.IsPlayer())
+		{
+			itemDrop.OnPlayerDrop();
+		}
+		float d = 5f;
+		if (item.GetWeight(-1) >= 300f)
+		{
+			d = 0.5f;
+		}
+		itemDrop.GetComponent<Rigidbody>().linearVelocity = (base.transform.forward + Vector3.up) * d;
+		this.m_zanim.SetTrigger("interact");
+		this.m_dropEffects.Create(base.transform.position, Quaternion.identity, null, 1f, -1);
+		this.Message(MessageHud.MessageType.TopLeft, "$msg_dropped " + itemDrop.m_itemData.m_shared.m_name, itemDrop.m_itemData.m_stack, itemDrop.m_itemData.GetIcon());
+		return true;
+	}
+
+	// Token: 0x060002D0 RID: 720 RVA: 0x0000B1F4 File Offset: 0x000093F4
+	protected virtual void SetPlaceMode(PieceTable buildPieces)
+	{
+	}
+
+	// Token: 0x060002D1 RID: 721 RVA: 0x0000C8AF File Offset: 0x0000AAAF
+	public Inventory GetInventory()
+	{
+		return this.m_inventory;
+	}
+
+	// Token: 0x060002D2 RID: 722 RVA: 0x0000C8B7 File Offset: 0x0000AAB7
+	public void UseIemBlockkMessage()
+	{
+		this.m_useItemBlockMessage = 1;
+	}
+
+	// Token: 0x060002D3 RID: 723 RVA: 0x000388B8 File Offset: 0x00036AB8
+	public void UseItem(Inventory inventory, ItemDrop.ItemData item, bool fromInventoryGui)
+	{
+		if (inventory == null)
+		{
+			inventory = this.m_inventory;
+		}
+		if (!inventory.ContainsItem(item))
+		{
+			return;
+		}
+		GameObject hoverObject = this.GetHoverObject();
+		Hoverable hoverable = hoverObject ? hoverObject.GetComponentInParent<Hoverable>() : null;
+		if (hoverable != null && !fromInventoryGui)
+		{
+			Interactable componentInParent = hoverObject.GetComponentInParent<Interactable>();
+			if (componentInParent != null && componentInParent.UseItem(this, item))
+			{
+				this.DoInteractAnimation(hoverObject);
+				return;
+			}
+		}
+		if (item.m_shared.m_itemType == ItemDrop.ItemData.ItemType.Consumable)
+		{
+			if (this.ConsumeItem(inventory, item, true))
+			{
+				this.m_consumeItemEffects.Create(Player.m_localPlayer.transform.position, Quaternion.identity, null, 1f, -1);
+				this.m_zanim.SetTrigger("eat");
+				GameObject obj;
+				if (ObjectDB.instance.TryGetItemPrefab(item.m_shared, out obj))
+				{
+					this.SetUseHandVisual(obj, item.m_shared.m_foodEatAnimTime);
+				}
+			}
+			return;
+		}
+		if (inventory == this.m_inventory && this.ToggleEquipped(item))
+		{
+			return;
+		}
+		if (!fromInventoryGui && this.m_useItemBlockMessage == 0)
+		{
+			if (hoverable != null)
+			{
+				this.Message(MessageHud.MessageType.Center, Localization.instance.Localize("$msg_cantuseon", new string[]
+				{
+					item.m_shared.m_name,
+					hoverable.GetHoverName()
+				}), 0, null);
+			}
+			else
+			{
+				this.Message(MessageHud.MessageType.Center, Localization.instance.Localize("$msg_useonwhat", new string[]
+				{
+					item.m_shared.m_name
+				}), 0, null);
+			}
+		}
+		this.m_useItemBlockMessage = 0;
+	}
+
+	// Token: 0x060002D4 RID: 724 RVA: 0x00038A18 File Offset: 0x00036C18
+	public void TryUseItemOnInteractable(ItemDrop.ItemData item, GameObject hoverObject, bool fromInventoryGui)
+	{
+		Hoverable hoverable = hoverObject ? hoverObject.GetComponentInParent<Hoverable>() : null;
+		if (hoverable == null || fromInventoryGui)
+		{
+			if (!fromInventoryGui)
+			{
+				this.Message(MessageHud.MessageType.Center, Localization.instance.Localize("$msg_useonwhat", new string[]
+				{
+					item.m_shared.m_name
+				}), 0, null);
+			}
+			return;
+		}
+		Interactable componentInParent = hoverObject.GetComponentInParent<Interactable>();
+		if (componentInParent != null && componentInParent.UseItem(this, item))
+		{
+			return;
+		}
+		if (this.m_useItemBlockMessage == 0)
+		{
+			this.Message(MessageHud.MessageType.Center, Localization.instance.Localize("$msg_cantuseon", new string[]
+			{
+				item.m_shared.m_name,
+				hoverable.GetHoverName()
+			}), 0, null);
+		}
+		this.m_useItemBlockMessage = 0;
+	}
+
+	// Token: 0x060002D5 RID: 725 RVA: 0x00038AC8 File Offset: 0x00036CC8
+	protected void DoInteractAnimation(GameObject obj)
+	{
+		Vector3 forward = obj.transform.position - base.transform.position;
+		forward.y = 0f;
+		forward.Normalize();
+		base.transform.rotation = Quaternion.LookRotation(forward);
+		Physics.SyncTransforms();
+		ItemDrop component = obj.GetComponent<ItemDrop>();
+		if (component != null && component.m_itemData.m_shared.m_itemType == ItemDrop.ItemData.ItemType.Consumable && component.IsPiece())
+		{
+			this.SetUseHandVisual(obj, component.m_itemData.m_shared.m_foodEatAnimTime);
+			this.m_zanim.SetTrigger("eat");
+			return;
+		}
+		this.m_zanim.SetTrigger("interact");
+	}
+
+	// Token: 0x060002D6 RID: 726 RVA: 0x00038B78 File Offset: 0x00036D78
+	protected void SetUseHandVisual(GameObject obj, float seconds = 1f)
+	{
+		if (!this.m_nview || !this.m_nview.IsValid() || !this.m_visEquipment)
+		{
+			return;
+		}
+		this.m_hidHandsOnEat = this.HideHandItems(true, false);
+		ItemDrop component = obj.GetComponent<ItemDrop>();
+		this.m_useItemVisual = ((component != null) ? component.m_itemData.m_shared : null);
+		this.m_useItemTime = seconds;
+		this.m_visEquipment.SetRightItemVisual(Utils.GetPrefabName(obj.name));
+	}
+
+	// Token: 0x060002D7 RID: 727 RVA: 0x0000B1F4 File Offset: 0x000093F4
+	protected virtual void ClearActionQueue()
+	{
+	}
+
+	// Token: 0x060002D8 RID: 728 RVA: 0x0000B1F4 File Offset: 0x000093F4
+	public virtual void RemoveEquipAction(ItemDrop.ItemData item)
+	{
+	}
+
+	// Token: 0x060002D9 RID: 729 RVA: 0x0000B1F4 File Offset: 0x000093F4
+	public virtual void ResetLoadedWeapon()
+	{
+	}
+
+	// Token: 0x060002DA RID: 730 RVA: 0x0000B5B3 File Offset: 0x000097B3
+	public virtual bool IsWeaponLoaded()
+	{
+		return false;
+	}
+
+	// Token: 0x060002DB RID: 731 RVA: 0x0000C8C0 File Offset: 0x0000AAC0
+	protected virtual bool ToggleEquipped(ItemDrop.ItemData item)
+	{
+		if (!item.IsEquipable())
+		{
+			return false;
+		}
+		if (this.InAttack())
+		{
+			return true;
+		}
+		if (this.IsItemEquiped(item))
+		{
+			this.UnequipItem(item, true);
+		}
+		else
+		{
+			this.EquipItem(item, true);
+		}
+		return true;
+	}
+
+	// Token: 0x060002DC RID: 732 RVA: 0x0000C8F3 File Offset: 0x0000AAF3
+	public virtual bool CanConsumeItem(ItemDrop.ItemData item, bool checkWorldLevel = false)
+	{
+		if (item.m_shared.m_itemType != ItemDrop.ItemData.ItemType.Consumable)
+		{
+			return false;
+		}
+		if (checkWorldLevel && Game.m_worldLevel > 0 && item.m_worldLevel < Game.m_worldLevel)
+		{
+			this.Message(MessageHud.MessageType.Center, "$msg_ng_item_too_low", 0, null);
+			return false;
+		}
+		return true;
+	}
+
+	// Token: 0x060002DD RID: 733 RVA: 0x0000C92E File Offset: 0x0000AB2E
+	public virtual bool ConsumeItem(Inventory inventory, ItemDrop.ItemData item, bool checkWorldLevel = false)
+	{
+		this.CanConsumeItem(item, checkWorldLevel);
+		return false;
+	}
+
+	// Token: 0x060002DE RID: 734 RVA: 0x00038BF8 File Offset: 0x00036DF8
+	public bool EquipItem(ItemDrop.ItemData item, bool triggerEquipEffects = true)
+	{
+		if (this.IsItemEquiped(item))
+		{
+			return false;
+		}
+		if (!this.m_inventory.ContainsItem(item))
+		{
+			return false;
+		}
+		if (this.InAttack() || this.InDodge())
+		{
+			return false;
+		}
+		if (this.IsPlayer() && !this.IsDead() && base.IsSwimming() && !base.IsOnGround())
+		{
+			return false;
+		}
+		if (item.m_shared.m_useDurability && item.m_durability <= 0f)
+		{
+			return false;
+		}
+		if (item.m_shared.m_dlc.Length > 0 && !DLCMan.instance.IsDLCInstalled(item.m_shared.m_dlc))
+		{
+			this.Message(MessageHud.MessageType.Center, "$msg_dlcrequired", 0, null);
+			return false;
+		}
+		if (Game.m_worldLevel > 0 && item.m_worldLevel < Game.m_worldLevel && (item.m_shared.m_itemType == ItemDrop.ItemData.ItemType.Utility || item.m_shared.m_itemType == ItemDrop.ItemData.ItemType.Trinket))
+		{
+			this.Message(MessageHud.MessageType.Center, "$msg_ng_item_too_low", 0, null);
+			return false;
+		}
+		if (Application.isEditor)
+		{
+			item.m_shared = item.m_dropPrefab.GetComponent<ItemDrop>().m_itemData.m_shared;
+		}
+		if (item.m_shared.m_itemType == ItemDrop.ItemData.ItemType.Tool)
+		{
+			this.UnequipItem(this.m_rightItem, triggerEquipEffects);
+			this.UnequipItem(this.m_leftItem, triggerEquipEffects);
+			this.m_rightItem = item;
+			this.m_hiddenRightItem = null;
+			this.m_hiddenLeftItem = null;
+			if (this.m_visEquipment && this.m_visEquipment.m_isPlayer)
+			{
+				item.m_shared.m_equipEffect.Create(this.m_visEquipment.m_rightHand.position, this.m_visEquipment.m_rightHand.rotation, null, 1f, -1);
+			}
+		}
+		else if (item.m_shared.m_itemType == ItemDrop.ItemData.ItemType.Torch)
+		{
+			if (this.m_rightItem != null && this.m_leftItem == null && this.m_rightItem.m_shared.m_itemType == ItemDrop.ItemData.ItemType.OneHandedWeapon)
+			{
+				this.m_leftItem = item;
+				if (this.m_visEquipment && this.m_visEquipment.m_isPlayer)
+				{
+					item.m_shared.m_equipEffect.Create(this.m_visEquipment.m_leftHand.position, this.m_visEquipment.m_leftHand.rotation, null, 1f, -1);
+				}
+			}
+			else
+			{
+				this.UnequipItem(this.m_rightItem, triggerEquipEffects);
+				if (this.m_leftItem != null && this.m_leftItem.m_shared.m_itemType != ItemDrop.ItemData.ItemType.Shield)
+				{
+					this.UnequipItem(this.m_leftItem, triggerEquipEffects);
+				}
+				this.m_rightItem = item;
+				if (this.m_visEquipment && this.m_visEquipment.m_isPlayer)
+				{
+					item.m_shared.m_equipEffect.Create(this.m_visEquipment.m_rightHand.position, this.m_visEquipment.m_rightHand.rotation, null, 1f, -1);
+				}
+			}
+			this.m_hiddenRightItem = null;
+			this.m_hiddenLeftItem = null;
+		}
+		else if (item.m_shared.m_itemType == ItemDrop.ItemData.ItemType.OneHandedWeapon)
+		{
+			if (this.m_rightItem != null && this.m_rightItem.m_shared.m_itemType == ItemDrop.ItemData.ItemType.Torch && this.m_leftItem == null)
+			{
+				ItemDrop.ItemData rightItem = this.m_rightItem;
+				this.UnequipItem(this.m_rightItem, triggerEquipEffects);
+				this.m_leftItem = rightItem;
+				this.m_leftItem.m_equipped = true;
+			}
+			this.UnequipItem(this.m_rightItem, triggerEquipEffects);
+			if (this.m_leftItem != null && this.m_leftItem.m_shared.m_itemType != ItemDrop.ItemData.ItemType.Shield && this.m_leftItem.m_shared.m_itemType != ItemDrop.ItemData.ItemType.Torch)
+			{
+				this.UnequipItem(this.m_leftItem, triggerEquipEffects);
+			}
+			this.m_rightItem = item;
+			if (this.m_visEquipment && this.m_visEquipment.m_isPlayer)
+			{
+				item.m_shared.m_equipEffect.Create(this.m_visEquipment.m_rightHand.position, this.m_visEquipment.m_rightHand.rotation, null, 1f, -1);
+			}
+			this.m_hiddenRightItem = null;
+			this.m_hiddenLeftItem = null;
+		}
+		else if (item.m_shared.m_itemType == ItemDrop.ItemData.ItemType.Shield)
+		{
+			this.UnequipItem(this.m_leftItem, triggerEquipEffects);
+			if (this.m_rightItem != null && this.m_rightItem.m_shared.m_itemType != ItemDrop.ItemData.ItemType.OneHandedWeapon && this.m_rightItem.m_shared.m_itemType != ItemDrop.ItemData.ItemType.Torch)
+			{
+				this.UnequipItem(this.m_rightItem, triggerEquipEffects);
+			}
+			this.m_leftItem = item;
+			if (this.m_visEquipment && this.m_visEquipment.m_isPlayer)
+			{
+				item.m_shared.m_equipEffect.Create(this.m_visEquipment.m_leftHand.position, this.m_visEquipment.m_leftHand.rotation, null, 1f, -1);
+			}
+			this.m_hiddenRightItem = null;
+			this.m_hiddenLeftItem = null;
+		}
+		else if (item.m_shared.m_itemType == ItemDrop.ItemData.ItemType.Bow)
+		{
+			this.UnequipItem(this.m_leftItem, triggerEquipEffects);
+			this.UnequipItem(this.m_rightItem, triggerEquipEffects);
+			this.m_leftItem = item;
+			if (this.m_visEquipment && this.m_visEquipment.m_isPlayer)
+			{
+				item.m_shared.m_equipEffect.Create(this.m_visEquipment.m_leftHand.position, this.m_visEquipment.m_leftHand.rotation, null, 1f, -1);
+			}
+			this.m_hiddenRightItem = null;
+			this.m_hiddenLeftItem = null;
+		}
+		else if (item.m_shared.m_itemType == ItemDrop.ItemData.ItemType.TwoHandedWeapon)
+		{
+			this.UnequipItem(this.m_leftItem, triggerEquipEffects);
+			this.UnequipItem(this.m_rightItem, triggerEquipEffects);
+			this.m_rightItem = item;
+			if (this.m_visEquipment && this.m_visEquipment.m_isPlayer)
+			{
+				item.m_shared.m_equipEffect.Create(this.m_visEquipment.m_rightHand.position, this.m_visEquipment.m_rightHand.rotation, null, 1f, -1);
+			}
+			this.m_hiddenRightItem = null;
+			this.m_hiddenLeftItem = null;
+		}
+		else if (item.m_shared.m_itemType == ItemDrop.ItemData.ItemType.TwoHandedWeaponLeft)
+		{
+			this.UnequipItem(this.m_leftItem, triggerEquipEffects);
+			this.UnequipItem(this.m_rightItem, triggerEquipEffects);
+			this.m_leftItem = item;
+			item.m_shared.m_equipEffect.Create(this.m_visEquipment.m_leftHand.position, this.m_visEquipment.m_leftHand.rotation, null, 1f, -1);
+			this.m_hiddenRightItem = null;
+			this.m_hiddenLeftItem = null;
+		}
+		else if (item.m_shared.m_itemType == ItemDrop.ItemData.ItemType.Chest)
+		{
+			this.UnequipItem(this.m_chestItem, triggerEquipEffects);
+			this.m_chestItem = item;
+			if (this.m_visEquipment && this.m_visEquipment.m_isPlayer)
+			{
+				item.m_shared.m_equipEffect.Create(base.transform.position + Vector3.up, base.transform.rotation, null, 1f, -1);
+			}
+		}
+		else if (item.m_shared.m_itemType == ItemDrop.ItemData.ItemType.Legs)
+		{
+			this.UnequipItem(this.m_legItem, triggerEquipEffects);
+			this.m_legItem = item;
+			if (this.m_visEquipment && this.m_visEquipment.m_isPlayer)
+			{
+				item.m_shared.m_equipEffect.Create(base.transform.position, base.transform.rotation, null, 1f, -1);
+			}
+		}
+		else if (item.m_shared.m_itemType == ItemDrop.ItemData.ItemType.Ammo || item.m_shared.m_itemType == ItemDrop.ItemData.ItemType.AmmoNonEquipable)
+		{
+			this.UnequipItem(this.m_ammoItem, triggerEquipEffects);
+			this.m_ammoItem = item;
+		}
+		else if (item.m_shared.m_itemType == ItemDrop.ItemData.ItemType.Helmet)
+		{
+			this.UnequipItem(this.m_helmetItem, triggerEquipEffects);
+			this.m_helmetItem = item;
+			if (this.m_visEquipment && this.m_visEquipment.m_isPlayer)
+			{
+				item.m_shared.m_equipEffect.Create(this.m_visEquipment.m_helmet.position, this.m_visEquipment.m_helmet.rotation, null, 1f, -1);
+			}
+		}
+		else if (item.m_shared.m_itemType == ItemDrop.ItemData.ItemType.Shoulder)
+		{
+			this.UnequipItem(this.m_shoulderItem, triggerEquipEffects);
+			this.m_shoulderItem = item;
+			if (this.m_visEquipment && this.m_visEquipment.m_isPlayer)
+			{
+				item.m_shared.m_equipEffect.Create(base.transform.position + Vector3.up, base.transform.rotation, null, 1f, -1);
+			}
+		}
+		else if (item.m_shared.m_itemType == ItemDrop.ItemData.ItemType.Utility)
+		{
+			this.UnequipItem(this.m_utilityItem, triggerEquipEffects);
+			this.m_utilityItem = item;
+			if (this.m_visEquipment && this.m_visEquipment.m_isPlayer)
+			{
+				item.m_shared.m_equipEffect.Create(base.transform.position + Vector3.up, base.transform.rotation, null, 1f, -1);
+			}
+		}
+		else if (item.m_shared.m_itemType == ItemDrop.ItemData.ItemType.Trinket)
+		{
+			this.UnequipItem(this.m_trinketItem, triggerEquipEffects);
+			this.m_trinketItem = item;
+			if (this.m_visEquipment && this.m_visEquipment.m_isPlayer)
+			{
+				item.m_shared.m_equipEffect.Create(base.transform.position + Vector3.up, base.transform.rotation, null, 1f, -1);
+			}
+		}
+		if (this.IsItemEquiped(item))
+		{
+			item.m_equipped = true;
+		}
+		this.SetupEquipment();
+		if (triggerEquipEffects)
+		{
+			this.TriggerEquipEffect(item);
+		}
+		return true;
+	}
+
+	// Token: 0x060002DF RID: 735 RVA: 0x000395A8 File Offset: 0x000377A8
+	public void UnequipItem(ItemDrop.ItemData item, bool triggerEquipEffects = true)
+	{
+		if (item == null)
+		{
+			return;
+		}
+		if (this.m_hiddenLeftItem == item)
+		{
+			this.m_hiddenLeftItem = null;
+			this.SetupVisEquipment(this.m_visEquipment, false);
+		}
+		if (this.m_hiddenRightItem == item)
+		{
+			this.m_hiddenRightItem = null;
+			this.SetupVisEquipment(this.m_visEquipment, false);
+		}
+		if (this.IsItemEquiped(item))
+		{
+			if (item.IsWeapon())
+			{
+				if (this.m_currentAttack != null && this.m_currentAttack.GetWeapon() == item)
+				{
+					this.m_currentAttack.Stop();
+					this.m_previousAttack = this.m_currentAttack;
+					this.m_currentAttack = null;
+				}
+				if (!string.IsNullOrEmpty(item.m_shared.m_attack.m_drawAnimationState))
+				{
+					this.m_zanim.SetBool(item.m_shared.m_attack.m_drawAnimationState, false);
+				}
+				this.m_attackDrawTime = 0f;
+				this.ResetLoadedWeapon();
+			}
+			if (this.m_rightItem == item)
+			{
+				this.m_rightItem = null;
+			}
+			else if (this.m_leftItem == item)
+			{
+				this.m_leftItem = null;
+			}
+			else if (this.m_chestItem == item)
+			{
+				this.m_chestItem = null;
+			}
+			else if (this.m_legItem == item)
+			{
+				this.m_legItem = null;
+			}
+			else if (this.m_ammoItem == item)
+			{
+				this.m_ammoItem = null;
+			}
+			else if (this.m_helmetItem == item)
+			{
+				this.m_helmetItem = null;
+			}
+			else if (this.m_shoulderItem == item)
+			{
+				this.m_shoulderItem = null;
+			}
+			else if (this.m_utilityItem == item)
+			{
+				this.m_utilityItem = null;
+			}
+			else if (this.m_trinketItem == item)
+			{
+				this.m_trinketItem = null;
+			}
+			item.m_equipped = false;
+			this.SetupEquipment();
+			item.m_shared.m_unequipEffect.Create(base.transform.position, Quaternion.identity, null, 1f, -1);
+			if (triggerEquipEffects)
+			{
+				this.TriggerEquipEffect(item);
+			}
+		}
+	}

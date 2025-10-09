@@ -1,0 +1,290 @@
+using System;
+using System.Collections.Generic;
+using UnityEngine;
+
+// Token: 0x020001FC RID: 508
+public class ZSyncAnimation : MonoBehaviour, IMonoUpdater
+{
+	// Token: 0x060013C0 RID: 5056 RVA: 0x00099334 File Offset: 0x00097534
+	private void Awake()
+	{
+		this.m_nview = base.GetComponent<ZNetView>();
+		this.m_animator = base.GetComponentInChildren<Animator>();
+		this.m_animator.logWarnings = false;
+		this.m_nview.Register<string>("SetTrigger", new Action<long, string>(this.RPC_SetTrigger));
+		ZDO zdo = this.m_nview.GetZDO();
+		bool flag = zdo != null && zdo.IsOwner();
+		this.m_boolHashes = new int[this.m_syncBools.Count];
+		this.m_boolDefaults = new bool[this.m_syncBools.Count];
+		for (int i = 0; i < this.m_syncBools.Count; i++)
+		{
+			this.m_boolHashes[i] = ZSyncAnimation.GetHash(this.m_syncBools[i]);
+			this.m_boolDefaults[i] = this.m_animator.GetBool(this.m_boolHashes[i]);
+		}
+		this.m_floatHashes = new int[this.m_syncFloats.Count];
+		this.m_floatDefaults = new float[this.m_syncFloats.Count];
+		for (int j = 0; j < this.m_syncFloats.Count; j++)
+		{
+			this.m_floatHashes[j] = ZSyncAnimation.GetHash(this.m_syncFloats[j]);
+			this.m_floatDefaults[j] = this.m_animator.GetFloat(this.m_floatHashes[j]);
+		}
+		this.m_intHashes = new int[this.m_syncInts.Count];
+		this.m_intDefaults = new int[this.m_syncInts.Count];
+		for (int k = 0; k < this.m_syncInts.Count; k++)
+		{
+			this.m_intHashes[k] = ZSyncAnimation.GetHash(this.m_syncInts[k]);
+			this.m_intDefaults[k] = this.m_animator.GetInteger(this.m_intHashes[k]);
+		}
+		if (flag)
+		{
+			this.m_animSpeed = zdo.GetFloat(ZSyncAnimation.s_animSpeedID, 1f);
+			this.m_animator.speed = this.m_animSpeed;
+		}
+		if (zdo == null)
+		{
+			base.enabled = false;
+			return;
+		}
+		this.SyncParameters(Time.fixedDeltaTime, false);
+	}
+
+	// Token: 0x060013C1 RID: 5057 RVA: 0x000177A7 File Offset: 0x000159A7
+	private void OnEnable()
+	{
+		ZSyncAnimation.Instances.Add(this);
+	}
+
+	// Token: 0x060013C2 RID: 5058 RVA: 0x000177B4 File Offset: 0x000159B4
+	private void OnDisable()
+	{
+		ZSyncAnimation.Instances.Remove(this);
+	}
+
+	// Token: 0x060013C3 RID: 5059 RVA: 0x000177C2 File Offset: 0x000159C2
+	public static int GetHash(string name)
+	{
+		return Animator.StringToHash(name);
+	}
+
+	// Token: 0x060013C4 RID: 5060 RVA: 0x000177CA File Offset: 0x000159CA
+	public void CustomFixedUpdate(float fixedDeltaTime)
+	{
+		if (!this.m_nview.IsValid())
+		{
+			return;
+		}
+		this.SyncParameters(fixedDeltaTime, false);
+	}
+
+	// Token: 0x060013C5 RID: 5061 RVA: 0x00099548 File Offset: 0x00097748
+	private void SyncParameters(float fixedDeltaTime, bool init = false)
+	{
+		ZDO zdo = this.m_nview.GetZDO();
+		if (this.m_nview.IsOwner())
+		{
+			float speed = this.m_animator.speed;
+			if (init || !this.m_animSpeed.Equals(speed))
+			{
+				this.m_animSpeed = speed;
+				zdo.Set(ZSyncAnimation.s_animSpeedID, this.m_animSpeed);
+			}
+			return;
+		}
+		if (!init && !this.m_nview.HasOwner())
+		{
+			return;
+		}
+		for (int i = 0; i < this.m_boolHashes.Length; i++)
+		{
+			int num = this.m_boolHashes[i];
+			bool @bool = zdo.GetBool(438569 + num, this.m_boolDefaults[i]);
+			this.m_animator.SetBool(num, @bool);
+		}
+		for (int j = 0; j < this.m_floatHashes.Length; j++)
+		{
+			int num2 = this.m_floatHashes[j];
+			float @float = zdo.GetFloat(438569 + num2, this.m_floatDefaults[j]);
+			if (this.m_smoothCharacterSpeeds && (num2 == ZSyncAnimation.s_forwardSpeedID || num2 == ZSyncAnimation.s_sidewaySpeedID))
+			{
+				this.m_animator.SetFloat(num2, @float, 0.2f, fixedDeltaTime);
+			}
+			else
+			{
+				this.m_animator.SetFloat(num2, @float);
+			}
+		}
+		for (int k = 0; k < this.m_intHashes.Length; k++)
+		{
+			int num3 = this.m_intHashes[k];
+			int @int = zdo.GetInt(438569 + num3, this.m_intDefaults[k]);
+			this.m_animator.SetInteger(num3, @int);
+		}
+		float float2 = zdo.GetFloat(ZSyncAnimation.s_animSpeedID, 1f);
+		this.m_animator.speed = float2;
+	}
+
+	// Token: 0x060013C6 RID: 5062 RVA: 0x000177E2 File Offset: 0x000159E2
+	public void SetTrigger(string name)
+	{
+		this.m_nview.InvokeRPC(ZNetView.Everybody, "SetTrigger", new object[]
+		{
+			name
+		});
+	}
+
+	// Token: 0x060013C7 RID: 5063 RVA: 0x000996DC File Offset: 0x000978DC
+	public void SetBool(string name, bool value)
+	{
+		int hash = ZSyncAnimation.GetHash(name);
+		this.SetBool(hash, value);
+	}
+
+	// Token: 0x060013C8 RID: 5064 RVA: 0x000996F8 File Offset: 0x000978F8
+	public void SetBool(int hash, bool value)
+	{
+		if (this.m_animator.GetBool(hash) == value)
+		{
+			return;
+		}
+		this.m_animator.SetBool(hash, value);
+		if (this.m_nview.GetZDO() != null && this.m_nview.IsOwner())
+		{
+			this.m_nview.GetZDO().Set(438569 + hash, value);
+		}
+	}
+
+	// Token: 0x060013C9 RID: 5065 RVA: 0x00099754 File Offset: 0x00097954
+	public void SetFloat(string name, float value)
+	{
+		int hash = ZSyncAnimation.GetHash(name);
+		this.SetFloat(hash, value);
+	}
+
+	// Token: 0x060013CA RID: 5066 RVA: 0x00099770 File Offset: 0x00097970
+	public void SetFloat(int hash, float value)
+	{
+		if (Mathf.Abs(this.m_animator.GetFloat(hash) - value) < 0.01f)
+		{
+			return;
+		}
+		if (this.m_smoothCharacterSpeeds && (hash == ZSyncAnimation.s_forwardSpeedID || hash == ZSyncAnimation.s_sidewaySpeedID))
+		{
+			this.m_animator.SetFloat(hash, value, 0.2f, Time.fixedDeltaTime);
+		}
+		else
+		{
+			this.m_animator.SetFloat(hash, value);
+		}
+		if (this.m_nview.GetZDO() != null && this.m_nview.IsOwner())
+		{
+			this.m_nview.GetZDO().Set(438569 + hash, value);
+		}
+	}
+
+	// Token: 0x060013CB RID: 5067 RVA: 0x00099808 File Offset: 0x00097A08
+	public void SetInt(string name, int value)
+	{
+		int hash = ZSyncAnimation.GetHash(name);
+		this.SetInt(hash, value);
+	}
+
+	// Token: 0x060013CC RID: 5068 RVA: 0x00099824 File Offset: 0x00097A24
+	public void SetInt(int hash, int value)
+	{
+		if (this.m_animator.GetInteger(hash) == value)
+		{
+			return;
+		}
+		this.m_animator.SetInteger(hash, value);
+		if (this.m_nview.GetZDO() != null && this.m_nview.IsOwner())
+		{
+			this.m_nview.GetZDO().Set(438569 + hash, value, false);
+		}
+	}
+
+	// Token: 0x060013CD RID: 5069 RVA: 0x00017803 File Offset: 0x00015A03
+	private void RPC_SetTrigger(long sender, string name)
+	{
+		this.m_animator.SetTrigger(name);
+	}
+
+	// Token: 0x060013CE RID: 5070 RVA: 0x00099884 File Offset: 0x00097A84
+	public bool HasParameter(string name, AnimatorControllerParameterType type)
+	{
+		foreach (AnimatorControllerParameter animatorControllerParameter in this.m_animator.parameters)
+		{
+			if (animatorControllerParameter.type == type && animatorControllerParameter.name == name)
+			{
+				return true;
+			}
+		}
+		return false;
+	}
+
+	// Token: 0x060013CF RID: 5071 RVA: 0x00017811 File Offset: 0x00015A11
+	public void SetSpeed(float speed)
+	{
+		this.m_animator.speed = speed;
+	}
+
+	// Token: 0x060013D0 RID: 5072 RVA: 0x0001781F File Offset: 0x00015A1F
+	public bool IsOwner()
+	{
+		return this.m_nview.IsValid() && this.m_nview.IsOwner();
+	}
+
+	// Token: 0x170000E9 RID: 233
+	// (get) Token: 0x060013D1 RID: 5073 RVA: 0x0001783B File Offset: 0x00015A3B
+	public static List<IMonoUpdater> Instances { get; } = new List<IMonoUpdater>();
+
+	// Token: 0x04001524 RID: 5412
+	private ZNetView m_nview;
+
+	// Token: 0x04001525 RID: 5413
+	private Animator m_animator;
+
+	// Token: 0x04001526 RID: 5414
+	public List<string> m_syncBools = new List<string>();
+
+	// Token: 0x04001527 RID: 5415
+	public List<string> m_syncFloats = new List<string>();
+
+	// Token: 0x04001528 RID: 5416
+	public List<string> m_syncInts = new List<string>();
+
+	// Token: 0x04001529 RID: 5417
+	public bool m_smoothCharacterSpeeds = true;
+
+	// Token: 0x0400152A RID: 5418
+	private static readonly int s_forwardSpeedID = ZSyncAnimation.GetHash("forward_speed");
+
+	// Token: 0x0400152B RID: 5419
+	private static readonly int s_sidewaySpeedID = ZSyncAnimation.GetHash("sideway_speed");
+
+	// Token: 0x0400152C RID: 5420
+	private static readonly int s_animSpeedID = ZSyncAnimation.GetHash("anim_speed");
+
+	// Token: 0x0400152D RID: 5421
+	private int[] m_boolHashes;
+
+	// Token: 0x0400152E RID: 5422
+	private bool[] m_boolDefaults;
+
+	// Token: 0x0400152F RID: 5423
+	private int[] m_floatHashes;
+
+	// Token: 0x04001530 RID: 5424
+	private float[] m_floatDefaults;
+
+	// Token: 0x04001531 RID: 5425
+	private int[] m_intHashes;
+
+	// Token: 0x04001532 RID: 5426
+	private int[] m_intDefaults;
+
+	// Token: 0x04001533 RID: 5427
+	private float m_animSpeed;
+
+	// Token: 0x04001534 RID: 5428
+	private const int c_ZDOSalt = 438569;
+}

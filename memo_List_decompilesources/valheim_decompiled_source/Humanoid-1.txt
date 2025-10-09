@@ -1,0 +1,858 @@
+
+	// Token: 0x060002E0 RID: 736 RVA: 0x00039764 File Offset: 0x00037964
+	private void TriggerEquipEffect(ItemDrop.ItemData item)
+	{
+		if (this.m_nview.GetZDO() == null)
+		{
+			return;
+		}
+		if (MonoUpdaters.UpdateCount == this.m_lastEquipEffectFrame)
+		{
+			return;
+		}
+		this.m_lastEquipEffectFrame = MonoUpdaters.UpdateCount;
+		this.m_equipEffects.Create(base.transform.position, Quaternion.identity, null, 1f, -1);
+	}
+
+	// Token: 0x060002E1 RID: 737 RVA: 0x0000C93A File Offset: 0x0000AB3A
+	public override bool IsAttached()
+	{
+		return (this.m_currentAttack != null && this.InAttack() && this.m_currentAttack.IsAttached() && !this.m_currentAttack.IsDone()) || base.IsAttached();
+	}
+
+	// Token: 0x060002E2 RID: 738 RVA: 0x000397BC File Offset: 0x000379BC
+	public override bool GetRelativePosition(out ZDOID parent, out string attachJoint, out Vector3 relativePos, out Quaternion relativeRot, out Vector3 relativeVel)
+	{
+		if (this.m_currentAttack != null && this.InAttack() && this.m_currentAttack.IsAttached() && !this.m_currentAttack.IsDone())
+		{
+			return this.m_currentAttack.GetAttachData(out parent, out attachJoint, out relativePos, out relativeRot, out relativeVel);
+		}
+		return base.GetRelativePosition(out parent, out attachJoint, out relativePos, out relativeRot, out relativeVel);
+	}
+
+	// Token: 0x060002E3 RID: 739 RVA: 0x00039814 File Offset: 0x00037A14
+	public void UnequipAllItems()
+	{
+		this.UnequipItem(this.m_rightItem, false);
+		this.UnequipItem(this.m_leftItem, false);
+		this.UnequipItem(this.m_chestItem, false);
+		this.UnequipItem(this.m_legItem, false);
+		this.UnequipItem(this.m_helmetItem, false);
+		this.UnequipItem(this.m_ammoItem, false);
+		this.UnequipItem(this.m_shoulderItem, false);
+		this.UnequipItem(this.m_utilityItem, false);
+		this.UnequipItem(this.m_trinketItem, false);
+	}
+
+	// Token: 0x060002E4 RID: 740 RVA: 0x00039898 File Offset: 0x00037A98
+	protected override void OnRagdollCreated(Ragdoll ragdoll)
+	{
+		VisEquipment component = ragdoll.GetComponent<VisEquipment>();
+		if (component)
+		{
+			this.SetupVisEquipment(component, true);
+		}
+	}
+
+	// Token: 0x060002E5 RID: 741 RVA: 0x000398BC File Offset: 0x00037ABC
+	protected virtual void SetupVisEquipment(VisEquipment visEq, bool isRagdoll)
+	{
+		if (!isRagdoll)
+		{
+			visEq.SetLeftItem((this.m_leftItem != null) ? this.m_leftItem.m_dropPrefab.name : "", (this.m_leftItem != null) ? this.m_leftItem.m_variant : 0);
+			visEq.SetRightItem((this.m_rightItem != null) ? this.m_rightItem.m_dropPrefab.name : "");
+			if (this.IsPlayer())
+			{
+				visEq.SetLeftBackItem((this.m_hiddenLeftItem != null) ? this.m_hiddenLeftItem.m_dropPrefab.name : "", (this.m_hiddenLeftItem != null) ? this.m_hiddenLeftItem.m_variant : 0);
+				visEq.SetRightBackItem((this.m_hiddenRightItem != null) ? this.m_hiddenRightItem.m_dropPrefab.name : "");
+			}
+		}
+		visEq.SetChestItem((this.m_chestItem != null) ? this.m_chestItem.m_dropPrefab.name : "");
+		visEq.SetLegItem((this.m_legItem != null) ? this.m_legItem.m_dropPrefab.name : "");
+		visEq.SetHelmetItem((this.m_helmetItem != null) ? this.m_helmetItem.m_dropPrefab.name : "");
+		visEq.SetShoulderItem((this.m_shoulderItem != null) ? this.m_shoulderItem.m_dropPrefab.name : "", (this.m_shoulderItem != null) ? this.m_shoulderItem.m_variant : 0);
+		visEq.SetUtilityItem((this.m_utilityItem != null) ? this.m_utilityItem.m_dropPrefab.name : "");
+		visEq.SetTrinketItem((this.m_trinketItem != null) ? this.m_trinketItem.m_dropPrefab.name : "");
+		if (this.IsPlayer())
+		{
+			visEq.SetBeardItem(this.m_beardItem);
+			visEq.SetHairItem(this.m_hairItem);
+		}
+	}
+
+	// Token: 0x060002E6 RID: 742 RVA: 0x00039AAC File Offset: 0x00037CAC
+	private void SetupEquipment()
+	{
+		if (this.m_visEquipment && (this.m_nview.GetZDO() == null || this.m_nview.IsOwner()))
+		{
+			this.SetupVisEquipment(this.m_visEquipment, false);
+		}
+		if (this.m_nview.GetZDO() != null)
+		{
+			this.UpdateEquipmentStatusEffects();
+			if (this.m_rightItem != null && this.m_rightItem.m_shared.m_buildPieces)
+			{
+				this.SetPlaceMode(this.m_rightItem.m_shared.m_buildPieces);
+			}
+			else
+			{
+				this.SetPlaceMode(null);
+			}
+			this.SetupAnimationState();
+		}
+	}
+
+	// Token: 0x060002E7 RID: 743 RVA: 0x00039B44 File Offset: 0x00037D44
+	private void SetupAnimationState()
+	{
+		if (this.m_leftItem != null)
+		{
+			if (this.m_leftItem.m_shared.m_itemType == ItemDrop.ItemData.ItemType.Torch)
+			{
+				this.SetAnimationState(ItemDrop.ItemData.AnimationState.LeftTorch);
+				return;
+			}
+			this.SetAnimationState(this.m_leftItem.m_shared.m_animationState);
+			return;
+		}
+		else
+		{
+			if (this.m_rightItem != null)
+			{
+				this.SetAnimationState(this.m_rightItem.m_shared.m_animationState);
+				return;
+			}
+			if (this.m_unarmedWeapon != null)
+			{
+				this.SetAnimationState(this.m_unarmedWeapon.m_itemData.m_shared.m_animationState);
+			}
+			return;
+		}
+	}
+
+	// Token: 0x060002E8 RID: 744 RVA: 0x0000C96E File Offset: 0x0000AB6E
+	private void SetAnimationState(ItemDrop.ItemData.AnimationState state)
+	{
+		this.m_zanim.SetFloat(Humanoid.s_statef, (float)state);
+		this.m_zanim.SetInt(Humanoid.s_statei, (int)state);
+	}
+
+	// Token: 0x060002E9 RID: 745 RVA: 0x0000C993 File Offset: 0x0000AB93
+	public override bool IsSitting()
+	{
+		return base.GetCurrentAnimHash() == Character.s_animatorTagSitting;
+	}
+
+	// Token: 0x060002EA RID: 746 RVA: 0x00039BD4 File Offset: 0x00037DD4
+	private void UpdateEquipmentStatusEffects()
+	{
+		HashSet<StatusEffect> hashSet = new HashSet<StatusEffect>();
+		if (this.m_leftItem != null && this.m_leftItem.m_shared.m_equipStatusEffect)
+		{
+			hashSet.Add(this.m_leftItem.m_shared.m_equipStatusEffect);
+		}
+		if (this.m_rightItem != null && this.m_rightItem.m_shared.m_equipStatusEffect)
+		{
+			hashSet.Add(this.m_rightItem.m_shared.m_equipStatusEffect);
+		}
+		if (this.m_chestItem != null && this.m_chestItem.m_shared.m_equipStatusEffect)
+		{
+			hashSet.Add(this.m_chestItem.m_shared.m_equipStatusEffect);
+		}
+		if (this.m_legItem != null && this.m_legItem.m_shared.m_equipStatusEffect)
+		{
+			hashSet.Add(this.m_legItem.m_shared.m_equipStatusEffect);
+		}
+		if (this.m_helmetItem != null && this.m_helmetItem.m_shared.m_equipStatusEffect)
+		{
+			hashSet.Add(this.m_helmetItem.m_shared.m_equipStatusEffect);
+		}
+		if (this.m_shoulderItem != null && this.m_shoulderItem.m_shared.m_equipStatusEffect)
+		{
+			hashSet.Add(this.m_shoulderItem.m_shared.m_equipStatusEffect);
+		}
+		if (this.m_utilityItem != null && this.m_utilityItem.m_shared.m_equipStatusEffect)
+		{
+			hashSet.Add(this.m_utilityItem.m_shared.m_equipStatusEffect);
+		}
+		if (this.m_trinketItem != null && this.m_trinketItem.m_shared.m_equipStatusEffect)
+		{
+			hashSet.Add(this.m_trinketItem.m_shared.m_equipStatusEffect);
+		}
+		if (this.HaveSetEffect(this.m_leftItem))
+		{
+			hashSet.Add(this.m_leftItem.m_shared.m_setStatusEffect);
+		}
+		if (this.HaveSetEffect(this.m_rightItem))
+		{
+			hashSet.Add(this.m_rightItem.m_shared.m_setStatusEffect);
+		}
+		if (this.HaveSetEffect(this.m_chestItem))
+		{
+			hashSet.Add(this.m_chestItem.m_shared.m_setStatusEffect);
+		}
+		if (this.HaveSetEffect(this.m_legItem))
+		{
+			hashSet.Add(this.m_legItem.m_shared.m_setStatusEffect);
+		}
+		if (this.HaveSetEffect(this.m_helmetItem))
+		{
+			hashSet.Add(this.m_helmetItem.m_shared.m_setStatusEffect);
+		}
+		if (this.HaveSetEffect(this.m_shoulderItem))
+		{
+			hashSet.Add(this.m_shoulderItem.m_shared.m_setStatusEffect);
+		}
+		if (this.HaveSetEffect(this.m_utilityItem))
+		{
+			hashSet.Add(this.m_utilityItem.m_shared.m_setStatusEffect);
+		}
+		foreach (StatusEffect statusEffect in this.m_equipmentStatusEffects)
+		{
+			if (!hashSet.Contains(statusEffect))
+			{
+				this.m_seman.RemoveStatusEffect(statusEffect.NameHash(), false);
+			}
+		}
+		foreach (StatusEffect statusEffect2 in hashSet)
+		{
+			if (!this.m_equipmentStatusEffects.Contains(statusEffect2))
+			{
+				this.m_seman.AddStatusEffect(statusEffect2, false, 0, 0f);
+			}
+		}
+		this.m_equipmentStatusEffects.Clear();
+		this.m_equipmentStatusEffects.UnionWith(hashSet);
+	}
+
+	// Token: 0x060002EB RID: 747 RVA: 0x00039F64 File Offset: 0x00038164
+	private bool HaveSetEffect(ItemDrop.ItemData item)
+	{
+		return item != null && !(item.m_shared.m_setStatusEffect == null) && item.m_shared.m_setName.Length != 0 && item.m_shared.m_setSize > 1 && this.GetSetCount(item.m_shared.m_setName) >= item.m_shared.m_setSize;
+	}
+
+	// Token: 0x060002EC RID: 748 RVA: 0x00039FCC File Offset: 0x000381CC
+	private int GetSetCount(string setName)
+	{
+		int num = 0;
+		if (this.m_leftItem != null && this.m_leftItem.m_shared.m_setName == setName)
+		{
+			num++;
+		}
+		if (this.m_rightItem != null && this.m_rightItem.m_shared.m_setName == setName)
+		{
+			num++;
+		}
+		if (this.m_chestItem != null && this.m_chestItem.m_shared.m_setName == setName)
+		{
+			num++;
+		}
+		if (this.m_legItem != null && this.m_legItem.m_shared.m_setName == setName)
+		{
+			num++;
+		}
+		if (this.m_helmetItem != null && this.m_helmetItem.m_shared.m_setName == setName)
+		{
+			num++;
+		}
+		if (this.m_shoulderItem != null && this.m_shoulderItem.m_shared.m_setName == setName)
+		{
+			num++;
+		}
+		if (this.m_utilityItem != null && this.m_utilityItem.m_shared.m_setName == setName)
+		{
+			num++;
+		}
+		if (this.m_trinketItem != null && this.m_trinketItem.m_shared.m_setName == setName)
+		{
+			num++;
+		}
+		return num;
+	}
+
+	// Token: 0x060002ED RID: 749 RVA: 0x0000C9A2 File Offset: 0x0000ABA2
+	public void SetBeard(string name)
+	{
+		this.m_beardItem = name;
+		this.SetupEquipment();
+	}
+
+	// Token: 0x060002EE RID: 750 RVA: 0x0000C9B1 File Offset: 0x0000ABB1
+	public string GetBeard()
+	{
+		return this.m_beardItem;
+	}
+
+	// Token: 0x060002EF RID: 751 RVA: 0x0000C9B9 File Offset: 0x0000ABB9
+	public void SetHair(string hair)
+	{
+		this.m_hairItem = hair;
+		this.SetupEquipment();
+	}
+
+	// Token: 0x060002F0 RID: 752 RVA: 0x0000C9C8 File Offset: 0x0000ABC8
+	public string GetHair()
+	{
+		return this.m_hairItem;
+	}
+
+	// Token: 0x060002F1 RID: 753 RVA: 0x0003A0FC File Offset: 0x000382FC
+	public bool IsItemEquiped(ItemDrop.ItemData item)
+	{
+		return this.m_rightItem == item || this.m_leftItem == item || this.m_chestItem == item || this.m_legItem == item || this.m_ammoItem == item || this.m_helmetItem == item || this.m_shoulderItem == item || this.m_utilityItem == item || this.m_trinketItem == item;
+	}
+
+	// Token: 0x060002F2 RID: 754 RVA: 0x0000C9D0 File Offset: 0x0000ABD0
+	protected ItemDrop.ItemData GetRightItem()
+	{
+		return this.m_rightItem;
+	}
+
+	// Token: 0x060002F3 RID: 755 RVA: 0x0000C9D8 File Offset: 0x0000ABD8
+	protected ItemDrop.ItemData GetLeftItem()
+	{
+		return this.m_leftItem;
+	}
+
+	// Token: 0x060002F4 RID: 756 RVA: 0x0000C9E0 File Offset: 0x0000ABE0
+	protected override bool CheckRun(Vector3 moveDir, float dt)
+	{
+		return !this.IsDrawingBow() && base.CheckRun(moveDir, dt) && !this.IsBlocking();
+	}
+
+	// Token: 0x060002F5 RID: 757 RVA: 0x0003A170 File Offset: 0x00038370
+	public override bool IsDrawingBow()
+	{
+		if (this.m_attackDrawTime <= 0f)
+		{
+			return false;
+		}
+		ItemDrop.ItemData currentWeapon = this.GetCurrentWeapon();
+		return currentWeapon != null && currentWeapon.m_shared.m_attack.m_bowDraw;
+	}
+
+	// Token: 0x060002F6 RID: 758 RVA: 0x0003A1A8 File Offset: 0x000383A8
+	protected override bool BlockAttack(HitData hit, Character attacker)
+	{
+		if (Vector3.Dot(hit.m_dir, base.transform.forward) > 0f)
+		{
+			return false;
+		}
+		ItemDrop.ItemData currentBlocker = this.GetCurrentBlocker();
+		if (currentBlocker == null)
+		{
+			return false;
+		}
+		bool flag = currentBlocker.m_shared.m_timedBlockBonus > 1f && this.m_blockTimer != -1f && this.m_blockTimer < 0.25f;
+		float skillFactor = this.GetSkillFactor(Skills.SkillType.Blocking);
+		float num = currentBlocker.GetBlockPower(skillFactor);
+		if (flag)
+		{
+			num *= currentBlocker.m_shared.m_timedBlockBonus;
+			base.GetSEMan().ModifyTimedBlockBonus(ref num);
+		}
+		if (currentBlocker.m_shared.m_damageModifiers.Count > 0)
+		{
+			HitData.DamageModifiers modifiers = default(HitData.DamageModifiers);
+			modifiers.Apply(currentBlocker.m_shared.m_damageModifiers);
+			HitData.DamageModifier damageModifier;
+			hit.ApplyResistance(modifiers, out damageModifier);
+		}
+		HitData.DamageTypes damageTypes = hit.m_damage.Clone();
+		damageTypes.ApplyArmor(num);
+		float totalBlockableDamage = hit.GetTotalBlockableDamage();
+		float totalBlockableDamage2 = damageTypes.GetTotalBlockableDamage();
+		float num2 = totalBlockableDamage - totalBlockableDamage2;
+		float num3 = Mathf.Clamp01(num2 / num);
+		float num4 = flag ? this.m_perfectBlockStaminaDrain : (this.m_blockStaminaDrain * num3);
+		num4 += num4 * this.GetEquipmentBlockStaminaModifier();
+		this.m_seman.ModifyBlockStaminaUsage(num4, ref num4, false);
+		if (num4 > 0f)
+		{
+			this.UseStamina(num4);
+		}
+		else
+		{
+			this.AddStamina(-num4);
+		}
+		float totalStaggerDamage = damageTypes.GetTotalStaggerDamage();
+		bool flag2 = base.AddStaggerDamage(totalStaggerDamage, hit.m_dir, null);
+		bool flag3 = this.HaveStamina(0f);
+		bool flag4 = flag3 && !flag2;
+		if (flag3 && !flag2)
+		{
+			hit.m_statusEffectHash = 0;
+			hit.BlockDamage(num2);
+			DamageText.instance.ShowText(DamageText.TextType.Blocked, hit.m_point + Vector3.up * 0.5f, num2, false);
+		}
+		if (currentBlocker.m_shared.m_useDurability)
+		{
+			float num5 = currentBlocker.m_shared.m_useDurabilityDrain * (totalBlockableDamage / num);
+			currentBlocker.m_durability -= num5;
+		}
+		this.RaiseSkill(Skills.SkillType.Blocking, flag ? 2f : 1f);
+		currentBlocker.m_shared.m_blockEffect.Create(hit.m_point, Quaternion.identity, null, 1f, -1);
+		if (currentBlocker.m_shared.m_buildBlockCharges)
+		{
+			this.m_blockCharges++;
+			this.m_blockChargeRemoveTimer = 0f;
+			currentBlocker.m_shared.m_blockChargeEffects.Create(this.m_visEquipment.m_leftHand.position, base.transform.rotation, null, 1f, this.m_blockCharges);
+			if (this.m_blockCharges >= currentBlocker.m_shared.m_maxBlockCharges)
+			{
+				currentBlocker.m_shared.m_attack.StartWithoutAnimation(this, this.m_body, this.m_visEquipment, currentBlocker, 0f);
+				this.m_blockCharges = 0;
+			}
+		}
+		if (attacker && !flag)
+		{
+			this.AddAdrenaline(currentBlocker.m_shared.m_blockAdrenaline);
+		}
+		if (attacker && flag && flag4)
+		{
+			this.m_perfectBlockEffect.Create(hit.m_point, Quaternion.identity, null, 1f, -1);
+			this.AddAdrenaline(currentBlocker.m_shared.m_perfectBlockAdrenaline);
+			if (attacker.m_staggerWhenBlocked)
+			{
+				attacker.Stagger(-hit.m_dir);
+			}
+			float perfectBlockStaminaRegen = currentBlocker.m_shared.m_perfectBlockStaminaRegen;
+			if (perfectBlockStaminaRegen > 0f)
+			{
+				this.AddStamina(perfectBlockStaminaRegen);
+			}
+			else
+			{
+				num4 = this.m_perfectBlockStaminaDrain;
+				num4 -= num4 * this.GetEquipmentBlockStaminaModifier();
+				this.m_seman.ModifyBlockStaminaUsage(num4, ref num4, false);
+				if (num4 > 0f)
+				{
+					this.UseStamina(num4);
+				}
+				else
+				{
+					this.AddStamina(-num4);
+				}
+			}
+			if (currentBlocker.m_shared.m_perfectBlockStatusEffect)
+			{
+				base.GetSEMan().AddStatusEffect(currentBlocker.m_shared.m_perfectBlockStatusEffect, true, currentBlocker.m_worldLevel, base.GetSkillLevel(Skills.SkillType.Blocking));
+			}
+			else if (this.m_perfectBlockStatusEffect)
+			{
+				base.GetSEMan().AddStatusEffect(this.m_perfectBlockStatusEffect, true, currentBlocker.m_worldLevel, base.GetSkillLevel(Skills.SkillType.Blocking));
+			}
+		}
+		if (flag4)
+		{
+			hit.m_pushForce *= num3;
+			if (attacker && !hit.m_ranged)
+			{
+				float num6 = 1f - Mathf.Clamp01(num3 * 0.5f);
+				HitData hitData = new HitData();
+				hitData.m_pushForce = currentBlocker.GetDeflectionForce() * num6;
+				hitData.m_dir = attacker.transform.position - base.transform.position;
+				hitData.m_dir.y = 0f;
+				hitData.m_dir.Normalize();
+				attacker.Damage(hitData);
+			}
+		}
+		return true;
+	}
+
+	// Token: 0x060002F7 RID: 759 RVA: 0x0003A64C File Offset: 0x0003884C
+	public override bool IsBlocking()
+	{
+		if (this.m_nview.IsValid() && !this.m_nview.IsOwner())
+		{
+			return this.m_nview.GetZDO().GetBool(ZDOVars.s_isBlockingHash, false);
+		}
+		return this.m_blocking && !this.InAttack() && !this.InDodge() && !this.InPlaceMode() && !this.IsEncumbered() && !this.InMinorAction() && !base.IsStaggering();
+	}
+
+	// Token: 0x060002F8 RID: 760 RVA: 0x0003A6C8 File Offset: 0x000388C8
+	private void UpdateBlock(float dt)
+	{
+		ItemDrop.ItemData currentBlocker = this.GetCurrentBlocker();
+		float num = dt;
+		if (this.IsBlocking())
+		{
+			num *= currentBlocker.m_shared.m_blockChargeBlockingDecayMult;
+			if (!this.m_internalBlockingState)
+			{
+				this.m_internalBlockingState = true;
+				this.m_nview.GetZDO().Set(ZDOVars.s_isBlockingHash, true);
+				this.m_zanim.SetBool(Humanoid.s_blocking, true);
+			}
+			if (this.m_blockTimer < 0f)
+			{
+				this.m_blockTimer = 0f;
+			}
+			else
+			{
+				this.m_blockTimer += dt;
+			}
+		}
+		else
+		{
+			this.m_blockChargeRemoveTimer += dt;
+			if (this.m_internalBlockingState)
+			{
+				this.m_internalBlockingState = false;
+				this.m_nview.GetZDO().Set(ZDOVars.s_isBlockingHash, false);
+				this.m_zanim.SetBool(Humanoid.s_blocking, false);
+			}
+			this.m_blockTimer = -1f;
+		}
+		if (currentBlocker != null && currentBlocker.m_shared.m_buildBlockCharges)
+		{
+			this.m_blockChargeRemoveTimer += num;
+			if (this.m_blockChargeRemoveTimer >= currentBlocker.m_shared.m_blockChargeDecayTime)
+			{
+				this.m_blockCharges = 0;
+				return;
+			}
+		}
+		else if (currentBlocker == null)
+		{
+			this.m_blockCharges = 0;
+		}
+	}
+
+	// Token: 0x060002F9 RID: 761 RVA: 0x0003A7E8 File Offset: 0x000389E8
+	public bool HideHandItems(bool onlyRightHand = false, bool animation = true)
+	{
+		if (this.m_leftItem == null && this.m_rightItem == null)
+		{
+			return false;
+		}
+		if (!onlyRightHand)
+		{
+			ItemDrop.ItemData leftItem = this.m_leftItem;
+			this.UnequipItem(this.m_leftItem, true);
+			this.m_hiddenLeftItem = leftItem;
+		}
+		else
+		{
+			this.m_hiddenLeftItem = null;
+		}
+		ItemDrop.ItemData rightItem = this.m_rightItem;
+		this.UnequipItem(this.m_rightItem, true);
+		this.m_hiddenRightItem = rightItem;
+		this.SetupVisEquipment(this.m_visEquipment, false);
+		if (animation)
+		{
+			this.m_zanim.SetTrigger("equip_hip");
+		}
+		return true;
+	}
+
+	// Token: 0x060002FA RID: 762 RVA: 0x0003A86C File Offset: 0x00038A6C
+	protected void ShowHandItems(bool onlyRightHand = false, bool animation = true)
+	{
+		ItemDrop.ItemData hiddenLeftItem = this.m_hiddenLeftItem;
+		ItemDrop.ItemData hiddenRightItem = this.m_hiddenRightItem;
+		if (hiddenLeftItem == null && hiddenRightItem == null)
+		{
+			return;
+		}
+		if (!onlyRightHand)
+		{
+			this.m_hiddenLeftItem = null;
+			if (hiddenLeftItem != null)
+			{
+				this.EquipItem(hiddenLeftItem, true);
+			}
+		}
+		this.m_hiddenRightItem = null;
+		if (hiddenRightItem != null)
+		{
+			this.EquipItem(hiddenRightItem, true);
+		}
+		if (animation)
+		{
+			this.m_zanim.SetTrigger("equip_hip");
+		}
+	}
+
+	// Token: 0x060002FB RID: 763 RVA: 0x0000CA01 File Offset: 0x0000AC01
+	public ItemDrop.ItemData GetAmmoItem()
+	{
+		return this.m_ammoItem;
+	}
+
+	// Token: 0x060002FC RID: 764 RVA: 0x0000B5D7 File Offset: 0x000097D7
+	public virtual GameObject GetHoverObject()
+	{
+		return null;
+	}
+
+	// Token: 0x060002FD RID: 765 RVA: 0x0000CA09 File Offset: 0x0000AC09
+	public bool IsTeleportable()
+	{
+		return this.m_inventory.IsTeleportable();
+	}
+
+	// Token: 0x060002FE RID: 766 RVA: 0x0003A8CC File Offset: 0x00038ACC
+	public override bool UseMeleeCamera()
+	{
+		ItemDrop.ItemData currentWeapon = this.GetCurrentWeapon();
+		return currentWeapon != null && currentWeapon.m_shared.m_centerCamera;
+	}
+
+	// Token: 0x060002FF RID: 767 RVA: 0x0003A8F0 File Offset: 0x00038AF0
+	public float GetEquipmentWeight()
+	{
+		float num = 0f;
+		if (this.m_rightItem != null)
+		{
+			num += this.m_rightItem.m_shared.m_weight;
+		}
+		if (this.m_leftItem != null)
+		{
+			num += this.m_leftItem.m_shared.m_weight;
+		}
+		if (this.m_chestItem != null)
+		{
+			num += this.m_chestItem.m_shared.m_weight;
+		}
+		if (this.m_legItem != null)
+		{
+			num += this.m_legItem.m_shared.m_weight;
+		}
+		if (this.m_helmetItem != null)
+		{
+			num += this.m_helmetItem.m_shared.m_weight;
+		}
+		if (this.m_shoulderItem != null)
+		{
+			num += this.m_shoulderItem.m_shared.m_weight;
+		}
+		if (this.m_utilityItem != null)
+		{
+			num += this.m_utilityItem.m_shared.m_weight;
+		}
+		if (this.m_trinketItem != null)
+		{
+			num += this.m_trinketItem.m_shared.m_weight;
+		}
+		return num;
+	}
+
+	// Token: 0x1700000C RID: 12
+	// (get) Token: 0x06000300 RID: 768 RVA: 0x0000C9D0 File Offset: 0x0000ABD0
+	public ItemDrop.ItemData RightItem
+	{
+		get
+		{
+			return this.m_rightItem;
+		}
+	}
+
+	// Token: 0x1700000D RID: 13
+	// (get) Token: 0x06000301 RID: 769 RVA: 0x0000C9D8 File Offset: 0x0000ABD8
+	public ItemDrop.ItemData LeftItem
+	{
+		get
+		{
+			return this.m_leftItem;
+		}
+	}
+
+	// Token: 0x04000452 RID: 1106
+	private static List<ItemDrop.ItemData> optimalWeapons = new List<ItemDrop.ItemData>();
+
+	// Token: 0x04000453 RID: 1107
+	private static List<ItemDrop.ItemData> outofRangeWeapons = new List<ItemDrop.ItemData>();
+
+	// Token: 0x04000454 RID: 1108
+	private static List<ItemDrop.ItemData> allWeapons = new List<ItemDrop.ItemData>();
+
+	// Token: 0x04000455 RID: 1109
+	[Header("Humanoid")]
+	public float m_blockStaminaDrain = 25f;
+
+	// Token: 0x04000456 RID: 1110
+	public float m_perfectBlockStaminaDrain;
+
+	// Token: 0x04000457 RID: 1111
+	public StatusEffect m_perfectBlockStatusEffect;
+
+	// Token: 0x04000458 RID: 1112
+	[Header("Default items")]
+	public GameObject[] m_defaultItems;
+
+	// Token: 0x04000459 RID: 1113
+	public GameObject[] m_randomWeapon;
+
+	// Token: 0x0400045A RID: 1114
+	public GameObject[] m_randomArmor;
+
+	// Token: 0x0400045B RID: 1115
+	public GameObject[] m_randomShield;
+
+	// Token: 0x0400045C RID: 1116
+	public Humanoid.ItemSet[] m_randomSets;
+
+	// Token: 0x0400045D RID: 1117
+	public Humanoid.RandomItem[] m_randomItems;
+
+	// Token: 0x0400045E RID: 1118
+	public ItemDrop m_unarmedWeapon;
+
+	// Token: 0x0400045F RID: 1119
+	private bool[] m_randomItemSlotFilled;
+
+	// Token: 0x04000460 RID: 1120
+	[Header("Effects")]
+	public EffectList m_pickupEffects = new EffectList();
+
+	// Token: 0x04000461 RID: 1121
+	public EffectList m_dropEffects = new EffectList();
+
+	// Token: 0x04000462 RID: 1122
+	public EffectList m_consumeItemEffects = new EffectList();
+
+	// Token: 0x04000463 RID: 1123
+	public EffectList m_equipEffects = new EffectList();
+
+	// Token: 0x04000464 RID: 1124
+	public EffectList m_perfectBlockEffect = new EffectList();
+
+	// Token: 0x04000465 RID: 1125
+	protected readonly Inventory m_inventory = new Inventory("Inventory", null, 8, 4);
+
+	// Token: 0x04000466 RID: 1126
+	protected ItemDrop.ItemData m_rightItem;
+
+	// Token: 0x04000467 RID: 1127
+	protected ItemDrop.ItemData m_leftItem;
+
+	// Token: 0x04000468 RID: 1128
+	protected ItemDrop.ItemData m_chestItem;
+
+	// Token: 0x04000469 RID: 1129
+	protected ItemDrop.ItemData m_legItem;
+
+	// Token: 0x0400046A RID: 1130
+	protected ItemDrop.ItemData m_ammoItem;
+
+	// Token: 0x0400046B RID: 1131
+	protected ItemDrop.ItemData m_helmetItem;
+
+	// Token: 0x0400046C RID: 1132
+	protected ItemDrop.ItemData m_shoulderItem;
+
+	// Token: 0x0400046D RID: 1133
+	protected ItemDrop.ItemData m_utilityItem;
+
+	// Token: 0x0400046E RID: 1134
+	protected ItemDrop.ItemData m_trinketItem;
+
+	// Token: 0x0400046F RID: 1135
+	protected string m_beardItem = "";
+
+	// Token: 0x04000470 RID: 1136
+	protected string m_hairItem = "";
+
+	// Token: 0x04000471 RID: 1137
+	protected Attack m_currentAttack;
+
+	// Token: 0x04000472 RID: 1138
+	protected bool m_currentAttackIsSecondary;
+
+	// Token: 0x04000473 RID: 1139
+	protected float m_attackDrawTime;
+
+	// Token: 0x04000474 RID: 1140
+	protected float m_lastCombatTimer = 999f;
+
+	// Token: 0x04000475 RID: 1141
+	protected VisEquipment m_visEquipment;
+
+	// Token: 0x04000476 RID: 1142
+	private Attack m_previousAttack;
+
+	// Token: 0x04000477 RID: 1143
+	private ItemDrop.ItemData m_hiddenLeftItem;
+
+	// Token: 0x04000478 RID: 1144
+	private ItemDrop.ItemData m_hiddenRightItem;
+
+	// Token: 0x04000479 RID: 1145
+	private int m_lastEquipEffectFrame;
+
+	// Token: 0x0400047A RID: 1146
+	private float m_timeSinceLastAttack;
+
+	// Token: 0x0400047B RID: 1147
+	private bool m_internalBlockingState;
+
+	// Token: 0x0400047C RID: 1148
+	private float m_blockTimer = 9999f;
+
+	// Token: 0x0400047D RID: 1149
+	private const float m_perfectBlockInterval = 0.25f;
+
+	// Token: 0x0400047E RID: 1150
+	private int m_blockCharges;
+
+	// Token: 0x0400047F RID: 1151
+	private float m_blockChargeRemoveTimer;
+
+	// Token: 0x04000480 RID: 1152
+	private readonly HashSet<StatusEffect> m_equipmentStatusEffects = new HashSet<StatusEffect>();
+
+	// Token: 0x04000481 RID: 1153
+	private int m_seed;
+
+	// Token: 0x04000482 RID: 1154
+	private int m_useItemBlockMessage;
+
+	// Token: 0x04000483 RID: 1155
+	private int m_lastGroundColliderOnAttackStart = -1;
+
+	// Token: 0x04000484 RID: 1156
+	private float m_useItemTime;
+
+	// Token: 0x04000485 RID: 1157
+	private ItemDrop.ItemData.SharedData m_useItemVisual;
+
+	// Token: 0x04000486 RID: 1158
+	private bool m_hidHandsOnEat;
+
+	// Token: 0x04000487 RID: 1159
+	private static readonly int s_statef = ZSyncAnimation.GetHash("statef");
+
+	// Token: 0x04000488 RID: 1160
+	private static readonly int s_statei = ZSyncAnimation.GetHash("statei");
+
+	// Token: 0x04000489 RID: 1161
+	private static readonly int s_blocking = ZSyncAnimation.GetHash("blocking");
+
+	// Token: 0x0400048A RID: 1162
+	protected static readonly int s_animatorTagAttack = ZSyncAnimation.GetHash("attack");
+
+	// Token: 0x02000036 RID: 54
+	[Serializable]
+	public class ItemSet
+	{
+		// Token: 0x0400048B RID: 1163
+		public string m_name = "";
+
+		// Token: 0x0400048C RID: 1164
+		public GameObject[] m_items = Array.Empty<GameObject>();
+	}
+
+	// Token: 0x02000037 RID: 55
+	[Serializable]
+	public class RandomItem
+	{
+		// Token: 0x0400048D RID: 1165
+		public GameObject m_prefab;
+
+		// Token: 0x0400048E RID: 1166
+		[Range(0f, 1f)]
+		public float m_chance = 0.5f;
+	}
+}

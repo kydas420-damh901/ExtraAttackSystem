@@ -1,0 +1,914 @@
+﻿#nullable enable
+using BepInEx;
+using BepInEx.Configuration;
+using BepInEx.Logging;
+using HarmonyLib;
+using Jotunn;
+using Jotunn.Managers;
+using Jotunn.Utils;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Reflection;
+using UnityEngine;
+
+namespace ExtraAttack
+{
+    [BepInPlugin(PluginGUID, PluginName, PluginVersion)]
+    [BepInDependency(Jotunn.Main.ModGuid)]
+    [NetworkCompatibilityAttribute(CompatibilityLevel.EveryoneMustHaveMod, VersionStrictness.Minor)]
+    public class ExtraAttackPlugin : BaseUnityPlugin
+    {
+        internal const string PluginGUID = "YourName.ExtraAttack";
+        internal const string PluginName = "Extra Attack System";
+        internal const string PluginVersion = "1.0.1";
+
+        internal static readonly ManualLogSource ExtraAttackLogger = BepInEx.Logging.Logger.CreateLogSource(PluginName);
+
+        // Configuration
+        private static ConfigEntry<KeyboardShortcut> ExtraAttackKey = null!;
+        private static ConfigEntry<float> ExtraAttackCooldown = null!;
+
+        // Balancing configurations per weapon type
+        private static readonly Dictionary<Skills.SkillType, ExtraAttackBalancingConfig> balancingMap = new();
+
+        private struct ExtraAttackBalancingConfig
+        {
+            public ConfigEntry<float> damageMultiplier;
+            public ConfigEntry<float> staminaCost;
+            public ConfigEntry<float> animationSpeed;
+        }
+
+        // Default balancing values
+        private static readonly Dictionary<Skills.SkillType, ExtraAttackBalancing> balancingDefaults = new()
+        {
+            { Skills.SkillType.Swords, new ExtraAttackBalancing { damageMultiplier = 1.5f, staminaCost = 15f, animationSpeed = 1.3f } },
+            { Skills.SkillType.Axes, new ExtraAttackBalancing { damageMultiplier = 1.8f, staminaCost = 20f, animationSpeed = 1.1f } },
+            { Skills.SkillType.Clubs, new ExtraAttackBalancing { damageMultiplier = 1.6f, staminaCost = 18f, animationSpeed = 1.2f } },
+            { Skills.SkillType.Knives, new ExtraAttackBalancing { damageMultiplier = 1.3f, staminaCost = 12f, animationSpeed = 1.5f } },
+            { Skills.SkillType.Spears, new ExtraAttackBalancing { damageMultiplier = 1.4f, staminaCost = 16f, animationSpeed = 1.2f } },
+            { Skills.SkillType.Bows, new ExtraAttackBalancing { damageMultiplier = 1.2f, staminaCost = 10f, animationSpeed = 1.1f } },
+        };
+
+        private struct ExtraAttackBalancing
+        {
+            public float damageMultiplier;
+            public float staminaCost;
+            public float animationSpeed;
+        }
+
+        // AssetBundle and Animation system
+        private static AssetBundle? asset;
+        private static readonly Dictionary<string, Dictionary<string, string>> replacementMap = new();
+        private static readonly Dictionary<string, AnimationClip> ExternalAnimations = new();
+        private static readonly Dictionary<string, RuntimeAnimatorController> CustomRuntimeControllers = new();
+
+        // Extra attack state tracking
+        private static readonly Dictionary<Player, bool> playerExtraAttackStates = new();
+        private static readonly Dictionary<Player, float> playerCooldowns = new();
+
+        private readonly Harmony harmony = new(PluginGUID);
+
+        public void Awake()
+        {
+            // Configuration setup
+            ExtraAttackKey = Config.Bind("1 - General", "Extra Attack Key", new KeyboardShortcut(KeyCode.Q),
+                "Key to trigger extra attack");
+
+            ExtraAttackCooldown = Config.Bind("1 - General", "Extra Attack Cooldown", 2f,
+                "Cooldown between extra attacks in seconds");
+
+            // Initialize balancing configurations
+            InitializeBalancingConfigs();
+
+            // Load assets
+            LoadAssets();
+
+            // Apply patches
+            try
+            {
+                harmony.PatchAll();
+                ExtraAttackLogger.LogInfo("Harmony patches applied successfully");
+            }
+            catch (System.Exception ex)
+            {
+                ExtraAttackLogger.LogError($"Failed to apply Harmony patches: {ex.Message}");
+                ExtraAttackLogger.LogError($"Stack trace: {ex.StackTrace}");
+            }
+
+            ExtraAttackLogger.LogInfo($"{PluginName} has loaded!");
+        }
+
+        private void InitializeBalancingConfigs()
+        {
+            foreach (var kvp in balancingDefaults)
+            {
+                var skillType = kvp.Key;
+                var defaults = kvp.Value;
+
+                balancingMap[skillType] = new ExtraAttackBalancingConfig
+                {
+                    damageMultiplier = Config.Bind("2 - Balancing", $"{skillType} Damage Multiplier", defaults.damageMultiplier,
+                        $"Damage multiplier for {skillType} extra attacks"),
+                    staminaCost = Config.Bind("2 - Balancing", $"{skillType} Stamina Cost", defaults.staminaCost,
+                        $"Stamina cost for {skillType} extra attacks"),
+                    animationSpeed = Config.Bind("2 - Balancing", $"{skillType} Animation Speed", defaults.animationSpeed,
+                        $"Animation speed multiplier for {skillType} extra attacks")
+                };
+            }
+        }
+
+        private void LoadAssets()
+        {
+            try
+            {
+                // Load AssetBundle
+                asset = GetAssetBundle("extraattack");
+                if (asset != null)
+                {
+                    // Load animation clips
+                    var animationClips = asset.LoadAllAssets<AnimationClip>();
+                    ExtraAttackLogger.LogInfo($"Found {animationClips.Length} animation clips in AssetBundle");
+
+                    foreach (var clip in animationClips)
+                    {
+                        string externalName = clip.name + "External";
+                        ExternalAnimations[externalName] = clip;
+                        ExtraAttackLogger.LogInfo($"Loaded animation: {clip.name} -> {externalName}");
+                    }
+
+                    ExtraAttackLogger.LogInfo($"Successfully loaded {animationClips.Length} animations from AssetBundle");
+                    ExtraAttackLogger.LogInfo($"ExternalAnimations dictionary now has {ExternalAnimations.Count} entries");
+                }
+                else
+                {
+                    ExtraAttackLogger.LogWarning("AssetBundle not found, using fallback animations");
+                }
+
+                // Initialize animation replacement maps
+                InitializeAnimationMaps();
+            }
+            catch (System.Exception ex)
+            {
+                ExtraAttackLogger.LogError($"Error loading assets: {ex.Message}");
+                ExtraAttackLogger.LogError($"Stack trace: {ex.StackTrace}");
+            }
+        }
+
+        private static AssetBundle? GetAssetBundle(string filename)
+        {
+            Assembly assembly = Assembly.GetExecutingAssembly();
+            string? resourceName = assembly.GetManifestResourceNames().FirstOrDefault(str => str.EndsWith(filename));
+
+            if (resourceName != null)
+            {
+                using Stream? stream = assembly.GetManifestResourceStream(resourceName);
+                if (stream != null)
+                {
+                    return AssetBundle.LoadFromStream(stream);
+                }
+            }
+
+            // Try to load from plugin directory
+            string? pluginPath = Path.GetDirectoryName(assembly.Location);
+            if (pluginPath != null)
+            {
+                string assetBundlePath = Path.Combine(pluginPath, filename);
+
+                if (File.Exists(assetBundlePath))
+                {
+                    return AssetBundle.LoadFromFile(assetBundlePath);
+                }
+            }
+
+            return null;
+        }
+
+        private void InitializeAnimationMaps()
+        {
+            // Initialize replacement map for extra attacks
+            replacementMap["ExtraAttack"] = new Dictionary<string, string>();
+
+            // Only add mappings if we have external animations loaded
+            if (ExternalAnimations.Count > 0)
+            {
+                // Debug: Log all loaded animation names
+                ExtraAttackLogger.LogInfo("Available animations:");
+                foreach (var anim in ExternalAnimations.Keys)
+                {
+                    ExtraAttackLogger.LogInfo($"  - {anim}");
+                }
+
+                // Map to your custom Great Sword animation (correct name with underscore)
+                if (ExternalAnimations.ContainsKey("Great Sword Slash_40External"))
+                {
+                    // Map the great sword animation to various attack types
+                    replacementMap["ExtraAttack"]["sword_secondary"] = "Great Sword Slash_40External";
+                    replacementMap["ExtraAttack"]["battleaxe_secondary"] = "Great Sword Slash_40External";
+                    replacementMap["ExtraAttack"]["battleaxe_attack0"] = "Great Sword Slash_40External";
+                    replacementMap["ExtraAttack"]["axe_attack0"] = "Great Sword Slash_40External";
+                    replacementMap["ExtraAttack"]["club_attack0"] = "Great Sword Slash_40External";
+                    ExtraAttackLogger.LogInfo("Mapped Great Sword Slash_40 to attack animations");
+                }
+                else if (ExternalAnimations.ContainsKey("Great Sword Jump AttackExternal"))
+                {
+                    // Fallback to Jump Attack if Slash_40 not found
+                    replacementMap["ExtraAttack"]["sword_secondary"] = "Great Sword Jump AttackExternal";
+                    replacementMap["ExtraAttack"]["battleaxe_secondary"] = "Great Sword Jump AttackExternal";
+                    replacementMap["ExtraAttack"]["battleaxe_attack0"] = "Great Sword Jump AttackExternal";
+                    replacementMap["ExtraAttack"]["axe_attack0"] = "Great Sword Jump AttackExternal";
+                    replacementMap["ExtraAttack"]["club_attack0"] = "Great Sword Jump AttackExternal";
+                    ExtraAttackLogger.LogInfo("Mapped Great Sword Jump Attack to attack animations");
+                }
+
+                ExtraAttackLogger.LogInfo($"Animation replacement maps initialized with {replacementMap["ExtraAttack"].Count} mappings");
+            }
+            else
+            {
+                ExtraAttackLogger.LogInfo("No external animations found - using fallback mode");
+            }
+        }
+
+        // AnimatorOverrideController creation (DualWield style)
+        private static RuntimeAnimatorController MakeAOC(Dictionary<string, string> replacement, RuntimeAnimatorController original)
+        {
+            AnimatorOverrideController aoc = new(original);
+            List<KeyValuePair<AnimationClip, AnimationClip>> anims = new();
+
+            foreach (AnimationClip animation in aoc.animationClips)
+            {
+                string name = animation.name;
+                if (replacement.TryGetValue(name, out string value) && ExternalAnimations.ContainsKey(value))
+                {
+                    AnimationClip newClip = Instantiate(ExternalAnimations[value]);
+                    newClip.name = name;
+                    anims.Add(new KeyValuePair<AnimationClip, AnimationClip>(animation, newClip));
+                    ExtraAttackLogger.LogInfo($"Animation override: {name} -> {value}");
+                }
+                else
+                {
+                    anims.Add(new KeyValuePair<AnimationClip, AnimationClip>(animation, animation));
+                }
+            }
+
+            aoc.ApplyOverrides(anims);
+            return aoc;
+        }
+
+        // Safe Animator access using Harmony parameter injection
+        [HarmonyPatch(typeof(CharacterAnimEvent), "CustomFixedUpdate")]
+        public static class CharacterAnimEvent_CustomFixedUpdate_ExtraAttack_Patch
+        {
+            public static void Prefix(ref Animator ___m_animator, Character ___m_character)
+            {
+                try
+                {
+                    if (___m_character is Player player && player == Player.m_localPlayer)
+                    {
+                        // Check if we need to apply extra attack animation speed
+                        if (IsPlayerInExtraAttack(player) && ___m_animator != null)
+                        {
+                            var currentWeapon = player.GetCurrentWeapon();
+                            if (currentWeapon != null)
+                            {
+                                float animSpeed = GetAnimationSpeed(currentWeapon.m_shared.m_skillType);
+                                ___m_animator.speed = animSpeed;
+                            }
+                        }
+
+                        // Reset animation speed when extra attack ends
+                        if (Player_Update_Patch.animationSpeedResetTimers.ContainsKey(player))
+                        {
+                            Player_Update_Patch.animationSpeedResetTimers[player] -= Time.deltaTime;
+                            if (Player_Update_Patch.animationSpeedResetTimers[player] <= 0f)
+                            {
+                                ___m_animator.speed = 1.0f;
+                                ResetAnimatorController(player, ___m_animator);
+                                Player_Update_Patch.animationSpeedResetTimers.Remove(player);
+                            }
+                        }
+                    }
+                }
+                catch (System.Exception ex)
+                {
+                    ExtraAttackLogger.LogError($"Error in CharacterAnimEvent_CustomFixedUpdate_ExtraAttack_Patch: {ex.Message}");
+                }
+            }
+        }
+
+        // Safe controller replacement using injected Animator
+        private static void ResetAnimatorController(Player player, Animator animator)
+        {
+            try
+            {
+                if (CustomRuntimeControllers.TryGetValue("Original", out RuntimeAnimatorController? originalController) && originalController != null)
+                {
+                    SafeReplaceRAC(animator, originalController);
+                    SetExtraAttackState(player, false);
+                    ExtraAttackLogger.LogInfo("Reset to original AnimatorController");
+                }
+                else
+                {
+                    SetExtraAttackState(player, false);
+                    ExtraAttackLogger.LogWarning("Original controller not found, resetting state only");
+                }
+            }
+            catch (System.Exception ex)
+            {
+                ExtraAttackLogger.LogError($"Error resetting animator controller: {ex.Message}");
+                SetExtraAttackState(player, false);
+            }
+        }
+
+        // Safe RuntimeAnimatorController replacement
+        private static void SafeReplaceRAC(Animator animator, RuntimeAnimatorController replace)
+        {
+            try
+            {
+                if (animator == null || replace == null)
+                {
+                    ExtraAttackLogger.LogWarning("Animator or replacement controller is null");
+                    return;
+                }
+
+                if (animator.runtimeAnimatorController == replace)
+                {
+                    return;
+                }
+
+                animator.runtimeAnimatorController = replace;
+                animator.Update(Time.deltaTime);
+                ExtraAttackLogger.LogInfo("RuntimeAnimatorController replaced safely");
+            }
+            catch (System.Exception ex)
+            {
+                ExtraAttackLogger.LogError($"Error in SafeReplaceRAC: {ex.Message}");
+            }
+        }
+
+        // Reflection helper for accessing private Animator (fallback)
+        private static Animator? GetPlayerAnimator(Player player)
+        {
+            try
+            {
+                var animatorField = typeof(Character).GetField("m_animator", BindingFlags.NonPublic | BindingFlags.Instance);
+                return animatorField?.GetValue(player) as Animator;
+            }
+            catch
+            {
+                // Fallback to GetComponent if reflection fails
+                return player.GetComponent<Animator>();
+            }
+        }
+
+        private static void FastReplaceRAC(Player player, RuntimeAnimatorController replace)
+        {
+            try
+            {
+                // Use reflection as fallback for direct controller switching
+                var animator = GetPlayerAnimator(player);
+                SafeReplaceRAC(animator, replace);
+            }
+            catch (System.Exception ex)
+            {
+                ExtraAttackLogger.LogError($"Error in FastReplaceRAC: {ex.Message}");
+            }
+        }
+
+        // Public access methods
+        public static bool IsExtraAttackKeyPressed()
+        {
+            return ExtraAttackKey.Value.IsDown();
+        }
+
+        public static float GetDamageMultiplier(Skills.SkillType skillType)
+        {
+            return balancingMap.TryGetValue(skillType, out var config) ? config.damageMultiplier.Value : 1.5f;
+        }
+
+        public static float GetStaminaCost(Skills.SkillType skillType)
+        {
+            return balancingMap.TryGetValue(skillType, out var config) ? config.staminaCost.Value : 15f;
+        }
+
+        public static float GetAnimationSpeed(Skills.SkillType skillType)
+        {
+            return balancingMap.TryGetValue(skillType, out var config) ? config.animationSpeed.Value : 1.3f;
+        }
+
+        public static void SetExtraAttackState(Player player, bool isExtraAttack)
+        {
+            if (player != null)
+            {
+                playerExtraAttackStates[player] = isExtraAttack;
+            }
+        }
+
+        public static bool IsPlayerInExtraAttack(Player player)
+        {
+            return player != null && playerExtraAttackStates.ContainsKey(player) && playerExtraAttackStates[player];
+        }
+
+        public static bool IsPlayerOnCooldown(Player player)
+        {
+            return player != null && playerCooldowns.ContainsKey(player) && playerCooldowns[player] > Time.time;
+        }
+
+        public static void SetPlayerCooldown(Player player)
+        {
+            if (player != null)
+            {
+                playerCooldowns[player] = Time.time + ExtraAttackCooldown.Value;
+            }
+        }
+
+        // Localization helper methods
+        public static string GetLocalizedString(string key, params object[] args)
+        {
+            // Simple English messages for now
+            var messages = new Dictionary<string, string>
+            {
+                { "extra_attack_triggered", "Extra Attack!" },
+                { "extra_attack_cooldown", "Extra Attack on cooldown: {0}s" },
+                { "extra_attack_no_stamina", "Not enough stamina for Extra Attack" },
+                { "extra_attack_no_weapon", "No weapon equipped" },
+                { "extra_attack_blocked", "Cannot use Extra Attack right now" }
+            };
+
+            if (messages.TryGetValue(key, out string message))
+            {
+                return args.Length > 0 ? string.Format(message, args) : message;
+            }
+            return key; // Fallback to key if message not found
+        }
+
+        public static void ShowMessage(Player player, string messageKey, params object[] args)
+        {
+            if (player != null)
+            {
+                string message = GetLocalizedString(messageKey, args);
+                player.Message(MessageHud.MessageType.Center, message);
+            }
+        }
+
+        public void OnDestroy()
+        {
+            harmony?.UnpatchSelf();
+            asset?.Unload(false);
+        }
+
+        // Initialize AnimatorOverrideControllers - exact DualWield style
+        [HarmonyPatch(typeof(Player), "Start")]
+        public static class Player_Start_Patch
+        {
+            public static void Postfix(Player __instance)
+            {
+                try
+                {
+                    // Exact DualWield pattern
+                    if (CustomRuntimeControllers.Count == 0 && Player.m_localPlayer is not null)
+                    {
+                        // Always create Original controller
+                        CustomRuntimeControllers["Original"] = MakeAOC(new Dictionary<string, string>(), __instance.m_animator.runtimeAnimatorController);
+                        ExtraAttackLogger.LogInfo("Original AnimatorOverrideController initialized");
+
+                        // Create ExtraAttack controller
+                        if (replacementMap.ContainsKey("ExtraAttack") && replacementMap["ExtraAttack"].Count > 0)
+                        {
+                            CustomRuntimeControllers["ExtraAttack"] = MakeAOC(replacementMap["ExtraAttack"], __instance.m_animator.runtimeAnimatorController);
+                            ExtraAttackLogger.LogInfo("Extra Attack AnimatorOverrideController initialized with custom animations");
+                        }
+                        else
+                        {
+                            CustomRuntimeControllers["ExtraAttack"] = MakeAOC(new Dictionary<string, string>(), __instance.m_animator.runtimeAnimatorController);
+                            ExtraAttackLogger.LogInfo("Extra Attack AnimatorOverrideController initialized with fallback animations");
+                        }
+                    }
+                }
+                catch (System.Exception ex)
+                {
+                    ExtraAttackLogger.LogError($"Error in Player_Start_Patch: {ex.Message}");
+                }
+            }
+        }
+
+        // Alternative initialization on first extra attack trigger
+        [HarmonyPatch(typeof(ZSyncAnimation), "RPC_SetTrigger")]
+        public static class ZSyncAnimation_RPC_SetTrigger_Patch
+        {
+            public static void Prefix(ZSyncAnimation __instance, string name)
+            {
+                try
+                {
+                    var player = __instance.GetComponent<Player>();
+                    if (player == null || player != Player.m_localPlayer)
+                        return;
+
+                    // Try to initialize controllers if not done yet
+                    if (CustomRuntimeControllers.Count == 0)
+                    {
+                        var animator = player.GetComponent<Animator>();
+                        if (animator != null && animator.runtimeAnimatorController != null)
+                        {
+                            CustomRuntimeControllers["Original"] = MakeAOC(new Dictionary<string, string>(), animator.runtimeAnimatorController);
+                            ExtraAttackLogger.LogInfo("Original AnimatorOverrideController initialized (late)");
+
+                            if (replacementMap.ContainsKey("ExtraAttack") && replacementMap["ExtraAttack"].Count > 0)
+                            {
+                                CustomRuntimeControllers["ExtraAttack"] = MakeAOC(replacementMap["ExtraAttack"], animator.runtimeAnimatorController);
+                                ExtraAttackLogger.LogInfo("Extra Attack AnimatorOverrideController initialized with custom animations (late)");
+                            }
+                            else
+                            {
+                                CustomRuntimeControllers["ExtraAttack"] = MakeAOC(new Dictionary<string, string>(), animator.runtimeAnimatorController);
+                                ExtraAttackLogger.LogInfo("Extra Attack AnimatorOverrideController initialized with fallback animations (late)");
+                            }
+                        }
+                    }
+
+                    string controllerName = "Original";
+
+                    // Check if this is an extra attack
+                    if (IsPlayerInExtraAttack(player))
+                    {
+                        controllerName = "ExtraAttack";
+                        ExtraAttackLogger.LogInfo($"Switching to ExtraAttack controller for animation: {name}");
+                    }
+
+                    // Apply the appropriate controller if available
+                    if (CustomRuntimeControllers.TryGetValue(controllerName, out RuntimeAnimatorController? controller) && controller != null)
+                    {
+                        FastReplaceRAC(player, controller);
+                    }
+                }
+                catch (System.Exception ex)
+                {
+                    ExtraAttackLogger.LogError($"Error in ZSyncAnimation_RPC_SetTrigger_Patch: {ex.Message}");
+                }
+            }
+        }
+
+        // Player input and update handling
+        [HarmonyPatch(typeof(Player), "Update")]
+        public static class Player_Update_Patch
+        {
+            private static bool extraAttackTriggered = false;
+            public static readonly Dictionary<Player, float> animationSpeedResetTimers = new();
+
+            public static void Postfix(Player __instance)
+            {
+                if (__instance == null || !__instance.IsOwner())
+                    return;
+
+                try
+                {
+                    // Update timers
+                    UpdateTimers(__instance);
+
+                    // Check for extra attack input
+                    if (IsExtraAttackKeyPressed() && !extraAttackTriggered)
+                    {
+                        if (CanPerformExtraAttack(__instance))
+                        {
+                            TriggerExtraAttack(__instance);
+                            extraAttackTriggered = true;
+                        }
+                    }
+                    else if (!IsExtraAttackKeyPressed())
+                    {
+                        extraAttackTriggered = false;
+                    }
+                }
+                catch (System.Exception ex)
+                {
+                    ExtraAttackLogger.LogError($"Error in Player_Update_Patch: {ex.Message}");
+                }
+            }
+
+            private static void UpdateTimers(Player player)
+            {
+                // Handle animation speed reset timer
+                if (animationSpeedResetTimers.ContainsKey(player))
+                {
+                    animationSpeedResetTimers[player] -= Time.deltaTime;
+                    if (animationSpeedResetTimers[player] <= 0f)
+                    {
+                        ResetAnimationSpeed(player);
+                        ResetAnimatorController(player);
+                        animationSpeedResetTimers.Remove(player);
+                    }
+                }
+            }
+
+            private static void ResetAnimatorController(Player player)
+            {
+                try
+                {
+                    if (CustomRuntimeControllers.TryGetValue("Original", out RuntimeAnimatorController? originalController) && originalController != null)
+                    {
+                        FastReplaceRAC(player, originalController);
+                        SetExtraAttackState(player, false);
+                        ExtraAttackLogger.LogInfo("Reset to original AnimatorController");
+                    }
+                    else
+                    {
+                        // Just reset the extra attack state if no controller available
+                        SetExtraAttackState(player, false);
+                        ExtraAttackLogger.LogWarning("Original controller not found, resetting state only");
+                    }
+                }
+                catch (System.Exception ex)
+                {
+                    ExtraAttackLogger.LogError($"Error resetting animator controller: {ex.Message}");
+                    // Always try to reset state even if controller reset fails
+                    SetExtraAttackState(player, false);
+                }
+            }
+
+            private static void ResetAnimationSpeed(Player player)
+            {
+                try
+                {
+                    // DualWield style - use m_animator directly
+                    if (player.m_animator != null)
+                    {
+                        player.m_animator.speed = 1.0f;
+                        ExtraAttackLogger.LogInfo("Animation speed reset to normal");
+                    }
+                }
+                catch (System.Exception ex)
+                {
+                    ExtraAttackLogger.LogError($"Error resetting animation speed: {ex.Message}");
+                }
+            }
+
+            private static bool CanPerformExtraAttack(Player player)
+            {
+                try
+                {
+                    // Check if on cooldown
+                    if (IsPlayerOnCooldown(player))
+                    {
+                        float remainingCooldown = playerCooldowns[player] - Time.time;
+                        ShowMessage(player, "extra_attack_cooldown", remainingCooldown.ToString("F1"));
+                        return false;
+                    }
+
+                    // Check basic conditions
+                    if (player.InAttack() || player.InDodge() || player.IsBlocking() ||
+                        player.IsStaggering() || !player.CanMove() || player.InMinorAction())
+                    {
+                        ShowMessage(player, "extra_attack_blocked");
+                        return false;
+                    }
+
+                    // Check weapon
+                    ItemDrop.ItemData currentWeapon = player.GetCurrentWeapon();
+                    if (currentWeapon == null)
+                    {
+                        ShowMessage(player, "extra_attack_no_weapon");
+                        return false;
+                    }
+
+                    // Check stamina
+                    float staminaCost = GetStaminaCost(currentWeapon.m_shared.m_skillType);
+                    if (player.GetStamina() < staminaCost)
+                    {
+                        ShowMessage(player, "extra_attack_no_stamina");
+                        return false;
+                    }
+
+                    return true;
+                }
+                catch (System.Exception ex)
+                {
+                    ExtraAttackLogger.LogError($"Error in CanPerformExtraAttack: {ex.Message}");
+                    return false;
+                }
+            }
+
+            private static void TriggerExtraAttack(Player player)
+            {
+                try
+                {
+                    ItemDrop.ItemData? currentWeapon = player.GetCurrentWeapon();
+                    if (currentWeapon == null)
+                    {
+                        ExtraAttackLogger.LogWarning("No weapon equipped for extra attack");
+                        return;
+                    }
+
+                    Skills.SkillType skillType = currentWeapon.m_shared.m_skillType;
+
+                    // Set extra attack state
+                    SetExtraAttackState(player, true);
+                    SetPlayerCooldown(player);
+
+                    // Use stamina
+                    player.UseStamina(GetStaminaCost(skillType));
+
+                    // Add noise
+                    player.AddNoise(50f);
+
+                    // Add camera shake for visual effect
+                    if (GameCamera.instance != null)
+                    {
+                        GameCamera.instance.AddShake(player.transform.position, 20f, 0.3f, false);
+                    }
+
+                    // Set animation speed - DualWield style
+                    float animSpeed = GetAnimationSpeed(skillType);
+                    if (player.m_animator != null)
+                    {
+                        player.m_animator.speed = animSpeed;
+                    }
+
+                    // Get animation trigger based on weapon
+                    string animationTrigger = GetExtraAttackAnimationTrigger(currentWeapon);
+                    ExtraAttackLogger.LogInfo($"Triggering extra attack animation: {animationTrigger}");
+
+                    // Use ZSyncAnimation for proper network sync
+                    var zSyncAnim = player.GetComponent<ZSyncAnimation>();
+                    if (zSyncAnim != null)
+                    {
+                        // First switch to extra attack controller
+                        if (CustomRuntimeControllers.TryGetValue("ExtraAttack", out RuntimeAnimatorController? extraController) && extraController != null)
+                        {
+                            FastReplaceRAC(player, extraController);
+                            ExtraAttackLogger.LogInfo("Switched to ExtraAttack controller");
+                        }
+
+                        // Then trigger the animation
+                        zSyncAnim.SetTrigger(animationTrigger);
+                        ExtraAttackLogger.LogInfo($"Animation triggered via ZSyncAnimation: {animationTrigger}");
+                    }
+                    else
+                    {
+                        // Fallback: direct animator control - DualWield style
+                        if (player.m_animator != null)
+                        {
+                            player.m_animator.SetTrigger(animationTrigger);
+                            ExtraAttackLogger.LogInfo($"Animation triggered via Animator: {animationTrigger}");
+                        }
+                    }
+
+                    // Set timer for animation reset
+                    animationSpeedResetTimers[player] = 2.0f;
+
+                    // Show success message
+                    ShowMessage(player, "extra_attack_triggered");
+
+                    ExtraAttackLogger.LogInfo("Extra attack triggered successfully!");
+                }
+                catch (System.Exception ex)
+                {
+                    ExtraAttackLogger.LogError($"Error in TriggerExtraAttack: {ex.Message}");
+                    ExtraAttackLogger.LogError($"Stack trace: {ex.StackTrace}");
+                    SetExtraAttackState(player, false);
+                }
+            }
+
+            private static string GetExtraAttackAnimationTrigger(ItemDrop.ItemData weapon)
+            {
+                // 両手剣系のアニメーションのみを使用（実際に存在するもの）
+                return weapon.m_shared.m_skillType switch
+                {
+                    Skills.SkillType.Swords => "battleaxe_secondary",    // 両手剣の特殊攻撃
+                    Skills.SkillType.Axes => "battleaxe_attack0",        // 両手斧の基本攻撃
+                    Skills.SkillType.Clubs => "battleaxe_secondary",     // 両手剣の特殊攻撃を流用
+                    Skills.SkillType.Knives => "battleaxe_secondary",    // 両手剣の特殊攻撃を流用
+                    Skills.SkillType.Spears => "battleaxe_attack0",      // 両手斧の攻撃を流用
+                    Skills.SkillType.Bows => "battleaxe_secondary",      // フォールバック
+                    _ => "battleaxe_secondary"                           // デフォルト両手剣特殊攻撃
+                };
+            }
+        }
+
+        // Modify damage for extra attacks
+        [HarmonyPatch(typeof(Attack), "DoMeleeAttack")]
+        public static class Attack_DoMeleeAttack_Patch
+        {
+            public static void Prefix(Attack __instance)
+            {
+                try
+                {
+                    var character = GetAttackCharacter(__instance);
+                    if (character is Player player && IsPlayerInExtraAttack(player))
+                    {
+                        ItemDrop.ItemData weapon = player.GetCurrentWeapon();
+                        if (weapon != null)
+                        {
+                            float multiplier = GetDamageMultiplier(weapon.m_shared.m_skillType);
+                            ExtraAttackLogger.LogInfo($"Extra attack damage multiplier applied: {multiplier}x");
+                        }
+                    }
+                }
+                catch (System.Exception ex)
+                {
+                    ExtraAttackLogger.LogError($"Error in Attack_DoMeleeAttack_Patch: {ex.Message}");
+                }
+            }
+
+            private static Character? GetAttackCharacter(Attack attack)
+            {
+                try
+                {
+                    var characterField = typeof(Attack).GetField("m_character", BindingFlags.NonPublic | BindingFlags.Instance);
+                    return characterField?.GetValue(attack) as Character;
+                }
+                catch
+                {
+                    return null;
+                }
+            }
+        }
+
+        // Apply damage modification
+        [HarmonyPatch(typeof(Attack), "ModifyDamage")]
+        public static class Attack_ModifyDamage_Patch
+        {
+            public static void Postfix(Attack __instance, HitData hitData)
+            {
+                try
+                {
+                    var character = GetAttackCharacter(__instance);
+                    if (character is Player player && IsPlayerInExtraAttack(player))
+                    {
+                        ItemDrop.ItemData weapon = player.GetCurrentWeapon();
+                        if (weapon != null)
+                        {
+                            float multiplier = GetDamageMultiplier(weapon.m_shared.m_skillType);
+                            hitData.m_damage.Modify(multiplier);
+                            ExtraAttackLogger.LogInfo($"Extra attack damage multiplied by {multiplier}");
+                        }
+                    }
+                }
+                catch (System.Exception ex)
+                {
+                    ExtraAttackLogger.LogError($"Error in Attack_ModifyDamage_Patch: {ex.Message}");
+                }
+            }
+
+            private static Character? GetAttackCharacter(Attack attack)
+            {
+                try
+                {
+                    var characterField = typeof(Attack).GetField("m_character", BindingFlags.NonPublic | BindingFlags.Instance);
+                    return characterField?.GetValue(attack) as Character;
+                }
+                catch
+                {
+                    return null;
+                }
+            }
+        }
+
+        // Clean up when player is destroyed
+        [HarmonyPatch(typeof(Player), "OnDestroy")]
+        public static class Player_OnDestroy_Patch
+        {
+            public static void Postfix(Player __instance)
+            {
+                try
+                {
+                    playerExtraAttackStates.Remove(__instance);
+                    playerCooldowns.Remove(__instance);
+                    Player_Update_Patch.animationSpeedResetTimers.Remove(__instance);
+                    ExtraAttackLogger.LogInfo("Cleaned up player extra attack state");
+                }
+                catch (System.Exception ex)
+                {
+                    ExtraAttackLogger.LogError($"Error in Player_OnDestroy_Patch: {ex.Message}");
+                }
+            }
+        }
+
+        // Debug patch to monitor animation names
+        [HarmonyPatch(typeof(ZSyncAnimation), "SetTrigger")]
+        public static class ZSyncAnimation_SetTrigger_Debug_Patch
+        {
+            public static void Prefix(ZSyncAnimation __instance, string name)
+            {
+                try
+                {
+                    var player = __instance.GetComponent<Player>();
+                    if (player != null && player == Player.m_localPlayer)
+                    {
+                        ExtraAttackLogger.LogInfo($"Animation trigger called: {name}");
+
+                        // Log current animator state info - DualWield style
+                        if (player.m_animator != null)
+                        {
+                            var currentInfo = player.m_animator.GetCurrentAnimatorStateInfo(0);
+                            ExtraAttackLogger.LogInfo($"Current animator state: {currentInfo.fullPathHash}, normalizedTime: {currentInfo.normalizedTime}");
+                        }
+                    }
+                }
+                catch (System.Exception ex)
+                {
+                    ExtraAttackLogger.LogError($"Error in ZSyncAnimation_SetTrigger_Debug_Patch: {ex.Message}");
+                }
+            }
+        }
+    }
+}

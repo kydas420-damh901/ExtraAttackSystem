@@ -1,16 +1,16 @@
 ManifestFileVersion: 0
 UnityVersion: 6000.0.46f1
-CRC: 3697975208
+CRC: 659458441
 Hashes:
   AssetFileHash:
     serializedVersion: 2
-    Hash: 57686b7f10b7fb834e6a65ae17152c33
+    Hash: 70550ed8ff924d61e8a78b510d51ea39
   TypeTreeHash:
     serializedVersion: 2
     Hash: 3d2c39ca734f68b3e568c3d30a78b1c2
   IncrementalBuildHash:
     serializedVersion: 2
-    Hash: 658d2afa0f8d8368c53090ebcd467e03
+    Hash: 353cd4bd22e9963ecc72735e97a954dc
 HashAppended: 0
 ClassTypes:
 - Class: 1
@@ -71,7 +71,7 @@ Assets:
 - Assets/80_Package/Paladin_Anim_Set/Animation/Humanoid/0Pa_1handShiled_attack02.FBX
 - Assets/80_Package/dl_Frank_RPG_2Handed/Assets/Animations/FBX_Animation/Root_Motion/2Hand_Skill01_WhirlWind.FBX
 - Assets/Animations/Eas_GreatSwordSlash_01.fbx
-- Assets/Dynamic Sword Animset/Animations/RootMotion/0DS_Attack_07.FBX
+- Assets/80_Package/Dynamic Sword Animset/Animations/RootMotion/0DS_Attack_07.FBX
 - Assets/Animations/Standing Taunt Chest Thump.fbx
 - Assets/80_Package/dl_Frank_RPG_2Handed/Assets/Animations/FBX_Animation/Root_Motion/2Hand_ComboAlt2all.FBX
 - Assets/80_Package/MassiveGreatSword_AnimSet/Animations/Humanoid/0MGSA_Attack_Ground02.fbx
@@ -80,6 +80,7 @@ Assets:
 - Assets/80_Package/dl_Frank_RPG_2Handed/Assets/Animations/FBX_Animation/Root_Motion/2Hand_Combo01.FBX
 - Assets/80_Package/dl_Frank_RPG_2Handed/Assets/Animations/FBX_Animation/Root_Motion/2Hand_ComboAlt04-4.FBX
 - Assets/80_Package/dl_Frank_RPG_2Handed/Assets/Animations/FBX_Animation/Root_Motion/2Hand_Combo03.FBX
+- Assets/Characters/character.fbx
 - Assets/80_Package/Samurai_Katana/Animations/Action/0katana_StrongAttk1.FBX
 - Assets/80_Package/dl_DoubleL/One Hand Up/Attack_B/Sw-Ma-GS-Up_Attack_B_3.fbx
 - Assets/80_Package/MassiveGreatSword_AnimSet/Animations/Humanoid/0MGSA_Attack_Ground01.fbx

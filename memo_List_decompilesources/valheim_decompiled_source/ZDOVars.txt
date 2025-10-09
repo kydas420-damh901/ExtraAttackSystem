@@ -1,0 +1,522 @@
+using System;
+using System.Collections.Generic;
+
+// Token: 0x020001C5 RID: 453
+public static class ZDOVars
+{
+	// Token: 0x04001339 RID: 4921
+	public static readonly int s_worldLevel = "worldLevel".GetStableHashCode();
+
+	// Token: 0x0400133A RID: 4922
+	public static readonly int s_pickedUp = "pickedUp".GetStableHashCode();
+
+	// Token: 0x0400133B RID: 4923
+	public static readonly int s_roomData = "roomData".GetStableHashCode();
+
+	// Token: 0x0400133C RID: 4924
+	public static readonly int s_TCData = "TCData".GetStableHashCode();
+
+	// Token: 0x0400133D RID: 4925
+	public static readonly int s_accTime = "accTime".GetStableHashCode();
+
+	// Token: 0x0400133E RID: 4926
+	public static readonly int s_addedDefaultItems = "addedDefaultItems".GetStableHashCode();
+
+	// Token: 0x0400133F RID: 4927
+	public static readonly int s_adrenaline = "adrenaline".GetStableHashCode();
+
+	// Token: 0x04001340 RID: 4928
+	public static readonly int s_aggravated = "aggravated".GetStableHashCode();
+
+	// Token: 0x04001341 RID: 4929
+	public static readonly int s_alert = "alert".GetStableHashCode();
+
+	// Token: 0x04001342 RID: 4930
+	public static readonly int s_aliveTime = "alive_time".GetStableHashCode();
+
+	// Token: 0x04001343 RID: 4931
+	public static readonly int s_ammo = "ammo".GetStableHashCode();
+
+	// Token: 0x04001344 RID: 4932
+	public static readonly int s_ammoType = "ammoType".GetStableHashCode();
+
+	// Token: 0x04001345 RID: 4933
+	public static readonly int s_attachJointHash = "attachJoint".GetStableHashCode();
+
+	// Token: 0x04001346 RID: 4934
+	public static readonly int s_author = "author".GetStableHashCode();
+
+	// Token: 0x04001347 RID: 4935
+	public static readonly int s_authorDisplayName = "authorPlatformDisplayName".GetStableHashCode();
+
+	// Token: 0x04001348 RID: 4936
+	public static readonly int s_bait = "Bait".GetStableHashCode();
+
+	// Token: 0x04001349 RID: 4937
+	public static readonly int s_bakeTimer = "bakeTimer".GetStableHashCode();
+
+	// Token: 0x0400134A RID: 4938
+	public static readonly int s_baseValue = "baseValue".GetStableHashCode();
+
+	// Token: 0x0400134B RID: 4939
+	public static readonly int s_beardItem = "BeardItem".GetStableHashCode();
+
+	// Token: 0x0400134C RID: 4940
+	public static readonly int s_bodyAVelHash = "body_avel".GetStableHashCode();
+
+	// Token: 0x0400134D RID: 4941
+	public static readonly int s_bodyVelHash = "body_vel".GetStableHashCode();
+
+	// Token: 0x0400134E RID: 4942
+	public static readonly int s_bodyVelocity = "BodyVelocity".GetStableHashCode();
+
+	// Token: 0x0400134F RID: 4943
+	public static readonly int s_catchID = "catchID".GetStableHashCode();
+
+	// Token: 0x04001350 RID: 4944
+	public static readonly int s_chestItem = "ChestItem".GetStableHashCode();
+
+	// Token: 0x04001351 RID: 4945
+	public static readonly int s_content = "Content".GetStableHashCode();
+
+	// Token: 0x04001352 RID: 4946
+	public static readonly int s_crafterID = "crafterID".GetStableHashCode();
+
+	// Token: 0x04001353 RID: 4947
+	public static readonly int s_crafterName = "crafterName".GetStableHashCode();
+
+	// Token: 0x04001354 RID: 4948
+	public static readonly int s_creator = "creator".GetStableHashCode();
+
+	// Token: 0x04001355 RID: 4949
+	public static readonly int s_creatorName = "creatorName".GetStableHashCode();
+
+	// Token: 0x04001356 RID: 4950
+	public static readonly int s_data = "data".GetStableHashCode();
+
+	// Token: 0x04001357 RID: 4951
+	public static readonly int s_dataCount = "dataCount".GetStableHashCode();
+
+	// Token: 0x04001358 RID: 4952
+	public static readonly int s_dead = "dead".GetStableHashCode();
+
+	// Token: 0x04001359 RID: 4953
+	public static readonly int s_debugFly = "DebugFly".GetStableHashCode();
+
+	// Token: 0x0400135A RID: 4954
+	public static readonly int s_despawnInDay = "DespawnInDay".GetStableHashCode();
+
+	// Token: 0x0400135B RID: 4955
+	public static readonly int s_dodgeinv = "dodgeinv".GetStableHashCode();
+
+	// Token: 0x0400135C RID: 4956
+	public static readonly int s_done = "done".GetStableHashCode();
+
+	// Token: 0x0400135D RID: 4957
+	public static readonly int s_drops = "drops".GetStableHashCode();
+
+	// Token: 0x0400135E RID: 4958
+	public static readonly int s_durability = "durability".GetStableHashCode();
+
+	// Token: 0x0400135F RID: 4959
+	public static readonly int s_eitr = "eitr".GetStableHashCode();
+
+	// Token: 0x04001360 RID: 4960
+	public static readonly int s_emote = "emote".GetStableHashCode();
+
+	// Token: 0x04001361 RID: 4961
+	public static readonly int s_emoteID = "emoteID".GetStableHashCode();
+
+	// Token: 0x04001362 RID: 4962
+	public static readonly int s_emoteOneshot = "emote_oneshot".GetStableHashCode();
+
+	// Token: 0x04001363 RID: 4963
+	public static readonly int s_enabled = "enabled".GetStableHashCode();
+
+	// Token: 0x04001364 RID: 4964
+	public static readonly int s_escape = "escape".GetStableHashCode();
+
+	// Token: 0x04001365 RID: 4965
+	public static readonly int s_eventCreature = "EventCreature".GetStableHashCode();
+
+	// Token: 0x04001366 RID: 4966
+	public static readonly int s_follow = "follow".GetStableHashCode();
+
+	// Token: 0x04001367 RID: 4967
+	public static readonly int s_forward = "forward".GetStableHashCode();
+
+	// Token: 0x04001368 RID: 4968
+	public static readonly int s_fuel = "fuel".GetStableHashCode();
+
+	// Token: 0x04001369 RID: 4969
+	public static readonly int s_growStart = "GrowStart".GetStableHashCode();
+
+	// Token: 0x0400136A RID: 4970
+	public static readonly int s_hairColor = "HairColor".GetStableHashCode();
+
+	// Token: 0x0400136B RID: 4971
+	public static readonly int s_hairItem = "HairItem".GetStableHashCode();
+
+	// Token: 0x0400136C RID: 4972
+	public static readonly int s_haveSaddleHash = "HaveSaddle".GetStableHashCode();
+
+	// Token: 0x0400136D RID: 4973
+	public static readonly int s_haveTargetHash = "haveTarget".GetStableHashCode();
+
+	// Token: 0x0400136E RID: 4974
+	public static readonly int s_health = "health".GetStableHashCode();
+
+	// Token: 0x0400136F RID: 4975
+	public static readonly int s_helmetItem = "HelmetItem".GetStableHashCode();
+
+	// Token: 0x04001370 RID: 4976
+	public static readonly int s_hitDir = "HitDir".GetStableHashCode();
+
+	// Token: 0x04001371 RID: 4977
+	public static readonly int s_hitPoint = "HitPoint".GetStableHashCode();
+
+	// Token: 0x04001372 RID: 4978
+	public static readonly int s_hooked = "hooked".GetStableHashCode();
+
+	// Token: 0x04001373 RID: 4979
+	public static readonly int s_hue = "Hue".GetStableHashCode();
+
+	// Token: 0x04001374 RID: 4980
+	public static readonly int s_huntPlayer = "huntplayer".GetStableHashCode();
+
+	// Token: 0x04001375 RID: 4981
+	public static readonly int s_inBed = "inBed".GetStableHashCode();
+
+	// Token: 0x04001376 RID: 4982
+	public static readonly int s_inUse = "InUse".GetStableHashCode();
+
+	// Token: 0x04001377 RID: 4983
+	public static readonly int s_inWater = "inWater".GetStableHashCode();
+
+	// Token: 0x04001378 RID: 4984
+	public static readonly int s_initVel = "InitVel".GetStableHashCode();
+
+	// Token: 0x04001379 RID: 4985
+	public static readonly int s_isBlockingHash = "IsBlocking".GetStableHashCode();
+
+	// Token: 0x0400137A RID: 4986
+	public static readonly int s_item = "item".GetStableHashCode();
+
+	// Token: 0x0400137B RID: 4987
+	public static readonly int s_item0 = "item0".GetStableHashCode();
+
+	// Token: 0x0400137C RID: 4988
+	public static readonly int s_itemPrefab = "itemPrefab".GetStableHashCode();
+
+	// Token: 0x0400137D RID: 4989
+	public static readonly int s_itemStack = "itemStack".GetStableHashCode();
+
+	// Token: 0x0400137E RID: 4990
+	public static readonly int s_items = "items".GetStableHashCode();
+
+	// Token: 0x0400137F RID: 4991
+	public static readonly int s_landed = "landed".GetStableHashCode();
+
+	// Token: 0x04001380 RID: 4992
+	public static readonly int s_lastAttack = "lastAttack".GetStableHashCode();
+
+	// Token: 0x04001381 RID: 4993
+	public static readonly int s_lastSpawn = "LastSpawn".GetStableHashCode();
+
+	// Token: 0x04001382 RID: 4994
+	public static readonly int s_lastTime = "lastTime".GetStableHashCode();
+
+	// Token: 0x04001383 RID: 4995
+	public static readonly int s_leftBackItem = "LeftBackItem".GetStableHashCode();
+
+	// Token: 0x04001384 RID: 4996
+	public static readonly int s_leftBackItemVariant = "LeftBackItemVariant".GetStableHashCode();
+
+	// Token: 0x04001385 RID: 4997
+	public static readonly int s_leftItem = "LeftItem".GetStableHashCode();
+
+	// Token: 0x04001386 RID: 4998
+	public static readonly int s_leftItemVariant = "LeftItemVariant".GetStableHashCode();
+
+	// Token: 0x04001387 RID: 4999
+	public static readonly int s_legItem = "LegItem".GetStableHashCode();
+
+	// Token: 0x04001388 RID: 5000
+	public static readonly int s_level = "level".GetStableHashCode();
+
+	// Token: 0x04001389 RID: 5001
+	public static readonly int s_liquidData = "LiquidData".GetStableHashCode();
+
+	// Token: 0x0400138A RID: 5002
+	public static readonly int s_location = "location".GetStableHashCode();
+
+	// Token: 0x0400138B RID: 5003
+	public static readonly int s_lookTarget = "LookTarget".GetStableHashCode();
+
+	// Token: 0x0400138C RID: 5004
+	public static readonly int s_locked = "Locked".GetStableHashCode();
+
+	// Token: 0x0400138D RID: 5005
+	public static readonly int s_lovePoints = "lovePoints".GetStableHashCode();
+
+	// Token: 0x0400138E RID: 5006
+	public static readonly int s_maxHealth = "max_health".GetStableHashCode();
+
+	// Token: 0x0400138F RID: 5007
+	public static readonly int s_maxInstances = "MaxInstances".GetStableHashCode();
+
+	// Token: 0x04001390 RID: 5008
+	public static readonly int s_modelIndex = "ModelIndex".GetStableHashCode();
+
+	// Token: 0x04001391 RID: 5009
+	public static readonly int s_noise = "noise".GetStableHashCode();
+
+	// Token: 0x04001392 RID: 5010
+	public static readonly int s_offset = "offset".GetStableHashCode();
+
+	// Token: 0x04001393 RID: 5011
+	public static readonly int s_owner = "owner".GetStableHashCode();
+
+	// Token: 0x04001394 RID: 5012
+	public static readonly int s_ownerName = "ownerName".GetStableHashCode();
+
+	// Token: 0x04001395 RID: 5013
+	public static readonly int s_patrol = "patrol".GetStableHashCode();
+
+	// Token: 0x04001396 RID: 5014
+	public static readonly int s_patrolPoint = "patrolPoint".GetStableHashCode();
+
+	// Token: 0x04001397 RID: 5015
+	public static readonly int s_permitted = "permitted".GetStableHashCode();
+
+	// Token: 0x04001398 RID: 5016
+	public static readonly int s_pickable = "pickable".GetStableHashCode();
+
+	// Token: 0x04001399 RID: 5017
+	public static readonly int s_picked = "picked".GetStableHashCode();
+
+	// Token: 0x0400139A RID: 5018
+	public static readonly int s_pickedTime = "picked_time".GetStableHashCode();
+
+	// Token: 0x0400139B RID: 5019
+	public static readonly int s_piece = "piece".GetStableHashCode();
+
+	// Token: 0x0400139C RID: 5020
+	public static readonly int s_plantTime = "plantTime".GetStableHashCode();
+
+	// Token: 0x0400139D RID: 5021
+	public static readonly int s_played = "played".GetStableHashCode();
+
+	// Token: 0x0400139E RID: 5022
+	public static readonly int s_playerID = "playerID".GetStableHashCode();
+
+	// Token: 0x0400139F RID: 5023
+	public static readonly int s_playerName = "playerName".GetStableHashCode();
+
+	// Token: 0x040013A0 RID: 5024
+	public static readonly int s_plays = "plays".GetStableHashCode();
+
+	// Token: 0x040013A1 RID: 5025
+	public static readonly int s_pose = "pose".GetStableHashCode();
+
+	// Token: 0x040013A2 RID: 5026
+	public static readonly int s_pregnant = "pregnant".GetStableHashCode();
+
+	// Token: 0x040013A3 RID: 5027
+	public static readonly int s_product = "product".GetStableHashCode();
+
+	// Token: 0x040013A4 RID: 5028
+	public static readonly int s_pvp = "pvp".GetStableHashCode();
+
+	// Token: 0x040013A5 RID: 5029
+	public static readonly int s_quality = "quality".GetStableHashCode();
+
+	// Token: 0x040013A6 RID: 5030
+	public static readonly int s_queued = "queued".GetStableHashCode();
+
+	// Token: 0x040013A7 RID: 5031
+	public static readonly int s_randomSkillFactor = "RandomSkillFactor".GetStableHashCode();
+
+	// Token: 0x040013A8 RID: 5032
+	public static readonly int s_relPosHash = "relPos".GetStableHashCode();
+
+	// Token: 0x040013A9 RID: 5033
+	public static readonly int s_relRotHash = "relRot".GetStableHashCode();
+
+	// Token: 0x040013AA RID: 5034
+	public static readonly int s_rightBackItem = "RightBackItem".GetStableHashCode();
+
+	// Token: 0x040013AB RID: 5035
+	public static readonly int s_rightItem = "RightItem".GetStableHashCode();
+
+	// Token: 0x040013AC RID: 5036
+	public static readonly int s_rodOwner = "rodOwner".GetStableHashCode();
+
+	// Token: 0x040013AD RID: 5037
+	public static readonly int s_rooms = "rooms".GetStableHashCode();
+
+	// Token: 0x040013AE RID: 5038
+	public static readonly int s_rudder = "rudder".GetStableHashCode();
+
+	// Token: 0x040013AF RID: 5039
+	public static readonly int s_saturation = "Saturation".GetStableHashCode();
+
+	// Token: 0x040013B0 RID: 5040
+	public static readonly int s_scaleHash = "scale".GetStableHashCode();
+
+	// Token: 0x040013B1 RID: 5041
+	public static readonly int s_scaleScalarHash = "scaleScalar".GetStableHashCode();
+
+	// Token: 0x040013B2 RID: 5042
+	public static readonly int s_seAttrib = "seAttrib".GetStableHashCode();
+
+	// Token: 0x040013B3 RID: 5043
+	public static readonly int s_seed = "seed".GetStableHashCode();
+
+	// Token: 0x040013B4 RID: 5044
+	public static readonly int s_shoulderItem = "ShoulderItem".GetStableHashCode();
+
+	// Token: 0x040013B5 RID: 5045
+	public static readonly int s_shoulderItemVariant = "ShoulderItemVariant".GetStableHashCode();
+
+	// Token: 0x040013B6 RID: 5046
+	public static readonly int s_shownAlertMessage = "ShownAlertMessage".GetStableHashCode();
+
+	// Token: 0x040013B7 RID: 5047
+	public static readonly int s_skinColor = "SkinColor".GetStableHashCode();
+
+	// Token: 0x040013B8 RID: 5048
+	public static readonly int s_sleeping = "sleeping".GetStableHashCode();
+
+	// Token: 0x040013B9 RID: 5049
+	public static readonly int s_spawnAmount = "SpawnAmount".GetStableHashCode();
+
+	// Token: 0x040013BA RID: 5050
+	public static readonly int s_spawnOre = "SpawnOre".GetStableHashCode();
+
+	// Token: 0x040013BB RID: 5051
+	public static readonly int s_spread = "spread".GetStableHashCode();
+
+	// Token: 0x040013BC RID: 5052
+	public static readonly int s_stack = "stack".GetStableHashCode();
+
+	// Token: 0x040013BD RID: 5053
+	public static readonly int s_stamina = "stamina".GetStableHashCode();
+
+	// Token: 0x040013BE RID: 5054
+	public static readonly int s_startTime = "StartTime".GetStableHashCode();
+
+	// Token: 0x040013BF RID: 5055
+	public static readonly int s_state = "state".GetStableHashCode();
+
+	// Token: 0x040013C0 RID: 5056
+	public static readonly int s_stealth = "Stealth".GetStableHashCode();
+
+	// Token: 0x040013C1 RID: 5057
+	public static readonly int s_support = "support".GetStableHashCode();
+
+	// Token: 0x040013C2 RID: 5058
+	public static readonly int s_tag = "tag".GetStableHashCode();
+
+	// Token: 0x040013C3 RID: 5059
+	public static readonly int s_tagauthor = "tagauthor".GetStableHashCode();
+
+	// Token: 0x040013C4 RID: 5060
+	public static readonly int s_tameLastFeeding = "TameLastFeeding".GetStableHashCode();
+
+	// Token: 0x040013C5 RID: 5061
+	public static readonly int s_tameTimeLeft = "TameTimeLeft".GetStableHashCode();
+
+	// Token: 0x040013C6 RID: 5062
+	public static readonly int s_tamed = "tamed".GetStableHashCode();
+
+	// Token: 0x040013C7 RID: 5063
+	public static readonly int s_tamedName = "TamedName".GetStableHashCode();
+
+	// Token: 0x040013C8 RID: 5064
+	public static readonly int s_tamedNameAuthor = "TamedNameAuthor".GetStableHashCode();
+
+	// Token: 0x040013C9 RID: 5065
+	public static readonly int s_targets = "targets".GetStableHashCode();
+
+	// Token: 0x040013CA RID: 5066
+	public static readonly int s_text = "text".GetStableHashCode();
+
+	// Token: 0x040013CB RID: 5067
+	public static readonly int s_tiltrot = "tiltrot".GetStableHashCode();
+
+	// Token: 0x040013CC RID: 5068
+	public static readonly int s_timeOfDeath = "timeOfDeath".GetStableHashCode();
+
+	// Token: 0x040013CD RID: 5069
+	public static readonly int s_triggered = "triggered".GetStableHashCode();
+
+	// Token: 0x040013CE RID: 5070
+	public static readonly int s_trinketItem = "TrinketItem".GetStableHashCode();
+
+	// Token: 0x040013CF RID: 5071
+	public static readonly int s_type = "type".GetStableHashCode();
+
+	// Token: 0x040013D0 RID: 5072
+	public static readonly int s_user = "user".GetStableHashCode();
+
+	// Token: 0x040013D1 RID: 5073
+	public static readonly int s_utilityItem = "UtilityItem".GetStableHashCode();
+
+	// Token: 0x040013D2 RID: 5074
+	public static readonly int s_value = "Value".GetStableHashCode();
+
+	// Token: 0x040013D3 RID: 5075
+	public static readonly int s_variant = "variant".GetStableHashCode();
+
+	// Token: 0x040013D4 RID: 5076
+	public static readonly int s_velHash = "vel".GetStableHashCode();
+
+	// Token: 0x040013D5 RID: 5077
+	public static readonly int s_wakeup = "wakeup".GetStableHashCode();
+
+	// Token: 0x040013D6 RID: 5078
+	public static readonly int s_weaponLoaded = "WeaponLoaded".GetStableHashCode();
+
+	// Token: 0x040013D7 RID: 5079
+	public static readonly int s_worldTimeHash = "lastWorldTime".GetStableHashCode();
+
+	// Token: 0x040013D8 RID: 5080
+	public static readonly int s_visual = "visual".GetStableHashCode();
+
+	// Token: 0x040013D9 RID: 5081
+	public static readonly int s_terrainModifierTimeCreated = "terrainModifierTimeCreated".GetStableHashCode();
+
+	// Token: 0x040013DA RID: 5082
+	public static readonly int s_spawnPoint = "spawnpoint".GetStableHashCode();
+
+	// Token: 0x040013DB RID: 5083
+	public static readonly int s_SpawnPoint__DontUse = "SpawnPoint".GetStableHashCode();
+
+	// Token: 0x040013DC RID: 5084
+	public static readonly int s_spawnTime = "spawntime".GetStableHashCode();
+
+	// Token: 0x040013DD RID: 5085
+	public static readonly int s_SpawnTime__DontUse = "SpawnTime".GetStableHashCode();
+
+	// Token: 0x040013DE RID: 5086
+	public static readonly int s_spawn_time__DontUse = "spawn_time".GetStableHashCode();
+
+	// Token: 0x040013DF RID: 5087
+	public static readonly KeyValuePair<int, int> s_zdoidUser = new KeyValuePair<int, int>("user_u".GetStableHashCode(), "user_i".GetStableHashCode());
+
+	// Token: 0x040013E0 RID: 5088
+	public static readonly KeyValuePair<int, int> s_zdoidRodOwner = new KeyValuePair<int, int>("RodOwner_u".GetStableHashCode(), "RodOwner_i".GetStableHashCode());
+
+	// Token: 0x040013E1 RID: 5089
+	public static readonly KeyValuePair<int, int> s_sessionCatchID = new KeyValuePair<int, int>("CatchID_u".GetStableHashCode(), "CatchID_i".GetStableHashCode());
+
+	// Token: 0x040013E2 RID: 5090
+	public static readonly KeyValuePair<int, int> s_toRemoveTarget = new KeyValuePair<int, int>("target_u".GetStableHashCode(), "target_i".GetStableHashCode());
+
+	// Token: 0x040013E3 RID: 5091
+	public static readonly KeyValuePair<int, int> s_toRemoveSpawnID = new KeyValuePair<int, int>("spawn_id_u".GetStableHashCode(), "spawn_id_i".GetStableHashCode());
+
+	// Token: 0x040013E4 RID: 5092
+	public static readonly KeyValuePair<int, int> s_toRemoveParentID = new KeyValuePair<int, int>("parent_id_u".GetStableHashCode(), "parent_id_i".GetStableHashCode());
+}

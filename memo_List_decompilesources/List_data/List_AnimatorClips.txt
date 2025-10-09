@@ -1,0 +1,618 @@
+[Info   :Extra Attack System] === DEBUG: ANIMATION CLIPS (ON DEMAND) ===
+[Info   :Extra Attack System] Total clips: 615
+[Info   :Extra Attack System]   Clip: [Sword-Attack-R4] - Length: 1.400s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [IdleTweaked] - Length: 1.933s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [IdleTweaked] - Length: 1.933s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [2-hand-pickaxe-Idle] - Length: 2.417s, FrameRate: 24, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [IdleTweaked] - Length: 1.933s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [IdleTweaked] - Length: 1.933s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Standing Torch Idle right] - Length: 6.333s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Standing Torch Idle left] - Length: 6.333s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [2Hand-Spear-Idle] - Length: 2.000s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Idle_Battleaxe] - Length: 1.967s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Idle_Fishing] - Length: 3.000s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Idle Crossbow] - Length: 2.000s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Knife Idle] - Length: 1.500s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Idle Staff 3] - Length: 2.000s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Greatsword Idle] - Length: 2.000s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Idle magic item] - Length: 2.000s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [DualAxes Idle] - Length: 2.000s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Idle Feaster] - Length: 2.000s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Idle Scythe] - Length: 2.000s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Standard Run New] - Length: 0.733s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Run Item Right] - Length: 0.733s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [PickAxe Run] - Length: 0.733s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Standard Run New] - Length: 0.733s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Standard Run New] - Length: 0.733s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Run Torch Right] - Length: 0.733s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Run Torch Left] - Length: 0.733s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Atgeir Run] - Length: 0.733s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Battleaxe Run] - Length: 0.733s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Run Item Right] - Length: 0.733s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [CrossbowRun] - Length: 0.733s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Standard Run New] - Length: 0.733s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Staff Run] - Length: 0.733s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Greatsword Run] - Length: 0.733s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Magic Item Run] - Length: 0.733s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Standard Run New] - Length: 0.733s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Feaster Run] - Length: 0.733s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Scythe Run] - Length: 0.733s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Jog Forward] - Length: 0.836s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Jog_With Sword_right] - Length: 0.772s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [PickAxe Jog] - Length: 0.800s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Jog Forward] - Length: 0.836s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Jog Forward] - Length: 0.836s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Jog With Torch right] - Length: 0.800s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Jog With Torch Left] - Length: 0.800s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Atgeir Jog] - Length: 0.833s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Battleaxe Jog] - Length: 0.833s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Jog_With Sword_right] - Length: 0.772s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [CrossbowJog] - Length: 0.833s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Jog Forward] - Length: 0.836s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Staff Jog] - Length: 0.833s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Greatsword Jog] - Length: 0.833s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Magic Item Jog] - Length: 0.833s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Jog Forward] - Length: 0.836s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Feaster Jog] - Length: 0.833s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Scythe Jog] - Length: 0.833s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Walking] - Length: 1.033s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Walking] - Length: 1.033s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Walk with PickAxe] - Length: 1.033s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Walking] - Length: 1.033s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Walking] - Length: 1.033s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Walking With Torch_Left] - Length: 1.033s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Walking With Torch_Right] - Length: 1.033s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Atgeir Walk] - Length: 1.033s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Battleaxe Walk] - Length: 1.033s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Walking] - Length: 1.033s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [CrossbowWalk] - Length: 1.033s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Walking] - Length: 1.033s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Staff Walk] - Length: 1.067s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Greatsword Walk] - Length: 1.033s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Magic Item Walk] - Length: 1.033s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Walking] - Length: 1.033s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Feaster Walk] - Length: 1.033s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Scythe Walk] - Length: 1.033s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Walking] - Length: 1.033s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Walking] - Length: 1.033s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Walk with PickAxe] - Length: 1.033s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Walking] - Length: 1.033s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Walking] - Length: 1.033s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Walking With Torch_Right] - Length: 1.033s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Walking With Torch_Left] - Length: 1.033s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Atgeir Walk] - Length: 1.033s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Battleaxe Walk] - Length: 1.033s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Walking] - Length: 1.033s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [CrossbowWalk] - Length: 1.033s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Walking] - Length: 1.033s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Staff Walk] - Length: 1.067s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Greatsword Walk] - Length: 1.033s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Magic Item Walk] - Length: 1.033s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Walking] - Length: 1.033s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Feaster Walk] - Length: 1.033s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Scythe Walk] - Length: 1.033s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Jog Strafe Left] - Length: 0.700s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Jog Strafe Left] - Length: 0.700s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Pickaxe Strafe L] - Length: 0.700s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Jog Strafe Left] - Length: 0.700s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Jog Strafe Left] - Length: 0.700s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Jog Strafe Left] - Length: 0.700s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Jog Strafe Left] - Length: 0.700s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Atgeir Strafe L] - Length: 0.700s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Battleaxe Strafe L] - Length: 0.700s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Jog Strafe Left] - Length: 0.700s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Crossbow Strafe L] - Length: 0.700s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Jog Strafe Left] - Length: 0.700s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Jog Strafe Left] - Length: 0.700s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Greatsword Strafe L] - Length: 0.700s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Magic Item Strafe L] - Length: 0.700s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Jog Strafe Left] - Length: 0.700s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Feaster Strafe L] - Length: 0.700s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Scythe Strafe L] - Length: 0.700s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Jog Strafe Left] - Length: 0.700s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Jog Strafe Left] - Length: 0.700s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Pickaxe Strafe L] - Length: 0.700s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Jog Strafe Left] - Length: 0.700s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Jog Strafe Left] - Length: 0.700s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Jog Strafe Left] - Length: 0.700s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Jog Strafe Left] - Length: 0.700s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Atgeir Strafe L] - Length: 0.700s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Battleaxe Strafe L] - Length: 0.700s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Jog Strafe Left] - Length: 0.700s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Crossbow Strafe L] - Length: 0.700s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Jog Strafe Left] - Length: 0.700s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Jog Strafe Left] - Length: 0.700s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Greatsword Strafe L] - Length: 0.700s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Magic Item Strafe L] - Length: 0.700s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Jog Strafe Left] - Length: 0.700s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Feaster Strafe L] - Length: 0.700s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Scythe Strafe L] - Length: 0.700s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Jog Strafe Left] - Length: 0.700s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Jog Strafe Left] - Length: 0.700s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Pickaxe Strafe L] - Length: 0.700s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Jog Strafe Left] - Length: 0.700s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Jog Strafe Left] - Length: 0.700s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Jog Strafe Left] - Length: 0.700s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Jog Strafe Left] - Length: 0.700s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Atgeir Strafe L] - Length: 0.700s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Battleaxe Strafe L] - Length: 0.700s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Jog Strafe Left] - Length: 0.700s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Crossbow Strafe L] - Length: 0.700s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Jog Strafe Left] - Length: 0.700s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Jog Strafe Left] - Length: 0.700s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Greatsword Strafe L] - Length: 0.700s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Magic Item Strafe L] - Length: 0.700s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Jog Strafe Left] - Length: 0.700s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Feaster Strafe L] - Length: 0.700s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Scythe Strafe L] - Length: 0.700s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Jog Strafe Left mirrored] - Length: 0.700s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Jog Strafe Left mirrored] - Length: 0.700s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Pickaxe Strafe R] - Length: 0.700s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Jog Strafe Left mirrored] - Length: 0.700s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Jog Strafe Left mirrored] - Length: 0.700s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Jog Strafe Left mirrored] - Length: 0.700s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Jog Strafe Left mirrored] - Length: 0.700s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Atgeir Strafe R] - Length: 0.700s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Battleaxe Strafe R] - Length: 0.700s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Jog Strafe Left mirrored] - Length: 0.700s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Crossbow Strafe R] - Length: 0.700s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Jog Strafe Left mirrored] - Length: 0.700s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Jog Strafe Left mirrored] - Length: 0.700s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Greatsword Strafe R] - Length: 0.700s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Magic Item Strafe R] - Length: 0.700s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Jog Strafe Left mirrored] - Length: 0.700s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Feaster Strafe R] - Length: 0.700s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Scythe Strafe R] - Length: 0.700s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Jog Strafe Left mirrored] - Length: 0.700s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Jog Strafe Left mirrored] - Length: 0.700s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Pickaxe Strafe R] - Length: 0.700s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Jog Strafe Left mirrored] - Length: 0.700s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Jog Strafe Left mirrored] - Length: 0.700s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Jog Strafe Left mirrored] - Length: 0.700s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Jog Strafe Left mirrored] - Length: 0.700s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Atgeir Strafe R] - Length: 0.700s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Battleaxe Strafe R] - Length: 0.700s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Jog Strafe Left mirrored] - Length: 0.700s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Crossbow Strafe R] - Length: 0.700s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Jog Strafe Left mirrored] - Length: 0.700s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Jog Strafe Left mirrored] - Length: 0.700s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Greatsword Strafe R] - Length: 0.700s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Magic Item Strafe R] - Length: 0.700s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Jog Strafe Left mirrored] - Length: 0.700s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Feaster Strafe R] - Length: 0.700s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Scythe Strafe R] - Length: 0.700s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Jog Strafe Left mirrored] - Length: 0.700s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Jog Strafe Left mirrored] - Length: 0.700s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Pickaxe Strafe R] - Length: 0.700s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Jog Strafe Left mirrored] - Length: 0.700s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Jog Strafe Left mirrored] - Length: 0.700s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Jog Strafe Left mirrored] - Length: 0.700s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Jog Strafe Left mirrored] - Length: 0.700s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Atgeir Strafe R] - Length: 0.700s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Battleaxe Strafe Block R] - Length: 0.700s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Jog Strafe Left mirrored] - Length: 0.700s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Crossbow Strafe R] - Length: 0.700s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Jog Strafe Left mirrored] - Length: 0.700s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Jog Strafe Left mirrored] - Length: 0.700s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Greatsword Strafe R] - Length: 0.700s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Magic Item Strafe R] - Length: 0.700s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Jog Strafe Left mirrored] - Length: 0.700s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Feaster Strafe R] - Length: 0.700s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Scythe Strafe R] - Length: 0.700s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Jog backward] - Length: 0.836s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Jog backward] - Length: 0.836s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [PickAxe Jog] - Length: 0.800s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Jog backward] - Length: 0.836s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Jog backward] - Length: 0.836s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Jog backward] - Length: 0.836s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Jog backward] - Length: 0.836s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Atgeir Jog] - Length: 0.833s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Battleaxe Jog] - Length: 0.833s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Jog backward] - Length: 0.836s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [CrossbowJog] - Length: 0.833s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Jog backward] - Length: 0.836s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Jog backward] - Length: 0.836s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Greatsword Jog] - Length: 0.833s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Magic Item Jog] - Length: 0.833s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Jog backward] - Length: 0.836s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Feaster Jog] - Length: 0.833s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Scythe Jog] - Length: 0.833s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Jog backward] - Length: 0.836s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Jog backward] - Length: 0.836s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [PickAxe Jog] - Length: 0.800s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Jog backward] - Length: 0.836s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Jog backward] - Length: 0.836s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Jog backward] - Length: 0.836s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Jog backward] - Length: 0.836s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Atgeir Jog] - Length: 0.833s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Battleaxe Jog] - Length: 0.833s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Jog backward] - Length: 0.836s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [CrossbowJog] - Length: 0.833s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Jog backward] - Length: 0.836s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Jog backward] - Length: 0.836s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Greatsword Jog] - Length: 0.833s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Magic Item Jog] - Length: 0.833s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Jog backward] - Length: 0.836s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Feaster Jog] - Length: 0.833s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Scythe Jog] - Length: 0.833s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Jog backward] - Length: 0.836s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Jog backward] - Length: 0.836s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [PickAxe Jog] - Length: 0.800s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Jog backward] - Length: 0.836s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Jog backward] - Length: 0.836s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Jog backward] - Length: 0.836s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Jog backward] - Length: 0.836s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Atgeir Jog] - Length: 0.833s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Battleaxe Jog] - Length: 0.833s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Jog backward] - Length: 0.836s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [CrossbowJog] - Length: 0.833s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Jog backward] - Length: 0.836s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Jog backward] - Length: 0.836s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Greatsword Jog] - Length: 0.833s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Magic Item Jog] - Length: 0.833s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Jog backward] - Length: 0.836s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Feaster Jog] - Length: 0.833s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Scythe Jog] - Length: 0.833s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [JumpTweaked] - Length: 0.867s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Treading Water] - Length: 3.000s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Swimming] - Length: 4.533s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Swimming] - Length: 4.533s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Standing Up] - Length: 4.033s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [swing_pickaxe] - Length: 1.250s, FrameRate: 24, Legacy: False, Events: 4
+[Info   :Extra Attack System]   Clip: [Bow Aim Idle 01] - Length: 3.767s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Bow Aim Walk Forward] - Length: 1.213s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Bow Aim Walk Forward] - Length: 1.213s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Bow Aim Walk Left] - Length: 1.218s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Bow Aim Walk Left] - Length: 1.218s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Bow Aim Walk Right] - Length: 1.300s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Bow Aim Walk Right] - Length: 1.300s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Bow Aim Walk Back] - Length: 1.475s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Bow Aim Walk Back] - Length: 1.475s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Bow Aim Recoil] - Length: 0.700s, FrameRate: 30, Legacy: False, Events: 1
+[Info   :Extra Attack System]   Clip: [throw_spear] - Length: 1.133s, FrameRate: 30, Legacy: False, Events: 5
+[Info   :Extra Attack System]   Clip: [Punchstep 1] - Length: 1.167s, FrameRate: 30, Legacy: False, Events: 6
+[Info   :Extra Attack System]   Clip: [Dive] - Length: 1.500s, FrameRate: 30, Legacy: False, Events: 1
+[Info   :Extra Attack System]   Clip: [Block idle] - Length: 1.833s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Great sword walk f] - Length: 1.379s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Great sword walk f] - Length: 1.379s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [strafe left] - Length: 0.572s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [strafe left] - Length: 0.572s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [strafe right] - Length: 0.633s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [strafe right] - Length: 0.633s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Great sword walk back] - Length: 1.300s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Great sword walk back] - Length: 1.300s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [fight idle] - Length: 2.967s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Great sword walk f] - Length: 1.379s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Great sword walk f] - Length: 1.379s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Jog Strafe Left] - Length: 0.700s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Jog Strafe Left] - Length: 0.700s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Jog Strafe Left mirrored] - Length: 0.700s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Jog Strafe Left mirrored] - Length: 0.700s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Great sword walk back] - Length: 1.300s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Great sword walk back] - Length: 1.300s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Sword And Shield Idle] - Length: 2.533s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Sword And Shield Walk] - Length: 1.100s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Sword And Shield Run back] - Length: 0.533s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Sword And Shield Strafe left] - Length: 1.112s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Sword And Shield Strafe run left] - Length: 0.667s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Sword And Shield Strafe right] - Length: 1.101s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Sword And Shield Strafe run right] - Length: 0.704s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Sword And Shield Walk Back] - Length: 1.100s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Sword And Shield Run back] - Length: 0.533s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [knife_slash0] - Length: 0.467s, FrameRate: 30, Legacy: False, Events: 6
+[Info   :Extra Attack System]   Clip: [knife_slash1] - Length: 0.600s, FrameRate: 30, Legacy: False, Events: 6
+[Info   :Extra Attack System]   Clip: [knife_slash2] - Length: 0.867s, FrameRate: 30, Legacy: False, Events: 5
+[Info   :Extra Attack System]   Clip: [Attack1] - Length: 1.133s, FrameRate: 30, Legacy: False, Events: 6
+[Info   :Extra Attack System]   Clip: [Attack2] - Length: 0.833s, FrameRate: 30, Legacy: False, Events: 6
+[Info   :Extra Attack System]   Clip: [Attack3] - Length: 0.833s, FrameRate: 30, Legacy: False, Events: 6
+[Info   :Extra Attack System]   Clip: [flying] - Length: 0.333s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Sitting idle] - Length: 10.867s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Player_Sit_Chair] - Length: 16.700s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Crouch Idle] - Length: 1.667s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Pickaxe Crouch Idle] - Length: 1.667s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Crouch Idle] - Length: 1.667s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Crouch Idle] - Length: 1.667s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Crouch Idle] - Length: 1.667s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Crouch Idle] - Length: 1.667s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Atgeir Crouch Idle] - Length: 1.667s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Battleaxe Crouch Idle] - Length: 1.667s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Crouch Idle] - Length: 1.667s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Crossbow Crouch Idle] - Length: 1.667s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Crouch Idle] - Length: 1.667s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Crouch Idle] - Length: 1.667s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Greatsword Crouch Idle] - Length: 1.667s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Magic Item Crouch] - Length: 1.667s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Crouch Idle] - Length: 1.667s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Sneak walk] - Length: 0.903s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Sneak walk] - Length: 0.903s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Pickaxe Sneak Walk] - Length: 0.900s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Sneak walk] - Length: 0.903s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Sneak walk] - Length: 0.903s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Sneak walk] - Length: 0.903s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Sneak walk] - Length: 0.903s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Atgeir Sneak Walk] - Length: 0.900s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Battleaxe Sneak Walk] - Length: 0.900s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Sneak walk] - Length: 0.903s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Crossbow Sneak Walk] - Length: 0.900s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Sneak walk] - Length: 0.903s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Sneak walk] - Length: 0.903s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Greatsword Sneak Walk] - Length: 0.900s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Magic Item Sneak] - Length: 0.900s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Sneak walk] - Length: 0.903s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [BombThrow] - Length: 1.167s, FrameRate: 30, Legacy: False, Events: 3
+[Info   :Extra Attack System]   Clip: [Laying Sleeping] - Length: 1.700s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Standing Up] - Length: 4.033s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [player_stagger] - Length: 0.400s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Block idle] - Length: 1.833s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Great sword walk f] - Length: 1.379s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Great sword walk f] - Length: 1.379s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [strafe left] - Length: 0.572s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [strafe left] - Length: 0.572s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [strafe right] - Length: 0.633s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [strafe right] - Length: 0.633s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Great sword walk back] - Length: 1.300s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Great sword walk back] - Length: 1.300s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Sledge-Attack1] - Length: 1.667s, FrameRate: 24, Legacy: False, Events: 5
+[Info   :Extra Attack System]   Clip: [2Hand-Spear-Attack1] - Length: 0.667s, FrameRate: 30, Legacy: False, Events: 3
+[Info   :Extra Attack System]   Clip: [2Hand-Spear-Attack9] - Length: 0.700s, FrameRate: 30, Legacy: False, Events: 3
+[Info   :Extra Attack System]   Clip: [2Hand-Spear-Attack3] - Length: 0.733s, FrameRate: 30, Legacy: False, Events: 4
+[Info   :Extra Attack System]   Clip: [Encumbered idle] - Length: 2.667s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Encumbered walk] - Length: 1.467s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Jog Strafe Left] - Length: 0.700s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Jog Strafe Left mirrored] - Length: 0.700s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Encumbered walk] - Length: 1.467s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Standing Up from sit] - Length: 2.000s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Standing Up] - Length: 4.033s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Standing Up] - Length: 4.033s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [BattleAxe1] - Length: 2.133s, FrameRate: 30, Legacy: False, Events: 6
+[Info   :Extra Attack System]   Clip: [BattleAxe2] - Length: 1.267s, FrameRate: 30, Legacy: False, Events: 4
+[Info   :Extra Attack System]   Clip: [BattleAxe_Combo3] - Length: 0.800s, FrameRate: 30, Legacy: False, Events: 6
+[Info   :Extra Attack System]   Clip: [axe_swing] - Length: 1.133s, FrameRate: 30, Legacy: False, Events: 6
+[Info   :Extra Attack System]   Clip: [Axe combo 2] - Length: 0.900s, FrameRate: 30, Legacy: False, Events: 6
+[Info   :Extra Attack System]   Clip: [Axe combo 3] - Length: 0.967s, FrameRate: 30, Legacy: False, Events: 5
+[Info   :Extra Attack System]   Clip: [Punchstep 2] - Length: 1.200s, FrameRate: 30, Legacy: False, Events: 5
+[Info   :Extra Attack System]   Clip: [Kickstep] - Length: 1.833s, FrameRate: 30, Legacy: False, Events: 4
+[Info   :Extra Attack System]   Clip: [Workbench] - Length: 4.333s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Interact] - Length: 0.500s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Forge] - Length: 1.267s, FrameRate: 30, Legacy: False, Events: 2
+[Info   :Extra Attack System]   Clip: [Cooking] - Length: 3.000s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Hold The Mast] - Length: 3.300s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Hold The Dragon] - Length: 8.000s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Javelin Stab] - Length: 0.367s, FrameRate: 30, Legacy: False, Events: 5
+[Info   :Extra Attack System]   Clip: [EquipMid] - Length: 1.000s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [EquipBack] - Length: 1.167s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Eat] - Length: 1.633s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Atgeir360Attack] - Length: 2.167s, FrameRate: 30, Legacy: False, Events: 6
+[Info   :Extra Attack System]   Clip: [Knife JumpAttack] - Length: 1.400s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [EquipMid] - Length: 1.000s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Hard Landing] - Length: 1.767s, FrameRate: 30, Legacy: False, Events: 1
+[Info   :Extra Attack System]   Clip: [Pre landing] - Length: 0.033s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Dying Backwards] - Length: 4.000s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Standing Up] - Length: 4.033s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [GuardianPower] - Length: 2.083s, FrameRate: 24, Legacy: False, Events: 1
+[Info   :Extra Attack System]   Clip: [Throw] - Length: 1.667s, FrameRate: 30, Legacy: False, Events: 1
+[Info   :Extra Attack System]   Clip: [ReelIn] - Length: 2.133s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Great sword walk f] - Length: 1.379s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Great sword walk f] - Length: 1.379s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [strafe left] - Length: 0.572s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [strafe left] - Length: 0.572s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [strafe right] - Length: 0.633s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [strafe right] - Length: 0.633s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Great sword walk back] - Length: 1.300s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Great sword walk back] - Length: 1.300s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Load] - Length: 0.033s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Great sword walk f] - Length: 1.379s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Great sword walk f] - Length: 1.379s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [strafe left] - Length: 0.572s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [strafe left] - Length: 0.572s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [strafe right] - Length: 0.633s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [strafe right] - Length: 0.633s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Great sword walk back] - Length: 1.300s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Great sword walk back] - Length: 1.300s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [MaceAltAttack] - Length: 1.400s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [BattleAxeAltAttack] - Length: 0.857s, FrameRate: 30, Legacy: False, Events: 5
+[Info   :Extra Attack System]   Clip: [Riding_Idle] - Length: 2.000s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Riding_Walk] - Length: 2.000s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Riding_Canter] - Length: 1.000s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Sit_Throne_Idle] - Length: 45.100s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Sit_Ship] - Length: 16.667s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Fire Crossbow] - Length: 0.500s, FrameRate: 30, Legacy: False, Events: 1
+[Info   :Extra Attack System]   Clip: [Crossbow Idle Block] - Length: 1.833s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Crossbow Walk Block] - Length: 1.367s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Crossbow Walk Block] - Length: 1.367s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Crossbow Strafe Block L] - Length: 0.700s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Crossbow Strafe Block L] - Length: 0.700s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Crossbow Strafe Block R] - Length: 0.700s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Crossbow Strafe Block R] - Length: 0.700s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Crossbow Walk Back Block] - Length: 1.300s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Crossbow Walk Back Block] - Length: 1.300s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Knife Idle Block] - Length: 1.833s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Knife Walk Block] - Length: 1.367s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Knife Walk Block] - Length: 1.367s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Knife Strafe Block L] - Length: 0.700s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Knife Strafe Block L] - Length: 0.700s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Knife Strafe Block R] - Length: 0.700s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Knife Strafe Block R] - Length: 0.700s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Knife Walk Back Block] - Length: 1.367s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Knife Walk Back Block] - Length: 1.367s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Knife Attack Leap] - Length: 1.500s, FrameRate: 30, Legacy: False, Events: 2
+[Info   :Extra Attack System]   Clip: [Knife Attack Combo (3)] - Length: 0.500s, FrameRate: 30, Legacy: False, Events: 5
+[Info   :Extra Attack System]   Clip: [Knife Attack Combo (2)] - Length: 0.400s, FrameRate: 30, Legacy: False, Events: 4
+[Info   :Extra Attack System]   Clip: [Knife Attack Combo (1)] - Length: 0.400s, FrameRate: 30, Legacy: False, Events: 4
+[Info   :Extra Attack System]   Clip: [Fireball Staff Attacks (1)] - Length: 0.833s, FrameRate: 30, Legacy: False, Events: 1
+[Info   :Extra Attack System]   Clip: [Fireball Staff Attacks (2)] - Length: 1.000s, FrameRate: 30, Legacy: False, Events: 2
+[Info   :Extra Attack System]   Clip: [Beam Staff Attack] - Length: 0.467s, FrameRate: 30, Legacy: False, Events: 1
+[Info   :Extra Attack System]   Clip: [Beam Staff Attack Loop] - Length: 0.800s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Greatsword BaseAttack (3)] - Length: 1.500s, FrameRate: 30, Legacy: False, Events: 4
+[Info   :Extra Attack System]   Clip: [Greatsword BaseAttack (1)] - Length: 1.167s, FrameRate: 30, Legacy: False, Events: 4
+[Info   :Extra Attack System]   Clip: [Greatsword BaseAttack (2)] - Length: 1.000s, FrameRate: 30, Legacy: False, Events: 4
+[Info   :Extra Attack System]   Clip: [Block idle] - Length: 1.833s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Great sword walk f] - Length: 1.379s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Great sword walk f] - Length: 1.379s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [strafe left] - Length: 0.572s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [strafe left] - Length: 0.572s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [strafe right] - Length: 0.633s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [strafe right] - Length: 0.633s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Great sword walk back] - Length: 1.300s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Great sword walk back] - Length: 1.300s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Block Idle Staff] - Length: 1.833s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Staff Walk Block] - Length: 1.367s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Staff Walk Block] - Length: 1.367s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Staff Strafe Block L] - Length: 0.700s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Staff Strafe Block L] - Length: 0.700s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Staff Strafe Block R] - Length: 0.700s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Staff Strafe Block R] - Length: 0.700s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Staff Walk Back Block] - Length: 1.367s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Staff Walk Back Block] - Length: 1.367s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Block idle] - Length: 1.833s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Great sword walk f] - Length: 1.379s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Great sword walk f] - Length: 1.379s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [strafe left] - Length: 0.572s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [strafe left] - Length: 0.572s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [strafe right] - Length: 0.633s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [strafe right] - Length: 0.633s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Great sword walk back] - Length: 1.300s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Great sword walk back] - Length: 1.300s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Greatsword Secondary Attack] - Length: 1.400s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Fireball Staff Attacks to Idle] - Length: 0.333s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Ground Staff Attack] - Length: 1.500s, FrameRate: 30, Legacy: False, Events: 3
+[Info   :Extra Attack System]   Clip: [Axe Secondary Attack] - Length: 1.400s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Block idle] - Length: 1.833s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Atgeir Walk Block] - Length: 1.367s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Atgeir Walk Block] - Length: 1.367s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Atgeir Strafe Block L] - Length: 0.700s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Atgeir Strafe Block L] - Length: 0.700s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Atgeir Strafe Block R] - Length: 0.700s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Atgeir Strafe Block R] - Length: 0.700s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Atgeir Walk Back Block] - Length: 1.300s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Atgeir Walk Back Block] - Length: 1.300s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Block idle] - Length: 1.833s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Battleaxe Walk Block] - Length: 1.367s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Battleaxe Walk Block] - Length: 1.367s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Battleaxe Strafe Block L] - Length: 0.700s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Battleaxe Strafe Block L] - Length: 0.700s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Battleaxe Strafe Block R] - Length: 0.700s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Battleaxe Strafe Block R] - Length: 0.700s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Battleaxe Walk Back Block] - Length: 1.367s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Battleaxe Walk Back Block] - Length: 1.367s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [JumpTweaked] - Length: 0.867s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [JumpTweaked] - Length: 0.867s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Pickaxe Jump] - Length: 0.867s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [JumpTweaked] - Length: 0.867s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [JumpTweaked] - Length: 0.867s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [JumpTweaked] - Length: 0.867s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [JumpTweaked] - Length: 0.867s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Atgeir Jump] - Length: 0.867s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Battleaxe Jump] - Length: 0.867s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [JumpTweaked] - Length: 0.867s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Crossbow Jump] - Length: 0.867s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [JumpTweaked] - Length: 0.867s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Staff Jump] - Length: 0.867s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Greatsword Jump] - Length: 0.867s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Magic Item Jump] - Length: 0.867s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Jump Start] - Length: 0.500s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Feaster Jump] - Length: 0.867s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Scythe Jump] - Length: 0.867s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Jump Loop] - Length: 1.000s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Jump Loop] - Length: 1.000s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Pickaxe Jump Loop] - Length: 1.000s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Jump Loop] - Length: 1.000s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Jump Loop] - Length: 1.000s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Jump Loop] - Length: 1.000s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Jump Loop] - Length: 1.000s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Atgeir Jump Loop] - Length: 1.000s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Battleaxe Jump Loop] - Length: 1.000s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Jump Loop] - Length: 1.000s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Crossbow Jump Loop] - Length: 1.000s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Jump Loop] - Length: 1.000s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Jump Loop] - Length: 1.000s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Greatsword Jump Loop] - Length: 1.000s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Magic Item Jump Loop] - Length: 1.000s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Jump Loop] - Length: 1.000s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Feaster Jump Loop] - Length: 1.000s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Scythe Jump Loop] - Length: 1.000s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Jump End] - Length: 0.167s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Jump End] - Length: 0.167s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Pickaxe Jump End] - Length: 0.167s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Jump End] - Length: 0.167s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Jump End] - Length: 0.167s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Jump End] - Length: 0.167s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Jump End] - Length: 0.167s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Atgeir Jump End] - Length: 0.167s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Battleaxe Jump End] - Length: 0.167s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Jump End] - Length: 0.167s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Crossbow Jump End] - Length: 0.167s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Jump End] - Length: 0.167s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Staff Jump End] - Length: 0.167s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Greatsword Jump End] - Length: 0.167s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Jump End] - Length: 0.167s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Jump End] - Length: 0.167s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Skeleton Summon] - Length: 1.500s, FrameRate: 30, Legacy: False, Events: 1
+[Info   :Extra Attack System]   Clip: [AsksvinRide Idle] - Length: 1.500s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [AsksvinRide Walk] - Length: 1.000s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [AsksvinRide Canter] - Length: 0.800s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [AsksvinRide Run] - Length: 0.800s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [DualAxes Attack 1] - Length: 1.267s, FrameRate: 30, Legacy: False, Events: 4
+[Info   :Extra Attack System]   Clip: [DualAxes Attack 2 2] - Length: 1.433s, FrameRate: 30, Legacy: False, Events: 4
+[Info   :Extra Attack System]   Clip: [DualAxes Attack 3 2] - Length: 1.500s, FrameRate: 30, Legacy: False, Events: 5
+[Info   :Extra Attack System]   Clip: [DualAxes Attack Cleave] - Length: 1.900s, FrameRate: 30, Legacy: False, Events: 3
+[Info   :Extra Attack System]   Clip: [Lightning Staff Attack] - Length: 1.000s, FrameRate: 30, Legacy: False, Events: 1
+[Info   :Extra Attack System]   Clip: [DualAxes Attack 4] - Length: 1.500s, FrameRate: 30, Legacy: False, Events: 4
+[Info   :Extra Attack System]   Clip: [Troll Summon] - Length: 2.000s, FrameRate: 30, Legacy: False, Events: 1
+[Info   :Extra Attack System]   Clip: [Scything] - Length: 1.233s, FrameRate: 30, Legacy: False, Events: 3
+[Info   :Extra Attack System]   Clip: [Lie Down Divan] - Length: 2.667s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [drink] - Length: 4.600s, FrameRate: 30, Legacy: False, Events: 1
+[Info   :Extra Attack System]   Clip: [Wave] - Length: 2.500s, FrameRate: 24, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [ChallengeAccepted] - Length: 3.125s, FrameRate: 24, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Cheer] - Length: 2.458s, FrameRate: 24, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [No no no] - Length: 2.083s, FrameRate: 24, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Thumbsup] - Length: 1.250s, FrameRate: 24, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Point] - Length: 2.500s, FrameRate: 24, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Blowkiss] - Length: 2.000s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Bow] - Length: 3.500s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Cower] - Length: 2.667s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Cry] - Length: 4.000s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Despair] - Length: 6.667s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Flex] - Length: 2.833s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [GetOverHere] - Length: 2.333s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Headbang] - Length: 1.333s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Kneel Start] - Length: 0.700s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Laugh 2] - Length: 3.033s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Roar] - Length: 2.167s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Shrug] - Length: 2.667s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Dance 3] - Length: 3.600s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Dance 3] - Length: 3.600s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Dance 3] - Length: 3.600s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Dance 1] - Length: 2.400s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Dance 1] - Length: 2.400s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Dance 1] - Length: 2.400s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Dance 2] - Length: 2.400s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Dance 4] - Length: 2.400s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Dance 5] - Length: 1.800s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Kneel Loop] - Length: 2.000s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Dance] - Length: 35.168s, FrameRate: 29.97003, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Standing Up] - Length: 4.033s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Toast] - Length: 2.667s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Standing Up] - Length: 4.033s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Lie Down] - Length: 2.667s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Lie Down 2] - Length: 2.667s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [EquipMid] - Length: 1.000s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Interact] - Length: 0.500s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Eat] - Length: 1.633s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [EquipBack] - Length: 1.167s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [hammer_Swing] - Length: 0.500s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [swing_hoe] - Length: 0.667s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Interact_forward] - Length: 0.500s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [EquipLoop] - Length: 3.967s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [EquipMid] - Length: 1.000s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Reload Crossbow] - Length: 3.600s, FrameRate: 30, Legacy: False, Events: 1
+[Info   :Extra Attack System]   Clip: [Reload done] - Length: 0.900s, FrameRate: 30, Legacy: False, Events: 1
+[Info   :Extra Attack System]   Clip: [Beam Staff Attack Loop] - Length: 0.800s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Beam Staff Attack] - Length: 0.467s, FrameRate: 30, Legacy: False, Events: 1
+[Info   :Extra Attack System]   Clip: [Charge Staff Attack 2] - Length: 0.967s, FrameRate: 30, Legacy: False, Events: 1
+[Info   :Extra Attack System]   Clip: [Charge Staff Loop] - Length: 0.033s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Charge Staff Start Charge] - Length: 1.433s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System]   Clip: [Lightning Staff Recharge] - Length: 1.533s, FrameRate: 30, Legacy: False, Events: 2
+[Info   :Extra Attack System]   Clip: [Lightning Staff Recharge Done] - Length: 0.333s, FrameRate: 30, Legacy: False, Events: 1
+[Info   :Extra Attack System]   Clip: [Place Feast] - Length: 1.000s, FrameRate: 30, Legacy: False, Events: 0
+[Info   :Extra Attack System] === END ANIMATION CLIPS ===

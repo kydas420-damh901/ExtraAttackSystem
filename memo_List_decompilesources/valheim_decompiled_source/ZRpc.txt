@@ -1,0 +1,549 @@
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Reflection;
+using UnityEngine;
+
+// Token: 0x020001E8 RID: 488
+public class ZRpc : IDisposable
+{
+	// Token: 0x060012CB RID: 4811 RVA: 0x00016D32 File Offset: 0x00014F32
+	public ZRpc(ISocket socket)
+	{
+		this.m_socket = socket;
+	}
+
+	// Token: 0x060012CC RID: 4812 RVA: 0x00016D57 File Offset: 0x00014F57
+	public void Dispose()
+	{
+		this.m_socket.Dispose();
+	}
+
+	// Token: 0x060012CD RID: 4813 RVA: 0x00016D64 File Offset: 0x00014F64
+	public ISocket GetSocket()
+	{
+		return this.m_socket;
+	}
+
+	// Token: 0x060012CE RID: 4814 RVA: 0x000953A8 File Offset: 0x000935A8
+	public ZRpc.ErrorCode Update(float dt)
+	{
+		if (!this.m_socket.IsConnected())
+		{
+			return ZRpc.ErrorCode.Disconnected;
+		}
+		for (ZPackage zpackage = this.m_socket.Recv(); zpackage != null; zpackage = this.m_socket.Recv())
+		{
+			this.m_recvPackages++;
+			this.m_recvData += zpackage.Size();
+			try
+			{
+				this.HandlePackage(zpackage);
+			}
+			catch (EndOfStreamException ex)
+			{
+				ZLog.LogError("EndOfStreamException in ZRpc::HandlePackage: Assume incompatible version: " + ex.Message);
+				return ZRpc.ErrorCode.IncompatibleVersion;
+			}
+			catch (Exception ex2)
+			{
+				string str = "Exception in ZRpc::HandlePackage: ";
+				Exception ex3 = ex2;
+				ZLog.Log(str + ((ex3 != null) ? ex3.ToString() : null));
+			}
+		}
+		this.UpdatePing(dt);
+		return ZRpc.ErrorCode.Success;
+	}
+
+	// Token: 0x060012CF RID: 4815 RVA: 0x0009546C File Offset: 0x0009366C
+	private void UpdatePing(float dt)
+	{
+		this.m_pingTimer += dt;
+		if (this.m_pingTimer > ZRpc.m_pingInterval)
+		{
+			this.m_pingTimer = 0f;
+			this.m_pkg.Clear();
+			this.m_pkg.Write(0);
+			this.m_pkg.Write(true);
+			this.SendPackage(this.m_pkg);
+		}
+		this.m_timeSinceLastPing += dt;
+		if (this.m_timeSinceLastPing > ZRpc.m_timeout)
+		{
+			ZLog.LogWarning("ZRpc timeout detected");
+			this.m_socket.Close();
+		}
+	}
+
+	// Token: 0x060012D0 RID: 4816 RVA: 0x00095500 File Offset: 0x00093700
+	private void ReceivePing(ZPackage package)
+	{
+		if (package.ReadBool())
+		{
+			this.m_pkg.Clear();
+			this.m_pkg.Write(0);
+			this.m_pkg.Write(false);
+			this.SendPackage(this.m_pkg);
+			return;
+		}
+		this.m_timeSinceLastPing = 0f;
+	}
+
+	// Token: 0x060012D1 RID: 4817 RVA: 0x00016D6C File Offset: 0x00014F6C
+	public float GetTimeSinceLastPing()
+	{
+		return this.m_timeSinceLastPing;
+	}
+
+	// Token: 0x060012D2 RID: 4818 RVA: 0x00016D74 File Offset: 0x00014F74
+	public bool IsConnected()
+	{
+		return this.m_socket.IsConnected();
+	}
+
+	// Token: 0x060012D3 RID: 4819 RVA: 0x00095550 File Offset: 0x00093750
+	private void HandlePackage(ZPackage package)
+	{
+		int num = package.ReadInt();
+		if (num == 0)
+		{
+			this.ReceivePing(package);
+			return;
+		}
+		ZRpc.RpcMethodBase rpcMethodBase2;
+		if (ZRpc.m_DEBUG)
+		{
+			package.ReadString();
+			ZRpc.RpcMethodBase rpcMethodBase;
+			if (this.m_functions.TryGetValue(num, out rpcMethodBase))
+			{
+				rpcMethodBase.Invoke(this, package);
+				return;
+			}
+		}
+		else if (this.m_functions.TryGetValue(num, out rpcMethodBase2))
+		{
+			rpcMethodBase2.Invoke(this, package);
+		}
+	}
+
+	// Token: 0x060012D4 RID: 4820 RVA: 0x000955B0 File Offset: 0x000937B0
+	public void Register(string name, ZRpc.RpcMethod.Method f)
+	{
+		int stableHashCode = name.GetStableHashCode();
+		this.m_functions.Remove(stableHashCode);
+		this.m_functions.Add(stableHashCode, new ZRpc.RpcMethod(f));
+	}
+
+	// Token: 0x060012D5 RID: 4821 RVA: 0x000955E4 File Offset: 0x000937E4
+	public void Register<T>(string name, Action<ZRpc, T> f)
+	{
+		int stableHashCode = name.GetStableHashCode();
+		this.m_functions.Remove(stableHashCode);
+		this.m_functions.Add(stableHashCode, new ZRpc.RpcMethod<T>(f));
+	}
+
+	// Token: 0x060012D6 RID: 4822 RVA: 0x00095618 File Offset: 0x00093818
+	public void Register<T, U>(string name, Action<ZRpc, T, U> f)
+	{
+		int stableHashCode = name.GetStableHashCode();
+		this.m_functions.Remove(stableHashCode);
+		this.m_functions.Add(stableHashCode, new ZRpc.RpcMethod<T, U>(f));
+	}
+
+	// Token: 0x060012D7 RID: 4823 RVA: 0x0009564C File Offset: 0x0009384C
+	public void Register<T, U, V>(string name, Action<ZRpc, T, U, V> f)
+	{
+		int stableHashCode = name.GetStableHashCode();
+		this.m_functions.Remove(stableHashCode);
+		this.m_functions.Add(stableHashCode, new ZRpc.RpcMethod<T, U, V>(f));
+	}
+
+	// Token: 0x060012D8 RID: 4824 RVA: 0x00095680 File Offset: 0x00093880
+	public void Register<T, U, V, W>(string name, ZRpc.RpcMethod<T, U, V, W>.Method f)
+	{
+		int stableHashCode = name.GetStableHashCode();
+		this.m_functions.Remove(stableHashCode);
+		this.m_functions.Add(stableHashCode, new ZRpc.RpcMethod<T, U, V, W>(f));
+	}
+
+	// Token: 0x060012D9 RID: 4825 RVA: 0x000956B4 File Offset: 0x000938B4
+	public void Unregister(string name)
+	{
+		int stableHashCode = name.GetStableHashCode();
+		this.m_functions.Remove(stableHashCode);
+	}
+
+	// Token: 0x060012DA RID: 4826 RVA: 0x000956D8 File Offset: 0x000938D8
+	public void Invoke(string method, params object[] parameters)
+	{
+		if (!this.IsConnected())
+		{
+			return;
+		}
+		this.m_pkg.Clear();
+		int stableHashCode = method.GetStableHashCode();
+		this.m_pkg.Write(stableHashCode);
+		if (ZRpc.m_DEBUG)
+		{
+			this.m_pkg.Write(method);
+		}
+		ZRpc.Serialize(parameters, ref this.m_pkg);
+		this.SendPackage(this.m_pkg);
+	}
+
+	// Token: 0x060012DB RID: 4827 RVA: 0x00016D81 File Offset: 0x00014F81
+	private void SendPackage(ZPackage pkg)
+	{
+		this.m_sentPackages++;
+		this.m_sentData += pkg.Size();
+		this.m_socket.Send(this.m_pkg);
+	}
+
+	// Token: 0x060012DC RID: 4828 RVA: 0x00095738 File Offset: 0x00093938
+	public static void Serialize(object[] parameters, ref ZPackage pkg)
+	{
+		foreach (object obj in parameters)
+		{
+			if (obj is int)
+			{
+				pkg.Write((int)obj);
+			}
+			else if (obj is uint)
+			{
+				pkg.Write((uint)obj);
+			}
+			else if (obj is long)
+			{
+				pkg.Write((long)obj);
+			}
+			else if (obj is float)
+			{
+				pkg.Write((float)obj);
+			}
+			else if (obj is double)
+			{
+				pkg.Write((double)obj);
+			}
+			else if (obj is bool)
+			{
+				pkg.Write((bool)obj);
+			}
+			else if (obj is string)
+			{
+				pkg.Write((string)obj);
+			}
+			else if (obj is ZPackage)
+			{
+				pkg.Write((ZPackage)obj);
+			}
+			else
+			{
+				if (obj is List<string>)
+				{
+					List<string> list = obj as List<string>;
+					pkg.Write(list.Count);
+					using (List<string>.Enumerator enumerator = list.GetEnumerator())
+					{
+						while (enumerator.MoveNext())
+						{
+							string data = enumerator.Current;
+							pkg.Write(data);
+						}
+						goto IL_207;
+					}
+				}
+				if (obj is Vector3)
+				{
+					pkg.Write(((Vector3)obj).x);
+					pkg.Write(((Vector3)obj).y);
+					pkg.Write(((Vector3)obj).z);
+				}
+				else if (obj is Quaternion)
+				{
+					pkg.Write(((Quaternion)obj).x);
+					pkg.Write(((Quaternion)obj).y);
+					pkg.Write(((Quaternion)obj).z);
+					pkg.Write(((Quaternion)obj).w);
+				}
+				else if (obj is ZDOID)
+				{
+					pkg.Write((ZDOID)obj);
+				}
+				else if (obj is HitData)
+				{
+					(obj as HitData).Serialize(ref pkg);
+				}
+				else if (obj is ISerializableParameter)
+				{
+					(obj as ISerializableParameter).Serialize(ref pkg);
+				}
+			}
+			IL_207:;
+		}
+	}
+
+	// Token: 0x060012DD RID: 4829 RVA: 0x0009596C File Offset: 0x00093B6C
+	public static object[] Deserialize(ZRpc rpc, ParameterInfo[] paramInfo, ZPackage pkg)
+	{
+		List<object> list = new List<object>();
+		list.Add(rpc);
+		ZRpc.Deserialize(paramInfo, pkg, ref list);
+		return list.ToArray();
+	}
+
+	// Token: 0x060012DE RID: 4830 RVA: 0x00095998 File Offset: 0x00093B98
+	public static void Deserialize(ParameterInfo[] paramInfo, ZPackage pkg, ref List<object> parameters)
+	{
+		for (int i = 1; i < paramInfo.Length; i++)
+		{
+			ParameterInfo parameterInfo = paramInfo[i];
+			if (parameterInfo.ParameterType == typeof(int))
+			{
+				parameters.Add(pkg.ReadInt());
+			}
+			else if (parameterInfo.ParameterType == typeof(uint))
+			{
+				parameters.Add(pkg.ReadUInt());
+			}
+			else if (parameterInfo.ParameterType == typeof(long))
+			{
+				parameters.Add(pkg.ReadLong());
+			}
+			else if (parameterInfo.ParameterType == typeof(float))
+			{
+				parameters.Add(pkg.ReadSingle());
+			}
+			else if (parameterInfo.ParameterType == typeof(double))
+			{
+				parameters.Add(pkg.ReadDouble());
+			}
+			else if (parameterInfo.ParameterType == typeof(bool))
+			{
+				parameters.Add(pkg.ReadBool());
+			}
+			else if (parameterInfo.ParameterType == typeof(string))
+			{
+				parameters.Add(pkg.ReadString());
+			}
+			else if (parameterInfo.ParameterType == typeof(ZPackage))
+			{
+				parameters.Add(pkg.ReadPackage());
+			}
+			else if (parameterInfo.ParameterType == typeof(List<string>))
+			{
+				int num = pkg.ReadInt();
+				List<string> list = new List<string>(num);
+				for (int j = 0; j < num; j++)
+				{
+					list.Add(pkg.ReadString());
+				}
+				parameters.Add(list);
+			}
+			else if (parameterInfo.ParameterType == typeof(Vector3))
+			{
+				Vector3 vector = new Vector3(pkg.ReadSingle(), pkg.ReadSingle(), pkg.ReadSingle());
+				parameters.Add(vector);
+			}
+			else if (parameterInfo.ParameterType == typeof(Quaternion))
+			{
+				Quaternion quaternion = new Quaternion(pkg.ReadSingle(), pkg.ReadSingle(), pkg.ReadSingle(), pkg.ReadSingle());
+				parameters.Add(quaternion);
+			}
+			else if (parameterInfo.ParameterType == typeof(ZDOID))
+			{
+				parameters.Add(pkg.ReadZDOID());
+			}
+			else if (parameterInfo.ParameterType == typeof(HitData))
+			{
+				HitData hitData = new HitData();
+				hitData.Deserialize(ref pkg);
+				parameters.Add(hitData);
+			}
+			else if (typeof(ISerializableParameter).IsAssignableFrom(parameterInfo.ParameterType))
+			{
+				ISerializableParameter serializableParameter = (ISerializableParameter)Activator.CreateInstance(parameterInfo.ParameterType);
+				serializableParameter.Deserialize(ref pkg);
+				parameters.Add(serializableParameter);
+			}
+			else if (typeof(ISerializableParameter).IsAssignableFrom(parameterInfo.ParameterType))
+			{
+				ISerializableParameter serializableParameter2 = (ISerializableParameter)Activator.CreateInstance(parameterInfo.ParameterType);
+				serializableParameter2.Deserialize(ref pkg);
+				parameters.Add(serializableParameter2);
+			}
+		}
+	}
+
+	// Token: 0x060012DF RID: 4831 RVA: 0x00016DB5 File Offset: 0x00014FB5
+	public static void SetLongTimeout(bool enable)
+	{
+		if (enable)
+		{
+			ZRpc.m_timeout = 90f;
+		}
+		else
+		{
+			ZRpc.m_timeout = 30f;
+		}
+		ZLog.Log(string.Format("ZRpc timeout set to {0}s ", ZRpc.m_timeout));
+	}
+
+	// Token: 0x040014A3 RID: 5283
+	private ISocket m_socket;
+
+	// Token: 0x040014A4 RID: 5284
+	private ZPackage m_pkg = new ZPackage();
+
+	// Token: 0x040014A5 RID: 5285
+	private Dictionary<int, ZRpc.RpcMethodBase> m_functions = new Dictionary<int, ZRpc.RpcMethodBase>();
+
+	// Token: 0x040014A6 RID: 5286
+	private int m_sentPackages;
+
+	// Token: 0x040014A7 RID: 5287
+	private int m_sentData;
+
+	// Token: 0x040014A8 RID: 5288
+	private int m_recvPackages;
+
+	// Token: 0x040014A9 RID: 5289
+	private int m_recvData;
+
+	// Token: 0x040014AA RID: 5290
+	private float m_pingTimer;
+
+	// Token: 0x040014AB RID: 5291
+	private float m_timeSinceLastPing;
+
+	// Token: 0x040014AC RID: 5292
+	private static float m_pingInterval = 1f;
+
+	// Token: 0x040014AD RID: 5293
+	private static float m_timeout = 30f;
+
+	// Token: 0x040014AE RID: 5294
+	private static bool m_DEBUG = false;
+
+	// Token: 0x020001E9 RID: 489
+	public enum ErrorCode
+	{
+		// Token: 0x040014B0 RID: 5296
+		Success,
+		// Token: 0x040014B1 RID: 5297
+		Disconnected,
+		// Token: 0x040014B2 RID: 5298
+		IncompatibleVersion
+	}
+
+	// Token: 0x020001EA RID: 490
+	private interface RpcMethodBase
+	{
+		// Token: 0x060012E1 RID: 4833
+		void Invoke(ZRpc rpc, ZPackage pkg);
+	}
+
+	// Token: 0x020001EB RID: 491
+	public class RpcMethod : ZRpc.RpcMethodBase
+	{
+		// Token: 0x060012E2 RID: 4834 RVA: 0x00016E05 File Offset: 0x00015005
+		public RpcMethod(ZRpc.RpcMethod.Method action)
+		{
+			this.m_action = action;
+		}
+
+		// Token: 0x060012E3 RID: 4835 RVA: 0x00016E14 File Offset: 0x00015014
+		public void Invoke(ZRpc rpc, ZPackage pkg)
+		{
+			this.m_action(rpc);
+		}
+
+		// Token: 0x040014B3 RID: 5299
+		private ZRpc.RpcMethod.Method m_action;
+
+		// Token: 0x020001EC RID: 492
+		// (Invoke) Token: 0x060012E5 RID: 4837
+		public delegate void Method(ZRpc RPC);
+	}
+
+	// Token: 0x020001ED RID: 493
+	private class RpcMethod<T> : ZRpc.RpcMethodBase
+	{
+		// Token: 0x060012E8 RID: 4840 RVA: 0x00016E22 File Offset: 0x00015022
+		public RpcMethod(Action<ZRpc, T> action)
+		{
+			this.m_action = action;
+		}
+
+		// Token: 0x060012E9 RID: 4841 RVA: 0x00016E31 File Offset: 0x00015031
+		public void Invoke(ZRpc rpc, ZPackage pkg)
+		{
+			this.m_action.DynamicInvoke(ZRpc.Deserialize(rpc, this.m_action.Method.GetParameters(), pkg));
+		}
+
+		// Token: 0x040014B4 RID: 5300
+		private Action<ZRpc, T> m_action;
+	}
+
+	// Token: 0x020001EE RID: 494
+	private class RpcMethod<T, U> : ZRpc.RpcMethodBase
+	{
+		// Token: 0x060012EA RID: 4842 RVA: 0x00016E56 File Offset: 0x00015056
+		public RpcMethod(Action<ZRpc, T, U> action)
+		{
+			this.m_action = action;
+		}
+
+		// Token: 0x060012EB RID: 4843 RVA: 0x00016E65 File Offset: 0x00015065
+		public void Invoke(ZRpc rpc, ZPackage pkg)
+		{
+			this.m_action.DynamicInvoke(ZRpc.Deserialize(rpc, this.m_action.Method.GetParameters(), pkg));
+		}
+
+		// Token: 0x040014B5 RID: 5301
+		private Action<ZRpc, T, U> m_action;
+	}
+
+	// Token: 0x020001EF RID: 495
+	private class RpcMethod<T, U, V> : ZRpc.RpcMethodBase
+	{
+		// Token: 0x060012EC RID: 4844 RVA: 0x00016E8A File Offset: 0x0001508A
+		public RpcMethod(Action<ZRpc, T, U, V> action)
+		{
+			this.m_action = action;
+		}
+
+		// Token: 0x060012ED RID: 4845 RVA: 0x00016E99 File Offset: 0x00015099
+		public void Invoke(ZRpc rpc, ZPackage pkg)
+		{
+			this.m_action.DynamicInvoke(ZRpc.Deserialize(rpc, this.m_action.Method.GetParameters(), pkg));
+		}
+
+		// Token: 0x040014B6 RID: 5302
+		private Action<ZRpc, T, U, V> m_action;
+	}
+
+	// Token: 0x020001F0 RID: 496
+	public class RpcMethod<T, U, V, B> : ZRpc.RpcMethodBase
+	{
+		// Token: 0x060012EE RID: 4846 RVA: 0x00016EBE File Offset: 0x000150BE
+		public RpcMethod(ZRpc.RpcMethod<T, U, V, B>.Method action)
+		{
+			this.m_action = action;
+		}
+
+		// Token: 0x060012EF RID: 4847 RVA: 0x00016ECD File Offset: 0x000150CD
+		public void Invoke(ZRpc rpc, ZPackage pkg)
+		{
+			this.m_action.DynamicInvoke(ZRpc.Deserialize(rpc, this.m_action.Method.GetParameters(), pkg));
+		}
+
+		// Token: 0x040014B7 RID: 5303
+		private ZRpc.RpcMethod<T, U, V, B>.Method m_action;
+
+		// Token: 0x020001F1 RID: 497
+		// (Invoke) Token: 0x060012F1 RID: 4849
+		public delegate void Method(ZRpc RPC, T p0, U p1, V p2, B p3);
+	}
+}

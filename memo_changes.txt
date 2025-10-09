@@ -1,0 +1,191 @@
+ExtraAttackSystem 変更履歴メモ
+
+[前提]
+- このファイルはゲーム内仕様に関する変更メモ。ビルドエラー関連は記録しない。
+- 古いのは消さずにここから下にメモしていく
+
+2025-10-09 追加修正
+■ 発生状況
+- YAMLファイルの出力先が bepinex\\config\\Dyju420.ExtraAttackSystem となっており、ユーザー期待の bepinex\\config\\ExtraAttackSystem と不一致だった。
+- プラグイン起動時に YAML の Initialize() と AnimationManager.LoadAssets() が呼ばれておらず、置換マップ／タイミング設定が適用されないケースがあった。
+
+■ 原因
+- ConfigFolderPath を GUID サブフォルダ固定にしていた。
+- Awake() 内で設定初期化とアセットロードの呼び出しが欠落していた。
+
+■ 修正方法
+- AnimationReplacementConfig / AnimationTimingConfig / ExtraAttackExclusionConfig の ConfigFolderPath を "ExtraAttackSystem" に統一。
+- ExtraAttackPlugin.Awake() の Harmony パッチ適用前に以下を追加：
+  - AnimationReplacementConfig.Initialize()
+  - AnimationTimingConfig.Initialize()
+  - ExtraAttackExclusionConfig.Initialize()
+  - AnimationManager.LoadAssets()
+
+■ 対応箇所
+- AnimationReplacementConfig.cs
+- AnimationTimingConfig.cs
+- ExtraAttackExclusionConfig.cs
+- ExtraAttackPlugin.cs (Awake)
+
+■ 影響
+- YAMLは bepinex\\config\\ExtraAttackSystem に作成・読み込まれるようになる。
+- 起動時に外部アニメーションアセットがロードされ、ReplacementMap とタイミング設定が即時適用されるため、カスタムアニメーションの再生が可能になる。
+- 既存の Attack_Start_NullifyPrevious_Patch を有効化し、Prefix 内で ExtraAttack の自前 StartAttack 呼び出し時のみ AOC を適用するようにした。
+  - Player側の TriggerNormalAttack/TriggerExtraAttack から ApplyStyleAOC 呼び出しを削除。
+  - Attack_Start_NullifyPrevious_Patch の Prefix で、ConsumeBypassNextStartAttack が true の場合に限り、ApplyStyleAOC(player, animator, mode) を実行。
+  - Attack.Stop の Postfix で RevertStyleAOC を維持（RootMotionが落ち着かない場合は遅延させる既存ロジックのまま）。
+  - ZSyncAnimation.SetTrigger の Prefix で emote_stop をガードウィンドウ中のみ抑制（既存）。
+
+■ 対応箇所
+- ExtraAttackPatches_Player.cs
+  - TriggerNormalAttack: ApplyStyleAOC 呼び出しをコメントアウト（削除）
+  - TriggerExtraAttack: ApplyStyleAOC 呼び出しをコメントアウト（削除）
+- ExtraAttackPatches_Combo.cs
+  - Attack_Start_NullifyPrevious_Patch: Prefix 内に AOC 適用を追加（ConsumeBypassNextStartAttack による一回限りの適用）
+- ExtraAttackPatches_Attack.cs
+  - Attack.Stop Postfix: 既存の RevertStyleAOC 呼び出しを継続
+
+■ 影響
+- AOC の適用タイミングが Attack.Start Prefix 直前に統一され、YAML未設定時でもバニラの攻撃開始フローが維持される。
+- emote_stop の不必要な発火を抑制し、座り状態からの「立ち上がり」アニメーションの誤再生を軽減。
+- 二重適用による競合を解消し、DualWield 系MODとの併用時も Animator のリセット／トリガー順序の整合性が向上。
+
+■ テスト観点（ゲーム内）
+- Q/T/G 押下で各セカンダリが武器種に応じて発動し、YAMLのスタミナ／クールダウンが適用されること。
+- YAML未設定の武器／素手でもバニラ攻撃が開始されること（フォールバック）。
+- 座り／しゃがみ状態からの攻撃で「Standing up from sit」が不要に再生されないこと（ガードウィンドウ中の抑制確認）。
+- Attack.Stop 後に AOC が元の Original に戻り、連続操作で不整合がないこと。
+
+
+2025-10-09 仕様整合（secondary優先）
+■ 発生状況
+- Q/T/G モードで YAML の secondary_Q/T/G を設定しても、スタイル系マップが優先され secondary_* が選択されない場合があった。
+
+■ 原因
+- BuildOrGetAOCFor が ea_style* をベースキーにしており、secondary_* 系がキー選択から除外されていた。
+
+■ 修正方法
+- BuildOrGetAOCFor に secondaryPrefix（ea_secondary_Q/T/G）を導入し、Item/Type/Left派生（_Item_{RightIdent}, _{SkillType}, _LeftShield/_LeftTorch/_Left{SkillType}）を含めて最優先で選択。存在しない場合のみ ea_style* にフォールバック。
+- EnsureItemSecondaryMaps を追加し、secondary_* の Item/Left派生キーを ReplacementMap に事前生成（typeベースからコピー or 空作成）。
+
+■ 対応箇所
+- AddAnimations/ExtraAttackPatches_Animation.cs（BuildOrGetAOCFor, EnsureItemSecondaryMaps）
+
+■ 影響
+- YAML に secondary_Q/T/G 系の設定が有効に機能し、Q/T/G 押下で「カスタムアニメーションによるセカンダリ属性攻撃」が一貫して優先される。
+- 未設定時は従来どおり ea_style* にフォールバックし、バニラ攻撃開始フローを維持。
+- 出力される YAML の maps に secondary_* の Item/Type/Left派生キーがより生成されやすくなる（初回生成・補完時）。
+
+2025-10-09 仕様統一（F6再読込の対象追加）
+■ 発生状況
+- F6キーによる設定再読込で AnimationReplacement.yaml のみが対象で、タイミング（eas_attackconfig.yaml）と除外（ExtraAttackExclusionConfig.yaml）が反映されない場合があった。
+
+■ 原因
+- Player.Update の F6ハンドラで AnimationReplacementConfig.Reload() のみ呼んでおり、他の YAML を同時に再読込していなかった。
+
+■ 修正方法
+- F6押下時に AnimationTimingConfig.Reload() と ExtraAttackExclusionConfig.Reload() も実行するよう拡張。
+
+■ 対応箇所
+- AddAnimations/ExtraAttackPatches_Player.cs（Player.Update Postfix の F6ブロック）
+
+■ 影響
+- ユーザーが各YAMLを編集後、F6で即時に全設定が反映される。タイミング（ダメージ／ヒット／サウンド）と除外（爆弾／ツール等）も同じ再読込で同期される。
+
+2025-10-09 NRE対策（YAML nullガード）
+■ 発生状況
+- 起動時に AnimationReplacementConfig.Initialize() / AnimationTimingConfig.Initialize() 実行中、YAMLの欠落フィールドや null 値により NullReferenceException が発生する場合があった。
+
+■ 原因
+- AnimationReplacement.yaml の maps セクションで style キーの値が null のケース（例: maps: { ea_style1: null }）。
+- eas_attackconfig.yaml の Default/Animations が欠落または null のケース。
+- ApplyToManager / SaveConfigWithComments / GetTiming などで null を前提にしていない参照があった。
+
+■ 修正方法
+- AnimationReplacementConfig
+  - ApplyToManager: style.Value が null の場合はスキップするガードを追加。
+  - SaveConfigWithComments: maps[style] が null の場合は書き出しをスキップするガードを追加。
+  - Initialize: YAMLが空の場合の SaveFromManager 条件で null 安全化（Count と Any 呼び出しの前にガード）。
+- AnimationTimingConfig
+  - LoadConfig 後に Default/Animations が null の場合、空の構造で初期化する処理を追加。
+  - GetTiming / HasConfig / SaveAppendFromReplacementMap で null 安全に参照する分岐を追加。
+
+■ 対応箇所
+- AddAnimations/AnimationReplacementConfig.cs
+- AddAnimations/AnimationTimingConfig.cs
+
+■ 影響
+- ユーザーが不完全なYAML（mapsの一部がnull、Default/Animationsの欠落）を保存しても、起動時にNREが発生しない。
+- 初期化・再読込（F6）時に安全にマップ／タイミングが適用され、バニラの攻撃開始フローを維持しつつ置換が機能する。
+
+
+2025-10-09 新YAML仕様（AOCペア形式）導入
+■ 発生状況
+- 既存 maps セクションのみでは、Q/T/G セカンダリの「タイプ別（SkillType）」「アイテム別（Item m_shared.m_name）」「左手派生（盾/トーチ/左手スキル）」を整理して編集するのが難しく、管理・拡張性が低かった。
+
+■ 原因
+- maps はフラットなスタイルキー配下に全クリップ置換を持つ構造のため、タイプ別・アイテム別の粒度に適した編集単位がなかった。
+
+■ 修正方法
+- AnimationReplacement.yaml に aoc_types / aoc_items セクションを追加し、AOC（AnimatorOverrideController）用のペア形式を採用。
+  - aoc_types: スタイルキー（例: ea_secondary_Q, ea_secondary_Q_Swords, ea_style2_Swords など）→ { VanillaClip: ExternalClip }
+  - aoc_items: アイテムキー（例: ea_secondary_Q_Item_{m_shared.m_name}）→ { VanillaClip: ExternalClip }
+  - 左手派生キー: 上記キーに「_LeftShield / _LeftTorch / _Left{Skills.SkillType}」を付加（例: ea_secondary_Q_Item_THSwordKrom_LeftShield）。
+- 読込順とマージ: 旧 maps → aoc_types → aoc_items の順で AnimationManager.ReplacementMap に統合（後方互換維持）。
+- 保存順: aoc_types → aoc_items → maps の順に出力し、両言語コメント（英/日）で Vanilla/Replacement を併記。
+- null ガード: 読込・適用・保存の各処理でセクション欠落／値 null を安全にスキップ。
+
+■ 対応箇所
+- AddAnimations/AnimationReplacementConfig.cs
+  - LoadConfig / ApplyToManager / SyncFromManagerToYaml / SaveConfigWithComments を改修（aoc_types/aoc_items の取り扱いと null ガード）。
+
+■ 影響
+- ユーザーは Q/T/G セカンダリのタイプ別・アイテム別・左手派生ごとに置換を整理して編集できる。
+- 既存 maps の後方互換は維持され、F6再読込でも新旧の設定が即時反映される。
+- YAML編集の自由度が向上し、武器種追加やDualWield系MODの組み合わせにも柔軟に対応可能。
+
+
+2025-10-09 Greatsword検知とキー統一（セカンダリ）
+■ 発生状況
+- 両手剣（TwoHandedWeapon）装備時に Q/T/G スタイルモードでセカンダリが確実に再生されるよう、Animator トリガの一貫性が必要だった。
+
+■ 原因
+- クリップ名の揺れや武器種検出の差により、Greatswordセカンダリの置換が選ばれないケースがあった。
+
+■ 修正方法
+- TwoHandedWeapon 装備時にスタイルモード（Style1/2/3）が有効なら、クリップ名を「greatsword_secondary」に統一して発火。
+- AnimationManager.ReplacementMap に「Greatsword Secondary Attack → 2Hand-Sword-Attack8External」を追加（Q基準）。
+- 二次キー選択は BuildOrGetAOCFor の secondaryPrefix（ea_secondary_Q/T/G）優先ロジックにより、該当マップが存在すればそちらを採用し、未設定時はスタイル系へフォールバック。
+
+■ 対応箇所
+- AddAnimations/ExtraAttackPatches_Core.cs（クリップ名統一の条件分岐）
+- AddAnimations/AnimationManager.cs（Greatsword Secondary Attack の置換追加）
+- AddAnimations/ExtraAttackPatches_Animation.cs（secondaryPrefix 優先・左手派生選択の導入）
+
+■ 影響
+- Q/T/G 押下で両手剣のセカンダリが安定して再生され、YAMLでタイミング/ダメージを調整可能。
+- 旧スタイル設定のみでも動作を維持し、将来的なタイプ別・アイテム別の細分化にスムーズに移行できる。
+
+
+2025-10-09 F6再読込でAOCキャッシュクリア／適用タイミングの明確化
+■ 発生状況
+- F6キーでYAMLを再読込しても、過去に生成した AnimatorOverrideController（AOC）のキャッシュが残り、最新設定が攻撃に反映されないケースがあった。
+
+■ 原因
+- AnimationManager.CustomRuntimeControllers と ExternalClipLengthCache が保持され続け、再読込後も旧AOCが使われていた。
+
+■ 修正方法
+- AnimationManager に ClearAOCCache(keepOriginal=true) を追加し、F6再読込時に AOC キャッシュとクリップ長キャッシュをクリアする実装を行った。Original は保持して次回適用時のベースにする。
+- Player.Update の F6 ハンドラに ClearAOCCache(true) を呼び出し、次回 ApplyStyleAOC 時に最新YAMLから再生成させる。
+
+■ 対応箇所
+- AddAnimations/AnimationManager.cs（ClearAOCCache 実装）
+- AddAnimations/ExtraAttackPatches_Player.cs（F6 ブロックに ClearAOCCache 呼び出しを追加）
+
+■ 影響
+- ユーザーが YAML を編集後、F6 操作だけで AOC が最新設定に基づいて再生成され、即時に攻撃へ反映される。
+- Original コントローラーを保持するため、Revert 時のバニラ復帰が常に安定する。
+
+■ 適用タイミングの方針
+- AOC の適用は Attack.Start の Prefix（Attack_Start_NullifyPrevious_Patch）で、ExtraAttackUtils.ConsumeBypassNextStartAttack(player) が true の場合のみ実行する。
+- Player 側（TriggerNormalAttack/TriggerExtraAttack）での ApplyStyleAOC 呼び出しは維持しない（コメントアウトのまま）。二重適用を避け、バニラのトリガ順序に沿う。

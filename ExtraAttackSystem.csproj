@@ -6,6 +6,21 @@
 		<Deterministic>true</Deterministic>
 	</PropertyGroup>
 	<ItemGroup>
+	  <Compile Remove="memo_List_decompilesources\**" />
+	  <EmbeddedResource Remove="memo_List_decompilesources\**" />
+	  <None Remove="memo_List_decompilesources\**" />
+	</ItemGroup>
+	<ItemGroup>
+	  <None Remove="AnimationReplacement.yaml" />
+	
+	  <None Remove="Dyju420.ExtraAttackSystem.cfg" />
+	  <None Remove="ExtraAttackExclusion.yaml" />
+	  <None Remove="memo.md" />
+	  <None Remove="memo_changes.txt" />
+	  <None Remove="memo_Design.txt" />
+	  <None Remove="README.md" />
+	</ItemGroup>
+	<ItemGroup>
 	  <EmbeddedResource Include="Resources\extraattacksystem" />
 	  <EmbeddedResource Include="Resources\extraattacksystem.manifest" />
 	  <EmbeddedResource Include="Resources\Resources" />

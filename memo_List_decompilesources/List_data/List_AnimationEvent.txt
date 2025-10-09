@@ -1,0 +1,263 @@
+[Info   :Extra Attack System] === DEBUG: ANIMATION EVENTS (ON DEMAND) ===
+[Info   :Extra Attack System] --- [swing_pickaxe] has 4 event(s) ---
+[Info   :Extra Attack System]   Event: time=0.800, function=TrailOn, int=0, float=0.000, string=
+[Info   :Extra Attack System]   Event: time=0.825, function=Speed, int=0, float=1.800, string=
+[Info   :Extra Attack System]   Event: time=1.019, function=OnAttackTrigger, int=0, float=0.000, string=
+[Info   :Extra Attack System]   Event: time=1.055, function=Speed, int=0, float=1.100, string=
+[Info   :Extra Attack System] --- [Bow Aim Recoil] has 1 event(s) ---
+[Info   :Extra Attack System]   Event: time=0.167, function=OnAttackTrigger, int=0, float=0.000, string=
+[Info   :Extra Attack System] --- [throw_spear] has 5 event(s) ---
+[Info   :Extra Attack System]   Event: time=0.000, function=Speed, int=0, float=1.000, string=
+[Info   :Extra Attack System]   Event: time=0.499, function=Speed, int=0, float=1.500, string=
+[Info   :Extra Attack System]   Event: time=0.509, function=TrailOn, int=0, float=1.000, string=
+[Info   :Extra Attack System]   Event: time=0.739, function=OnAttackTrigger, int=0, float=0.000, string=
+[Info   :Extra Attack System]   Event: time=0.797, function=Speed, int=0, float=1.000, string=
+[Info   :Extra Attack System] --- [Punchstep 1] has 6 event(s) ---
+[Info   :Extra Attack System]   Event: time=0.000, function=Speed, int=0, float=2.000, string=
+[Info   :Extra Attack System]   Event: time=0.697, function=Speed, int=0, float=2.000, string=
+[Info   :Extra Attack System]   Event: time=0.702, function=TrailOn, int=0, float=0.000, string=
+[Info   :Extra Attack System]   Event: time=0.840, function=Hit, int=0, float=0.000, string=
+[Info   :Extra Attack System]   Event: time=0.916, function=Speed, int=0, float=1.000, string=
+[Info   :Extra Attack System]   Event: time=1.167, function=Chain, int=0, float=0.000, string=
+[Info   :Extra Attack System] --- [Dive] has 1 event(s) ---
+[Info   :Extra Attack System]   Event: time=0.700, function=DodgeMortal, int=0, float=0.000, string=
+[Info   :Extra Attack System] --- [knife_slash0] has 6 event(s) ---
+[Info   :Extra Attack System]   Event: time=0.134, function=TrailOn, int=0, float=0.000, string=
+[Info   :Extra Attack System]   Event: time=0.157, function=Speed, int=0, float=1.500, string=
+[Info   :Extra Attack System]   Event: time=0.256, function=OnAttackTrigger, int=0, float=0.000, string=
+[Info   :Extra Attack System]   Event: time=0.340, function=Speed, int=0, float=0.500, string=
+[Info   :Extra Attack System]   Event: time=0.365, function=Chain, int=0, float=0.000, string=
+[Info   :Extra Attack System]   Event: time=0.439, function=TrailOff, int=0, float=0.000, string=
+[Info   :Extra Attack System] --- [knife_slash1] has 6 event(s) ---
+[Info   :Extra Attack System]   Event: time=0.122, function=TrailOn, int=0, float=0.000, string=
+[Info   :Extra Attack System]   Event: time=0.153, function=Speed, int=0, float=2.000, string=
+[Info   :Extra Attack System]   Event: time=0.216, function=OnAttackTrigger, int=0, float=0.000, string=
+[Info   :Extra Attack System]   Event: time=0.405, function=Speed, int=0, float=1.000, string=
+[Info   :Extra Attack System]   Event: time=0.455, function=TrailOff, int=0, float=0.000, string=
+[Info   :Extra Attack System]   Event: time=0.485, function=Chain, int=0, float=0.000, string=
+[Info   :Extra Attack System] --- [knife_slash2] has 5 event(s) ---
+[Info   :Extra Attack System]   Event: time=0.208, function=Speed, int=0, float=2.500, string=
+[Info   :Extra Attack System]   Event: time=0.278, function=TrailOn, int=0, float=0.000, string=
+[Info   :Extra Attack System]   Event: time=0.516, function=OnAttackTrigger, int=0, float=0.000, string=
+[Info   :Extra Attack System]   Event: time=0.568, function=Speed, int=0, float=1.000, string=
+[Info   :Extra Attack System]   Event: time=0.656, function=TrailOff, int=0, float=0.000, string=
+[Info   :Extra Attack System] --- [Attack1] has 6 event(s) ---
+[Info   :Extra Attack System]   Event: time=0.372, function=Speed, int=0, float=1.200, string=
+[Info   :Extra Attack System]   Event: time=0.404, function=TrailOn, int=0, float=0.000, string=
+[Info   :Extra Attack System]   Event: time=0.472, function=Hit, int=0, float=0.000, string=
+[Info   :Extra Attack System]   Event: time=0.601, function=Speed, int=0, float=1.000, string=
+[Info   :Extra Attack System]   Event: time=0.714, function=TrailOff, int=0, float=0.000, string=
+[Info   :Extra Attack System]   Event: time=0.730, function=Chain, int=0, float=0.000, string=
+[Info   :Extra Attack System] --- [Attack2] has 6 event(s) ---
+[Info   :Extra Attack System]   Event: time=0.202, function=TrailOn, int=0, float=0.000, string=
+[Info   :Extra Attack System]   Event: time=0.214, function=Speed, int=0, float=1.100, string=
+[Info   :Extra Attack System]   Event: time=0.259, function=Hit, int=0, float=0.000, string=
+[Info   :Extra Attack System]   Event: time=0.390, function=TrailOff, int=0, float=0.000, string=
+[Info   :Extra Attack System]   Event: time=0.442, function=Speed, int=0, float=1.000, string=
+[Info   :Extra Attack System]   Event: time=0.557, function=Chain, int=0, float=0.000, string=
+[Info   :Extra Attack System] --- [Attack3] has 6 event(s) ---
+[Info   :Extra Attack System]   Event: time=0.024, function=Speed, int=0, float=0.500, string=
+[Info   :Extra Attack System]   Event: time=0.140, function=Speed, int=0, float=1.500, string=
+[Info   :Extra Attack System]   Event: time=0.150, function=TrailOn, int=0, float=0.000, string=
+[Info   :Extra Attack System]   Event: time=0.278, function=OnAttackTrigger, int=0, float=0.000, string=
+[Info   :Extra Attack System]   Event: time=0.356, function=TrailOff, int=0, float=0.000, string=
+[Info   :Extra Attack System]   Event: time=0.549, function=Speed, int=0, float=1.000, string=
+[Info   :Extra Attack System] --- [BombThrow] has 3 event(s) ---
+[Info   :Extra Attack System]   Event: time=0.507, function=TrailOn, int=0, float=0.000, string=
+[Info   :Extra Attack System]   Event: time=0.513, function=Speed, int=0, float=1.500, string=
+[Info   :Extra Attack System]   Event: time=0.760, function=OnAttackTrigger, int=0, float=0.000, string=
+[Info   :Extra Attack System] --- [Sledge-Attack1] has 5 event(s) ---
+[Info   :Extra Attack System]   Event: time=0.844, function=Speed, int=0, float=1.500, string=
+[Info   :Extra Attack System]   Event: time=0.872, function=TrailOn, int=0, float=0.000, string=
+[Info   :Extra Attack System]   Event: time=1.265, function=Speed, int=0, float=1.000, string=
+[Info   :Extra Attack System]   Event: time=1.296, function=OnAttackTrigger, int=0, float=0.000, string=
+[Info   :Extra Attack System]   Event: time=1.324, function=TrailOff, int=0, float=0.000, string=
+[Info   :Extra Attack System] --- [2Hand-Spear-Attack1] has 3 event(s) ---
+[Info   :Extra Attack System]   Event: time=0.369, function=TrailOn, int=0, float=0.000, string=
+[Info   :Extra Attack System]   Event: time=0.470, function=OnAttackTrigger, int=0, float=0.000, string=
+[Info   :Extra Attack System]   Event: time=0.526, function=TrailOff, int=0, float=0.000, string=
+[Info   :Extra Attack System] --- [2Hand-Spear-Attack9] has 3 event(s) ---
+[Info   :Extra Attack System]   Event: time=0.277, function=TrailOn, int=0, float=0.000, string=
+[Info   :Extra Attack System]   Event: time=0.554, function=OnAttackTrigger, int=0, float=0.000, string=
+[Info   :Extra Attack System]   Event: time=0.588, function=TrailOff, int=0, float=0.000, string=
+[Info   :Extra Attack System] --- [2Hand-Spear-Attack3] has 4 event(s) ---
+[Info   :Extra Attack System]   Event: time=0.507, function=TrailOn, int=0, float=0.200, string=
+[Info   :Extra Attack System]   Event: time=0.609, function=OnAttackTrigger, int=0, float=0.000, string=
+[Info   :Extra Attack System]   Event: time=0.630, function=Speed, int=0, float=0.200, string=
+[Info   :Extra Attack System]   Event: time=0.648, function=TrailOff, int=0, float=0.200, string=
+[Info   :Extra Attack System] --- [BattleAxe1] has 6 event(s) ---
+[Info   :Extra Attack System]   Event: time=0.079, function=Speed, int=0, float=1.300, string=
+[Info   :Extra Attack System]   Event: time=1.118, function=Speed, int=0, float=2.000, string=
+[Info   :Extra Attack System]   Event: time=1.131, function=TrailOn, int=0, float=0.000, string=
+[Info   :Extra Attack System]   Event: time=1.393, function=OnAttackTrigger, int=0, float=0.000, string=
+[Info   :Extra Attack System]   Event: time=1.632, function=Speed, int=0, float=1.000, string=
+[Info   :Extra Attack System]   Event: time=1.646, function=TrailOff, int=0, float=0.000, string=
+[Info   :Extra Attack System] --- [BattleAxe2] has 4 event(s) ---
+[Info   :Extra Attack System]   Event: time=0.212, function=Speed, int=0, float=1.500, string=
+[Info   :Extra Attack System]   Event: time=0.216, function=TrailOn, int=0, float=0.000, string=
+[Info   :Extra Attack System]   Event: time=0.364, function=OnAttackTrigger, int=0, float=0.000, string=
+[Info   :Extra Attack System]   Event: time=0.485, function=TrailOff, int=0, float=0.000, string=
+[Info   :Extra Attack System] --- [BattleAxe_Combo3] has 6 event(s) ---
+[Info   :Extra Attack System]   Event: time=0.155, function=Speed, int=0, float=0.500, string=
+[Info   :Extra Attack System]   Event: time=0.213, function=Speed, int=0, float=2.000, string=
+[Info   :Extra Attack System]   Event: time=0.232, function=TrailOn, int=0, float=0.000, string=
+[Info   :Extra Attack System]   Event: time=0.515, function=TrailOff, int=0, float=0.000, string=
+[Info   :Extra Attack System]   Event: time=0.529, function=OnAttackTrigger, int=0, float=0.000, string=
+[Info   :Extra Attack System]   Event: time=0.534, function=Speed, int=0, float=0.400, string=
+[Info   :Extra Attack System] --- [axe_swing] has 6 event(s) ---
+[Info   :Extra Attack System]   Event: time=0.442, function=TrailOn, int=0, float=0.000, string=
+[Info   :Extra Attack System]   Event: time=0.456, function=Speed, int=0, float=1.500, string=
+[Info   :Extra Attack System]   Event: time=0.610, function=OnAttackTrigger, int=0, float=0.000, string=
+[Info   :Extra Attack System]   Event: time=0.752, function=Speed, int=0, float=0.800, string=
+[Info   :Extra Attack System]   Event: time=0.772, function=TrailOff, int=0, float=0.000, string=
+[Info   :Extra Attack System]   Event: time=0.870, function=Chain, int=0, float=0.000, string=
+[Info   :Extra Attack System] --- [Axe combo 2] has 6 event(s) ---
+[Info   :Extra Attack System]   Event: time=0.480, function=TrailOn, int=0, float=1.000, string=
+[Info   :Extra Attack System]   Event: time=0.485, function=Speed, int=0, float=1.700, string=
+[Info   :Extra Attack System]   Event: time=0.726, function=Hit, int=0, float=0.000, string=
+[Info   :Extra Attack System]   Event: time=0.824, function=Speed, int=0, float=0.800, string=
+[Info   :Extra Attack System]   Event: time=0.855, function=TrailOff, int=0, float=1.000, string=
+[Info   :Extra Attack System]   Event: time=0.900, function=Chain, int=0, float=1.000, string=
+[Info   :Extra Attack System] --- [Axe combo 3] has 5 event(s) ---
+[Info   :Extra Attack System]   Event: time=0.594, function=Speed, int=0, float=2.000, string=
+[Info   :Extra Attack System]   Event: time=0.609, function=TrailOn, int=0, float=0.500, string=
+[Info   :Extra Attack System]   Event: time=0.796, function=Hit, int=0, float=0.000, string=
+[Info   :Extra Attack System]   Event: time=0.840, function=Speed, int=0, float=0.400, string=
+[Info   :Extra Attack System]   Event: time=0.850, function=TrailOff, int=0, float=0.500, string=
+[Info   :Extra Attack System] --- [Punchstep 2] has 5 event(s) ---
+[Info   :Extra Attack System]   Event: time=0.000, function=Speed, int=0, float=2.000, string=
+[Info   :Extra Attack System]   Event: time=0.673, function=Speed, int=0, float=2.000, string=
+[Info   :Extra Attack System]   Event: time=0.686, function=TrailOn, int=0, float=0.000, string=
+[Info   :Extra Attack System]   Event: time=0.903, function=Hit, int=0, float=0.000, string=
+[Info   :Extra Attack System]   Event: time=0.993, function=Chain, int=0, float=0.000, string=
+[Info   :Extra Attack System] --- [Kickstep] has 4 event(s) ---
+[Info   :Extra Attack System]   Event: time=0.459, function=Speed, int=0, float=2.000, string=
+[Info   :Extra Attack System]   Event: time=0.486, function=TrailOn, int=0, float=0.000, string=
+[Info   :Extra Attack System]   Event: time=0.581, function=Speed, int=0, float=1.000, string=
+[Info   :Extra Attack System]   Event: time=0.593, function=Hit, int=0, float=0.000, string=
+[Info   :Extra Attack System] --- [Forge] has 2 event(s) ---
+[Info   :Extra Attack System]   Event: time=0.000, function=Attach, int=0, float=0.000, string=RightHand_Attach
+[Info   :Extra Attack System]   Event: time=0.260, function=Effect, int=0, float=0.000, string=RightHand_Attach
+[Info   :Extra Attack System] --- [Javelin Stab] has 5 event(s) ---
+[Info   :Extra Attack System]   Event: time=0.000, function=Speed, int=0, float=0.800, string=
+[Info   :Extra Attack System]   Event: time=0.139, function=Speed, int=0, float=1.000, string=
+[Info   :Extra Attack System]   Event: time=0.152, function=TrailOn, int=0, float=0.000, string=
+[Info   :Extra Attack System]   Event: time=0.309, function=Hit, int=0, float=0.000, string=
+[Info   :Extra Attack System]   Event: time=0.324, function=TrailOff, int=0, float=0.000, string=
+[Info   :Extra Attack System] --- [Atgeir360Attack] has 6 event(s) ---
+[Info   :Extra Attack System]   Event: time=0.000, function=Speed, int=0, float=2.000, string=
+[Info   :Extra Attack System]   Event: time=0.875, function=Speed, int=0, float=2.000, string=
+[Info   :Extra Attack System]   Event: time=1.011, function=TrailOn, int=0, float=0.000, string=
+[Info   :Extra Attack System]   Event: time=1.124, function=Hit, int=0, float=0.000, string=
+[Info   :Extra Attack System]   Event: time=1.581, function=Speed, int=0, float=1.000, string=
+[Info   :Extra Attack System]   Event: time=1.602, function=TrailOff, int=0, float=0.000, string=
+[Info   :Extra Attack System] --- [Hard Landing] has 1 event(s) ---
+[Info   :Extra Attack System]   Event: time=0.060, function=Effect, int=0, float=0.000, string=
+[Info   :Extra Attack System] --- [GuardianPower] has 1 event(s) ---
+[Info   :Extra Attack System]   Event: time=0.538, function=GPower, int=0, float=0.000, string=
+[Info   :Extra Attack System] --- [Throw] has 1 event(s) ---
+[Info   :Extra Attack System]   Event: time=0.340, function=Hit, int=0, float=0.000, string=
+[Info   :Extra Attack System] --- [BattleAxeAltAttack] has 5 event(s) ---
+[Info   :Extra Attack System]   Event: time=0.216, function=Speed, int=0, float=1.500, string=
+[Info   :Extra Attack System]   Event: time=0.222, function=TrailOn, int=0, float=0.000, string=
+[Info   :Extra Attack System]   Event: time=0.464, function=Hit, int=0, float=0.000, string=
+[Info   :Extra Attack System]   Event: time=0.521, function=TrailOff, int=0, float=0.000, string=
+[Info   :Extra Attack System]   Event: time=0.526, function=Speed, int=0, float=1.000, string=
+[Info   :Extra Attack System] --- [Fire Crossbow] has 1 event(s) ---
+[Info   :Extra Attack System]   Event: time=0.006, function=Hit, int=0, float=0.000, string=
+[Info   :Extra Attack System] --- [Knife Attack Leap] has 2 event(s) ---
+[Info   :Extra Attack System]   Event: time=0.478, function=TrailOn, int=0, float=0.000, string=
+[Info   :Extra Attack System]   Event: time=0.839, function=Hit, int=0, float=0.000, string=
+[Info   :Extra Attack System] --- [Knife Attack Combo (3)] has 5 event(s) ---
+[Info   :Extra Attack System]   Event: time=0.136, function=TrailOn, int=0, float=0.000, string=
+[Info   :Extra Attack System]   Event: time=0.176, function=OnAttackTrigger, int=0, float=0.000, string=
+[Info   :Extra Attack System]   Event: time=0.192, function=Speed, int=0, float=0.500, string=
+[Info   :Extra Attack System]   Event: time=0.259, function=TrailOff, int=0, float=0.000, string=
+[Info   :Extra Attack System]   Event: time=0.307, function=Speed, int=0, float=1.000, string=
+[Info   :Extra Attack System] --- [Knife Attack Combo (2)] has 4 event(s) ---
+[Info   :Extra Attack System]   Event: time=0.047, function=TrailOn, int=0, float=0.000, string=
+[Info   :Extra Attack System]   Event: time=0.177, function=OnAttackTrigger, int=0, float=0.000, string=
+[Info   :Extra Attack System]   Event: time=0.305, function=TrailOff, int=0, float=0.000, string=
+[Info   :Extra Attack System]   Event: time=0.370, function=Chain, int=0, float=0.000, string=
+[Info   :Extra Attack System] --- [Knife Attack Combo (1)] has 4 event(s) ---
+[Info   :Extra Attack System]   Event: time=0.057, function=TrailOn, int=0, float=0.000, string=
+[Info   :Extra Attack System]   Event: time=0.182, function=OnAttackTrigger, int=0, float=0.000, string=
+[Info   :Extra Attack System]   Event: time=0.333, function=TrailOff, int=0, float=0.000, string=
+[Info   :Extra Attack System]   Event: time=0.364, function=Chain, int=0, float=0.000, string=
+[Info   :Extra Attack System] --- [Fireball Staff Attacks (1)] has 1 event(s) ---
+[Info   :Extra Attack System]   Event: time=0.507, function=Hit, int=0, float=0.000, string=
+[Info   :Extra Attack System] --- [Fireball Staff Attacks (2)] has 2 event(s) ---
+[Info   :Extra Attack System]   Event: time=0.000, function=Effect, int=0, float=0.000, string=
+[Info   :Extra Attack System]   Event: time=0.499, function=Hit, int=0, float=0.000, string=
+[Info   :Extra Attack System] --- [Beam Staff Attack] has 1 event(s) ---
+[Info   :Extra Attack System]   Event: time=0.352, function=Hit, int=0, float=0.000, string=
+[Info   :Extra Attack System] --- [Greatsword BaseAttack (3)] has 4 event(s) ---
+[Info   :Extra Attack System]   Event: time=0.529, function=TrailOn, int=0, float=0.000, string=
+[Info   :Extra Attack System]   Event: time=0.639, function=Hit, int=0, float=0.000, string=
+[Info   :Extra Attack System]   Event: time=0.721, function=TrailOff, int=0, float=0.000, string=
+[Info   :Extra Attack System]   Event: time=0.833, function=Chain, int=0, float=0.000, string=
+[Info   :Extra Attack System] --- [Greatsword BaseAttack (1)] has 4 event(s) ---
+[Info   :Extra Attack System]   Event: time=0.461, function=TrailOn, int=0, float=0.000, string=
+[Info   :Extra Attack System]   Event: time=0.604, function=Hit, int=0, float=0.000, string=
+[Info   :Extra Attack System]   Event: time=0.771, function=TrailOff, int=0, float=0.000, string=
+[Info   :Extra Attack System]   Event: time=0.783, function=Chain, int=0, float=0.000, string=
+[Info   :Extra Attack System] --- [Greatsword BaseAttack (2)] has 4 event(s) ---
+[Info   :Extra Attack System]   Event: time=0.371, function=TrailOn, int=0, float=0.000, string=
+[Info   :Extra Attack System]   Event: time=0.492, function=Hit, int=0, float=0.000, string=
+[Info   :Extra Attack System]   Event: time=0.630, function=TrailOff, int=0, float=0.000, string=
+[Info   :Extra Attack System]   Event: time=0.641, function=Chain, int=0, float=0.000, string=
+[Info   :Extra Attack System] --- [Ground Staff Attack] has 3 event(s) ---
+[Info   :Extra Attack System]   Event: time=0.613, function=Speed, int=0, float=0.200, string=
+[Info   :Extra Attack System]   Event: time=0.732, function=Speed, int=0, float=1.000, string=
+[Info   :Extra Attack System]   Event: time=1.078, function=Hit, int=0, float=0.000, string=
+[Info   :Extra Attack System] --- [Skeleton Summon] has 1 event(s) ---
+[Info   :Extra Attack System]   Event: time=0.169, function=Hit, int=0, float=0.000, string=
+[Info   :Extra Attack System] --- [DualAxes Attack 1] has 4 event(s) ---
+[Info   :Extra Attack System]   Event: time=0.125, function=TrailOn, int=0, float=0.000, string=
+[Info   :Extra Attack System]   Event: time=0.211, function=Hit, int=0, float=0.000, string=
+[Info   :Extra Attack System]   Event: time=0.257, function=Chain, int=0, float=0.000, string=
+[Info   :Extra Attack System]   Event: time=0.353, function=TrailOff, int=0, float=0.000, string=
+[Info   :Extra Attack System] --- [DualAxes Attack 2 2] has 4 event(s) ---
+[Info   :Extra Attack System]   Event: time=0.287, function=TrailOn, int=0, float=0.000, string=
+[Info   :Extra Attack System]   Event: time=0.372, function=Hit, int=0, float=0.000, string=
+[Info   :Extra Attack System]   Event: time=0.533, function=Chain, int=0, float=0.000, string=
+[Info   :Extra Attack System]   Event: time=0.563, function=TrailOff, int=0, float=0.000, string=
+[Info   :Extra Attack System] --- [DualAxes Attack 3 2] has 5 event(s) ---
+[Info   :Extra Attack System]   Event: time=0.262, function=TrailOn, int=0, float=0.000, string=
+[Info   :Extra Attack System]   Event: time=0.335, function=Hit, int=0, float=0.000, string=
+[Info   :Extra Attack System]   Event: time=0.553, function=Hit, int=0, float=0.000, string=
+[Info   :Extra Attack System]   Event: time=0.674, function=TrailOff, int=0, float=0.000, string=
+[Info   :Extra Attack System]   Event: time=0.706, function=Chain, int=0, float=0.000, string=
+[Info   :Extra Attack System] --- [DualAxes Attack Cleave] has 3 event(s) ---
+[Info   :Extra Attack System]   Event: time=0.817, function=TrailOn, int=0, float=0.000, string=
+[Info   :Extra Attack System]   Event: time=0.915, function=Hit, int=0, float=0.000, string=
+[Info   :Extra Attack System]   Event: time=1.083, function=TrailOff, int=0, float=0.000, string=
+[Info   :Extra Attack System] --- [Lightning Staff Attack] has 1 event(s) ---
+[Info   :Extra Attack System]   Event: time=0.520, function=Hit, int=0, float=0.000, string=
+[Info   :Extra Attack System] --- [DualAxes Attack 4] has 4 event(s) ---
+[Info   :Extra Attack System]   Event: time=0.240, function=TrailOn, int=0, float=0.000, string=
+[Info   :Extra Attack System]   Event: time=0.367, function=Hit, int=0, float=0.000, string=
+[Info   :Extra Attack System]   Event: time=0.540, function=Hit, int=0, float=0.000, string=
+[Info   :Extra Attack System]   Event: time=0.630, function=TrailOff, int=0, float=0.000, string=
+[Info   :Extra Attack System] --- [Troll Summon] has 1 event(s) ---
+[Info   :Extra Attack System]   Event: time=1.280, function=Hit, int=0, float=0.000, string=
+[Info   :Extra Attack System] --- [Scything] has 3 event(s) ---
+[Info   :Extra Attack System]   Event: time=0.013, function=TrailOn, int=0, float=0.000, string=
+[Info   :Extra Attack System]   Event: time=0.160, function=Hit, int=0, float=0.000, string=
+[Info   :Extra Attack System]   Event: time=0.284, function=TrailOff, int=0, float=0.000, string=
+[Info   :Extra Attack System] --- [drink] has 1 event(s) ---
+[Info   :Extra Attack System]   Event: time=1.328, function=OnAttackTrigger, int=0, float=0.000, string=
+[Info   :Extra Attack System] --- [Reload Crossbow] has 1 event(s) ---
+[Info   :Extra Attack System]   Event: time=0.000, function=Effect, int=0, float=0.000, string=
+[Info   :Extra Attack System] --- [Reload done] has 1 event(s) ---
+[Info   :Extra Attack System]   Event: time=0.000, function=Effect, int=0, float=0.000, string=
+[Info   :Extra Attack System] --- [Beam Staff Attack] has 1 event(s) ---
+[Info   :Extra Attack System]   Event: time=0.352, function=Hit, int=0, float=0.000, string=
+[Info   :Extra Attack System] --- [Charge Staff Attack 2] has 1 event(s) ---
+[Info   :Extra Attack System]   Event: time=0.301, function=Hit, int=0, float=0.000, string=
+[Info   :Extra Attack System] --- [Lightning Staff Recharge] has 2 event(s) ---
+[Info   :Extra Attack System]   Event: time=0.000, function=Attach, int=-1, float=0.000, string=LeftHand
+[Info   :Extra Attack System]   Event: time=0.182, function=Effect, int=0, float=0.000, string=
+[Info   :Extra Attack System] --- [Lightning Staff Recharge Done] has 1 event(s) ---
+[Info   :Extra Attack System]   Event: time=0.000, function=Effect, int=0, float=0.000, string=
+[Info   :Extra Attack System] === END ANIMATION EVENTS ===

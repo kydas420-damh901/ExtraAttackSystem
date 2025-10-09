@@ -1,0 +1,46 @@
+using System;
+using UnityEngine;
+
+// Token: 0x0200001E RID: 30
+public class AnimSetTrigger : StateMachineBehaviour
+{
+	// Token: 0x06000123 RID: 291 RVA: 0x0000B85E File Offset: 0x00009A5E
+	public override void OnStateEnter(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
+	{
+		if (!string.IsNullOrEmpty(this.TriggerOnEnter))
+		{
+			if (this.TriggerOnEnterEnable)
+			{
+				animator.SetTrigger(this.TriggerOnEnter);
+				return;
+			}
+			animator.ResetTrigger(this.TriggerOnEnter);
+		}
+	}
+
+	// Token: 0x06000124 RID: 292 RVA: 0x0000B88E File Offset: 0x00009A8E
+	public override void OnStateExit(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
+	{
+		if (!string.IsNullOrEmpty(this.TriggerOnExit))
+		{
+			if (this.TriggerOnExitEnable)
+			{
+				animator.SetTrigger(this.TriggerOnExit);
+				return;
+			}
+			animator.ResetTrigger(this.TriggerOnExit);
+		}
+	}
+
+	// Token: 0x0400027E RID: 638
+	public string TriggerOnEnter;
+
+	// Token: 0x0400027F RID: 639
+	public bool TriggerOnEnterEnable = true;
+
+	// Token: 0x04000280 RID: 640
+	public string TriggerOnExit;
+
+	// Token: 0x04000281 RID: 641
+	public bool TriggerOnExitEnable = true;
+}

@@ -1,0 +1,64 @@
+using System;
+using UnityEngine;
+
+// Token: 0x020000B0 RID: 176
+public class StateController : StateMachineBehaviour
+{
+	// Token: 0x0600076A RID: 1898 RVA: 0x00058538 File Offset: 0x00056738
+	public override void OnStateEnter(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
+	{
+		if (this.m_enterEffect.HasEffects())
+		{
+			this.m_enterEffect.Create(this.GetEffectPos(animator), animator.transform.rotation, null, 1f, -1);
+		}
+		if (this.m_enterDisableChildren)
+		{
+			for (int i = 0; i < animator.transform.childCount; i++)
+			{
+				animator.transform.GetChild(i).gameObject.SetActive(false);
+			}
+		}
+		if (this.m_enterEnableChildren)
+		{
+			for (int j = 0; j < animator.transform.childCount; j++)
+			{
+				animator.transform.GetChild(j).gameObject.SetActive(true);
+			}
+		}
+	}
+
+	// Token: 0x0600076B RID: 1899 RVA: 0x000585E4 File Offset: 0x000567E4
+	private Vector3 GetEffectPos(Animator animator)
+	{
+		if (this.m_effectJoint.Length == 0)
+		{
+			return animator.transform.position;
+		}
+		if (this.m_effectJoinT == null)
+		{
+			this.m_effectJoinT = Utils.FindChild(animator.transform, this.m_effectJoint, Utils.IterativeSearchType.DepthFirst);
+		}
+		return this.m_effectJoinT.position;
+	}
+
+	// Token: 0x040009D3 RID: 2515
+	public string m_effectJoint = "";
+
+	// Token: 0x040009D4 RID: 2516
+	public EffectList m_enterEffect = new EffectList();
+
+	// Token: 0x040009D5 RID: 2517
+	public bool m_enterDisableChildren;
+
+	// Token: 0x040009D6 RID: 2518
+	public bool m_enterEnableChildren;
+
+	// Token: 0x040009D7 RID: 2519
+	public GameObject[] m_enterDisable = new GameObject[0];
+
+	// Token: 0x040009D8 RID: 2520
+	public GameObject[] m_enterEnable = new GameObject[0];
+
+	// Token: 0x040009D9 RID: 2521
+	private Transform m_effectJoinT;
+}

@@ -1,0 +1,1343 @@
+using System;
+using System.Collections.Generic;
+using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
+using System.Security;
+using Unity.Collections;
+using Unity.Collections.LowLevel.Unsafe;
+using UnityEngine.Bindings;
+using UnityEngine.Internal;
+using UnityEngine.SceneManagement;
+using UnityEngine.Scripting;
+using UnityEngineInternal;
+
+namespace UnityEngine
+{
+	// Token: 0x0200029A RID: 666
+	[UsedByNativeCode]
+	[ExcludeFromPreset]
+	[NativeHeader("Runtime/Export/Scripting/GameObject.bindings.h")]
+	public sealed class GameObject : Object
+	{
+		// Token: 0x060020A1 RID: 8353 RVA: 0x0003F5D4 File Offset: 0x0003D7D4
+		[FreeFunction("GameObjectBindings::CreatePrimitive")]
+		public static GameObject CreatePrimitive(PrimitiveType type)
+		{
+			return Unmarshal.UnmarshalUnityObject<GameObject>(GameObject.CreatePrimitive_Injected(type));
+		}
+
+		// Token: 0x060020A2 RID: 8354 RVA: 0x0003F5EC File Offset: 0x0003D7EC
+		[SecuritySafeCritical]
+		public unsafe T GetComponent<T>()
+		{
+			CastHelper<T> castHelper = default(CastHelper<T>);
+			this.GetComponentFastPath(typeof(T), new IntPtr((void*)(&castHelper.onePointerFurtherThanT)));
+			return castHelper.t;
+		}
+
+		// Token: 0x060020A3 RID: 8355 RVA: 0x0003F62C File Offset: 0x0003D82C
+		[FreeFunction(Name = "GameObjectBindings::GetComponentFromType", HasExplicitThis = true, ThrowsException = true)]
+		[TypeInferenceRule(TypeInferenceRules.TypeReferencedByFirstArgument)]
+		public Component GetComponent(Type type)
+		{
+			IntPtr intPtr = Object.MarshalledUnityObject.MarshalNotNull<GameObject>(this);
+			if (intPtr == 0)
+			{
+				ThrowHelper.ThrowNullReferenceException(this);
+			}
+			return Unmarshal.UnmarshalUnityObject<Component>(GameObject.GetComponent_Injected(intPtr, type));
+		}
+
+		// Token: 0x060020A4 RID: 8356 RVA: 0x0003F654 File Offset: 0x0003D854
+		[FreeFunction(Name = "GameObjectBindings::GetComponentFastPath", HasExplicitThis = true, ThrowsException = true)]
+		internal void GetComponentFastPath(Type type, IntPtr oneFurtherThanResultValue)
+		{
+			IntPtr intPtr = Object.MarshalledUnityObject.MarshalNotNull<GameObject>(this);
+			if (intPtr == 0)
+			{
+				ThrowHelper.ThrowNullReferenceException(this);
+			}
+			GameObject.GetComponentFastPath_Injected(intPtr, type, oneFurtherThanResultValue);
+		}
+
+		// Token: 0x060020A5 RID: 8357 RVA: 0x0003F678 File Offset: 0x0003D878
+		[FreeFunction(Name = "Scripting::GetScriptingWrapperOfComponentOfGameObject", HasExplicitThis = true)]
+		internal unsafe Component GetComponentByName(string type)
+		{
+			Component result;
+			try
+			{
+				IntPtr intPtr = Object.MarshalledUnityObject.MarshalNotNull<GameObject>(this);
+				if (intPtr == 0)
+				{
+					ThrowHelper.ThrowNullReferenceException(this);
+				}
+				ManagedSpanWrapper managedSpanWrapper;
+				if (!StringMarshaller.TryMarshalEmptyOrNullString(type, ref managedSpanWrapper))
+				{
+					ReadOnlySpan<char> readOnlySpan = type.AsSpan();
+					fixed (char* ptr = readOnlySpan.GetPinnableReference())
+					{
+						managedSpanWrapper = new ManagedSpanWrapper((void*)ptr, readOnlySpan.Length);
+					}
+				}
+				IntPtr componentByName_Injected = GameObject.GetComponentByName_Injected(intPtr, ref managedSpanWrapper);
+			}
+			finally
+			{
+				IntPtr componentByName_Injected;
+				result = Unmarshal.UnmarshalUnityObject<Component>(componentByName_Injected);
+				char* ptr = null;
+			}
+			return result;
+		}
+
+		// Token: 0x060020A6 RID: 8358 RVA: 0x0003F6E8 File Offset: 0x0003D8E8
+		[FreeFunction(Name = "Scripting::GetScriptingWrapperOfComponentOfGameObjectWithCase", HasExplicitThis = true)]
+		internal unsafe Component GetComponentByNameWithCase(string type, bool caseSensitive)
+		{
+			Component result;
+			try
+			{
+				IntPtr intPtr = Object.MarshalledUnityObject.MarshalNotNull<GameObject>(this);
+				if (intPtr == 0)
+				{
+					ThrowHelper.ThrowNullReferenceException(this);
+				}
+				ManagedSpanWrapper managedSpanWrapper;
+				if (!StringMarshaller.TryMarshalEmptyOrNullString(type, ref managedSpanWrapper))
+				{
+					ReadOnlySpan<char> readOnlySpan = type.AsSpan();
+					fixed (char* ptr = readOnlySpan.GetPinnableReference())
+					{
+						managedSpanWrapper = new ManagedSpanWrapper((void*)ptr, readOnlySpan.Length);
+					}
+				}
+				IntPtr componentByNameWithCase_Injected = GameObject.GetComponentByNameWithCase_Injected(intPtr, ref managedSpanWrapper, caseSensitive);
+			}
+			finally
+			{
+				IntPtr componentByNameWithCase_Injected;
+				result = Unmarshal.UnmarshalUnityObject<Component>(componentByNameWithCase_Injected);
+				char* ptr = null;
+			}
+			return result;
+		}
+
+		// Token: 0x060020A7 RID: 8359 RVA: 0x0003F758 File Offset: 0x0003D958
+		public Component GetComponent(string type)
+		{
+			return this.GetComponentByName(type);
+		}
+
+		// Token: 0x060020A8 RID: 8360 RVA: 0x0003F774 File Offset: 0x0003D974
+		[FreeFunction(Name = "GameObjectBindings::GetComponentInChildren", HasExplicitThis = true, ThrowsException = true)]
+		[TypeInferenceRule(TypeInferenceRules.TypeReferencedByFirstArgument)]
+		public Component GetComponentInChildren(Type type, bool includeInactive)
+		{
+			IntPtr intPtr = Object.MarshalledUnityObject.MarshalNotNull<GameObject>(this);
+			if (intPtr == 0)
+			{
+				ThrowHelper.ThrowNullReferenceException(this);
+			}
+			return Unmarshal.UnmarshalUnityObject<Component>(GameObject.GetComponentInChildren_Injected(intPtr, type, includeInactive));
+		}
+
+		// Token: 0x060020A9 RID: 8361 RVA: 0x0003F7A0 File Offset: 0x0003D9A0
+		[TypeInferenceRule(TypeInferenceRules.TypeReferencedByFirstArgument)]
+		public Component GetComponentInChildren(Type type)
+		{
+			return this.GetComponentInChildren(type, false);
+		}
+
+		// Token: 0x060020AA RID: 8362 RVA: 0x0003F7BC File Offset: 0x0003D9BC
+		[ExcludeFromDocs]
+		public T GetComponentInChildren<T>()
+		{
+			bool includeInactive = false;
+			return this.GetComponentInChildren<T>(includeInactive);
+		}
+
+		// Token: 0x060020AB RID: 8363 RVA: 0x0003F7D8 File Offset: 0x0003D9D8
+		public T GetComponentInChildren<T>([DefaultValue("false")] bool includeInactive)
+		{
+			return (T)((object)this.GetComponentInChildren(typeof(T), includeInactive));
+		}
+
+		// Token: 0x060020AC RID: 8364 RVA: 0x0003F800 File Offset: 0x0003DA00
+		[FreeFunction(Name = "GameObjectBindings::GetComponentInParent", HasExplicitThis = true, ThrowsException = true)]
+		[TypeInferenceRule(TypeInferenceRules.TypeReferencedByFirstArgument)]
+		public Component GetComponentInParent(Type type, bool includeInactive)
+		{
+			IntPtr intPtr = Object.MarshalledUnityObject.MarshalNotNull<GameObject>(this);
+			if (intPtr == 0)
+			{
+				ThrowHelper.ThrowNullReferenceException(this);
+			}
+			return Unmarshal.UnmarshalUnityObject<Component>(GameObject.GetComponentInParent_Injected(intPtr, type, includeInactive));
+		}
+
+		// Token: 0x060020AD RID: 8365 RVA: 0x0003F82C File Offset: 0x0003DA2C
+		[TypeInferenceRule(TypeInferenceRules.TypeReferencedByFirstArgument)]
+		public Component GetComponentInParent(Type type)
+		{
+			return this.GetComponentInParent(type, false);
+		}
+
+		// Token: 0x060020AE RID: 8366 RVA: 0x0003F848 File Offset: 0x0003DA48
+		[ExcludeFromDocs]
+		public T GetComponentInParent<T>()
+		{
+			bool includeInactive = false;
+			return this.GetComponentInParent<T>(includeInactive);
+		}
+
+		// Token: 0x060020AF RID: 8367 RVA: 0x0003F864 File Offset: 0x0003DA64
+		public T GetComponentInParent<T>([DefaultValue("false")] bool includeInactive)
+		{
+			return (T)((object)this.GetComponentInParent(typeof(T), includeInactive));
+		}
+
+		// Token: 0x060020B0 RID: 8368 RVA: 0x0003F88C File Offset: 0x0003DA8C
+		[FreeFunction(Name = "GameObjectBindings::GetComponentsInternal", HasExplicitThis = true, ThrowsException = true)]
+		private Array GetComponentsInternal(Type type, bool useSearchTypeAsArrayReturnType, bool recursive, bool includeInactive, bool reverse, object resultList)
+		{
+			IntPtr intPtr = Object.MarshalledUnityObject.MarshalNotNull<GameObject>(this);
+			if (intPtr == 0)
+			{
+				ThrowHelper.ThrowNullReferenceException(this);
+			}
+			return GameObject.GetComponentsInternal_Injected(intPtr, type, useSearchTypeAsArrayReturnType, recursive, includeInactive, reverse, resultList);
+		}
+
+		// Token: 0x060020B1 RID: 8369 RVA: 0x0003F8B8 File Offset: 0x0003DAB8
+		public Component[] GetComponents(Type type)
+		{
+			return (Component[])this.GetComponentsInternal(type, false, false, true, false, null);
+		}
+
+		// Token: 0x060020B2 RID: 8370 RVA: 0x0003F8DC File Offset: 0x0003DADC
+		public T[] GetComponents<T>()
+		{
+			return (T[])this.GetComponentsInternal(typeof(T), true, false, true, false, null);
+		}
+
+		// Token: 0x060020B3 RID: 8371 RVA: 0x0003F908 File Offset: 0x0003DB08
+		public void GetComponents(Type type, List<Component> results)
+		{
+			this.GetComponentsInternal(type, false, false, true, false, results);
+		}
+
+		// Token: 0x060020B4 RID: 8372 RVA: 0x0003F918 File Offset: 0x0003DB18
+		public void GetComponents<T>(List<T> results)
+		{
+			this.GetComponentsInternal(typeof(T), true, false, true, false, results);
+		}
+
+		// Token: 0x060020B5 RID: 8373 RVA: 0x0003F934 File Offset: 0x0003DB34
+		[ExcludeFromDocs]
+		public Component[] GetComponentsInChildren(Type type)
+		{
+			bool includeInactive = false;
+			return this.GetComponentsInChildren(type, includeInactive);
+		}
+
+		// Token: 0x060020B6 RID: 8374 RVA: 0x0003F950 File Offset: 0x0003DB50
+		public Component[] GetComponentsInChildren(Type type, [DefaultValue("false")] bool includeInactive)
+		{
+			return (Component[])this.GetComponentsInternal(type, false, true, includeInactive, false, null);
+		}
+
+		// Token: 0x060020B7 RID: 8375 RVA: 0x0003F974 File Offset: 0x0003DB74
+		public T[] GetComponentsInChildren<T>(bool includeInactive)
+		{
+			return (T[])this.GetComponentsInternal(typeof(T), true, true, includeInactive, false, null);
+		}
+
+		// Token: 0x060020B8 RID: 8376 RVA: 0x0003F9A0 File Offset: 0x0003DBA0
+		public void GetComponentsInChildren<T>(bool includeInactive, List<T> results)
+		{
+			this.GetComponentsInternal(typeof(T), true, true, includeInactive, false, results);
+		}
+
+		// Token: 0x060020B9 RID: 8377 RVA: 0x0003F9BC File Offset: 0x0003DBBC
+		public T[] GetComponentsInChildren<T>()
+		{
+			return this.GetComponentsInChildren<T>(false);
+		}
+
+		// Token: 0x060020BA RID: 8378 RVA: 0x0003F9D5 File Offset: 0x0003DBD5
+		public void GetComponentsInChildren<T>(List<T> results)
+		{
+			this.GetComponentsInChildren<T>(false, results);
+		}
+
+		// Token: 0x060020BB RID: 8379 RVA: 0x0003F9E4 File Offset: 0x0003DBE4
+		[ExcludeFromDocs]
+		public Component[] GetComponentsInParent(Type type)
+		{
+			bool includeInactive = false;
+			return this.GetComponentsInParent(type, includeInactive);
+		}
+
+		// Token: 0x060020BC RID: 8380 RVA: 0x0003FA00 File Offset: 0x0003DC00
+		public Component[] GetComponentsInParent(Type type, [DefaultValue("false")] bool includeInactive)
+		{
+			return (Component[])this.GetComponentsInternal(type, false, true, includeInactive, true, null);
+		}
+
+		// Token: 0x060020BD RID: 8381 RVA: 0x0003FA23 File Offset: 0x0003DC23
+		public void GetComponentsInParent<T>(bool includeInactive, List<T> results)
+		{
+			this.GetComponentsInternal(typeof(T), true, true, includeInactive, true, results);
+		}
+
+		// Token: 0x060020BE RID: 8382 RVA: 0x0003FA3C File Offset: 0x0003DC3C
+		public T[] GetComponentsInParent<T>(bool includeInactive)
+		{
+			return (T[])this.GetComponentsInternal(typeof(T), true, true, includeInactive, true, null);
+		}
+
+		// Token: 0x060020BF RID: 8383 RVA: 0x0003FA68 File Offset: 0x0003DC68
+		public T[] GetComponentsInParent<T>()
+		{
+			return this.GetComponentsInParent<T>(false);
+		}
+
+		// Token: 0x060020C0 RID: 8384 RVA: 0x0003FA84 File Offset: 0x0003DC84
+		[SecuritySafeCritical]
+		public unsafe bool TryGetComponent<T>(out T component)
+		{
+			CastHelper<T> castHelper = default(CastHelper<T>);
+			this.TryGetComponentFastPath(typeof(T), new IntPtr((void*)(&castHelper.onePointerFurtherThanT)));
+			component = castHelper.t;
+			return castHelper.t != null;
+		}
+
+		// Token: 0x060020C1 RID: 8385 RVA: 0x0003FAD8 File Offset: 0x0003DCD8
+		public bool TryGetComponent(Type type, out Component component)
+		{
+			component = this.TryGetComponentInternal(type);
+			return component != null;
+		}
+
+		// Token: 0x060020C2 RID: 8386 RVA: 0x0003FAFC File Offset: 0x0003DCFC
+		[FreeFunction(Name = "GameObjectBindings::TryGetComponentFromType", HasExplicitThis = true, ThrowsException = true)]
+		[TypeInferenceRule(TypeInferenceRules.TypeReferencedByFirstArgument)]
+		internal Component TryGetComponentInternal(Type type)
+		{
+			IntPtr intPtr = Object.MarshalledUnityObject.MarshalNotNull<GameObject>(this);
+			if (intPtr == 0)
+			{
+				ThrowHelper.ThrowNullReferenceException(this);
+			}
+			return Unmarshal.UnmarshalUnityObject<Component>(GameObject.TryGetComponentInternal_Injected(intPtr, type));
+		}
+
+		// Token: 0x060020C3 RID: 8387 RVA: 0x0003FB24 File Offset: 0x0003DD24
+		[FreeFunction(Name = "GameObjectBindings::TryGetComponentFastPath", HasExplicitThis = true, ThrowsException = true)]
+		internal void TryGetComponentFastPath(Type type, IntPtr oneFurtherThanResultValue)
+		{
+			IntPtr intPtr = Object.MarshalledUnityObject.MarshalNotNull<GameObject>(this);
+			if (intPtr == 0)
+			{
+				ThrowHelper.ThrowNullReferenceException(this);
+			}
+			GameObject.TryGetComponentFastPath_Injected(intPtr, type, oneFurtherThanResultValue);
+		}
+
+		// Token: 0x060020C4 RID: 8388 RVA: 0x0003FB48 File Offset: 0x0003DD48
+		public static GameObject FindWithTag(string tag)
+		{
+			return GameObject.FindGameObjectWithTag(tag);
+		}
+
+		// Token: 0x060020C5 RID: 8389 RVA: 0x0003FB60 File Offset: 0x0003DD60
+		[FreeFunction(Name = "GameObjectBindings::FindGameObjectsWithTagForListInternal", ThrowsException = true)]
+		private unsafe static void FindGameObjectsWithTagForListInternal(string tag, object results)
+		{
+			try
+			{
+				ManagedSpanWrapper managedSpanWrapper;
+				if (!StringMarshaller.TryMarshalEmptyOrNullString(tag, ref managedSpanWrapper))
+				{
+					ReadOnlySpan<char> readOnlySpan = tag.AsSpan();
+					fixed (char* ptr = readOnlySpan.GetPinnableReference())
+					{
+						managedSpanWrapper = new ManagedSpanWrapper((void*)ptr, readOnlySpan.Length);
+					}
+				}
+				GameObject.FindGameObjectsWithTagForListInternal_Injected(ref managedSpanWrapper, results);
+			}
+			finally
+			{
+				char* ptr = null;
+			}
+		}
+
+		// Token: 0x060020C6 RID: 8390 RVA: 0x0003FBB8 File Offset: 0x0003DDB8
+		public static void FindGameObjectsWithTag(string tag, List<GameObject> results)
+		{
+			GameObject.FindGameObjectsWithTagForListInternal(tag, results);
+		}
+
+		// Token: 0x060020C7 RID: 8391 RVA: 0x0003FBC3 File Offset: 0x0003DDC3
+		public void SendMessageUpwards(string methodName, SendMessageOptions options)
+		{
+			this.SendMessageUpwards(methodName, null, options);
+		}
+
+		// Token: 0x060020C8 RID: 8392 RVA: 0x0003FBD0 File Offset: 0x0003DDD0
+		public void SendMessage(string methodName, SendMessageOptions options)
+		{
+			this.SendMessage(methodName, null, options);
+		}
+
+		// Token: 0x060020C9 RID: 8393 RVA: 0x0003FBDD File Offset: 0x0003DDDD
+		public void BroadcastMessage(string methodName, SendMessageOptions options)
+		{
+			this.BroadcastMessage(methodName, null, options);
+		}
+
+		// Token: 0x060020CA RID: 8394 RVA: 0x0003FBEC File Offset: 0x0003DDEC
+		[FreeFunction(Name = "MonoAddComponent", HasExplicitThis = true)]
+		internal unsafe Component AddComponentInternal(string className)
+		{
+			Component result;
+			try
+			{
+				IntPtr intPtr = Object.MarshalledUnityObject.MarshalNotNull<GameObject>(this);
+				if (intPtr == 0)
+				{
+					ThrowHelper.ThrowNullReferenceException(this);
+				}
+				ManagedSpanWrapper managedSpanWrapper;
+				if (!StringMarshaller.TryMarshalEmptyOrNullString(className, ref managedSpanWrapper))
+				{
+					ReadOnlySpan<char> readOnlySpan = className.AsSpan();
+					fixed (char* ptr = readOnlySpan.GetPinnableReference())
+					{
+						managedSpanWrapper = new ManagedSpanWrapper((void*)ptr, readOnlySpan.Length);
+					}
+				}
+				IntPtr gcHandlePtr = GameObject.AddComponentInternal_Injected(intPtr, ref managedSpanWrapper);
+			}
+			finally
+			{
+				IntPtr gcHandlePtr;
+				result = Unmarshal.UnmarshalUnityObject<Component>(gcHandlePtr);
+				char* ptr = null;
+			}
+			return result;
+		}
+
+		// Token: 0x060020CB RID: 8395 RVA: 0x0003FC5C File Offset: 0x0003DE5C
+		[FreeFunction(Name = "MonoAddComponentWithType", HasExplicitThis = true)]
+		private Component Internal_AddComponentWithType(Type componentType)
+		{
+			IntPtr intPtr = Object.MarshalledUnityObject.MarshalNotNull<GameObject>(this);
+			if (intPtr == 0)
+			{
+				ThrowHelper.ThrowNullReferenceException(this);
+			}
+			return Unmarshal.UnmarshalUnityObject<Component>(GameObject.Internal_AddComponentWithType_Injected(intPtr, componentType));
+		}
+
+		// Token: 0x060020CC RID: 8396 RVA: 0x0003FC84 File Offset: 0x0003DE84
+		[TypeInferenceRule(TypeInferenceRules.TypeReferencedByFirstArgument)]
+		public Component AddComponent(Type componentType)
+		{
+			return this.Internal_AddComponentWithType(componentType);
+		}
+
+		// Token: 0x060020CD RID: 8397 RVA: 0x0003FCA0 File Offset: 0x0003DEA0
+		public T AddComponent<T>() where T : Component
+		{
+			return this.AddComponent(typeof(T)) as T;
+		}
+
+		// Token: 0x060020CE RID: 8398 RVA: 0x0003FCCC File Offset: 0x0003DECC
+		public int GetComponentCount()
+		{
+			IntPtr intPtr = Object.MarshalledUnityObject.MarshalNotNull<GameObject>(this);
+			if (intPtr == 0)
+			{
+				ThrowHelper.ThrowNullReferenceException(this);
+			}
+			return GameObject.GetComponentCount_Injected(intPtr);
+		}
+
+		// Token: 0x060020CF RID: 8399 RVA: 0x0003FCF0 File Offset: 0x0003DEF0
+		[NativeName("QueryComponentAtIndex<Unity::Component>")]
+		internal Component QueryComponentAtIndex(int index)
+		{
+			IntPtr intPtr = Object.MarshalledUnityObject.MarshalNotNull<GameObject>(this);
+			if (intPtr == 0)
+			{
+				ThrowHelper.ThrowNullReferenceException(this);
+			}
+			return Unmarshal.UnmarshalUnityObject<Component>(GameObject.QueryComponentAtIndex_Injected(intPtr, index));
+		}
+
+		// Token: 0x060020D0 RID: 8400 RVA: 0x0003FD18 File Offset: 0x0003DF18
+		public Component GetComponentAtIndex(int index)
+		{
+			bool flag = index < 0 || index >= this.GetComponentCount();
+			if (flag)
+			{
+				throw new ArgumentOutOfRangeException("index", "Valid range is 0 to GetComponentCount() - 1.");
+			}
+			return this.QueryComponentAtIndex(index);
+		}
+
+		// Token: 0x060020D1 RID: 8401 RVA: 0x0003FD58 File Offset: 0x0003DF58
+		public T GetComponentAtIndex<T>(int index) where T : Component
+		{
+			T t = (T)((object)this.GetComponentAtIndex(index));
+			bool flag = t == null;
+			if (flag)
+			{
+				throw new InvalidCastException();
+			}
+			return t;
+		}
+
+		// Token: 0x060020D2 RID: 8402 RVA: 0x0003FD90 File Offset: 0x0003DF90
+		public int GetComponentIndex(Component component)
+		{
+			IntPtr intPtr = Object.MarshalledUnityObject.MarshalNotNull<GameObject>(this);
+			if (intPtr == 0)
+			{
+				ThrowHelper.ThrowNullReferenceException(this);
+			}
+			return GameObject.GetComponentIndex_Injected(intPtr, Object.MarshalledUnityObject.Marshal<Component>(component));
+		}
+
+		// Token: 0x17000527 RID: 1319
+		// (get) Token: 0x060020D3 RID: 8403 RVA: 0x0003FDB8 File Offset: 0x0003DFB8
+		public Transform transform
+		{
+			[FreeFunction("GameObjectBindings::GetTransform", HasExplicitThis = true)]
+			get
+			{
+				IntPtr intPtr = Object.MarshalledUnityObject.MarshalNotNull<GameObject>(this);
+				if (intPtr == 0)
+				{
+					ThrowHelper.ThrowNullReferenceException(this);
+				}
+				return Unmarshal.UnmarshalUnityObject<Transform>(GameObject.get_transform_Injected(intPtr));
+			}
+		}
+
+		// Token: 0x17000528 RID: 1320
+		// (get) Token: 0x060020D4 RID: 8404 RVA: 0x0003FDE0 File Offset: 0x0003DFE0
+		// (set) Token: 0x060020D5 RID: 8405 RVA: 0x0003FE04 File Offset: 0x0003E004
+		public int layer
+		{
+			get
+			{
+				IntPtr intPtr = Object.MarshalledUnityObject.MarshalNotNull<GameObject>(this);
+				if (intPtr == 0)
+				{
+					ThrowHelper.ThrowNullReferenceException(this);
+				}
+				return GameObject.get_layer_Injected(intPtr);
+			}
+			set
+			{
+				IntPtr intPtr = Object.MarshalledUnityObject.MarshalNotNull<GameObject>(this);
+				if (intPtr == 0)
+				{
+					ThrowHelper.ThrowNullReferenceException(this);
+				}
+				GameObject.set_layer_Injected(intPtr, value);
+			}
+		}
+
+		// Token: 0x17000529 RID: 1321
+		// (get) Token: 0x060020D6 RID: 8406 RVA: 0x0003FE28 File Offset: 0x0003E028
+		// (set) Token: 0x060020D7 RID: 8407 RVA: 0x0003FE4C File Offset: 0x0003E04C
+		[Obsolete("GameObject.active is obsolete. Use GameObject.SetActive(), GameObject.activeSelf or GameObject.activeInHierarchy.")]
+		public bool active
+		{
+			[NativeMethod(Name = "IsActive")]
+			get
+			{
+				IntPtr intPtr = Object.MarshalledUnityObject.MarshalNotNull<GameObject>(this);
+				if (intPtr == 0)
+				{
+					ThrowHelper.ThrowNullReferenceException(this);
+				}
+				return GameObject.get_active_Injected(intPtr);
+			}
+			[NativeMethod(Name = "SetSelfActive")]
+			set
+			{
+				IntPtr intPtr = Object.MarshalledUnityObject.MarshalNotNull<GameObject>(this);
+				if (intPtr == 0)
+				{
+					ThrowHelper.ThrowNullReferenceException(this);
+				}
+				GameObject.set_active_Injected(intPtr, value);
+			}
+		}
+
+		// Token: 0x060020D8 RID: 8408 RVA: 0x0003FE70 File Offset: 0x0003E070
+		[NativeMethod(Name = "SetSelfActive")]
+		public void SetActive(bool value)
+		{
+			IntPtr intPtr = Object.MarshalledUnityObject.MarshalNotNull<GameObject>(this);
+			if (intPtr == 0)
+			{
+				ThrowHelper.ThrowNullReferenceException(this);
+			}
+			GameObject.SetActive_Injected(intPtr, value);
+		}
+
+		// Token: 0x1700052A RID: 1322
+		// (get) Token: 0x060020D9 RID: 8409 RVA: 0x0003FE94 File Offset: 0x0003E094
+		public bool activeSelf
+		{
+			[NativeMethod(Name = "IsSelfActive")]
+			get
+			{
+				IntPtr intPtr = Object.MarshalledUnityObject.MarshalNotNull<GameObject>(this);
+				if (intPtr == 0)
+				{
+					ThrowHelper.ThrowNullReferenceException(this);
+				}
+				return GameObject.get_activeSelf_Injected(intPtr);
+			}
+		}
+
+		// Token: 0x1700052B RID: 1323
+		// (get) Token: 0x060020DA RID: 8410 RVA: 0x0003FEB8 File Offset: 0x0003E0B8
+		public bool activeInHierarchy
+		{
+			[NativeMethod(Name = "IsActive")]
+			get
+			{
+				IntPtr intPtr = Object.MarshalledUnityObject.MarshalNotNull<GameObject>(this);
+				if (intPtr == 0)
+				{
+					ThrowHelper.ThrowNullReferenceException(this);
+				}
+				return GameObject.get_activeInHierarchy_Injected(intPtr);
+			}
+		}
+
+		// Token: 0x060020DB RID: 8411 RVA: 0x0003FEDC File Offset: 0x0003E0DC
+		[Obsolete("gameObject.SetActiveRecursively() is obsolete. Use GameObject.SetActive(), which is now inherited by children.")]
+		[NativeMethod(Name = "SetActiveRecursivelyDeprecated")]
+		public void SetActiveRecursively(bool state)
+		{
+			IntPtr intPtr = Object.MarshalledUnityObject.MarshalNotNull<GameObject>(this);
+			if (intPtr == 0)
+			{
+				ThrowHelper.ThrowNullReferenceException(this);
+			}
+			GameObject.SetActiveRecursively_Injected(intPtr, state);
+		}
+
+		// Token: 0x1700052C RID: 1324
+		// (get) Token: 0x060020DC RID: 8412 RVA: 0x0003FF00 File Offset: 0x0003E100
+		// (set) Token: 0x060020DD RID: 8413 RVA: 0x0003FF24 File Offset: 0x0003E124
+		public bool isStatic
+		{
+			[NativeMethod(Name = "GetIsStaticDeprecated")]
+			get
+			{
+				IntPtr intPtr = Object.MarshalledUnityObject.MarshalNotNull<GameObject>(this);
+				if (intPtr == 0)
+				{
+					ThrowHelper.ThrowNullReferenceException(this);
+				}
+				return GameObject.get_isStatic_Injected(intPtr);
+			}
+			[NativeMethod(Name = "SetIsStaticDeprecated")]
+			set
+			{
+				IntPtr intPtr = Object.MarshalledUnityObject.MarshalNotNull<GameObject>(this);
+				if (intPtr == 0)
+				{
+					ThrowHelper.ThrowNullReferenceException(this);
+				}
+				GameObject.set_isStatic_Injected(intPtr, value);
+			}
+		}
+
+		// Token: 0x1700052D RID: 1325
+		// (get) Token: 0x060020DE RID: 8414 RVA: 0x0003FF48 File Offset: 0x0003E148
+		internal bool isStaticBatchable
+		{
+			[NativeMethod(Name = "IsStaticBatchable")]
+			get
+			{
+				IntPtr intPtr = Object.MarshalledUnityObject.MarshalNotNull<GameObject>(this);
+				if (intPtr == 0)
+				{
+					ThrowHelper.ThrowNullReferenceException(this);
+				}
+				return GameObject.get_isStaticBatchable_Injected(intPtr);
+			}
+		}
+
+		// Token: 0x1700052E RID: 1326
+		// (get) Token: 0x060020DF RID: 8415 RVA: 0x0003FF6C File Offset: 0x0003E16C
+		// (set) Token: 0x060020E0 RID: 8416 RVA: 0x0003FFAC File Offset: 0x0003E1AC
+		public unsafe string tag
+		{
+			[FreeFunction("GameObjectBindings::GetTag", HasExplicitThis = true)]
+			get
+			{
+				string stringAndDispose;
+				try
+				{
+					IntPtr intPtr = Object.MarshalledUnityObject.MarshalNotNull<GameObject>(this);
+					if (intPtr == 0)
+					{
+						ThrowHelper.ThrowNullReferenceException(this);
+					}
+					ManagedSpanWrapper managedSpan;
+					GameObject.get_tag_Injected(intPtr, out managedSpan);
+				}
+				finally
+				{
+					ManagedSpanWrapper managedSpan;
+					stringAndDispose = OutStringMarshaller.GetStringAndDispose(managedSpan);
+				}
+				return stringAndDispose;
+			}
+			[FreeFunction("GameObjectBindings::SetTag", HasExplicitThis = true)]
+			set
+			{
+				try
+				{
+					IntPtr intPtr = Object.MarshalledUnityObject.MarshalNotNull<GameObject>(this);
+					if (intPtr == 0)
+					{
+						ThrowHelper.ThrowNullReferenceException(this);
+					}
+					ManagedSpanWrapper managedSpanWrapper;
+					if (!StringMarshaller.TryMarshalEmptyOrNullString(value, ref managedSpanWrapper))
+					{
+						ReadOnlySpan<char> readOnlySpan = value.AsSpan();
+						fixed (char* ptr = readOnlySpan.GetPinnableReference())
+						{
+							managedSpanWrapper = new ManagedSpanWrapper((void*)ptr, readOnlySpan.Length);
+						}
+					}
+					GameObject.set_tag_Injected(intPtr, ref managedSpanWrapper);
+				}
+				finally
+				{
+					char* ptr = null;
+				}
+			}
+		}
+
+		// Token: 0x060020E1 RID: 8417 RVA: 0x00040010 File Offset: 0x0003E210
+		public bool CompareTag(string tag)
+		{
+			return this.CompareTag_Internal(tag);
+		}
+
+		// Token: 0x060020E2 RID: 8418 RVA: 0x00040019 File Offset: 0x0003E219
+		public bool CompareTag(TagHandle tag)
+		{
+			return this.CompareTagHandle_Internal(tag);
+		}
+
+		// Token: 0x060020E3 RID: 8419 RVA: 0x00040024 File Offset: 0x0003E224
+		[FreeFunction(Name = "GameObjectBindings::CompareTag", HasExplicitThis = true)]
+		private unsafe bool CompareTag_Internal(string tag)
+		{
+			bool result;
+			try
+			{
+				IntPtr intPtr = Object.MarshalledUnityObject.MarshalNotNull<GameObject>(this);
+				if (intPtr == 0)
+				{
+					ThrowHelper.ThrowNullReferenceException(this);
+				}
+				ManagedSpanWrapper managedSpanWrapper;
+				if (!StringMarshaller.TryMarshalEmptyOrNullString(tag, ref managedSpanWrapper))
+				{
+					ReadOnlySpan<char> readOnlySpan = tag.AsSpan();
+					fixed (char* ptr = readOnlySpan.GetPinnableReference())
+					{
+						managedSpanWrapper = new ManagedSpanWrapper((void*)ptr, readOnlySpan.Length);
+					}
+				}
+				result = GameObject.CompareTag_Internal_Injected(intPtr, ref managedSpanWrapper);
+			}
+			finally
+			{
+				char* ptr = null;
+			}
+			return result;
+		}
+
+		// Token: 0x060020E4 RID: 8420 RVA: 0x0004008C File Offset: 0x0003E28C
+		[FreeFunction(Name = "GameObjectBindings::CompareTagHandle", HasExplicitThis = true)]
+		private bool CompareTagHandle_Internal(TagHandle tag)
+		{
+			IntPtr intPtr = Object.MarshalledUnityObject.MarshalNotNull<GameObject>(this);
+			if (intPtr == 0)
+			{
+				ThrowHelper.ThrowNullReferenceException(this);
+			}
+			return GameObject.CompareTagHandle_Internal_Injected(intPtr, ref tag);
+		}
+
+		// Token: 0x060020E5 RID: 8421 RVA: 0x000400B0 File Offset: 0x0003E2B0
+		[FreeFunction(Name = "GameObjectBindings::FindGameObjectWithTag", ThrowsException = true)]
+		public unsafe static GameObject FindGameObjectWithTag(string tag)
+		{
+			GameObject result;
+			try
+			{
+				ManagedSpanWrapper managedSpanWrapper;
+				if (!StringMarshaller.TryMarshalEmptyOrNullString(tag, ref managedSpanWrapper))
+				{
+					ReadOnlySpan<char> readOnlySpan = tag.AsSpan();
+					fixed (char* ptr = readOnlySpan.GetPinnableReference())
+					{
+						managedSpanWrapper = new ManagedSpanWrapper((void*)ptr, readOnlySpan.Length);
+					}
+				}
+				IntPtr gcHandlePtr = GameObject.FindGameObjectWithTag_Injected(ref managedSpanWrapper);
+			}
+			finally
+			{
+				IntPtr gcHandlePtr;
+				result = Unmarshal.UnmarshalUnityObject<GameObject>(gcHandlePtr);
+				char* ptr = null;
+			}
+			return result;
+		}
+
+		// Token: 0x060020E6 RID: 8422 RVA: 0x00040110 File Offset: 0x0003E310
+		[FreeFunction(Name = "GameObjectBindings::FindGameObjectsWithTag", ThrowsException = true)]
+		public unsafe static GameObject[] FindGameObjectsWithTag(string tag)
+		{
+			GameObject[] result;
+			try
+			{
+				ManagedSpanWrapper managedSpanWrapper;
+				if (!StringMarshaller.TryMarshalEmptyOrNullString(tag, ref managedSpanWrapper))
+				{
+					ReadOnlySpan<char> readOnlySpan = tag.AsSpan();
+					fixed (char* ptr = readOnlySpan.GetPinnableReference())
+					{
+						managedSpanWrapper = new ManagedSpanWrapper((void*)ptr, readOnlySpan.Length);
+					}
+				}
+				result = GameObject.FindGameObjectsWithTag_Injected(ref managedSpanWrapper);
+			}
+			finally
+			{
+				char* ptr = null;
+			}
+			return result;
+		}
+
+		// Token: 0x060020E7 RID: 8423 RVA: 0x00040168 File Offset: 0x0003E368
+		[FreeFunction(Name = "Scripting::SendScriptingMessageUpwards", HasExplicitThis = true)]
+		public unsafe void SendMessageUpwards(string methodName, [DefaultValue("null")] object value, [DefaultValue("SendMessageOptions.RequireReceiver")] SendMessageOptions options)
+		{
+			try
+			{
+				IntPtr intPtr = Object.MarshalledUnityObject.MarshalNotNull<GameObject>(this);
+				if (intPtr == 0)
+				{
+					ThrowHelper.ThrowNullReferenceException(this);
+				}
+				ManagedSpanWrapper managedSpanWrapper;
+				if (!StringMarshaller.TryMarshalEmptyOrNullString(methodName, ref managedSpanWrapper))
+				{
+					ReadOnlySpan<char> readOnlySpan = methodName.AsSpan();
+					fixed (char* ptr = readOnlySpan.GetPinnableReference())
+					{
+						managedSpanWrapper = new ManagedSpanWrapper((void*)ptr, readOnlySpan.Length);
+					}
+				}
+				GameObject.SendMessageUpwards_Injected(intPtr, ref managedSpanWrapper, value, options);
+			}
+			finally
+			{
+				char* ptr = null;
+			}
+		}
+
+		// Token: 0x060020E8 RID: 8424 RVA: 0x000401D0 File Offset: 0x0003E3D0
+		[ExcludeFromDocs]
+		public void SendMessageUpwards(string methodName, object value)
+		{
+			SendMessageOptions options = SendMessageOptions.RequireReceiver;
+			this.SendMessageUpwards(methodName, value, options);
+		}
+
+		// Token: 0x060020E9 RID: 8425 RVA: 0x000401EC File Offset: 0x0003E3EC
+		[ExcludeFromDocs]
+		public void SendMessageUpwards(string methodName)
+		{
+			SendMessageOptions options = SendMessageOptions.RequireReceiver;
+			object value = null;
+			this.SendMessageUpwards(methodName, value, options);
+		}
+
+		// Token: 0x060020EA RID: 8426 RVA: 0x00040208 File Offset: 0x0003E408
+		[FreeFunction(Name = "Scripting::SendScriptingMessage", HasExplicitThis = true)]
+		public unsafe void SendMessage(string methodName, [DefaultValue("null")] object value, [DefaultValue("SendMessageOptions.RequireReceiver")] SendMessageOptions options)
+		{
+			try
+			{
+				IntPtr intPtr = Object.MarshalledUnityObject.MarshalNotNull<GameObject>(this);
+				if (intPtr == 0)
+				{
+					ThrowHelper.ThrowNullReferenceException(this);
+				}
+				ManagedSpanWrapper managedSpanWrapper;
+				if (!StringMarshaller.TryMarshalEmptyOrNullString(methodName, ref managedSpanWrapper))
+				{
+					ReadOnlySpan<char> readOnlySpan = methodName.AsSpan();
+					fixed (char* ptr = readOnlySpan.GetPinnableReference())
+					{
+						managedSpanWrapper = new ManagedSpanWrapper((void*)ptr, readOnlySpan.Length);
+					}
+				}
+				GameObject.SendMessage_Injected(intPtr, ref managedSpanWrapper, value, options);
+			}
+			finally
+			{
+				char* ptr = null;
+			}
+		}
+
+		// Token: 0x060020EB RID: 8427 RVA: 0x00040270 File Offset: 0x0003E470
+		[ExcludeFromDocs]
+		public void SendMessage(string methodName, object value)
+		{
+			SendMessageOptions options = SendMessageOptions.RequireReceiver;
+			this.SendMessage(methodName, value, options);
+		}
+
+		// Token: 0x060020EC RID: 8428 RVA: 0x0004028C File Offset: 0x0003E48C
+		[ExcludeFromDocs]
+		public void SendMessage(string methodName)
+		{
+			SendMessageOptions options = SendMessageOptions.RequireReceiver;
+			object value = null;
+			this.SendMessage(methodName, value, options);
+		}
+
+		// Token: 0x060020ED RID: 8429 RVA: 0x000402A8 File Offset: 0x0003E4A8
+		[FreeFunction(Name = "Scripting::BroadcastScriptingMessage", HasExplicitThis = true)]
+		public unsafe void BroadcastMessage(string methodName, [DefaultValue("null")] object parameter, [DefaultValue("SendMessageOptions.RequireReceiver")] SendMessageOptions options)
+		{
+			try
+			{
+				IntPtr intPtr = Object.MarshalledUnityObject.MarshalNotNull<GameObject>(this);
+				if (intPtr == 0)
+				{
+					ThrowHelper.ThrowNullReferenceException(this);
+				}
+				ManagedSpanWrapper managedSpanWrapper;
+				if (!StringMarshaller.TryMarshalEmptyOrNullString(methodName, ref managedSpanWrapper))
+				{
+					ReadOnlySpan<char> readOnlySpan = methodName.AsSpan();
+					fixed (char* ptr = readOnlySpan.GetPinnableReference())
+					{
+						managedSpanWrapper = new ManagedSpanWrapper((void*)ptr, readOnlySpan.Length);
+					}
+				}
+				GameObject.BroadcastMessage_Injected(intPtr, ref managedSpanWrapper, parameter, options);
+			}
+			finally
+			{
+				char* ptr = null;
+			}
+		}
+
+		// Token: 0x060020EE RID: 8430 RVA: 0x00040310 File Offset: 0x0003E510
+		[ExcludeFromDocs]
+		public void BroadcastMessage(string methodName, object parameter)
+		{
+			SendMessageOptions options = SendMessageOptions.RequireReceiver;
+			this.BroadcastMessage(methodName, parameter, options);
+		}
+
+		// Token: 0x060020EF RID: 8431 RVA: 0x0004032C File Offset: 0x0003E52C
+		[ExcludeFromDocs]
+		public void BroadcastMessage(string methodName)
+		{
+			SendMessageOptions options = SendMessageOptions.RequireReceiver;
+			object parameter = null;
+			this.BroadcastMessage(methodName, parameter, options);
+		}
+
+		// Token: 0x060020F0 RID: 8432 RVA: 0x00040348 File Offset: 0x0003E548
+		public GameObject(string name)
+		{
+			GameObject.Internal_CreateGameObject(this, name);
+		}
+
+		// Token: 0x060020F1 RID: 8433 RVA: 0x0004035A File Offset: 0x0003E55A
+		public GameObject()
+		{
+			GameObject.Internal_CreateGameObject(this, null);
+		}
+
+		// Token: 0x060020F2 RID: 8434 RVA: 0x0004036C File Offset: 0x0003E56C
+		public GameObject(string name, params Type[] components)
+		{
+			GameObject.Internal_CreateGameObject(this, name);
+			foreach (Type componentType in components)
+			{
+				this.AddComponent(componentType);
+			}
+		}
+
+		// Token: 0x060020F3 RID: 8435 RVA: 0x000403A8 File Offset: 0x0003E5A8
+		[FreeFunction(Name = "GameObjectBindings::Internal_CreateGameObject")]
+		private unsafe static void Internal_CreateGameObject([Writable] GameObject self, string name)
+		{
+			try
+			{
+				ManagedSpanWrapper managedSpanWrapper;
+				if (!StringMarshaller.TryMarshalEmptyOrNullString(name, ref managedSpanWrapper))
+				{
+					ReadOnlySpan<char> readOnlySpan = name.AsSpan();
+					fixed (char* ptr = readOnlySpan.GetPinnableReference())
+					{
+						managedSpanWrapper = new ManagedSpanWrapper((void*)ptr, readOnlySpan.Length);
+					}
+				}
+				GameObject.Internal_CreateGameObject_Injected(self, ref managedSpanWrapper);
+			}
+			finally
+			{
+				char* ptr = null;
+			}
+		}
+
+		// Token: 0x060020F4 RID: 8436 RVA: 0x00040400 File Offset: 0x0003E600
+		[FreeFunction(Name = "GameObjectBindings::Find")]
+		public unsafe static GameObject Find(string name)
+		{
+			GameObject result;
+			try
+			{
+				ManagedSpanWrapper managedSpanWrapper;
+				if (!StringMarshaller.TryMarshalEmptyOrNullString(name, ref managedSpanWrapper))
+				{
+					ReadOnlySpan<char> readOnlySpan = name.AsSpan();
+					fixed (char* ptr = readOnlySpan.GetPinnableReference())
+					{
+						managedSpanWrapper = new ManagedSpanWrapper((void*)ptr, readOnlySpan.Length);
+					}
+				}
+				IntPtr gcHandlePtr = GameObject.Find_Injected(ref managedSpanWrapper);
+			}
+			finally
+			{
+				IntPtr gcHandlePtr;
+				result = Unmarshal.UnmarshalUnityObject<GameObject>(gcHandlePtr);
+				char* ptr = null;
+			}
+			return result;
+		}
+
+		// Token: 0x060020F5 RID: 8437
+		[FreeFunction(Name = "GameObjectBindings::SetGameObjectsActiveByInstanceID")]
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		private static extern void SetGameObjectsActive(IntPtr instanceIds, int instanceCount, bool active);
+
+		// Token: 0x060020F6 RID: 8438 RVA: 0x00040460 File Offset: 0x0003E660
+		public static void SetGameObjectsActive(NativeArray<int> instanceIDs, bool active)
+		{
+			bool flag = !instanceIDs.IsCreated;
+			if (flag)
+			{
+				throw new ArgumentException("NativeArray is uninitialized", "instanceIDs");
+			}
+			bool flag2 = instanceIDs.Length == 0;
+			if (!flag2)
+			{
+				GameObject.SetGameObjectsActive((IntPtr)instanceIDs.GetUnsafeReadOnlyPtr<int>(), instanceIDs.Length, active);
+			}
+		}
+
+		// Token: 0x060020F7 RID: 8439 RVA: 0x000404B8 File Offset: 0x0003E6B8
+		public unsafe static void SetGameObjectsActive(ReadOnlySpan<int> instanceIDs, bool active)
+		{
+			bool flag = instanceIDs.Length == 0;
+			if (!flag)
+			{
+				fixed (int* pinnableReference = instanceIDs.GetPinnableReference())
+				{
+					int* value = pinnableReference;
+					GameObject.SetGameObjectsActive((IntPtr)((void*)value), instanceIDs.Length, active);
+				}
+			}
+		}
+
+		// Token: 0x060020F8 RID: 8440 RVA: 0x000404FC File Offset: 0x0003E6FC
+		[FreeFunction("GameObjectBindings::InstantiateGameObjectsByInstanceID")]
+		private static void InstantiateGameObjects(int sourceInstanceID, IntPtr newInstanceIDs, IntPtr newTransformInstanceIDs, int count, Scene destinationScene)
+		{
+			GameObject.InstantiateGameObjects_Injected(sourceInstanceID, newInstanceIDs, newTransformInstanceIDs, count, ref destinationScene);
+		}
+
+		// Token: 0x060020F9 RID: 8441 RVA: 0x00040514 File Offset: 0x0003E714
+		public static void InstantiateGameObjects(int sourceInstanceID, int count, NativeArray<int> newInstanceIDs, NativeArray<int> newTransformInstanceIDs, Scene destinationScene = default(Scene))
+		{
+			bool flag = !newInstanceIDs.IsCreated;
+			if (flag)
+			{
+				throw new ArgumentException("NativeArray is uninitialized", "newInstanceIDs");
+			}
+			bool flag2 = !newTransformInstanceIDs.IsCreated;
+			if (flag2)
+			{
+				throw new ArgumentException("NativeArray is uninitialized", "newTransformInstanceIDs");
+			}
+			bool flag3 = count == 0;
+			if (!flag3)
+			{
+				bool flag4 = count != newInstanceIDs.Length || count != newTransformInstanceIDs.Length;
+				if (flag4)
+				{
+					throw new ArgumentException("Size mismatch! Both arrays must already be the size of count.");
+				}
+				GameObject.InstantiateGameObjects(sourceInstanceID, (IntPtr)newInstanceIDs.GetUnsafeReadOnlyPtr<int>(), (IntPtr)newTransformInstanceIDs.GetUnsafeReadOnlyPtr<int>(), newInstanceIDs.Length, destinationScene);
+			}
+		}
+
+		// Token: 0x060020FA RID: 8442 RVA: 0x000405B8 File Offset: 0x0003E7B8
+		[FreeFunction(Name = "GameObjectBindings::GetSceneByInstanceID")]
+		public static Scene GetScene(int instanceID)
+		{
+			Scene result;
+			GameObject.GetScene_Injected(instanceID, out result);
+			return result;
+		}
+
+		// Token: 0x1700052F RID: 1327
+		// (get) Token: 0x060020FB RID: 8443 RVA: 0x000405D0 File Offset: 0x0003E7D0
+		public Scene scene
+		{
+			[FreeFunction("GameObjectBindings::GetScene", HasExplicitThis = true)]
+			get
+			{
+				IntPtr intPtr = Object.MarshalledUnityObject.MarshalNotNull<GameObject>(this);
+				if (intPtr == 0)
+				{
+					ThrowHelper.ThrowNullReferenceException(this);
+				}
+				Scene result;
+				GameObject.get_scene_Injected(intPtr, out result);
+				return result;
+			}
+		}
+
+		// Token: 0x17000530 RID: 1328
+		// (get) Token: 0x060020FC RID: 8444 RVA: 0x000405F8 File Offset: 0x0003E7F8
+		public ulong sceneCullingMask
+		{
+			[FreeFunction(Name = "GameObjectBindings::GetSceneCullingMask", HasExplicitThis = true)]
+			get
+			{
+				IntPtr intPtr = Object.MarshalledUnityObject.MarshalNotNull<GameObject>(this);
+				if (intPtr == 0)
+				{
+					ThrowHelper.ThrowNullReferenceException(this);
+				}
+				return GameObject.get_sceneCullingMask_Injected(intPtr);
+			}
+		}
+
+		// Token: 0x17000531 RID: 1329
+		// (get) Token: 0x060020FD RID: 8445 RVA: 0x0004061C File Offset: 0x0003E81C
+		public GameObject gameObject
+		{
+			get
+			{
+				return this;
+			}
+		}
+
+		// Token: 0x060020FE RID: 8446
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		private static extern IntPtr CreatePrimitive_Injected(PrimitiveType type);
+
+		// Token: 0x060020FF RID: 8447
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		private static extern IntPtr GetComponent_Injected(IntPtr _unity_self, Type type);
+
+		// Token: 0x06002100 RID: 8448
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		private static extern void GetComponentFastPath_Injected(IntPtr _unity_self, Type type, IntPtr oneFurtherThanResultValue);
+
+		// Token: 0x06002101 RID: 8449
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		private static extern IntPtr GetComponentByName_Injected(IntPtr _unity_self, ref ManagedSpanWrapper type);
+
+		// Token: 0x06002102 RID: 8450
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		private static extern IntPtr GetComponentByNameWithCase_Injected(IntPtr _unity_self, ref ManagedSpanWrapper type, bool caseSensitive);
+
+		// Token: 0x06002103 RID: 8451
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		private static extern IntPtr GetComponentInChildren_Injected(IntPtr _unity_self, Type type, bool includeInactive);
+
+		// Token: 0x06002104 RID: 8452
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		private static extern IntPtr GetComponentInParent_Injected(IntPtr _unity_self, Type type, bool includeInactive);
+
+		// Token: 0x06002105 RID: 8453
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		private static extern Array GetComponentsInternal_Injected(IntPtr _unity_self, Type type, bool useSearchTypeAsArrayReturnType, bool recursive, bool includeInactive, bool reverse, object resultList);
+
+		// Token: 0x06002106 RID: 8454
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		private static extern IntPtr TryGetComponentInternal_Injected(IntPtr _unity_self, Type type);
+
+		// Token: 0x06002107 RID: 8455
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		private static extern void TryGetComponentFastPath_Injected(IntPtr _unity_self, Type type, IntPtr oneFurtherThanResultValue);
+
+		// Token: 0x06002108 RID: 8456
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		private static extern void FindGameObjectsWithTagForListInternal_Injected(ref ManagedSpanWrapper tag, object results);
+
+		// Token: 0x06002109 RID: 8457
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		private static extern IntPtr AddComponentInternal_Injected(IntPtr _unity_self, ref ManagedSpanWrapper className);
+
+		// Token: 0x0600210A RID: 8458
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		private static extern IntPtr Internal_AddComponentWithType_Injected(IntPtr _unity_self, Type componentType);
+
+		// Token: 0x0600210B RID: 8459
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		private static extern int GetComponentCount_Injected(IntPtr _unity_self);
+
+		// Token: 0x0600210C RID: 8460
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		private static extern IntPtr QueryComponentAtIndex_Injected(IntPtr _unity_self, int index);
+
+		// Token: 0x0600210D RID: 8461
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		private static extern int GetComponentIndex_Injected(IntPtr _unity_self, IntPtr component);
+
+		// Token: 0x0600210E RID: 8462
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		private static extern IntPtr get_transform_Injected(IntPtr _unity_self);
+
+		// Token: 0x0600210F RID: 8463
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		private static extern int get_layer_Injected(IntPtr _unity_self);
+
+		// Token: 0x06002110 RID: 8464
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		private static extern void set_layer_Injected(IntPtr _unity_self, int value);
+
+		// Token: 0x06002111 RID: 8465
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		private static extern bool get_active_Injected(IntPtr _unity_self);
+
+		// Token: 0x06002112 RID: 8466
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		private static extern void set_active_Injected(IntPtr _unity_self, bool value);
+
+		// Token: 0x06002113 RID: 8467
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		private static extern void SetActive_Injected(IntPtr _unity_self, bool value);
+
+		// Token: 0x06002114 RID: 8468
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		private static extern bool get_activeSelf_Injected(IntPtr _unity_self);
+
+		// Token: 0x06002115 RID: 8469
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		private static extern bool get_activeInHierarchy_Injected(IntPtr _unity_self);
+
+		// Token: 0x06002116 RID: 8470
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		private static extern void SetActiveRecursively_Injected(IntPtr _unity_self, bool state);
+
+		// Token: 0x06002117 RID: 8471
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		private static extern bool get_isStatic_Injected(IntPtr _unity_self);
+
+		// Token: 0x06002118 RID: 8472
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		private static extern void set_isStatic_Injected(IntPtr _unity_self, bool value);
+
+		// Token: 0x06002119 RID: 8473
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		private static extern bool get_isStaticBatchable_Injected(IntPtr _unity_self);
+
+		// Token: 0x0600211A RID: 8474
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		private static extern void get_tag_Injected(IntPtr _unity_self, out ManagedSpanWrapper ret);
+
+		// Token: 0x0600211B RID: 8475
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		private static extern void set_tag_Injected(IntPtr _unity_self, ref ManagedSpanWrapper value);
+
+		// Token: 0x0600211C RID: 8476
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		private static extern bool CompareTag_Internal_Injected(IntPtr _unity_self, ref ManagedSpanWrapper tag);
+
+		// Token: 0x0600211D RID: 8477
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		private static extern bool CompareTagHandle_Internal_Injected(IntPtr _unity_self, [In] ref TagHandle tag);
+
+		// Token: 0x0600211E RID: 8478
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		private static extern IntPtr FindGameObjectWithTag_Injected(ref ManagedSpanWrapper tag);
+
+		// Token: 0x0600211F RID: 8479
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		private static extern GameObject[] FindGameObjectsWithTag_Injected(ref ManagedSpanWrapper tag);
+
+		// Token: 0x06002120 RID: 8480
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		private static extern void SendMessageUpwards_Injected(IntPtr _unity_self, ref ManagedSpanWrapper methodName, [DefaultValue("null")] object value, [DefaultValue("SendMessageOptions.RequireReceiver")] SendMessageOptions options);
+
+		// Token: 0x06002121 RID: 8481
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		private static extern void SendMessage_Injected(IntPtr _unity_self, ref ManagedSpanWrapper methodName, [DefaultValue("null")] object value, [DefaultValue("SendMessageOptions.RequireReceiver")] SendMessageOptions options);
+
+		// Token: 0x06002122 RID: 8482
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		private static extern void BroadcastMessage_Injected(IntPtr _unity_self, ref ManagedSpanWrapper methodName, [DefaultValue("null")] object parameter, [DefaultValue("SendMessageOptions.RequireReceiver")] SendMessageOptions options);
+
+		// Token: 0x06002123 RID: 8483
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		private static extern void Internal_CreateGameObject_Injected([Writable] GameObject self, ref ManagedSpanWrapper name);
+
+		// Token: 0x06002124 RID: 8484
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		private static extern IntPtr Find_Injected(ref ManagedSpanWrapper name);
+
+		// Token: 0x06002125 RID: 8485
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		private static extern void InstantiateGameObjects_Injected(int sourceInstanceID, IntPtr newInstanceIDs, IntPtr newTransformInstanceIDs, int count, [In] ref Scene destinationScene);
+
+		// Token: 0x06002126 RID: 8486
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		private static extern void GetScene_Injected(int instanceID, out Scene ret);
+
+		// Token: 0x06002127 RID: 8487
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		private static extern void get_scene_Injected(IntPtr _unity_self, out Scene ret);
+
+		// Token: 0x06002128 RID: 8488
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		private static extern ulong get_sceneCullingMask_Injected(IntPtr _unity_self);
+	}
+}

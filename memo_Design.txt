@@ -1,0 +1,62 @@
+仕様決定（最終）
+
+- YAMLキー命名規則
+  - 新規採用: VanillaClipName_secondary_Q / VanillaClipName_secondary_T / VanillaClipName_secondary_G
+  - 補足: 既存の「ea_secondary」は「secondary_Q」のエイリアスとして扱う（Qを統一的な「Secondary属性攻撃」とみなす）
+- マッピング基準
+  - 基準は「バニラのアニメーションクリップ名」を使用（トリガー名は使わない）
+  - YAMLキーは「VanillaClipName_サフィックス」の形式で統一
+- Q/T/G割当（武器種別）
+  - ユーザー案を「最終」として採用。各武器種のQ/T/Gキーに対する外部クリップの置換を、ユーザー提示のリストと同ルールで適用します
+    - Unarmed/Fists: Q unarmed_kick / T great sword secondary / G battle axe secondary
+    - Knives: Q knife_secondary / T great sword secondary / G battle axe secondary
+    - BattleAxes: Q battleaxe_secondary / T great sword secondary / G PoleArm secondary
+    - Spears: Q spear_poke / T great sword secondary / G battle axe secondary
+    - Swords: Q sword_secondary / T great sword secondary / G battle axe secondary
+    - Axes: Q axe_secondary / T great sword secondary / G battle axe secondary
+    - GreatSwords: Q greatsword_secondary / T PoleArm secondary / G battle axe secondary
+    - Polearms: Q polearm_secondary / T great sword secondary / G battle axe secondary
+    - 他の武器種や個別武器も上記ルールに準拠して指定
+  - 注意: 外部クリップ名のスペル「secondary/secoudary」「PoleArm/Polearms」の揺れがあるため、正確なクリップ名（アセットバンドル内のクリップ名）を確認して適用します（下記の「確認依頼」参照）
+- クールダウン／スタミナ／エイトル
+  - キー別に設定可能（Q/T/Gで個別に取り扱い）
+  - デフォルト値は「装備武器のバニラ値」を使用
+    - Q: 装備武器の「SecondaryAttack」の m_attackStamina / m_attackEitr を使用
+    - T/G: 装備武器の「Attack（通常攻撃）」の m_attackStamina / m_attackEitr を使用（バニラ準拠）
+  - YAMLでキー別に上書き可能にします（提案: AnimationTiming.yamlへ optional フィールド「staminaCost/eitrCost/cooldownSec」を追加）
+- 言語/コメント
+  - YAMLのコメントは英語/日本語の両方を維持（既存の保存ロジックと同様）
+  - ゲーム内メッセージは英語
+変更対象（コード参照）
+
+- AOC構築とサフィックス解決の切り替え
+  - `ExtraAttackPatches_Animation.cs`
+  - `BuildConfigKeyByClip`
+    - 既存の候補サフィックス「_ea_style1/2/3」「_ea_secondary」「_T/_G」に加えて、「_secondary_Q/_secondary_T/_secondary_G」の優先解決を追加
+  - `BuildOrGetAOCFor`
+    - 右手武器種＋左手組み合わせを考慮したマップ選択に「ea_secondary_Q/T/G」系キー優先のロジックを追加（既存 ea_style* はフォールバック）
+- 外部クリップ→YAMLキー逆引き
+  - `AnimationEventManager.cs`
+  - `ResolveConfigKeyForClip`
+    - 現在は ea_style1/2/3 のみ対応。ここに「secondary_Q/T/G」サフィックス対応を追加
+- YAMLのデフォルト生成と保存
+  - `AnimationTimingConfig.cs`
+  - `SaveAppendFromReplacementMap`
+    - 現状「ea_style1/2/3」のみ。ここに「ea_secondary_Q/T/G」系キーから「VanillaClip_secondary_Q/T/G」を生成して追記保存する処理を追加
+- 置き換えマップの追加
+  - `AnimationManager.cs`
+  - ReplacementMap に「ea_secondary_Q」「ea_secondary_T」「ea_secondary_G」および武器種/左手組み合わせ派生キーを追加し、既存 ea_style* は互換用に維持
+理由
+
+- ユーザーの要求に沿って「Q/T/G別のセカンダリ属性攻撃」を明確に表現するため、YAMLキーに「secondary_Q/T/G」を採用します。既存「ea_style1/2/3」は多義的かつ一次攻撃/二次攻撃の混在があり、Q/T/Gのキー単位に直接紐付けられる「secondary_Q/T/G」のほうが設定の可読性・拡張性が高いためです。
+- 既存環境との互換性を維持するため、旧キー「_ea_style1/2/3」「_T/_G」「_ea_secondary」をフォールバックで対応します。
+適用手順（差分）
+
+- AnimationManager.ReplacementMapへ「ea_secondary_Q/T/G」系のキーを追加（タイプ別・アイテム別・左手組み合わせ派生キーも生成）
+- ExtraAttackPatches_Animation.BuildOrGetAOCForで「ea_secondary」系キーを優先してAOCを構築（旧スタイルはフォールバック）
+- ExtraAttackPatches_Animation.BuildConfigKeyByClipで「_secondary_Q/_secondary_T/_secondary_G」サフィックスの優先解決を追加
+- AnimationEventManager.ResolveConfigKeyForClipで「secondary_Q/T/G」キー対応を追加
+- AnimationTimingConfig.SaveAppendFromReplacementMapで「ea_secondary_Q/T/G」→「VanillaClip_secondary_Q/T/G」を生成・追加保存
+- AnimationTiming.yamlに、新規optional項目「staminaCost/eitrCost/cooldownSec」を追加し、キー別上書きをサポート（デフォルトは装備武器のバニラ値）
+- ビルドしてログでQ/T/G起動とイベントタイミング適用を確認
+- memo_changes.txtへ仕様確定と変更点を日本語で追記（ゲーム内仕様のみ）

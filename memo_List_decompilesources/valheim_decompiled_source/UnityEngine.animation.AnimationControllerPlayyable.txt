@@ -1,0 +1,1067 @@
+using System;
+using System.Collections.Generic;
+using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
+using UnityEngine.Bindings;
+using UnityEngine.Internal;
+using UnityEngine.Playables;
+using UnityEngine.Scripting;
+
+namespace UnityEngine.Animations
+{
+	// Token: 0x02000067 RID: 103
+	[NativeHeader("Modules/Animation/ScriptBindings/AnimatorControllerPlayable.bindings.h")]
+	[NativeHeader("Modules/Animation/RuntimeAnimatorController.h")]
+	[StaticAccessor("AnimatorControllerPlayableBindings", StaticAccessorType.DoubleColon)]
+	[RequiredByNativeCode]
+	[NativeHeader("Modules/Animation/ScriptBindings/Animator.bindings.h")]
+	[NativeHeader("Modules/Animation/Director/AnimatorControllerPlayable.h")]
+	[NativeHeader("Modules/Animation/AnimatorInfo.h")]
+	public struct AnimatorControllerPlayable : IPlayable, IEquatable<AnimatorControllerPlayable>
+	{
+		// Token: 0x170000E2 RID: 226
+		// (get) Token: 0x060005EF RID: 1519 RVA: 0x0000B12C File Offset: 0x0000932C
+		public static AnimatorControllerPlayable Null
+		{
+			get
+			{
+				return AnimatorControllerPlayable.m_NullPlayable;
+			}
+		}
+
+		// Token: 0x060005F0 RID: 1520 RVA: 0x0000B144 File Offset: 0x00009344
+		public static AnimatorControllerPlayable Create(PlayableGraph graph, RuntimeAnimatorController controller)
+		{
+			PlayableHandle handle = AnimatorControllerPlayable.CreateHandle(graph, controller);
+			return new AnimatorControllerPlayable(handle);
+		}
+
+		// Token: 0x060005F1 RID: 1521 RVA: 0x0000B164 File Offset: 0x00009364
+		private static PlayableHandle CreateHandle(PlayableGraph graph, RuntimeAnimatorController controller)
+		{
+			PlayableHandle @null = PlayableHandle.Null;
+			bool flag = !AnimatorControllerPlayable.CreateHandleInternal(graph, controller, ref @null);
+			PlayableHandle result;
+			if (flag)
+			{
+				result = PlayableHandle.Null;
+			}
+			else
+			{
+				result = @null;
+			}
+			return result;
+		}
+
+		// Token: 0x060005F2 RID: 1522 RVA: 0x0000B195 File Offset: 0x00009395
+		internal AnimatorControllerPlayable(PlayableHandle handle)
+		{
+			this.m_Handle = PlayableHandle.Null;
+			this.SetHandle(handle);
+		}
+
+		// Token: 0x060005F3 RID: 1523 RVA: 0x0000B1AC File Offset: 0x000093AC
+		public PlayableHandle GetHandle()
+		{
+			return this.m_Handle;
+		}
+
+		// Token: 0x060005F4 RID: 1524 RVA: 0x0000B1C4 File Offset: 0x000093C4
+		public void SetHandle(PlayableHandle handle)
+		{
+			bool flag = this.m_Handle.IsValid();
+			if (flag)
+			{
+				throw new InvalidOperationException("Cannot call IPlayable.SetHandle on an instance that already contains a valid handle.");
+			}
+			bool flag2 = handle.IsValid();
+			if (flag2)
+			{
+				bool flag3 = !handle.IsPlayableOfType<AnimatorControllerPlayable>();
+				if (flag3)
+				{
+					throw new InvalidCastException("Can't set handle: the playable is not an AnimatorControllerPlayable.");
+				}
+			}
+			this.m_Handle = handle;
+		}
+
+		// Token: 0x060005F5 RID: 1525 RVA: 0x0000B21C File Offset: 0x0000941C
+		public static implicit operator Playable(AnimatorControllerPlayable playable)
+		{
+			return new Playable(playable.GetHandle());
+		}
+
+		// Token: 0x060005F6 RID: 1526 RVA: 0x0000B23C File Offset: 0x0000943C
+		public static explicit operator AnimatorControllerPlayable(Playable playable)
+		{
+			return new AnimatorControllerPlayable(playable.GetHandle());
+		}
+
+		// Token: 0x060005F7 RID: 1527 RVA: 0x0000B25C File Offset: 0x0000945C
+		public bool Equals(AnimatorControllerPlayable other)
+		{
+			return this.GetHandle() == other.GetHandle();
+		}
+
+		// Token: 0x060005F8 RID: 1528 RVA: 0x0000B280 File Offset: 0x00009480
+		public float GetFloat(string name)
+		{
+			return AnimatorControllerPlayable.GetFloatString(ref this.m_Handle, name);
+		}
+
+		// Token: 0x060005F9 RID: 1529 RVA: 0x0000B2A0 File Offset: 0x000094A0
+		public float GetFloat(int id)
+		{
+			return AnimatorControllerPlayable.GetFloatID(ref this.m_Handle, id);
+		}
+
+		// Token: 0x060005FA RID: 1530 RVA: 0x0000B2BE File Offset: 0x000094BE
+		public void SetFloat(string name, float value)
+		{
+			AnimatorControllerPlayable.SetFloatString(ref this.m_Handle, name, value);
+		}
+
+		// Token: 0x060005FB RID: 1531 RVA: 0x0000B2CF File Offset: 0x000094CF
+		public void SetFloat(int id, float value)
+		{
+			AnimatorControllerPlayable.SetFloatID(ref this.m_Handle, id, value);
+		}
+
+		// Token: 0x060005FC RID: 1532 RVA: 0x0000B2E0 File Offset: 0x000094E0
+		public bool GetBool(string name)
+		{
+			return AnimatorControllerPlayable.GetBoolString(ref this.m_Handle, name);
+		}
+
+		// Token: 0x060005FD RID: 1533 RVA: 0x0000B300 File Offset: 0x00009500
+		public bool GetBool(int id)
+		{
+			return AnimatorControllerPlayable.GetBoolID(ref this.m_Handle, id);
+		}
+
+		// Token: 0x060005FE RID: 1534 RVA: 0x0000B31E File Offset: 0x0000951E
+		public void SetBool(string name, bool value)
+		{
+			AnimatorControllerPlayable.SetBoolString(ref this.m_Handle, name, value);
+		}
+
+		// Token: 0x060005FF RID: 1535 RVA: 0x0000B32F File Offset: 0x0000952F
+		public void SetBool(int id, bool value)
+		{
+			AnimatorControllerPlayable.SetBoolID(ref this.m_Handle, id, value);
+		}
+
+		// Token: 0x06000600 RID: 1536 RVA: 0x0000B340 File Offset: 0x00009540
+		public int GetInteger(string name)
+		{
+			return AnimatorControllerPlayable.GetIntegerString(ref this.m_Handle, name);
+		}
+
+		// Token: 0x06000601 RID: 1537 RVA: 0x0000B360 File Offset: 0x00009560
+		public int GetInteger(int id)
+		{
+			return AnimatorControllerPlayable.GetIntegerID(ref this.m_Handle, id);
+		}
+
+		// Token: 0x06000602 RID: 1538 RVA: 0x0000B37E File Offset: 0x0000957E
+		public void SetInteger(string name, int value)
+		{
+			AnimatorControllerPlayable.SetIntegerString(ref this.m_Handle, name, value);
+		}
+
+		// Token: 0x06000603 RID: 1539 RVA: 0x0000B38F File Offset: 0x0000958F
+		public void SetInteger(int id, int value)
+		{
+			AnimatorControllerPlayable.SetIntegerID(ref this.m_Handle, id, value);
+		}
+
+		// Token: 0x06000604 RID: 1540 RVA: 0x0000B3A0 File Offset: 0x000095A0
+		public void SetTrigger(string name)
+		{
+			AnimatorControllerPlayable.SetTriggerString(ref this.m_Handle, name);
+		}
+
+		// Token: 0x06000605 RID: 1541 RVA: 0x0000B3B0 File Offset: 0x000095B0
+		public void SetTrigger(int id)
+		{
+			AnimatorControllerPlayable.SetTriggerID(ref this.m_Handle, id);
+		}
+
+		// Token: 0x06000606 RID: 1542 RVA: 0x0000B3C0 File Offset: 0x000095C0
+		public void ResetTrigger(string name)
+		{
+			AnimatorControllerPlayable.ResetTriggerString(ref this.m_Handle, name);
+		}
+
+		// Token: 0x06000607 RID: 1543 RVA: 0x0000B3D0 File Offset: 0x000095D0
+		public void ResetTrigger(int id)
+		{
+			AnimatorControllerPlayable.ResetTriggerID(ref this.m_Handle, id);
+		}
+
+		// Token: 0x06000608 RID: 1544 RVA: 0x0000B3E0 File Offset: 0x000095E0
+		public bool IsParameterControlledByCurve(string name)
+		{
+			return AnimatorControllerPlayable.IsParameterControlledByCurveString(ref this.m_Handle, name);
+		}
+
+		// Token: 0x06000609 RID: 1545 RVA: 0x0000B400 File Offset: 0x00009600
+		public bool IsParameterControlledByCurve(int id)
+		{
+			return AnimatorControllerPlayable.IsParameterControlledByCurveID(ref this.m_Handle, id);
+		}
+
+		// Token: 0x0600060A RID: 1546 RVA: 0x0000B420 File Offset: 0x00009620
+		public int GetLayerCount()
+		{
+			return AnimatorControllerPlayable.GetLayerCountInternal(ref this.m_Handle);
+		}
+
+		// Token: 0x0600060B RID: 1547 RVA: 0x0000B440 File Offset: 0x00009640
+		public string GetLayerName(int layerIndex)
+		{
+			return AnimatorControllerPlayable.GetLayerNameInternal(ref this.m_Handle, layerIndex);
+		}
+
+		// Token: 0x0600060C RID: 1548 RVA: 0x0000B460 File Offset: 0x00009660
+		public int GetLayerIndex(string layerName)
+		{
+			return AnimatorControllerPlayable.GetLayerIndexInternal(ref this.m_Handle, layerName);
+		}
+
+		// Token: 0x0600060D RID: 1549 RVA: 0x0000B480 File Offset: 0x00009680
+		public float GetLayerWeight(int layerIndex)
+		{
+			return AnimatorControllerPlayable.GetLayerWeightInternal(ref this.m_Handle, layerIndex);
+		}
+
+		// Token: 0x0600060E RID: 1550 RVA: 0x0000B49E File Offset: 0x0000969E
+		public void SetLayerWeight(int layerIndex, float weight)
+		{
+			AnimatorControllerPlayable.SetLayerWeightInternal(ref this.m_Handle, layerIndex, weight);
+		}
+
+		// Token: 0x0600060F RID: 1551 RVA: 0x0000B4B0 File Offset: 0x000096B0
+		public AnimatorStateInfo GetCurrentAnimatorStateInfo(int layerIndex)
+		{
+			return AnimatorControllerPlayable.GetCurrentAnimatorStateInfoInternal(ref this.m_Handle, layerIndex);
+		}
+
+		// Token: 0x06000610 RID: 1552 RVA: 0x0000B4D0 File Offset: 0x000096D0
+		public AnimatorStateInfo GetNextAnimatorStateInfo(int layerIndex)
+		{
+			return AnimatorControllerPlayable.GetNextAnimatorStateInfoInternal(ref this.m_Handle, layerIndex);
+		}
+
+		// Token: 0x06000611 RID: 1553 RVA: 0x0000B4F0 File Offset: 0x000096F0
+		public AnimatorTransitionInfo GetAnimatorTransitionInfo(int layerIndex)
+		{
+			return AnimatorControllerPlayable.GetAnimatorTransitionInfoInternal(ref this.m_Handle, layerIndex);
+		}
+
+		// Token: 0x06000612 RID: 1554 RVA: 0x0000B510 File Offset: 0x00009710
+		public AnimatorClipInfo[] GetCurrentAnimatorClipInfo(int layerIndex)
+		{
+			return AnimatorControllerPlayable.GetCurrentAnimatorClipInfoInternal(ref this.m_Handle, layerIndex);
+		}
+
+		// Token: 0x06000613 RID: 1555 RVA: 0x0000B530 File Offset: 0x00009730
+		public void GetCurrentAnimatorClipInfo(int layerIndex, List<AnimatorClipInfo> clips)
+		{
+			bool flag = clips == null;
+			if (flag)
+			{
+				throw new ArgumentNullException("clips");
+			}
+			AnimatorControllerPlayable.GetAnimatorClipInfoInternal(ref this.m_Handle, layerIndex, true, clips);
+		}
+
+		// Token: 0x06000614 RID: 1556 RVA: 0x0000B560 File Offset: 0x00009760
+		public void GetNextAnimatorClipInfo(int layerIndex, List<AnimatorClipInfo> clips)
+		{
+			bool flag = clips == null;
+			if (flag)
+			{
+				throw new ArgumentNullException("clips");
+			}
+			AnimatorControllerPlayable.GetAnimatorClipInfoInternal(ref this.m_Handle, layerIndex, false, clips);
+		}
+
+		// Token: 0x06000615 RID: 1557
+		[NativeThrows]
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		private static extern void GetAnimatorClipInfoInternal(ref PlayableHandle handle, int layerIndex, bool isCurrent, object clips);
+
+		// Token: 0x06000616 RID: 1558 RVA: 0x0000B590 File Offset: 0x00009790
+		public int GetCurrentAnimatorClipInfoCount(int layerIndex)
+		{
+			return AnimatorControllerPlayable.GetAnimatorClipInfoCountInternal(ref this.m_Handle, layerIndex, true);
+		}
+
+		// Token: 0x06000617 RID: 1559 RVA: 0x0000B5B0 File Offset: 0x000097B0
+		public int GetNextAnimatorClipInfoCount(int layerIndex)
+		{
+			return AnimatorControllerPlayable.GetAnimatorClipInfoCountInternal(ref this.m_Handle, layerIndex, false);
+		}
+
+		// Token: 0x06000618 RID: 1560 RVA: 0x0000B5D0 File Offset: 0x000097D0
+		public AnimatorClipInfo[] GetNextAnimatorClipInfo(int layerIndex)
+		{
+			return AnimatorControllerPlayable.GetNextAnimatorClipInfoInternal(ref this.m_Handle, layerIndex);
+		}
+
+		// Token: 0x06000619 RID: 1561 RVA: 0x0000B5F0 File Offset: 0x000097F0
+		public bool IsInTransition(int layerIndex)
+		{
+			return AnimatorControllerPlayable.IsInTransitionInternal(ref this.m_Handle, layerIndex);
+		}
+
+		// Token: 0x0600061A RID: 1562 RVA: 0x0000B610 File Offset: 0x00009810
+		public int GetParameterCount()
+		{
+			return AnimatorControllerPlayable.GetParameterCountInternal(ref this.m_Handle);
+		}
+
+		// Token: 0x0600061B RID: 1563 RVA: 0x0000B630 File Offset: 0x00009830
+		public AnimatorControllerParameter GetParameter(int index)
+		{
+			AnimatorControllerParameter parameterInternal = AnimatorControllerPlayable.GetParameterInternal(ref this.m_Handle, index);
+			bool flag = parameterInternal.m_Type == (AnimatorControllerParameterType)0;
+			if (flag)
+			{
+				throw new IndexOutOfRangeException("Invalid parameter index.");
+			}
+			return parameterInternal;
+		}
+
+		// Token: 0x0600061C RID: 1564 RVA: 0x0000B668 File Offset: 0x00009868
+		public void CrossFadeInFixedTime(string stateName, float transitionDuration)
+		{
+			AnimatorControllerPlayable.CrossFadeInFixedTimeInternal(ref this.m_Handle, AnimatorControllerPlayable.StringToHash(stateName), transitionDuration, -1, 0f);
+		}
+
+		// Token: 0x0600061D RID: 1565 RVA: 0x0000B684 File Offset: 0x00009884
+		public void CrossFadeInFixedTime(string stateName, float transitionDuration, int layer)
+		{
+			AnimatorControllerPlayable.CrossFadeInFixedTimeInternal(ref this.m_Handle, AnimatorControllerPlayable.StringToHash(stateName), transitionDuration, layer, 0f);
+		}
+
+		// Token: 0x0600061E RID: 1566 RVA: 0x0000B6A0 File Offset: 0x000098A0
+		public void CrossFadeInFixedTime(string stateName, float transitionDuration, [DefaultValue("-1")] int layer, [DefaultValue("0.0f")] float fixedTime)
+		{
+			AnimatorControllerPlayable.CrossFadeInFixedTimeInternal(ref this.m_Handle, AnimatorControllerPlayable.StringToHash(stateName), transitionDuration, layer, fixedTime);
+		}
+
+		// Token: 0x0600061F RID: 1567 RVA: 0x0000B6B9 File Offset: 0x000098B9
+		public void CrossFadeInFixedTime(int stateNameHash, float transitionDuration)
+		{
+			AnimatorControllerPlayable.CrossFadeInFixedTimeInternal(ref this.m_Handle, stateNameHash, transitionDuration, -1, 0f);
+		}
+
+		// Token: 0x06000620 RID: 1568 RVA: 0x0000B6D0 File Offset: 0x000098D0
+		public void CrossFadeInFixedTime(int stateNameHash, float transitionDuration, int layer)
+		{
+			AnimatorControllerPlayable.CrossFadeInFixedTimeInternal(ref this.m_Handle, stateNameHash, transitionDuration, layer, 0f);
+		}
+
+		// Token: 0x06000621 RID: 1569 RVA: 0x0000B6E7 File Offset: 0x000098E7
+		public void CrossFadeInFixedTime(int stateNameHash, float transitionDuration, [DefaultValue("-1")] int layer, [DefaultValue("0.0f")] float fixedTime)
+		{
+			AnimatorControllerPlayable.CrossFadeInFixedTimeInternal(ref this.m_Handle, stateNameHash, transitionDuration, layer, fixedTime);
+		}
+
+		// Token: 0x06000622 RID: 1570 RVA: 0x0000B6FB File Offset: 0x000098FB
+		public void CrossFade(string stateName, float transitionDuration)
+		{
+			AnimatorControllerPlayable.CrossFadeInternal(ref this.m_Handle, AnimatorControllerPlayable.StringToHash(stateName), transitionDuration, -1, float.NegativeInfinity);
+		}
+
+		// Token: 0x06000623 RID: 1571 RVA: 0x0000B717 File Offset: 0x00009917
+		public void CrossFade(string stateName, float transitionDuration, int layer)
+		{
+			AnimatorControllerPlayable.CrossFadeInternal(ref this.m_Handle, AnimatorControllerPlayable.StringToHash(stateName), transitionDuration, layer, float.NegativeInfinity);
+		}
+
+		// Token: 0x06000624 RID: 1572 RVA: 0x0000B733 File Offset: 0x00009933
+		public void CrossFade(string stateName, float transitionDuration, [DefaultValue("-1")] int layer, [DefaultValue("float.NegativeInfinity")] float normalizedTime)
+		{
+			AnimatorControllerPlayable.CrossFadeInternal(ref this.m_Handle, AnimatorControllerPlayable.StringToHash(stateName), transitionDuration, layer, normalizedTime);
+		}
+
+		// Token: 0x06000625 RID: 1573 RVA: 0x0000B74C File Offset: 0x0000994C
+		public void CrossFade(int stateNameHash, float transitionDuration)
+		{
+			AnimatorControllerPlayable.CrossFadeInternal(ref this.m_Handle, stateNameHash, transitionDuration, -1, float.NegativeInfinity);
+		}
+
+		// Token: 0x06000626 RID: 1574 RVA: 0x0000B763 File Offset: 0x00009963
+		public void CrossFade(int stateNameHash, float transitionDuration, int layer)
+		{
+			AnimatorControllerPlayable.CrossFadeInternal(ref this.m_Handle, stateNameHash, transitionDuration, layer, float.NegativeInfinity);
+		}
+
+		// Token: 0x06000627 RID: 1575 RVA: 0x0000B77A File Offset: 0x0000997A
+		public void CrossFade(int stateNameHash, float transitionDuration, [DefaultValue("-1")] int layer, [DefaultValue("float.NegativeInfinity")] float normalizedTime)
+		{
+			AnimatorControllerPlayable.CrossFadeInternal(ref this.m_Handle, stateNameHash, transitionDuration, layer, normalizedTime);
+		}
+
+		// Token: 0x06000628 RID: 1576 RVA: 0x0000B78E File Offset: 0x0000998E
+		public void PlayInFixedTime(string stateName)
+		{
+			AnimatorControllerPlayable.PlayInFixedTimeInternal(ref this.m_Handle, AnimatorControllerPlayable.StringToHash(stateName), -1, float.NegativeInfinity);
+		}
+
+		// Token: 0x06000629 RID: 1577 RVA: 0x0000B7A9 File Offset: 0x000099A9
+		public void PlayInFixedTime(string stateName, int layer)
+		{
+			AnimatorControllerPlayable.PlayInFixedTimeInternal(ref this.m_Handle, AnimatorControllerPlayable.StringToHash(stateName), layer, float.NegativeInfinity);
+		}
+
+		// Token: 0x0600062A RID: 1578 RVA: 0x0000B7C4 File Offset: 0x000099C4
+		public void PlayInFixedTime(string stateName, [DefaultValue("-1")] int layer, [DefaultValue("float.NegativeInfinity")] float fixedTime)
+		{
+			AnimatorControllerPlayable.PlayInFixedTimeInternal(ref this.m_Handle, AnimatorControllerPlayable.StringToHash(stateName), layer, fixedTime);
+		}
+
+		// Token: 0x0600062B RID: 1579 RVA: 0x0000B7DB File Offset: 0x000099DB
+		public void PlayInFixedTime(int stateNameHash)
+		{
+			AnimatorControllerPlayable.PlayInFixedTimeInternal(ref this.m_Handle, stateNameHash, -1, float.NegativeInfinity);
+		}
+
+		// Token: 0x0600062C RID: 1580 RVA: 0x0000B7F1 File Offset: 0x000099F1
+		public void PlayInFixedTime(int stateNameHash, int layer)
+		{
+			AnimatorControllerPlayable.PlayInFixedTimeInternal(ref this.m_Handle, stateNameHash, layer, float.NegativeInfinity);
+		}
+
+		// Token: 0x0600062D RID: 1581 RVA: 0x0000B807 File Offset: 0x00009A07
+		public void PlayInFixedTime(int stateNameHash, [DefaultValue("-1")] int layer, [DefaultValue("float.NegativeInfinity")] float fixedTime)
+		{
+			AnimatorControllerPlayable.PlayInFixedTimeInternal(ref this.m_Handle, stateNameHash, layer, fixedTime);
+		}
+
+		// Token: 0x0600062E RID: 1582 RVA: 0x0000B819 File Offset: 0x00009A19
+		public void Play(string stateName)
+		{
+			AnimatorControllerPlayable.PlayInternal(ref this.m_Handle, AnimatorControllerPlayable.StringToHash(stateName), -1, float.NegativeInfinity);
+		}
+
+		// Token: 0x0600062F RID: 1583 RVA: 0x0000B834 File Offset: 0x00009A34
+		public void Play(string stateName, int layer)
+		{
+			AnimatorControllerPlayable.PlayInternal(ref this.m_Handle, AnimatorControllerPlayable.StringToHash(stateName), layer, float.NegativeInfinity);
+		}
+
+		// Token: 0x06000630 RID: 1584 RVA: 0x0000B84F File Offset: 0x00009A4F
+		public void Play(string stateName, [DefaultValue("-1")] int layer, [DefaultValue("float.NegativeInfinity")] float normalizedTime)
+		{
+			AnimatorControllerPlayable.PlayInternal(ref this.m_Handle, AnimatorControllerPlayable.StringToHash(stateName), layer, normalizedTime);
+		}
+
+		// Token: 0x06000631 RID: 1585 RVA: 0x0000B866 File Offset: 0x00009A66
+		public void Play(int stateNameHash)
+		{
+			AnimatorControllerPlayable.PlayInternal(ref this.m_Handle, stateNameHash, -1, float.NegativeInfinity);
+		}
+
+		// Token: 0x06000632 RID: 1586 RVA: 0x0000B87C File Offset: 0x00009A7C
+		public void Play(int stateNameHash, int layer)
+		{
+			AnimatorControllerPlayable.PlayInternal(ref this.m_Handle, stateNameHash, layer, float.NegativeInfinity);
+		}
+
+		// Token: 0x06000633 RID: 1587 RVA: 0x0000B892 File Offset: 0x00009A92
+		public void Play(int stateNameHash, [DefaultValue("-1")] int layer, [DefaultValue("float.NegativeInfinity")] float normalizedTime)
+		{
+			AnimatorControllerPlayable.PlayInternal(ref this.m_Handle, stateNameHash, layer, normalizedTime);
+		}
+
+		// Token: 0x06000634 RID: 1588 RVA: 0x0000B8A4 File Offset: 0x00009AA4
+		public bool HasState(int layerIndex, int stateID)
+		{
+			return AnimatorControllerPlayable.HasStateInternal(ref this.m_Handle, layerIndex, stateID);
+		}
+
+		// Token: 0x06000635 RID: 1589 RVA: 0x0000B8C4 File Offset: 0x00009AC4
+		internal string ResolveHash(int hash)
+		{
+			return AnimatorControllerPlayable.ResolveHashInternal(ref this.m_Handle, hash);
+		}
+
+		// Token: 0x06000636 RID: 1590 RVA: 0x0000B8E4 File Offset: 0x00009AE4
+		[NativeThrows]
+		private static bool CreateHandleInternal(PlayableGraph graph, RuntimeAnimatorController controller, ref PlayableHandle handle)
+		{
+			return AnimatorControllerPlayable.CreateHandleInternal_Injected(ref graph, Object.MarshalledUnityObject.Marshal<RuntimeAnimatorController>(controller), ref handle);
+		}
+
+		// Token: 0x06000637 RID: 1591 RVA: 0x0000B900 File Offset: 0x00009B00
+		[NativeThrows]
+		private static RuntimeAnimatorController GetAnimatorControllerInternal(ref PlayableHandle handle)
+		{
+			return Unmarshal.UnmarshalUnityObject<RuntimeAnimatorController>(AnimatorControllerPlayable.GetAnimatorControllerInternal_Injected(ref handle));
+		}
+
+		// Token: 0x06000638 RID: 1592
+		[NativeThrows]
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		private static extern int GetLayerCountInternal(ref PlayableHandle handle);
+
+		// Token: 0x06000639 RID: 1593 RVA: 0x0000B918 File Offset: 0x00009B18
+		[NativeThrows]
+		private static string GetLayerNameInternal(ref PlayableHandle handle, int layerIndex)
+		{
+			string stringAndDispose;
+			try
+			{
+				ManagedSpanWrapper managedSpan;
+				AnimatorControllerPlayable.GetLayerNameInternal_Injected(ref handle, layerIndex, out managedSpan);
+			}
+			finally
+			{
+				ManagedSpanWrapper managedSpan;
+				stringAndDispose = OutStringMarshaller.GetStringAndDispose(managedSpan);
+			}
+			return stringAndDispose;
+		}
+
+		// Token: 0x0600063A RID: 1594 RVA: 0x0000B94C File Offset: 0x00009B4C
+		[NativeThrows]
+		private unsafe static int GetLayerIndexInternal(ref PlayableHandle handle, string layerName)
+		{
+			int layerIndexInternal_Injected;
+			try
+			{
+				ManagedSpanWrapper managedSpanWrapper;
+				if (!StringMarshaller.TryMarshalEmptyOrNullString(layerName, ref managedSpanWrapper))
+				{
+					ReadOnlySpan<char> readOnlySpan = layerName.AsSpan();
+					fixed (char* ptr = readOnlySpan.GetPinnableReference())
+					{
+						managedSpanWrapper = new ManagedSpanWrapper((void*)ptr, readOnlySpan.Length);
+					}
+				}
+				layerIndexInternal_Injected = AnimatorControllerPlayable.GetLayerIndexInternal_Injected(ref handle, ref managedSpanWrapper);
+			}
+			finally
+			{
+				char* ptr = null;
+			}
+			return layerIndexInternal_Injected;
+		}
+
+		// Token: 0x0600063B RID: 1595
+		[NativeThrows]
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		private static extern float GetLayerWeightInternal(ref PlayableHandle handle, int layerIndex);
+
+		// Token: 0x0600063C RID: 1596
+		[NativeThrows]
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		private static extern void SetLayerWeightInternal(ref PlayableHandle handle, int layerIndex, float weight);
+
+		// Token: 0x0600063D RID: 1597 RVA: 0x0000B9A4 File Offset: 0x00009BA4
+		[NativeThrows]
+		private static AnimatorStateInfo GetCurrentAnimatorStateInfoInternal(ref PlayableHandle handle, int layerIndex)
+		{
+			AnimatorStateInfo result;
+			AnimatorControllerPlayable.GetCurrentAnimatorStateInfoInternal_Injected(ref handle, layerIndex, out result);
+			return result;
+		}
+
+		// Token: 0x0600063E RID: 1598 RVA: 0x0000B9BC File Offset: 0x00009BBC
+		[NativeThrows]
+		private static AnimatorStateInfo GetNextAnimatorStateInfoInternal(ref PlayableHandle handle, int layerIndex)
+		{
+			AnimatorStateInfo result;
+			AnimatorControllerPlayable.GetNextAnimatorStateInfoInternal_Injected(ref handle, layerIndex, out result);
+			return result;
+		}
+
+		// Token: 0x0600063F RID: 1599 RVA: 0x0000B9D4 File Offset: 0x00009BD4
+		[NativeThrows]
+		private static AnimatorTransitionInfo GetAnimatorTransitionInfoInternal(ref PlayableHandle handle, int layerIndex)
+		{
+			AnimatorTransitionInfo result;
+			AnimatorControllerPlayable.GetAnimatorTransitionInfoInternal_Injected(ref handle, layerIndex, out result);
+			return result;
+		}
+
+		// Token: 0x06000640 RID: 1600 RVA: 0x0000B9EC File Offset: 0x00009BEC
+		[NativeThrows]
+		private static AnimatorClipInfo[] GetCurrentAnimatorClipInfoInternal(ref PlayableHandle handle, int layerIndex)
+		{
+			AnimatorClipInfo[] result;
+			try
+			{
+				BlittableArrayWrapper blittableArrayWrapper;
+				AnimatorControllerPlayable.GetCurrentAnimatorClipInfoInternal_Injected(ref handle, layerIndex, out blittableArrayWrapper);
+			}
+			finally
+			{
+				BlittableArrayWrapper blittableArrayWrapper;
+				AnimatorClipInfo[] array;
+				blittableArrayWrapper.Unmarshal<AnimatorClipInfo>(ref array);
+				result = array;
+			}
+			return result;
+		}
+
+		// Token: 0x06000641 RID: 1601
+		[NativeThrows]
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		private static extern int GetAnimatorClipInfoCountInternal(ref PlayableHandle handle, int layerIndex, bool current);
+
+		// Token: 0x06000642 RID: 1602 RVA: 0x0000BA24 File Offset: 0x00009C24
+		[NativeThrows]
+		private static AnimatorClipInfo[] GetNextAnimatorClipInfoInternal(ref PlayableHandle handle, int layerIndex)
+		{
+			AnimatorClipInfo[] result;
+			try
+			{
+				BlittableArrayWrapper blittableArrayWrapper;
+				AnimatorControllerPlayable.GetNextAnimatorClipInfoInternal_Injected(ref handle, layerIndex, out blittableArrayWrapper);
+			}
+			finally
+			{
+				BlittableArrayWrapper blittableArrayWrapper;
+				AnimatorClipInfo[] array;
+				blittableArrayWrapper.Unmarshal<AnimatorClipInfo>(ref array);
+				result = array;
+			}
+			return result;
+		}
+
+		// Token: 0x06000643 RID: 1603 RVA: 0x0000BA5C File Offset: 0x00009C5C
+		[NativeThrows]
+		private static string ResolveHashInternal(ref PlayableHandle handle, int hash)
+		{
+			string stringAndDispose;
+			try
+			{
+				ManagedSpanWrapper managedSpan;
+				AnimatorControllerPlayable.ResolveHashInternal_Injected(ref handle, hash, out managedSpan);
+			}
+			finally
+			{
+				ManagedSpanWrapper managedSpan;
+				stringAndDispose = OutStringMarshaller.GetStringAndDispose(managedSpan);
+			}
+			return stringAndDispose;
+		}
+
+		// Token: 0x06000644 RID: 1604
+		[NativeThrows]
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		private static extern bool IsInTransitionInternal(ref PlayableHandle handle, int layerIndex);
+
+		// Token: 0x06000645 RID: 1605
+		[NativeThrows]
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		private static extern AnimatorControllerParameter GetParameterInternal(ref PlayableHandle handle, int index);
+
+		// Token: 0x06000646 RID: 1606
+		[NativeThrows]
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		private static extern int GetParameterCountInternal(ref PlayableHandle handle);
+
+		// Token: 0x06000647 RID: 1607 RVA: 0x0000BA90 File Offset: 0x00009C90
+		[ThreadSafe]
+		private unsafe static int StringToHash(string name)
+		{
+			int result;
+			try
+			{
+				ManagedSpanWrapper managedSpanWrapper;
+				if (!StringMarshaller.TryMarshalEmptyOrNullString(name, ref managedSpanWrapper))
+				{
+					ReadOnlySpan<char> readOnlySpan = name.AsSpan();
+					fixed (char* ptr = readOnlySpan.GetPinnableReference())
+					{
+						managedSpanWrapper = new ManagedSpanWrapper((void*)ptr, readOnlySpan.Length);
+					}
+				}
+				result = AnimatorControllerPlayable.StringToHash_Injected(ref managedSpanWrapper);
+			}
+			finally
+			{
+				char* ptr = null;
+			}
+			return result;
+		}
+
+		// Token: 0x06000648 RID: 1608
+		[NativeThrows]
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		private static extern void CrossFadeInFixedTimeInternal(ref PlayableHandle handle, int stateNameHash, float transitionDuration, int layer, float fixedTime);
+
+		// Token: 0x06000649 RID: 1609
+		[NativeThrows]
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		private static extern void CrossFadeInternal(ref PlayableHandle handle, int stateNameHash, float transitionDuration, int layer, float normalizedTime);
+
+		// Token: 0x0600064A RID: 1610
+		[NativeThrows]
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		private static extern void PlayInFixedTimeInternal(ref PlayableHandle handle, int stateNameHash, int layer, float fixedTime);
+
+		// Token: 0x0600064B RID: 1611
+		[NativeThrows]
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		private static extern void PlayInternal(ref PlayableHandle handle, int stateNameHash, int layer, float normalizedTime);
+
+		// Token: 0x0600064C RID: 1612
+		[NativeThrows]
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		private static extern bool HasStateInternal(ref PlayableHandle handle, int layerIndex, int stateID);
+
+		// Token: 0x0600064D RID: 1613 RVA: 0x0000BAE8 File Offset: 0x00009CE8
+		[NativeThrows]
+		private unsafe static void SetFloatString(ref PlayableHandle handle, string name, float value)
+		{
+			try
+			{
+				ManagedSpanWrapper managedSpanWrapper;
+				if (!StringMarshaller.TryMarshalEmptyOrNullString(name, ref managedSpanWrapper))
+				{
+					ReadOnlySpan<char> readOnlySpan = name.AsSpan();
+					fixed (char* ptr = readOnlySpan.GetPinnableReference())
+					{
+						managedSpanWrapper = new ManagedSpanWrapper((void*)ptr, readOnlySpan.Length);
+					}
+				}
+				AnimatorControllerPlayable.SetFloatString_Injected(ref handle, ref managedSpanWrapper, value);
+			}
+			finally
+			{
+				char* ptr = null;
+			}
+		}
+
+		// Token: 0x0600064E RID: 1614
+		[NativeThrows]
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		private static extern void SetFloatID(ref PlayableHandle handle, int id, float value);
+
+		// Token: 0x0600064F RID: 1615 RVA: 0x0000BB40 File Offset: 0x00009D40
+		[NativeThrows]
+		private unsafe static float GetFloatString(ref PlayableHandle handle, string name)
+		{
+			float floatString_Injected;
+			try
+			{
+				ManagedSpanWrapper managedSpanWrapper;
+				if (!StringMarshaller.TryMarshalEmptyOrNullString(name, ref managedSpanWrapper))
+				{
+					ReadOnlySpan<char> readOnlySpan = name.AsSpan();
+					fixed (char* ptr = readOnlySpan.GetPinnableReference())
+					{
+						managedSpanWrapper = new ManagedSpanWrapper((void*)ptr, readOnlySpan.Length);
+					}
+				}
+				floatString_Injected = AnimatorControllerPlayable.GetFloatString_Injected(ref handle, ref managedSpanWrapper);
+			}
+			finally
+			{
+				char* ptr = null;
+			}
+			return floatString_Injected;
+		}
+
+		// Token: 0x06000650 RID: 1616
+		[NativeThrows]
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		private static extern float GetFloatID(ref PlayableHandle handle, int id);
+
+		// Token: 0x06000651 RID: 1617 RVA: 0x0000BB98 File Offset: 0x00009D98
+		[NativeThrows]
+		private unsafe static void SetBoolString(ref PlayableHandle handle, string name, bool value)
+		{
+			try
+			{
+				ManagedSpanWrapper managedSpanWrapper;
+				if (!StringMarshaller.TryMarshalEmptyOrNullString(name, ref managedSpanWrapper))
+				{
+					ReadOnlySpan<char> readOnlySpan = name.AsSpan();
+					fixed (char* ptr = readOnlySpan.GetPinnableReference())
+					{
+						managedSpanWrapper = new ManagedSpanWrapper((void*)ptr, readOnlySpan.Length);
+					}
+				}
+				AnimatorControllerPlayable.SetBoolString_Injected(ref handle, ref managedSpanWrapper, value);
+			}
+			finally
+			{
+				char* ptr = null;
+			}
+		}
+
+		// Token: 0x06000652 RID: 1618
+		[NativeThrows]
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		private static extern void SetBoolID(ref PlayableHandle handle, int id, bool value);
+
+		// Token: 0x06000653 RID: 1619 RVA: 0x0000BBF0 File Offset: 0x00009DF0
+		[NativeThrows]
+		private unsafe static bool GetBoolString(ref PlayableHandle handle, string name)
+		{
+			bool boolString_Injected;
+			try
+			{
+				ManagedSpanWrapper managedSpanWrapper;
+				if (!StringMarshaller.TryMarshalEmptyOrNullString(name, ref managedSpanWrapper))
+				{
+					ReadOnlySpan<char> readOnlySpan = name.AsSpan();
+					fixed (char* ptr = readOnlySpan.GetPinnableReference())
+					{
+						managedSpanWrapper = new ManagedSpanWrapper((void*)ptr, readOnlySpan.Length);
+					}
+				}
+				boolString_Injected = AnimatorControllerPlayable.GetBoolString_Injected(ref handle, ref managedSpanWrapper);
+			}
+			finally
+			{
+				char* ptr = null;
+			}
+			return boolString_Injected;
+		}
+
+		// Token: 0x06000654 RID: 1620
+		[NativeThrows]
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		private static extern bool GetBoolID(ref PlayableHandle handle, int id);
+
+		// Token: 0x06000655 RID: 1621 RVA: 0x0000BC48 File Offset: 0x00009E48
+		[NativeThrows]
+		private unsafe static void SetIntegerString(ref PlayableHandle handle, string name, int value)
+		{
+			try
+			{
+				ManagedSpanWrapper managedSpanWrapper;
+				if (!StringMarshaller.TryMarshalEmptyOrNullString(name, ref managedSpanWrapper))
+				{
+					ReadOnlySpan<char> readOnlySpan = name.AsSpan();
+					fixed (char* ptr = readOnlySpan.GetPinnableReference())
+					{
+						managedSpanWrapper = new ManagedSpanWrapper((void*)ptr, readOnlySpan.Length);
+					}
+				}
+				AnimatorControllerPlayable.SetIntegerString_Injected(ref handle, ref managedSpanWrapper, value);
+			}
+			finally
+			{
+				char* ptr = null;
+			}
+		}
+
+		// Token: 0x06000656 RID: 1622
+		[NativeThrows]
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		private static extern void SetIntegerID(ref PlayableHandle handle, int id, int value);
+
+		// Token: 0x06000657 RID: 1623 RVA: 0x0000BCA0 File Offset: 0x00009EA0
+		[NativeThrows]
+		private unsafe static int GetIntegerString(ref PlayableHandle handle, string name)
+		{
+			int integerString_Injected;
+			try
+			{
+				ManagedSpanWrapper managedSpanWrapper;
+				if (!StringMarshaller.TryMarshalEmptyOrNullString(name, ref managedSpanWrapper))
+				{
+					ReadOnlySpan<char> readOnlySpan = name.AsSpan();
+					fixed (char* ptr = readOnlySpan.GetPinnableReference())
+					{
+						managedSpanWrapper = new ManagedSpanWrapper((void*)ptr, readOnlySpan.Length);
+					}
+				}
+				integerString_Injected = AnimatorControllerPlayable.GetIntegerString_Injected(ref handle, ref managedSpanWrapper);
+			}
+			finally
+			{
+				char* ptr = null;
+			}
+			return integerString_Injected;
+		}
+
+		// Token: 0x06000658 RID: 1624
+		[NativeThrows]
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		private static extern int GetIntegerID(ref PlayableHandle handle, int id);
+
+		// Token: 0x06000659 RID: 1625 RVA: 0x0000BCF8 File Offset: 0x00009EF8
+		[NativeThrows]
+		private unsafe static void SetTriggerString(ref PlayableHandle handle, string name)
+		{
+			try
+			{
+				ManagedSpanWrapper managedSpanWrapper;
+				if (!StringMarshaller.TryMarshalEmptyOrNullString(name, ref managedSpanWrapper))
+				{
+					ReadOnlySpan<char> readOnlySpan = name.AsSpan();
+					fixed (char* ptr = readOnlySpan.GetPinnableReference())
+					{
+						managedSpanWrapper = new ManagedSpanWrapper((void*)ptr, readOnlySpan.Length);
+					}
+				}
+				AnimatorControllerPlayable.SetTriggerString_Injected(ref handle, ref managedSpanWrapper);
+			}
+			finally
+			{
+				char* ptr = null;
+			}
+		}
+
+		// Token: 0x0600065A RID: 1626
+		[NativeThrows]
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		private static extern void SetTriggerID(ref PlayableHandle handle, int id);
+
+		// Token: 0x0600065B RID: 1627 RVA: 0x0000BD50 File Offset: 0x00009F50
+		[NativeThrows]
+		private unsafe static void ResetTriggerString(ref PlayableHandle handle, string name)
+		{
+			try
+			{
+				ManagedSpanWrapper managedSpanWrapper;
+				if (!StringMarshaller.TryMarshalEmptyOrNullString(name, ref managedSpanWrapper))
+				{
+					ReadOnlySpan<char> readOnlySpan = name.AsSpan();
+					fixed (char* ptr = readOnlySpan.GetPinnableReference())
+					{
+						managedSpanWrapper = new ManagedSpanWrapper((void*)ptr, readOnlySpan.Length);
+					}
+				}
+				AnimatorControllerPlayable.ResetTriggerString_Injected(ref handle, ref managedSpanWrapper);
+			}
+			finally
+			{
+				char* ptr = null;
+			}
+		}
+
+		// Token: 0x0600065C RID: 1628
+		[NativeThrows]
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		private static extern void ResetTriggerID(ref PlayableHandle handle, int id);
+
+		// Token: 0x0600065D RID: 1629 RVA: 0x0000BDA8 File Offset: 0x00009FA8
+		[NativeThrows]
+		private unsafe static bool IsParameterControlledByCurveString(ref PlayableHandle handle, string name)
+		{
+			bool result;
+			try
+			{
+				ManagedSpanWrapper managedSpanWrapper;
+				if (!StringMarshaller.TryMarshalEmptyOrNullString(name, ref managedSpanWrapper))
+				{
+					ReadOnlySpan<char> readOnlySpan = name.AsSpan();
+					fixed (char* ptr = readOnlySpan.GetPinnableReference())
+					{
+						managedSpanWrapper = new ManagedSpanWrapper((void*)ptr, readOnlySpan.Length);
+					}
+				}
+				result = AnimatorControllerPlayable.IsParameterControlledByCurveString_Injected(ref handle, ref managedSpanWrapper);
+			}
+			finally
+			{
+				char* ptr = null;
+			}
+			return result;
+		}
+
+		// Token: 0x0600065E RID: 1630
+		[NativeThrows]
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		private static extern bool IsParameterControlledByCurveID(ref PlayableHandle handle, int id);
+
+		// Token: 0x06000660 RID: 1632
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		private static extern bool CreateHandleInternal_Injected([In] ref PlayableGraph graph, IntPtr controller, ref PlayableHandle handle);
+
+		// Token: 0x06000661 RID: 1633
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		private static extern IntPtr GetAnimatorControllerInternal_Injected(ref PlayableHandle handle);
+
+		// Token: 0x06000662 RID: 1634
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		private static extern void GetLayerNameInternal_Injected(ref PlayableHandle handle, int layerIndex, out ManagedSpanWrapper ret);
+
+		// Token: 0x06000663 RID: 1635
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		private static extern int GetLayerIndexInternal_Injected(ref PlayableHandle handle, ref ManagedSpanWrapper layerName);
+
+		// Token: 0x06000664 RID: 1636
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		private static extern void GetCurrentAnimatorStateInfoInternal_Injected(ref PlayableHandle handle, int layerIndex, out AnimatorStateInfo ret);
+
+		// Token: 0x06000665 RID: 1637
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		private static extern void GetNextAnimatorStateInfoInternal_Injected(ref PlayableHandle handle, int layerIndex, out AnimatorStateInfo ret);
+
+		// Token: 0x06000666 RID: 1638
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		private static extern void GetAnimatorTransitionInfoInternal_Injected(ref PlayableHandle handle, int layerIndex, out AnimatorTransitionInfo ret);
+
+		// Token: 0x06000667 RID: 1639
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		private static extern void GetCurrentAnimatorClipInfoInternal_Injected(ref PlayableHandle handle, int layerIndex, out BlittableArrayWrapper ret);
+
+		// Token: 0x06000668 RID: 1640
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		private static extern void GetNextAnimatorClipInfoInternal_Injected(ref PlayableHandle handle, int layerIndex, out BlittableArrayWrapper ret);
+
+		// Token: 0x06000669 RID: 1641
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		private static extern void ResolveHashInternal_Injected(ref PlayableHandle handle, int hash, out ManagedSpanWrapper ret);
+
+		// Token: 0x0600066A RID: 1642
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		private static extern int StringToHash_Injected(ref ManagedSpanWrapper name);
+
+		// Token: 0x0600066B RID: 1643
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		private static extern void SetFloatString_Injected(ref PlayableHandle handle, ref ManagedSpanWrapper name, float value);
+
+		// Token: 0x0600066C RID: 1644
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		private static extern float GetFloatString_Injected(ref PlayableHandle handle, ref ManagedSpanWrapper name);
+
+		// Token: 0x0600066D RID: 1645
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		private static extern void SetBoolString_Injected(ref PlayableHandle handle, ref ManagedSpanWrapper name, bool value);
+
+		// Token: 0x0600066E RID: 1646
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		private static extern bool GetBoolString_Injected(ref PlayableHandle handle, ref ManagedSpanWrapper name);
+
+		// Token: 0x0600066F RID: 1647
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		private static extern void SetIntegerString_Injected(ref PlayableHandle handle, ref ManagedSpanWrapper name, int value);
+
+		// Token: 0x06000670 RID: 1648
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		private static extern int GetIntegerString_Injected(ref PlayableHandle handle, ref ManagedSpanWrapper name);
+
+		// Token: 0x06000671 RID: 1649
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		private static extern void SetTriggerString_Injected(ref PlayableHandle handle, ref ManagedSpanWrapper name);
+
+		// Token: 0x06000672 RID: 1650
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		private static extern void ResetTriggerString_Injected(ref PlayableHandle handle, ref ManagedSpanWrapper name);
+
+		// Token: 0x06000673 RID: 1651
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		private static extern bool IsParameterControlledByCurveString_Injected(ref PlayableHandle handle, ref ManagedSpanWrapper name);
+
+		// Token: 0x04000187 RID: 391
+		private PlayableHandle m_Handle;
+
+		// Token: 0x04000188 RID: 392
+		private static readonly AnimatorControllerPlayable m_NullPlayable = new AnimatorControllerPlayable(PlayableHandle.Null);
+	}
+}

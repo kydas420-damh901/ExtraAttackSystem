@@ -1,0 +1,120 @@
+ゲーム内のバニラの武器種分類 と メモ
+Axe         片手
+Clubs       片手
+Swords      片手
+Spears      片手    左手装備できない
+Polearms    両手 
+knifes      片手
+Fists       両手    バニラモーションはUnarmed と共通
+BattleAxes  両手 
+GreatSwords 両手
+Unarmed     両手    バニラモーションはFistと共通
+Dual Axes   両手
+Dual Knifes 両手
+Sledges     両手    バニラは通常攻撃しかないがqtg割り当てる
+Torch       片手
+
+Shileds     片手    左手に shiled だけ
+Axes + Shileds
+Swords + Shileds
+Clubs + Shileds
+Torch + Sword or Axe or Club or Spear or Knife
+Torch + Unarmed
+
+Bows        両手
+Cross Bows  両手
+staff       両手
+
+
+アニメーション割当暫定版
+Axe             
+Clubs       
+Swords      
+Spears          左手装備できない
+Polearms     
+knifes      
+Fists           バニラモーションはUnarmed と共通
+BattleAxes   
+GreatSwords 
+Unarmed         バニラモーションはFistと共通
+Dual Axes   
+Dual Knifes 
+Sledges         バニラは通常攻撃しかないがqtg割り当てる
+Torch       
+
+Shileds + unarmed     
+Axes + Shileds
+Swords + Shileds
+Clubs + Shileds
+
+Torch + Sword or Axe or Club or Spear or Knife
+Torch + Unarmed
+
+Bows
+CrossBows
+staff 
+
+
+
+キー（変更可能：デフォルトはQ T G）押下で カスタムアニメーションの攻撃ができる
+判定・ダメージ・スタミナ消費 音の有無、VFXの有無 を yaml で設定可能 ※将来的にはsound VFX を差し替えられるように。現在は未実装
+
+・本MODで用意するアニメーション（ assetbundle 内アニメーション）
+武器種類別にACを用意する
+animation timing などはコード内で設定
+animation clip もすべて指定
+
+
+・ユーザーも追加できるアニメーション
+本MODで用意した 武器種類別のアニメーションもyamlファイル(例：BaseAnimation.yaml)で置き換えと設定可能
+個別武器ごとにACを用意する
+yamlファイルで animation timing、判定やダメージなど設定可能
+animation clip は指定フォルダに入れて、yamlファイルで設定することで置き換え可能
+
+AC Category
+Axe             
+Clubs       
+Swords      
+Spears          左手装備できない
+Polearms     
+knifes      
+Fists           バニラモーションはUnarmed と共通
+BattleAxes   
+GreatSwords 
+Unarmed         バニラモーションはFistと共通
+Dual Axes   
+Dual Knifes 
+Sledges         バニラは通常攻撃しかないがqtg割り当てる
+Torch       
+
+Shileds + unarmed     
+Axes + Shileds
+Swords + Shileds
+Clubs + Shileds
+
+Torch + Sword or Axe or Club or Spear or Knife
+
+
+置き換え Animation Clip 指定
+- Unarmed/Fists Q unarmed_kick                  T Greatsword Secondary Attack   G BattleAxeAltAttack 
+- Knives:       Q Knife JumpAttack              T Greatsword Secondary Attack   G BattleAxeAltAttack
+- BattleAxes    Q BattleAxeAltAttack            T Greatsword Secondary Attack   G Atgeir360Attack
+- Spears:       Q spear_poke                    T Greatsword Secondary Attack   G BattleAxeAltAttack 
+- Swords:       Q sword_secondary               T Greatsword Secondary Attack   G BattleAxeAltAttack
+- Axes:         Q axe_secondary                 T Greatsword Secondary Attack   G BattleAxeAltAttack 
+- GreatSwords   Q Greatsword Secondary Attack   T Atgeir360Attack               G BattleAxeAltAttack
+- Polearms      Q Atgeir360Attack               T Greatsword Secondary Attack   G BattleAxeAltAttack
+他の武器種、個別武器も上記ルールに合わせて指定 
+
+
+トリガー名
+axe_secondary
+sword_secondary
+mace_secondary
+atgeir_secondary
+battleaxe_secondary
+knife_secondary
+dual_knives_secondary
+greatsword_secondary
+dualaxes_secondary
+

@@ -1,0 +1,2682 @@
+using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Runtime.CompilerServices;
+using GUIFramework;
+using NetworkingUtils;
+using SoftReferenceableAssets.SceneManagement;
+using Splatform;
+using Steamworks;
+using TMPro;
+using UnityEngine;
+using UnityEngine.Events;
+using UnityEngine.EventSystems;
+using UnityEngine.UI;
+
+// Token: 0x02000241 RID: 577
+public class FejdStartup : MonoBehaviour
+{
+	// Token: 0x1700010B RID: 267
+	// (get) Token: 0x06001603 RID: 5635 RVA: 0x0001929B File Offset: 0x0001749B
+	public static FejdStartup instance
+	{
+		get
+		{
+			return FejdStartup.m_instance;
+		}
+	}
+
+	// Token: 0x06001604 RID: 5636 RVA: 0x000A6158 File Offset: 0x000A4358
+	private void Awake()
+	{
+		FejdStartup.m_instance = this;
+		this.ParseArguments();
+		this.m_crossplayServerToggle.gameObject.SetActive(true);
+		if (!FejdStartup.AwakePlatforms())
+		{
+			return;
+		}
+		Settings.SetPlatformDefaultPrefs();
+		QualitySettings.maxQueuedFrames = 2;
+		ZLog.Log(string.Concat(new string[]
+		{
+			"Valheim version: ",
+			global::Version.GetVersionString(false),
+			" (network version ",
+			35U.ToString(),
+			")"
+		}));
+		Settings.ApplyStartupSettings();
+		WorldGenerator.Initialize(World.GetMenuWorld());
+		if (!global::Console.instance)
+		{
+			UnityEngine.Object.Instantiate<GameObject>(this.m_consolePrefab);
+		}
+		this.m_mainCamera.transform.position = this.m_cameraMarkerMain.transform.position;
+		this.m_mainCamera.transform.rotation = this.m_cameraMarkerMain.transform.rotation;
+		ZLog.Log("Render threading mode:" + SystemInfo.renderingThreadingMode.ToString());
+		Gogan.StartSession();
+		Gogan.LogEvent("Game", "Version", global::Version.GetVersionString(false), 0L);
+		Gogan.LogEvent("Game", "SteamID", SteamManager.APP_ID.ToString(), 0L);
+		Gogan.LogEvent("Screen", "Enter", "StartMenu", 0L);
+		if (Settings.IsSteamRunningOnSteamDeck())
+		{
+			Transform transform = this.m_mainMenu.transform.Find("showlog");
+			if (transform != null)
+			{
+				transform.gameObject.SetActive(false);
+			}
+		}
+		this.m_menuButtons = this.m_menuList.GetComponentsInChildren<Button>();
+		TabHandler[] enabledComponentsInChildren = Utils.GetEnabledComponentsInChildren<TabHandler>(this.m_startGamePanel.gameObject);
+		TabHandler[] array = enabledComponentsInChildren;
+		for (int i = 0; i < array.Length; i++)
+		{
+			array[i].enabled = false;
+		}
+		this.m_startGamePanel.gameObject.SetActive(true);
+		this.m_serverOptions.gameObject.SetActive(true);
+		this.m_serverOptions.gameObject.SetActive(false);
+		this.m_startGamePanel.gameObject.SetActive(false);
+		array = enabledComponentsInChildren;
+		for (int i = 0; i < array.Length; i++)
+		{
+			array[i].enabled = true;
+		}
+		MultiBackendMatchmaking.Hold();
+		Game.Unpause();
+		Time.timeScale = 1f;
+		ZInput.Initialize();
+		ZInput.WorkaroundEnabled = false;
+		ZInput.OnInputLayoutChanged += this.UpdateCursor;
+		this.UpdateCursor();
+	}
+
+	// Token: 0x06001605 RID: 5637 RVA: 0x000A63B4 File Offset: 0x000A45B4
+	public static bool AwakePlatforms()
+	{
+		if (FejdStartup.s_monoUpdaters == null)
+		{
+			FejdStartup.s_monoUpdaters = new GameObject();
+			FejdStartup.s_monoUpdaters.AddComponent<MonoUpdaters>();
+			UnityEngine.Object.DontDestroyOnLoad(FejdStartup.s_monoUpdaters);
+		}
+		if (!FejdStartup.AwakeSteam() || !FejdStartup.AwakePlayFab())
+		{
+			ZLog.LogError("Awake of network backend failed");
+			return false;
+		}
+		return true;
+	}
+
+	// Token: 0x06001606 RID: 5638 RVA: 0x000192A2 File Offset: 0x000174A2
+	private static bool AwakePlayFab()
+	{
+		PlayFabManager.Initialize();
+		return true;
+	}
+
+	// Token: 0x06001607 RID: 5639 RVA: 0x000192AA File Offset: 0x000174AA
+	private static bool AwakeSteam()
+	{
+		return FejdStartup.InitializeSteam();
+	}
+
+	// Token: 0x06001608 RID: 5640 RVA: 0x000A6408 File Offset: 0x000A4608
+	private void OnDestroy()
+	{
+		SaveSystem.ClearWorldListCache(false);
+		FejdStartup.m_instance = null;
+		ZInput.OnInputLayoutChanged -= this.UpdateCursor;
+		Localization.OnLanguageChange = (Action)Delegate.Remove(Localization.OnLanguageChange, new Action(this.OnLanguageChange));
+		MultiBackendMatchmaking.Release();
+	}
+
+	// Token: 0x06001609 RID: 5641 RVA: 0x000192B6 File Offset: 0x000174B6
+	private void OnApplicationQuit()
+	{
+		HeightmapBuilder.instance.Dispose();
+	}
+
+	// Token: 0x0600160A RID: 5642 RVA: 0x000A6458 File Offset: 0x000A4658
+	private void Start()
+	{
+		this.SetupGui();
+		this.SetupObjectDB();
+		this.m_openServerToggle.onValueChanged.AddListener(new UnityAction<bool>(this.OnOpenServerToggleClicked));
+		MusicMan.instance.Reset();
+		MusicMan.instance.TriggerMusic("menu");
+		this.ShowConnectError(ZNet.ConnectionStatus.None);
+		ZSteamMatchmaking.Initialize();
+		if (FejdStartup.m_firstStartup)
+		{
+			this.HandleStartupJoin();
+		}
+		this.m_menuAnimator.SetBool("FirstStartup", FejdStartup.m_firstStartup);
+		FejdStartup.m_firstStartup = false;
+		string @string = PlayerPrefs.GetString("profile");
+		if (@string.Length > 0)
+		{
+			this.SetSelectedProfile(@string);
+		}
+		else
+		{
+			this.m_profiles = SaveSystem.GetAllPlayerProfiles();
+			if (this.m_profiles.Count > 0)
+			{
+				this.SetSelectedProfile(this.m_profiles[0].GetFilename());
+			}
+			else
+			{
+				this.UpdateCharacterList();
+			}
+		}
+		CensorShittyWords.UGCPopupShown = (Action)Delegate.Remove(CensorShittyWords.UGCPopupShown, new Action(this.OnUGCPopupShown));
+		CensorShittyWords.UGCPopupShown = (Action)Delegate.Combine(CensorShittyWords.UGCPopupShown, new Action(this.OnUGCPopupShown));
+		SaveSystem.ClearWorldListCache(true);
+		if (Application.platform == RuntimePlatform.OSXPlayer || Application.platform == RuntimePlatform.OSXEditor)
+		{
+			CustomLogger.SetupSymbolicLink();
+		}
+		Player.m_debugMode = false;
+	}
+
+	// Token: 0x0600160B RID: 5643 RVA: 0x000A6590 File Offset: 0x000A4790
+	private void SetupGui()
+	{
+		this.HideAll();
+		this.m_mainMenu.SetActive(true);
+		if (SteamManager.APP_ID == 1223920U)
+		{
+			this.m_betaText.SetActive(true);
+			if (!Debug.isDebugBuild && !this.AcceptedNDA())
+			{
+				this.m_ndaPanel.SetActive(true);
+				this.m_mainMenu.SetActive(false);
+			}
+		}
+		this.m_moddedText.SetActive(Game.isModded);
+		this.m_worldListBaseSize = this.m_worldListRoot.rect.height;
+		this.m_versionLabel.text = string.Format("Version {0} (n-{1})", global::Version.GetVersionString(false), 35U);
+		Localization.instance.Localize(base.transform);
+		Localization.OnLanguageChange = (Action)Delegate.Combine(Localization.OnLanguageChange, new Action(this.OnLanguageChange));
+	}
+
+	// Token: 0x0600160C RID: 5644 RVA: 0x000A666C File Offset: 0x000A486C
+	private void HideAll()
+	{
+		this.m_worldVersionPanel.SetActive(false);
+		this.m_playerVersionPanel.SetActive(false);
+		this.m_newGameVersionPanel.SetActive(false);
+		this.m_loading.SetActive(false);
+		this.m_pleaseWait.SetActive(false);
+		this.m_characterSelectScreen.SetActive(false);
+		this.m_creditsPanel.SetActive(false);
+		this.m_startGamePanel.SetActive(false);
+		this.m_createWorldPanel.SetActive(false);
+		this.m_serverOptions.gameObject.SetActive(false);
+		this.m_mainMenu.SetActive(false);
+		this.m_ndaPanel.SetActive(false);
+		this.m_betaText.SetActive(false);
+	}
+
+	// Token: 0x0600160D RID: 5645 RVA: 0x000A671C File Offset: 0x000A491C
+	public static bool InitializeSteam()
+	{
+		if (SteamManager.Initialize())
+		{
+			string personaName = SteamFriends.GetPersonaName();
+			ZLog.Log("Steam initialized, persona:" + personaName);
+			return true;
+		}
+		ZLog.LogError("Steam is not initialized");
+		Application.Quit();
+		return false;
+	}
+
+	// Token: 0x0600160E RID: 5646 RVA: 0x000A6758 File Offset: 0x000A4958
+	private void HandleStartupJoin()
+	{
+		string[] commandLineArgs = Environment.GetCommandLineArgs();
+		for (int i = 0; i < commandLineArgs.Length; i++)
+		{
+			string a = commandLineArgs[i];
+			if (a == "+connect" && i < commandLineArgs.Length - 1)
+			{
+				string text = commandLineArgs[i + 1];
+				ZLog.Log("JOIN " + text);
+				ZSteamMatchmaking.instance.QueueServerJoin(text);
+			}
+			else if (a == "+connect_lobby" && i < commandLineArgs.Length - 1)
+			{
+				string s = commandLineArgs[i + 1];
+				CSteamID lobbyID = new CSteamID(ulong.Parse(s));
+				ZSteamMatchmaking.instance.QueueLobbyJoin(lobbyID);
+			}
+		}
+	}
+
+	// Token: 0x0600160F RID: 5647 RVA: 0x000A67EC File Offset: 0x000A49EC
+	private void ParseArguments()
+	{
+		string[] commandLineArgs = Environment.GetCommandLineArgs();
+		for (int i = 0; i < commandLineArgs.Length; i++)
+		{
+			string a = commandLineArgs[i];
+			if (a == "-console")
+			{
+				global::Console.SetConsoleEnabledForThisSession();
+			}
+			else if (a == "-joincode" && commandLineArgs.Length > i + 1)
+			{
+				string joinCode = commandLineArgs[i + 1];
+				Action autoJoin = null;
+				autoJoin = delegate()
+				{
+					this.m_cliUpdateAction -= autoJoin;
+					this.AutoJoinServer(joinCode);
+				};
+				this.m_cliUpdateAction += autoJoin;
+			}
+			else if (a == "-password" && commandLineArgs.Length > i + 1)
+			{
+				FejdStartup.ServerPassword = commandLineArgs[i + 1];
+			}
+		}
+	}
+
+	// Token: 0x06001610 RID: 5648 RVA: 0x000A68A0 File Offset: 0x000A4AA0
+	private void AutoJoinServer(string joinCode)
+	{
+		if (PlayFabManager.instance == null)
+		{
+			return;
+		}
+		ZPlayFabMatchmakingSuccessCallback <>9__1;
+		PlayFabManager.instance.LoginFinished += delegate(LoginType loginType)
+		{
+			if (this.m_autoConnectionInProgress)
+			{
+				return;
+			}
+			this.m_autoConnectionInProgress = true;
+			if (loginType != LoginType.Success)
+			{
+				ZLog.LogError("Failed to login to PlayFab");
+				Application.Quit();
+			}
+			string joinCode2 = joinCode;
+			ZPlayFabMatchmakingSuccessCallback successAction;
+			if ((successAction = <>9__1) == null)
+			{
+				successAction = (<>9__1 = delegate(PlayFabMatchmakingServerData serverData)
+				{
+					this.m_joinServer = new ServerJoinData(new ServerJoinDataPlayFabUser(serverData.remotePlayerId));
+					this.JoinServer();
+				});
+			}
+			ZPlayFabMatchmaking.ResolveJoinCode(joinCode2, successAction, delegate(ZPLayFabMatchmakingFailReason failReason)
+			{
+				ZLog.LogError("Failed to resolve joincode: " + failReason.ToString());
+				Application.Quit();
+			});
+		};
+	}
+
+	// Token: 0x06001611 RID: 5649 RVA: 0x000A68E8 File Offset: 0x000A4AE8
+	private bool ParseServerArguments()
+	{
+		string[] commandLineArgs = Environment.GetCommandLineArgs();
+		string text = "Dedicated";
+		string password = "";
+		string text2 = "";
+		int num = 2456;
+		bool flag = true;
+		ZNet.m_backupCount = 4;
+		for (int i = 0; i < commandLineArgs.Length; i++)
+		{
+			string text3 = commandLineArgs[i].ToLower();
+			int backupCount;
+			int b;
+			int b2;
+			int b3;
+			if (text3 == "-world")
+			{
+				string text4 = commandLineArgs[i + 1];
+				if (text4 != "")
+				{
+					text = text4;
+				}
+				i++;
+			}
+			else if (text3 == "-name")
+			{
+				string text5 = commandLineArgs[i + 1];
+				if (text5 != "")
+				{
+					text2 = text5;
+				}
+				i++;
+			}
+			else if (text3 == "-port")
+			{
+				string text6 = commandLineArgs[i + 1];
+				if (text6 != "")
+				{
+					num = int.Parse(text6);
+				}
+				i++;
+			}
+			else if (text3 == "-password")
+			{
+				password = commandLineArgs[i + 1];
+				i++;
+			}
+			else if (text3 == "-savedir")
+			{
+				string text7 = commandLineArgs[i + 1];
+				Utils.SetSaveDataPath(text7);
+				ZLog.Log("Setting -savedir to: " + text7);
+				i++;
+			}
+			else if (text3 == "-public")
+			{
+				string a = commandLineArgs[i + 1];
+				if (a != "")
+				{
+					flag = (a == "1");
+				}
+				i++;
+			}
+			else if (text3.ToLower() == "-logfile")
+			{
+				ZLog.Log("Setting -logfile to: " + commandLineArgs[i + 1]);
+			}
+			else if (text3 == "-crossplay")
+			{
+				ZNet.m_onlineBackend = OnlineBackendType.PlayFab;
+			}
+			else if (text3 == "-instanceid" && commandLineArgs.Length > i + 1)
+			{
+				FejdStartup.InstanceId = commandLineArgs[i + 1];
+				i++;
+			}
+			else if (text3.ToLower() == "-backups" && int.TryParse(commandLineArgs[i + 1], out backupCount))
+			{
+				ZNet.m_backupCount = backupCount;
+			}
+			else if (text3 == "-backupshort" && int.TryParse(commandLineArgs[i + 1], out b))
+			{
+				ZNet.m_backupShort = Mathf.Max(5, b);
+			}
+			else if (text3 == "-backuplong" && int.TryParse(commandLineArgs[i + 1], out b2))
+			{
+				ZNet.m_backupLong = Mathf.Max(5, b2);
+			}
+			else if (text3 == "-saveinterval" && int.TryParse(commandLineArgs[i + 1], out b3))
+			{
+				Game.m_saveInterval = (float)Mathf.Max(5, b3);
+			}
+		}
+		if (text2 == "")
+		{
+			text2 = text;
+		}
+		World createWorld = World.GetCreateWorld(text, FileHelpers.FileSource.Local);
+		if (!ServerOptionsGUI.m_instance)
+		{
+			UnityEngine.Object.Instantiate<ServerOptionsGUI>(this.m_serverOptions).gameObject.SetActive(true);
+		}
+		for (int j = 0; j < commandLineArgs.Length; j++)
+		{
+			string a2 = commandLineArgs[j].ToLower();
+			if (a2 == "-resetmodifiers")
+			{
+				createWorld.m_startingGlobalKeys.Clear();
+				createWorld.m_startingKeysChanged = true;
+				ZLog.Log("Resetting world modifiers");
+			}
+			else if (a2 == "-preset" && commandLineArgs.Length > j + 1)
+			{
+				string text8 = commandLineArgs[j + 1];
+				WorldPresets preset;
+				if (Enum.TryParse<WorldPresets>(text8, true, out preset))
+				{
+					createWorld.m_startingGlobalKeys.Clear();
+					createWorld.m_startingKeysChanged = true;
+					ServerOptionsGUI.m_instance.ReadKeys(createWorld);
+					ServerOptionsGUI.m_instance.SetPreset(createWorld, preset);
+					ServerOptionsGUI.m_instance.SetKeys(createWorld);
+					ZLog.Log("Setting world modifier preset: " + text8);
+				}
+				else
+				{
+					ZLog.LogError("Could not parse '" + text8 + "' as a world modifier preset.");
+				}
+			}
+			else if (a2 == "-modifier" && commandLineArgs.Length > j + 2)
+			{
+				string text9 = commandLineArgs[j + 1];
+				string text10 = commandLineArgs[j + 2];
+				WorldModifiers preset2;
+				WorldModifierOption value;
+				if (Enum.TryParse<WorldModifiers>(text9, true, out preset2) && Enum.TryParse<WorldModifierOption>(text10, true, out value))
+				{
+					ServerOptionsGUI.m_instance.ReadKeys(createWorld);
+					ServerOptionsGUI.m_instance.SetPreset(createWorld, preset2, value);
+					ServerOptionsGUI.m_instance.SetKeys(createWorld);
+					ZLog.Log("Setting world modifier: " + text9 + "->" + text10);
+				}
+				else
+				{
+					ZLog.LogError(string.Concat(new string[]
+					{
+						"Could not parse '",
+						text9,
+						"' with a value of '",
+						text10,
+						"' as a world modifier."
+					}));
+				}
+			}
+			else if (a2 == "-setkey" && commandLineArgs.Length > j + 1)
+			{
+				string text11 = commandLineArgs[j + 1];
+				if (!createWorld.m_startingGlobalKeys.Contains(text11))
+				{
+					createWorld.m_startingGlobalKeys.Add(text11.ToLower());
+				}
+			}
+		}
+		if (flag && !this.IsPublicPasswordValid(password, createWorld))
+		{
+			string publicPasswordError = this.GetPublicPasswordError(password, createWorld);
+			ZLog.LogError("Error bad password:" + publicPasswordError);
+			Application.Quit();
+			return false;
+		}
+		ZNet.SetServer(true, true, flag, text2, password, createWorld);
+		ZNet.ResetServerHost();
+		SteamManager.SetServerPort(num);
+		ZSteamSocket.SetDataPort(num);
+		ZPlayFabMatchmaking.SetDataPort(num);
+		if (ZNet.m_onlineBackend == OnlineBackendType.PlayFab)
+		{
+			ZPlayFabMatchmaking.LookupPublicIP();
+		}
+		return true;
+	}
+
+	// Token: 0x06001612 RID: 5650 RVA: 0x000A6E24 File Offset: 0x000A5024
+	private void SetupObjectDB()
+	{
+		ObjectDB objectDB = base.gameObject.AddComponent<ObjectDB>();
+		ObjectDB component = this.m_objectDBPrefab.GetComponent<ObjectDB>();
+		objectDB.CopyOtherDB(component);
+	}
+
+	// Token: 0x06001613 RID: 5651 RVA: 0x000A6E50 File Offset: 0x000A5050
+	private void ShowConnectError(ZNet.ConnectionStatus statusOverride = ZNet.ConnectionStatus.None)
+	{
+		ZNet.ConnectionStatus connectionStatus = (statusOverride == ZNet.ConnectionStatus.None) ? ZNet.GetConnectionStatus() : statusOverride;
+		if (ZNet.m_loadError)
+		{
+			this.m_connectionFailedPanel.SetActive(true);
+			this.m_connectionFailedError.text = Localization.instance.Localize("$error_worldfileload");
+		}
+		if (ZNet.m_loadError)
+		{
+			this.m_connectionFailedPanel.SetActive(true);
+			this.m_connectionFailedError.text = Localization.instance.Localize("$error_worldfileload");
+		}
+		if (connectionStatus != ZNet.ConnectionStatus.Connected && connectionStatus != ZNet.ConnectionStatus.Connecting && connectionStatus != ZNet.ConnectionStatus.None)
+		{
+			this.m_connectionFailedPanel.SetActive(true);
+			switch (connectionStatus)
+			{
+			case ZNet.ConnectionStatus.ErrorVersion:
+				this.m_connectionFailedError.text = Localization.instance.Localize("$error_incompatibleversion");
+				return;
+			case ZNet.ConnectionStatus.ErrorDisconnected:
+				this.m_connectionFailedError.text = Localization.instance.Localize("$error_disconnected");
+				return;
+			case ZNet.ConnectionStatus.ErrorConnectFailed:
+				this.m_connectionFailedError.text = Localization.instance.Localize("$error_failedconnect");
+				return;
+			case ZNet.ConnectionStatus.ErrorPassword:
+				this.m_connectionFailedError.text = Localization.instance.Localize("$error_password");
+				return;
+			case ZNet.ConnectionStatus.ErrorAlreadyConnected:
+				this.m_connectionFailedError.text = Localization.instance.Localize("$error_alreadyconnected");
+				return;
+			case ZNet.ConnectionStatus.ErrorBanned:
+				this.m_connectionFailedError.text = Localization.instance.Localize("$error_banned");
+				return;
+			case ZNet.ConnectionStatus.ErrorFull:
+				this.m_connectionFailedError.text = Localization.instance.Localize("$error_serverfull");
+				return;
+			case ZNet.ConnectionStatus.ErrorPlatformExcluded:
+				this.m_connectionFailedError.text = Localization.instance.Localize("$error_platformexcluded");
+				return;
+			case ZNet.ConnectionStatus.ErrorCrossplayPrivilege:
+				this.m_connectionFailedError.text = Localization.instance.Localize("$xbox_error_crossplayprivilege");
+				return;
+			case ZNet.ConnectionStatus.ErrorKicked:
+				this.m_connectionFailedError.text = Localization.instance.Localize("$error_kicked");
+				break;
+			default:
+				return;
+			}
+		}
+	}
+
+	// Token: 0x06001614 RID: 5652 RVA: 0x000192C2 File Offset: 0x000174C2
+	public void OnNewVersionButtonDownload()
+	{
+		Application.OpenURL(this.m_downloadUrl);
+		Application.Quit();
+	}
+
+	// Token: 0x06001615 RID: 5653 RVA: 0x000192D4 File Offset: 0x000174D4
+	public void OnNewVersionButtonContinue()
+	{
+		this.m_newGameVersionPanel.SetActive(false);
+	}
+
+	// Token: 0x06001616 RID: 5654 RVA: 0x000A7024 File Offset: 0x000A5224
+	public void OnStartGame()
+	{
+		Gogan.LogEvent("Screen", "Enter", "StartGame", 0L);
+		this.m_mainMenu.SetActive(false);
+		if (SaveSystem.GetAllPlayerProfiles().Count == 0)
+		{
+			this.ShowCharacterSelection();
+			this.OnCharacterNew();
+			return;
+		}
+		this.ShowCharacterSelection();
+	}
+
+	// Token: 0x06001617 RID: 5655 RVA: 0x000192E2 File Offset: 0x000174E2
+	private void ShowStartGame()
+	{
+		this.m_mainMenu.SetActive(false);
+		this.m_createWorldPanel.SetActive(false);
+		this.m_serverOptions.gameObject.SetActive(false);
+		this.m_startGamePanel.SetActive(true);
+		this.RefreshWorldSelection();
+	}
+
+	// Token: 0x06001618 RID: 5656 RVA: 0x0001931F File Offset: 0x0001751F
+	public void OnSelectWorldTab()
+	{
+		this.RefreshWorldSelection();
+	}
+
+	// Token: 0x06001619 RID: 5657 RVA: 0x000A7074 File Offset: 0x000A5274
+	private void RefreshWorldSelection()
+	{
+		this.UpdateWorldList(true);
+		if (this.m_world != null)
+		{
+			this.m_world = this.FindWorld(this.m_world.m_name);
+			if (this.m_world != null)
+			{
+				this.UpdateWorldList(true);
+			}
+		}
+		if (this.m_world == null)
+		{
+			string @string = PlayerPrefs.GetString("world");
+			if (@string.Length > 0)
+			{
+				this.m_world = this.FindWorld(@string);
+			}
+			if (this.m_world == null)
+			{
+				this.m_world = ((this.m_worlds.Count > 0) ? this.m_worlds[0] : null);
+			}
+			if (this.m_world != null)
+			{
+				this.UpdateWorldList(true);
+			}
+			this.m_crossplayServerToggle.isOn = (PlayerPrefs.GetInt("crossplay", 1) == 1);
+		}
+	}
+
+	// Token: 0x0600161A RID: 5658 RVA: 0x000A7138 File Offset: 0x000A5338
+	public void OnServerListTab()
+	{
+		if (!PlayFabManager.IsLoggedIn && PlayFabManager.CurrentLoginState != LoginState.AttemptingLogin)
+		{
+			PlayFabManager.instance.SetShouldTryAutoLogin(true);
+		}
+		if (PlatformManager.DistributionPlatform.PrivilegeProvider.CheckPrivilege(Privilege.OnlineMultiplayer) != PrivilegeResult.Granted)
+		{
+			this.m_startGamePanel.transform.GetChild(0).GetComponent<TabHandler>().SetActiveTab(0, false, true);
+			this.ShowOnlineMultiplayerPrivilegeWarning();
+		}
+	}
+
+	// Token: 0x0600161B RID: 5659 RVA: 0x000A7198 File Offset: 0x000A5398
+	private void OnOpenServerToggleClicked(bool value)
+	{
+		if (!PlayFabManager.IsLoggedIn && PlayFabManager.CurrentLoginState != LoginState.AttemptingLogin)
+		{
+			PlayFabManager.instance.SetShouldTryAutoLogin(value);
+		}
+		if (!value)
+		{
+			return;
+		}
+		if (PlatformManager.DistributionPlatform.PrivilegeProvider.CheckPrivilege(Privilege.OnlineMultiplayer) != PrivilegeResult.Granted)
+		{
+			this.m_openServerToggle.isOn = false;
+			this.ShowOnlineMultiplayerPrivilegeWarning();
+		}
+	}
+
+	// Token: 0x0600161C RID: 5660 RVA: 0x000A71E8 File Offset: 0x000A53E8
+	private void ShowLogInWithPlayFabWindow(bool openServerToggleValue = true)
+	{
+		if (openServerToggleValue && !PlatformManager.DistributionPlatform.LocalUser.IsSignedIn)
+		{
+			if (PlatformManager.DistributionPlatform.UIProvider.SignInLocalUser != null)
+			{
+				PlatformManager.DistributionPlatform.UIProvider.SignInLocalUser.Open();
+				return;
+			}
+		}
+		else if (openServerToggleValue && !PlayFabManager.IsLoggedIn)
+		{
+			UnifiedPopup.Push(new YesNoPopup("$menu_loginwithplayfab_header", "$menu_loginwithplayfab_text", delegate()
+			{
+				PlayFabManager.instance.SetShouldTryAutoLogin(true);
+				UnifiedPopup.Pop();
+				UnifiedPopup.Push(new TaskPopup("$menu_logging_in_playfab_task_header", "", true));
+				PlayFabManager.instance.LoginFinished -= PlayFabManager.instance.OnPlayFabRespondRemoveUIBlock;
+				PlayFabManager.instance.LoginFinished += PlayFabManager.instance.OnPlayFabRespondRemoveUIBlock;
+			}, delegate()
+			{
+				PlayFabManager.instance.SetShouldTryAutoLogin(false);
+				UnifiedPopup.Pop();
+				PlayFabManager.instance.ResetMainMenuButtons();
+			}, true));
+		}
+	}
+
+	// Token: 0x0600161D RID: 5661 RVA: 0x000A728C File Offset: 0x000A548C
+	private void ShowOnlineMultiplayerPrivilegeWarning()
+	{
+		if (PlayFabManager.CurrentLoginState != LoginState.LoggedIn)
+		{
+			string str = " Steam";
+			UnifiedPopup.Push(new WarningPopup("$menu_logintext", "$menu_loginfailedtext" + str, delegate()
+			{
+				this.RefreshWorldSelection();
+				UnifiedPopup.Pop();
+			}, true));
+			return;
+		}
+		if (PlatformManager.DistributionPlatform.UIProvider.ResolvePrivilege != null)
+		{
+			PlatformManager.DistributionPlatform.UIProvider.ResolvePrivilege.Open(Privilege.OnlineMultiplayer, PrivilegeResult.DeniedUnknown);
+			return;
+		}
+		UnifiedPopup.Push(new WarningPopup("$menu_privilegerequiredheader", "$menu_onlineprivilegetext", delegate()
+		{
+			this.RefreshWorldSelection();
+			UnifiedPopup.Pop();
+		}, true));
+	}
+
+	// Token: 0x0600161E RID: 5662 RVA: 0x0001931F File Offset: 0x0001751F
+	private void OnUGCPopupShown()
+	{
+		this.RefreshWorldSelection();
+	}
+
+	// Token: 0x0600161F RID: 5663 RVA: 0x000A7320 File Offset: 0x000A5520
+	private World FindWorld(string name)
+	{
+		foreach (World world in this.m_worlds)
+		{
+			if (world.m_name == name)
+			{
+				return world;
+			}
+		}
+		return null;
+	}
+
+	// Token: 0x06001620 RID: 5664 RVA: 0x000A7384 File Offset: 0x000A5584
+	private void UpdateWorldList(bool centerSelection)
+	{
+		this.m_worlds = SaveSystem.GetWorldList();
+		float num = (float)this.m_worlds.Count * this.m_worldListElementStep;
+		num = Mathf.Max(this.m_worldListBaseSize, num);
+		this.m_worldListRoot.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, num);
+		for (int i = 0; i < this.m_worlds.Count; i++)
+		{
+			World world = this.m_worlds[i];
+			GameObject gameObject;
+			if (i < this.m_worldListElements.Count)
+			{
+				gameObject = this.m_worldListElements[i];
+			}
+			else
+			{
+				gameObject = UnityEngine.Object.Instantiate<GameObject>(this.m_worldListElement, this.m_worldListRoot);
+				this.m_worldListElements.Add(gameObject);
+				gameObject.SetActive(true);
+			}
+			(gameObject.transform as RectTransform).anchoredPosition = new Vector2(0f, (float)i * -this.m_worldListElementStep);
+			Button component = gameObject.GetComponent<Button>();
+			component.onClick.RemoveAllListeners();
+			int index = i;
+			component.onClick.AddListener(delegate()
+			{
+				this.OnSelectWorld(index);
+			});
+			TMP_Text component2 = gameObject.transform.Find("seed").GetComponent<TMP_Text>();
+			component2.text = world.m_seedName;
+			gameObject.transform.Find("modifiers").GetComponent<TMP_Text>().text = Localization.instance.Localize(ServerOptionsGUI.GetWorldModifierSummary(world.m_startingGlobalKeys, true, ", "));
+			TMP_Text component3 = gameObject.transform.Find("name").GetComponent<TMP_Text>();
+			if (world.m_name == world.m_fileName)
+			{
+				component3.text = world.m_name;
+			}
+			else
+			{
+				component3.text = world.m_name + " (" + world.m_fileName + ")";
+			}
+			Transform transform = gameObject.transform.Find("source_cloud");
+			if (transform != null)
+			{
+				transform.gameObject.SetActive(world.m_fileSource == FileHelpers.FileSource.Cloud);
+			}
+			Transform transform2 = gameObject.transform.Find("source_local");
+			if (transform2 != null)
+			{
+				transform2.gameObject.SetActive(world.m_fileSource == FileHelpers.FileSource.Local);
+			}
+			Transform transform3 = gameObject.transform.Find("source_legacy");
+			if (transform3 != null)
+			{
+				transform3.gameObject.SetActive(world.m_fileSource == FileHelpers.FileSource.Legacy);
+			}
+			switch (world.m_dataError)
+			{
+			case World.SaveDataError.None:
+				break;
+			case World.SaveDataError.BadVersion:
+				component2.text = " [BAD VERSION]";
+				break;
+			case World.SaveDataError.LoadError:
+				component2.text = " [LOAD ERROR]";
+				break;
+			case World.SaveDataError.Corrupt:
+				component2.text = " [CORRUPT]";
+				break;
+			case World.SaveDataError.MissingMeta:
+				component2.text = " [MISSING META]";
+				break;
+			case World.SaveDataError.MissingDB:
+				component2.text = " [MISSING DB]";
+				break;
+			default:
+				component2.text = string.Format(" [{0}]", world.m_dataError);
+				break;
+			}
+			RectTransform rectTransform = gameObject.transform.Find("selected") as RectTransform;
+			bool flag = this.m_world != null && world.m_fileName == this.m_world.m_fileName;
+			if (flag && this.m_world != world)
+			{
+				this.m_world = world;
+			}
+			rectTransform.gameObject.SetActive(flag);
+			if (flag)
+			{
+				component.Select();
+			}
+			if (flag && centerSelection)
+			{
+				this.m_worldListEnsureVisible.CenterOnItem(rectTransform);
+			}
+		}
+		for (int j = this.m_worldListElements.Count - 1; j >= this.m_worlds.Count; j--)
+		{
+			UnityEngine.Object.Destroy(this.m_worldListElements[j]);
+			this.m_worldListElements.RemoveAt(j);
+		}
+		this.m_worldSourceInfo.text = "";
+		this.m_worldSourceInfoPanel.SetActive(false);
+		if (this.m_world != null)
+		{
+			this.m_worldSourceInfo.text = Localization.instance.Localize(((this.m_world.m_fileSource == FileHelpers.FileSource.Legacy) ? "$menu_legacynotice \n\n$menu_legacynotice_worlds \n\n" : "") + ((!FileHelpers.CloudStorageEnabled) ? "$menu_cloudsavesdisabled" : ""));
+			this.m_worldSourceInfoPanel.SetActive(this.m_worldSourceInfo.text.Length > 0);
+		}
+		for (int k = 0; k < this.m_worlds.Count; k++)
+		{
+			World world2 = this.m_worlds[k];
+			UITooltip componentInChildren = this.m_worldListElements[k].GetComponentInChildren<UITooltip>();
+			if (componentInChildren != null)
+			{
+				string worldModifierSummary = ServerOptionsGUI.GetWorldModifierSummary(world2.m_startingGlobalKeys, false, "\n");
+				componentInChildren.Set(string.IsNullOrEmpty(worldModifierSummary) ? "" : "$menu_serveroptions", worldModifierSummary, this.m_worldSourceInfoPanel.activeSelf ? this.m_tooltipSecondaryAnchor : this.m_tooltipAnchor, default(Vector2));
+			}
+		}
+	}
+
+	// Token: 0x06001621 RID: 5665 RVA: 0x00019327 File Offset: 0x00017527
+	public void OnWorldRemove()
+	{
+		if (this.m_world == null)
+		{
+			return;
+		}
+		this.m_removeWorldName.text = this.m_world.m_fileName;
+		this.m_removeWorldDialog.SetActive(true);
+	}
+
+	// Token: 0x06001622 RID: 5666 RVA: 0x000A7848 File Offset: 0x000A5A48
+	public void OnButtonRemoveWorldYes()
+	{
+		World.RemoveWorld(this.m_world.m_fileName, this.m_world.m_fileSource);
+		this.m_world = null;
+		this.m_worlds = SaveSystem.GetWorldList();
+		this.SetSelectedWorld(0, true);
+		this.m_removeWorldDialog.SetActive(false);
+	}
+
+	// Token: 0x06001623 RID: 5667 RVA: 0x00019354 File Offset: 0x00017554
+	public void OnButtonRemoveWorldNo()
+	{
+		this.m_removeWorldDialog.SetActive(false);
+	}
+
+	// Token: 0x06001624 RID: 5668 RVA: 0x00019362 File Offset: 0x00017562
+	private void OnSelectWorld(int index)
+	{
+		this.SetSelectedWorld(index, false);
+	}
+
+	// Token: 0x06001625 RID: 5669 RVA: 0x0001936C File Offset: 0x0001756C
+	private void SetSelectedWorld(int index, bool centerSelection)
+	{
+		if (this.m_worlds.Count != 0)
+		{
+			index = Mathf.Clamp(index, 0, this.m_worlds.Count - 1);
+			this.m_world = this.m_worlds[index];
+		}
+		this.UpdateWorldList(centerSelection);
+	}
+
+	// Token: 0x06001626 RID: 5670 RVA: 0x000A7898 File Offset: 0x000A5A98
+	private int GetSelectedWorld()
+	{
+		if (this.m_world == null)
+		{
+			return -1;
+		}
+		for (int i = 0; i < this.m_worlds.Count; i++)
+		{
+			if (this.m_worlds[i].m_fileName == this.m_world.m_fileName)
+			{
+				return i;
+			}
+		}
+		return -1;
+	}
+
+	// Token: 0x06001627 RID: 5671 RVA: 0x000A78EC File Offset: 0x000A5AEC
+	private int FindSelectedWorld(GameObject button)
+	{
+		for (int i = 0; i < this.m_worldListElements.Count; i++)
+		{
+			if (this.m_worldListElements[i] == button)
+			{
+				return i;
+			}
+		}
+		return -1;
+	}
+
+	// Token: 0x06001628 RID: 5672 RVA: 0x000193AA File Offset: 0x000175AA
+	private FileHelpers.FileSource GetMoveTarget(FileHelpers.FileSource source)
+	{
+		if (source == FileHelpers.FileSource.Cloud)
+		{
+			return FileHelpers.FileSource.Local;
+		}
+		return FileHelpers.FileSource.Cloud;
+	}
+
+	// Token: 0x06001629 RID: 5673 RVA: 0x000193B3 File Offset: 0x000175B3
+	public void OnWorldNew()
+	{
+		this.m_createWorldPanel.SetActive(true);
+		this.m_newWorldName.text = "";
+		this.m_newWorldSeed.text = World.GenerateSeed();
+	}
+
+	// Token: 0x0600162A RID: 5674 RVA: 0x000A7928 File Offset: 0x000A5B28
+	public void OnNewWorldDone(bool forceLocal)
+	{
+		string text = this.m_newWorldName.text;
+		string text2 = this.m_newWorldSeed.text;
+		if (World.HaveWorld(text))
+		{
+			UnifiedPopup.Push(new WarningPopup(Localization.instance.Localize("$menu_newworldalreadyexists"), Localization.instance.Localize("$menu_newworldalreadyexistsmessage", new string[]
+			{
+				text
+			}), delegate()
+			{
+				UnifiedPopup.Pop();
+			}, false));
+			return;
+		}
+		this.m_world = new World(text, text2);
+		this.m_world.m_fileSource = ((FileHelpers.CloudStorageEnabled && !forceLocal) ? FileHelpers.FileSource.Cloud : FileHelpers.FileSource.Local);
+		this.m_world.m_needsDB = false;
+		if (this.m_world.m_fileSource == FileHelpers.FileSource.Cloud && FileHelpers.OperationExceedsCloudCapacity(2097152UL))
+		{
+			this.ShowCloudQuotaWorldDialog();
+			ZLog.LogWarning("This operation may exceed the cloud save quota and has therefore been aborted! Prompt shown to user.");
+			return;
+		}
+		this.m_world.SaveWorldMetaData(DateTime.Now);
+		this.UpdateWorldList(true);
+		this.ShowStartGame();
+		Gogan.LogEvent("Menu", "NewWorld", text, 0L);
+	}
+
+	// Token: 0x0600162B RID: 5675 RVA: 0x000193E1 File Offset: 0x000175E1
+	public void OnNewWorldBack()
+	{
+		this.ShowStartGame();
+	}
+
+	// Token: 0x0600162C RID: 5676 RVA: 0x000A7A38 File Offset: 0x000A5C38
+	public void OnServerOptions()
+	{
+		this.RefreshWorldSelection();
+		this.m_serverOptions.gameObject.SetActive(true);
+		this.m_serverOptions.ReadKeys(this.m_world);
+		EventSystem.current.SetSelectedGameObject(this.m_serverOptions.m_doneButton);
+		if (PlatformPrefs.GetInt("ServerOptionsDisclaimer", 0) == 0)
+		{
+			UnifiedPopup.Push(new WarningPopup("$menu_modifier_popup_title", "$menu_modifier_popup_text", delegate()
+			{
+				UnifiedPopup.Pop();
+			}, true));
+			PlatformPrefs.SetInt("ServerOptionsDisclaimer", 1);
+		}
+	}
+
+	// Token: 0x0600162D RID: 5677 RVA: 0x000A7AD0 File Offset: 0x000A5CD0
+	public void OnServerOptionsDone()
+	{
+		this.m_world.m_startingGlobalKeys.Clear();
+		this.m_world.m_startingKeysChanged = true;
+		this.m_serverOptions.SetKeys(this.m_world);
+		DateTime now = DateTime.Now;
+		SaveWithBackups saveWithBackups;
+		if (!SaveSystem.TryGetSaveByName(this.m_world.m_fileName, SaveDataType.World, out saveWithBackups) || saveWithBackups.IsDeleted)
+		{
+			ZLog.LogError("Failed to retrieve world save " + this.m_world.m_fileName + " by name when modifying server options!");
+			this.ShowStartGame();
+			return;
+		}
+		SaveSystem.CheckMove(this.m_world.m_fileName, SaveDataType.World, ref this.m_world.m_fileSource, now, saveWithBackups.PrimaryFile.Size, true);
+		this.m_world.SaveWorldMetaData(now);
+		this.UpdateWorldList(true);
+		this.ShowStartGame();
+	}
+
+	// Token: 0x0600162E RID: 5678 RVA: 0x000193E1 File Offset: 0x000175E1
+	public void OnServerOptionsCancel()
+	{
+		this.ShowStartGame();
+	}
+
+	// Token: 0x0600162F RID: 5679 RVA: 0x000193E9 File Offset: 0x000175E9
+	public void OnMerchStoreButton()
+	{
+		Application.OpenURL("http://valheim.shop/?game_" + global::Version.GetPlatformPrefix("win"));
+	}
+
+	// Token: 0x06001630 RID: 5680 RVA: 0x00019404 File Offset: 0x00017604
+	public void OnBoardGameButton()
+	{
+		Application.OpenURL("http://bit.ly/valheimtheboardgame");
+	}
+
+	// Token: 0x06001631 RID: 5681 RVA: 0x00019410 File Offset: 0x00017610
+	public void OnCloudStorageLowNextSaveWarningOk()
+	{
+		this.m_cloudStorageWarningNextSave.SetActive(false);
+		this.RefreshWorldSelection();
+	}
+
+	// Token: 0x06001632 RID: 5682 RVA: 0x000A7B98 File Offset: 0x000A5D98
+	public void OnWorldStart()
+	{
+		if (!SaveSystem.CanSaveToCloudStorage(this.m_world, this.m_profiles[this.m_profileIndex]) || Menu.ExceedCloudStorageTest)
+		{
+			this.m_cloudStorageWarningNextSave.SetActive(true);
+			return;
+		}
+		if (this.m_world == null || this.m_startingWorld)
+		{
+			return;
+		}
+		Game.m_serverOptionsSummary = "";
+		switch (this.m_world.m_dataError)
+		{
+		case World.SaveDataError.None:
+		{
+			PlayerPrefs.SetString("world", this.m_world.m_name);
+			if (this.m_crossplayServerToggle.IsInteractable())
+			{
+				PlayerPrefs.SetInt("crossplay", this.m_crossplayServerToggle.isOn ? 1 : 0);
+			}
+			bool isOn = this.m_publicServerToggle.isOn;
+			bool isOn2 = this.m_openServerToggle.isOn;
+			bool isOn3 = this.m_crossplayServerToggle.isOn;
+			string text = this.m_serverPassword.text;
+			OnlineBackendType onlineBackend = this.GetOnlineBackend(isOn3);
+			if (isOn2 && onlineBackend == OnlineBackendType.PlayFab && !PlayFabManager.IsLoggedIn)
+			{
+				this.ContinueWhenLoggedInPopup(new FejdStartup.ContinueAction(this.OnWorldStart));
+				return;
+			}
+			ZNet.m_onlineBackend = onlineBackend;
+			ZSteamMatchmaking.instance.StopServerListing();
+			this.m_startingWorld = true;
+			ZNet.SetServer(true, isOn2, isOn, this.m_world.m_name, text, this.m_world);
+			ZNet.ResetServerHost();
+			string eventLabel = "open:" + isOn2.ToString() + ",public:" + isOn.ToString();
+			Gogan.LogEvent("Menu", "WorldStart", eventLabel, 0L);
+			this.TransitionToMainScene();
+			return;
+		}
+		case World.SaveDataError.BadVersion:
+			return;
+		case World.SaveDataError.LoadError:
+		case World.SaveDataError.Corrupt:
+		{
+			SaveWithBackups saveWithBackups;
+			if (!SaveSystem.TryGetSaveByName(this.m_world.m_name, SaveDataType.World, out saveWithBackups))
+			{
+				UnifiedPopup.Push(new WarningPopup("$error_cantrestorebackup", "$menu_checklogfile", new PopupButtonCallback(UnifiedPopup.Pop), true));
+				ZLog.LogError("Failed to restore backup! Couldn't get world " + this.m_world.m_name + " by name from save system.");
+				return;
+			}
+			if (saveWithBackups.IsDeleted)
+			{
+				UnifiedPopup.Push(new WarningPopup("$error_cantrestorebackup", "$menu_checklogfile", new PopupButtonCallback(UnifiedPopup.Pop), true));
+				ZLog.LogError("Failed to restore backup! World " + this.m_world.m_name + " retrieved from save system was deleted.");
+				return;
+			}
+			if (SaveSystem.HasRestorableBackup(saveWithBackups))
+			{
+				this.<OnWorldStart>g__RestoreBackupPrompt|48_1(saveWithBackups);
+				return;
+			}
+			UnifiedPopup.Push(new WarningPopup("$error_cantrestorebackup", "$error_nosuitablebackupfound", new PopupButtonCallback(UnifiedPopup.Pop), true));
+			return;
+		}
+		case World.SaveDataError.MissingMeta:
+		{
+			SaveWithBackups saveWithBackups2;
+			if (!SaveSystem.TryGetSaveByName(this.m_world.m_name, SaveDataType.World, out saveWithBackups2))
+			{
+				UnifiedPopup.Push(new WarningPopup("$error_cantrestoremeta", "$menu_checklogfile", new PopupButtonCallback(UnifiedPopup.Pop), true));
+				ZLog.LogError("Failed to restore meta file! Couldn't get world " + this.m_world.m_name + " by name from save system.");
+				return;
+			}
+			if (saveWithBackups2.IsDeleted)
+			{
+				UnifiedPopup.Push(new WarningPopup("$error_cantrestoremeta", "$menu_checklogfile", new PopupButtonCallback(UnifiedPopup.Pop), true));
+				ZLog.LogError("Failed to restore meta file! World " + this.m_world.m_name + " retrieved from save system was deleted.");
+				return;
+			}
+			if (SaveSystem.HasBackupWithMeta(saveWithBackups2))
+			{
+				this.<OnWorldStart>g__RestoreMetaFromBackupPrompt|48_0(saveWithBackups2);
+				return;
+			}
+			UnifiedPopup.Push(new WarningPopup("$error_cantrestoremeta", "$error_nosuitablebackupfound", new PopupButtonCallback(UnifiedPopup.Pop), true));
+			return;
+		}
+		default:
+			return;
+		}
+	}
+
+	// Token: 0x06001633 RID: 5683 RVA: 0x000A7ECC File Offset: 0x000A60CC
+	private void ContinueWhenLoggedInPopup(FejdStartup.ContinueAction continueAction)
+	{
+		string headerText = Localization.instance.Localize("$menu_loginheader");
+		string loggingInText = Localization.instance.Localize("$menu_logintext");
+		string retryText = "";
+		int previousRetryCountdown = -1;
+		PlayFabManager.instance.SetShouldTryAutoLogin(true);
+		UnifiedPopup.Push(new CancelableTaskPopup(() => headerText, delegate()
+		{
+			if (PlayFabManager.CurrentLoginState == LoginState.WaitingForRetry)
+			{
+				int num = Mathf.CeilToInt((float)(PlayFabManager.NextRetryUtc - DateTime.UtcNow).TotalSeconds);
+				if (previousRetryCountdown != num)
+				{
+					previousRetryCountdown = num;
+					retryText = Localization.instance.Localize("$menu_loginfailedtext") + "\n" + Localization.instance.Localize("$menu_loginretrycountdowntext", new string[]
+					{
+						num.ToString()
+					});
+				}
+				return retryText;
+			}
+			return loggingInText;
+		}, delegate()
+		{
+			if (PlayFabManager.IsLoggedIn)
+			{
+				FejdStartup.ContinueAction continueAction2 = continueAction;
+				if (continueAction2 != null)
+				{
+					continueAction2();
+				}
+			}
+			return PlayFabManager.IsLoggedIn;
+		}, delegate()
+		{
+			UnifiedPopup.Pop();
+		}));
+	}
+
+	// Token: 0x06001634 RID: 5684 RVA: 0x000A7F7C File Offset: 0x000A617C
+	private OnlineBackendType GetOnlineBackend(bool crossplayServer)
+	{
+		OnlineBackendType result = OnlineBackendType.PlayFab;
+		if (!crossplayServer)
+		{
+			result = OnlineBackendType.Steamworks;
+		}
+		return result;
+	}
+
+	// Token: 0x06001635 RID: 5685 RVA: 0x000A7F94 File Offset: 0x000A6194
+	private void ShowCharacterSelection()
+	{
+		Gogan.LogEvent("Screen", "Enter", "CharacterSelection", 0L);
+		ZLog.Log("show character selection");
+		this.m_characterSelectScreen.SetActive(true);
+		this.m_selectCharacterPanel.SetActive(true);
+		this.m_newCharacterPanel.SetActive(false);
+		if (this.m_profiles == null)
+		{
+			this.m_profiles = SaveSystem.GetAllPlayerProfiles();
+		}
+		if (this.m_profileIndex >= this.m_profiles.Count)
+		{
+			this.m_profileIndex = this.m_profiles.Count - 1;
+		}
+		if (this.m_profileIndex >= 0 && this.m_profileIndex < this.m_profiles.Count)
+		{
+			PlayerProfile playerProfile = this.m_profiles[this.m_profileIndex];
+			this.m_csFileSource.text = Localization.instance.Localize(FileHelpers.GetSourceString(playerProfile.m_fileSource));
+		}
+	}
+
+	// Token: 0x06001636 RID: 5686 RVA: 0x00019424 File Offset: 0x00017624
+	public void OnJoinStart()
+	{
+		this.JoinServer();
+	}
+
+	// Token: 0x06001637 RID: 5687 RVA: 0x000A806C File Offset: 0x000A626C
+	public void JoinServer()
+	{
+		if (!PlayFabManager.IsLoggedIn && this.m_joinServer.m_type == ServerJoinDataType.PlayFabUser)
+		{
+			this.ContinueWhenLoggedInPopup(new FejdStartup.ContinueAction(this.JoinServer));
+			return;
+		}
+		if (PlatformManager.DistributionPlatform.PrivilegeProvider.CheckPrivilege(Privilege.OnlineMultiplayer) != PrivilegeResult.Granted)
+		{
+			ZLog.LogWarning("You should always prevent JoinServer() from being called when user does not have online multiplayer privilege!");
+			this.HideAll();
+			this.m_mainMenu.SetActive(true);
+			this.ShowOnlineMultiplayerPrivilegeWarning();
+			return;
+		}
+		ServerMatchmakingData serverMatchmakingData = MultiBackendMatchmaking.GetServerMatchmakingData(this.m_joinServer, default(DateTime));
+		if (serverMatchmakingData.m_onlineStatus.IsOnline() && serverMatchmakingData.m_networkVersion != 35U)
+		{
+			UnifiedPopup.Push(new WarningPopup("$error_incompatibleversion", (35U < serverMatchmakingData.m_networkVersion) ? "$error_needslocalupdatetojoin" : "$error_needsserverupdatetojoin", delegate()
+			{
+				UnifiedPopup.Pop();
+			}, true));
+			return;
+		}
+		if (serverMatchmakingData.IsUnjoinable)
+		{
+			if (!serverMatchmakingData.IsCrossplay)
+			{
+				UnifiedPopup.Push(new WarningPopup(Localization.instance.Localize("$error_failedconnect"), Localization.instance.Localize("$xbox_error_crossplayprivilege"), delegate()
+				{
+					UnifiedPopup.Pop();
+				}, false));
+				return;
+			}
+			if (PlatformManager.DistributionPlatform.UIProvider.ResolvePrivilege != null)
+			{
+				PlatformManager.DistributionPlatform.UIProvider.ResolvePrivilege.Open(Privilege.CrossPlatformMultiplayer, PrivilegeResult.DeniedUnknown);
+				return;
+			}
+			UnifiedPopup.Push(new WarningPopup(Localization.instance.Localize("$error_failedconnect"), Localization.instance.Localize("$xbox_error_crossplayprivilege"), delegate()
+			{
+				UnifiedPopup.Pop();
+			}, false));
+			return;
+		}
+		else
+		{
+			ZNet.SetServer(false, false, false, "", "", null);
+			FejdStartup.retries = 0;
+			bool flag = false;
+			if (this.m_joinServer.m_type == ServerJoinDataType.SteamUser)
+			{
+				ZNet.SetServerHost((ulong)this.m_joinServer.SteamUser.m_joinUserID);
+				flag = true;
+			}
+			if (this.m_joinServer.m_type == ServerJoinDataType.PlayFabUser)
+			{
+				ZNet.SetServerHost(this.m_joinServer.PlayFabUser.m_remotePlayerId);
+				flag = true;
+			}
+			if (this.m_joinServer.m_type == ServerJoinDataType.Dedicated)
+			{
+				ServerJoinDataDedicated serverJoin = this.m_joinServer.Dedicated;
+				ZNet.ResetServerHost();
+				MultiBackendMatchmaking.GetServerIPAsync(serverJoin, delegate(bool succeeded, IPv6Address? address)
+				{
+					if (!succeeded || address == null)
+					{
+						FejdStartup.retries = 50;
+					}
+					IPEndPoint endPoint = new IPEndPoint(address.Value, serverJoin.m_port);
+					if (PlayFabManager.IsLoggedIn)
+					{
+						ZPlayFabMatchmaking.FindHostByIp(endPoint, delegate(PlayFabMatchmakingServerData result)
+						{
+							if (result != null)
+							{
+								ZNet.SetServerHost(result.remotePlayerId);
+								ZLog.Log("Determined backend of dedicated server to be PlayFab");
+								return;
+							}
+							FejdStartup.retries = 50;
+						}, delegate(ZPLayFabMatchmakingFailReason failReason)
+						{
+							ZNet.SetServerHost(endPoint.ToString(), (int)serverJoin.m_port, OnlineBackendType.Steamworks);
+							ZLog.Log("Determined backend of dedicated server to be Steamworks");
+						}, true);
+						return;
+					}
+					ZNet.SetServerHost(endPoint.m_address.ToString(), (int)endPoint.m_port, OnlineBackendType.Steamworks);
+					ZLog.Log("Determined backend of dedicated server to be Steamworks");
+				});
+				flag = true;
+			}
+			if (!flag)
+			{
+				Debug.LogError("Couldn't set the server host!");
+				return;
+			}
+			Gogan.LogEvent("Menu", "JoinServer", "", 0L);
+			ServerListGui.AddToRecentServersList(this.GetServerToJoin());
+			this.TransitionToMainScene();
+			return;
+		}
+	}
+
+	// Token: 0x06001638 RID: 5688 RVA: 0x0001942C File Offset: 0x0001762C
+	public void OnStartGameBack()
+	{
+		this.m_startGamePanel.SetActive(false);
+		this.ShowCharacterSelection();
+	}
+
+	// Token: 0x06001639 RID: 5689 RVA: 0x000A82FC File Offset: 0x000A64FC
+	public void OnCredits()
+	{
+		this.m_creditsPanel.SetActive(true);
+		this.m_mainMenu.SetActive(false);
+		Gogan.LogEvent("Screen", "Enter", "Credits", 0L);
+		this.m_creditsList.anchoredPosition = new Vector2(0f, 0f);
+	}
+
+	// Token: 0x0600163A RID: 5690 RVA: 0x00019440 File Offset: 0x00017640
+	public void OnCreditsBack()
+	{
+		this.m_mainMenu.SetActive(true);
+		this.m_creditsPanel.SetActive(false);
+		Gogan.LogEvent("Screen", "Enter", "StartMenu", 0L);
+	}
+
+	// Token: 0x0600163B RID: 5691 RVA: 0x00019470 File Offset: 0x00017670
+	public void OnSelelectCharacterBack()
+	{
+		this.m_characterSelectScreen.SetActive(false);
+		this.m_mainMenu.SetActive(true);
+		this.m_queuedJoinServer = ServerJoinData.None;
+		Gogan.LogEvent("Screen", "Enter", "StartMenu", 0L);
+	}
+
+	// Token: 0x0600163C RID: 5692 RVA: 0x000194AB File Offset: 0x000176AB
+	public void OnAbort()
+	{
+		Application.Quit();
+	}
+
+	// Token: 0x0600163D RID: 5693 RVA: 0x000194B2 File Offset: 0x000176B2
+	public void OnWorldVersionYes()
+	{
+		this.m_worldVersionPanel.SetActive(false);
+	}
+
+	// Token: 0x0600163E RID: 5694 RVA: 0x000194C0 File Offset: 0x000176C0
+	public void OnPlayerVersionOk()
+	{
+		this.m_playerVersionPanel.SetActive(false);
+	}
+
+	// Token: 0x0600163F RID: 5695 RVA: 0x000194CE File Offset: 0x000176CE
+	private void FixedUpdate()
+	{
+		ZInput.FixedUpdate(Time.fixedDeltaTime);
+	}
+
+	// Token: 0x06001640 RID: 5696 RVA: 0x000117A8 File Offset: 0x0000F9A8
+	private void UpdateCursor()
+	{
+		Cursor.lockState = (ZInput.IsMouseActive() ? CursorLockMode.None : CursorLockMode.Locked);
+		Cursor.visible = ZInput.IsMouseActive();
+	}
+
+	// Token: 0x06001641 RID: 5697 RVA: 0x000194DA File Offset: 0x000176DA
+	private void OnLanguageChange()
+	{
+		this.UpdateCharacterList();
+	}
+
+	// Token: 0x06001642 RID: 5698 RVA: 0x000A8354 File Offset: 0x000A6554
+	private void Update()
+	{
+		int num = (Settings.FPSLimit != 29) ? Mathf.Min(Settings.FPSLimit, 60) : 60;
+		Application.targetFrameRate = ((Settings.ReduceBackgroundUsage && !Application.isFocused) ? Mathf.Min(30, num) : num);
+		if (Terminal.m_showTests)
+		{
+			Terminal.m_testList["fps limit"] = Application.targetFrameRate.ToString();
+		}
+		ZInput.Update(Time.deltaTime);
+		Localization.instance.ReLocalizeVisible(base.transform);
+		this.UpdateGamepad();
+		this.UpdateKeyboard();
+		this.CheckPendingJoinRequest();
+		if (MasterClient.instance != null)
+		{
+			MasterClient.instance.Update(Time.deltaTime);
+		}
+		if (ZBroastcast.instance != null)
+		{
+			ZBroastcast.instance.Update(Time.deltaTime);
+		}
+		this.UpdateCharacterRotation(Time.deltaTime);
+		this.UpdateCamera(Time.deltaTime);
+		if (this.m_newCharacterPanel.activeInHierarchy)
+		{
+			this.m_csNewCharacterDone.interactable = (this.m_csNewCharacterName.text.Length >= 3);
+			Navigation navigation = this.m_csNewCharacterName.navigation;
+			navigation.selectOnDown = (this.m_csNewCharacterDone.interactable ? this.m_csNewCharacterDone : this.m_csNewCharacterCancel);
+			this.m_csNewCharacterName.navigation = navigation;
+		}
+		if (this.m_newCharacterPanel.activeInHierarchy)
+		{
+			this.m_csNewCharacterDone.interactable = (this.m_csNewCharacterName.text.Length >= 3);
+		}
+		if (this.m_serverOptionsButton.gameObject.activeInHierarchy)
+		{
+			this.m_serverOptionsButton.interactable = (this.m_world != null);
+		}
+		if (this.m_createWorldPanel.activeInHierarchy)
+		{
+			this.m_newWorldDone.interactable = (this.m_newWorldName.text.Length >= 5);
+		}
+		if (this.m_startGamePanel.activeInHierarchy)
+		{
+			this.m_worldStart.interactable = this.CanStartServer();
+			this.m_worldRemove.interactable = (this.m_world != null);
+			this.UpdatePasswordError();
+		}
+		if (this.m_startGamePanel.activeInHierarchy)
+		{
+			bool flag = this.m_openServerToggle.isOn && this.m_openServerToggle.interactable;
+			this.SetToggleState(this.m_publicServerToggle, flag);
+			this.SetToggleState(this.m_crossplayServerToggle, flag);
+			this.m_serverPassword.interactable = flag;
+		}
+		if (this.m_creditsPanel.activeInHierarchy)
+		{
+			RectTransform rectTransform = this.m_creditsList.parent as RectTransform;
+			Vector3[] array = new Vector3[4];
+			this.m_creditsList.GetWorldCorners(array);
+			Vector3[] array2 = new Vector3[4];
+			rectTransform.GetWorldCorners(array2);
+			float num2 = array2[1].y - array2[0].y;
+			if ((double)array[3].y < (double)num2 * 0.5)
+			{
+				Vector3 position = this.m_creditsList.position;
+				position.y += Time.deltaTime * this.m_creditsSpeed * num2;
+				this.m_creditsList.position = position;
+			}
+		}
+		Action cliUpdateAction = this.m_cliUpdateAction;
+		if (cliUpdateAction == null)
+		{
+			return;
+		}
+		cliUpdateAction();
+	}
+
+	// Token: 0x06001643 RID: 5699 RVA: 0x000194E2 File Offset: 0x000176E2
+	private void OnGUI()
+	{
+		ZInput.OnGUI();
+	}
+
+	// Token: 0x06001644 RID: 5700 RVA: 0x000A8660 File Offset: 0x000A6860
+	private void SetToggleState(Toggle toggle, bool active)
+	{
+		toggle.interactable = active;
+		Color toggleColor = this.m_toggleColor;
+		Graphic componentInChildren = toggle.GetComponentInChildren<TMP_Text>();
+		if (!active)
+		{
+			float num = 0.5f;
+			float num2 = toggleColor.linear.r * 0.2126f + toggleColor.linear.g * 0.7152f + toggleColor.linear.b * 0.0722f;
+			num2 *= num;
+			toggleColor.r = (toggleColor.g = (toggleColor.b = Mathf.LinearToGammaSpace(num2)));
+		}
+		componentInChildren.color = toggleColor;
+	}
+
+	// Token: 0x06001645 RID: 5701 RVA: 0x000194E9 File Offset: 0x000176E9
+	private void LateUpdate()
+	{
+		if (ZInput.GetKeyDown(KeyCode.F11, true))
+		{
+			GameCamera.ScreenShot();
+		}
+	}
+
+	// Token: 0x06001646 RID: 5702 RVA: 0x000A86F0 File Offset: 0x000A68F0
+	private void UpdateKeyboard()
+	{
+		if (ZInput.GetKeyDown(KeyCode.Return, true) && this.m_menuList.activeInHierarchy && !this.m_passwordError.gameObject.activeInHierarchy)
+		{
+			if (this.m_menuSelectedButton != null)
+			{
+				this.m_menuSelectedButton.OnSubmit(null);
+			}
+			else
+			{
+				this.OnStartGame();
+			}
+		}
+		if (this.m_worldListPanel.GetComponent<UIGamePad>().IsBlocked())
+		{
+			return;
+		}
+		if (ZInput.GetKeyDown(KeyCode.UpArrow, true))
+		{
+			if (this.m_worldListPanel.activeInHierarchy)
+			{
+				this.SetSelectedWorld(this.GetSelectedWorld() - 1, true);
+			}
+			if (this.m_menuList.activeInHierarchy)
+			{
+				if (this.m_menuSelectedButton == null)
+				{
+					this.m_menuSelectedButton = this.m_menuButtons[0];
+					this.m_menuSelectedButton.Select();
+				}
+				else
+				{
+					for (int i = 1; i < this.m_menuButtons.Length; i++)
+					{
+						if (this.m_menuButtons[i] == this.m_menuSelectedButton)
+						{
+							this.m_menuSelectedButton = this.m_menuButtons[i - 1];
+							this.m_menuSelectedButton.Select();
+							break;
+						}
+					}
+				}
+			}
+		}
+		if (ZInput.GetKeyDown(KeyCode.DownArrow, true))
+		{
+			if (this.m_worldListPanel.activeInHierarchy)
+			{
+				this.SetSelectedWorld(this.GetSelectedWorld() + 1, true);
+			}
+			if (this.m_menuList.activeInHierarchy)
+			{
+				if (this.m_menuSelectedButton == null)
+				{
+					this.m_menuSelectedButton = this.m_menuButtons[0];
+					this.m_menuSelectedButton.Select();
+					return;
+				}
+				for (int j = 0; j < this.m_menuButtons.Length - 1; j++)
+				{
+					if (this.m_menuButtons[j] == this.m_menuSelectedButton)
+					{
+						this.m_menuSelectedButton = this.m_menuButtons[j + 1];
+						this.m_menuSelectedButton.Select();
+						return;
+					}
+				}
+			}
+		}
+	}
+
+	// Token: 0x06001647 RID: 5703 RVA: 0x000A88AC File Offset: 0x000A6AAC
+	private void UpdateGamepad()
+	{
+		if (ZInput.IsGamepadActive() && this.m_menuList.activeInHierarchy && EventSystem.current.currentSelectedGameObject == null && this.m_menuButtons != null && this.m_menuButtons.Length != 0)
+		{
+			base.StartCoroutine(this.SelectFirstMenuEntry(this.m_menuButtons[0]));
+		}
+		if (!ZInput.IsGamepadActive() || this.m_worldListPanel.GetComponent<UIGamePad>().IsBlocked())
+		{
+			return;
+		}
+		if (this.m_worldListPanel.activeInHierarchy)
+		{
+			if (ZInput.GetButtonDown("JoyLStickDown") || ZInput.GetButtonDown("JoyDPadDown"))
+			{
+				this.SetSelectedWorld(this.GetSelectedWorld() + 1, true);
+			}
+			if (ZInput.GetButtonDown("JoyLStickUp") || ZInput.GetButtonDown("JoyDPadUp"))
+			{
+				this.SetSelectedWorld(this.GetSelectedWorld() - 1, true);
+			}
+			if (EventSystem.current.currentSelectedGameObject == null)
+			{
+				this.RefreshWorldSelection();
+			}
+		}
+		if (this.m_characterSelectScreen.activeInHierarchy && !this.m_newCharacterPanel.activeInHierarchy && this.m_csLeftButton.interactable && ZInput.GetButtonDown("JoyDPadLeft"))
+		{
+			this.OnCharacterLeft();
+		}
+		if (this.m_characterSelectScreen.activeInHierarchy && !this.m_newCharacterPanel.activeInHierarchy && this.m_csRightButton.interactable && ZInput.GetButtonDown("JoyDPadRight"))
+		{
+			this.OnCharacterRight();
+		}
+		if (this.m_patchLogScroll.gameObject.activeInHierarchy)
+		{
+			this.m_patchLogScroll.value -= ZInput.GetJoyRightStickY(true) * 0.02f;
+		}
+	}
+
+	// Token: 0x06001648 RID: 5704 RVA: 0x000194FD File Offset: 0x000176FD
+	private IEnumerator SelectFirstMenuEntry(Button button)
+	{
+		if (!this.m_menuList.activeInHierarchy)
+		{
+			yield break;
+		}
+		if (Event.current != null)
+		{
+			Event.current.Use();
+		}
+		yield return null;
+		yield return null;
+		if (UnifiedPopup.IsVisible())
+		{
+			UnifiedPopup.SetFocus();
+			yield break;
+		}
+		this.m_menuSelectedButton = button;
+		this.m_menuSelectedButton.Select();
+		yield break;
+	}
+
+	// Token: 0x06001649 RID: 5705 RVA: 0x000A8A34 File Offset: 0x000A6C34
+	private void CheckPendingJoinRequest()
+	{
+		if (ZSteamMatchmaking.instance == null)
+		{
+			return;
+		}
+		ServerJoinData queuedJoinServer;
+		if (!ZSteamMatchmaking.instance.GetJoinHost(out queuedJoinServer))
+		{
+			return;
+		}
+		if (PlatformManager.DistributionPlatform.PrivilegeProvider.CheckPrivilege(Privilege.OnlineMultiplayer) != PrivilegeResult.Granted)
+		{
+			this.ShowOnlineMultiplayerPrivilegeWarning();
+			return;
+		}
+		this.m_queuedJoinServer = queuedJoinServer;
+		if (this.m_serverListPanel.activeInHierarchy)
+		{
+			this.m_joinServer = this.m_queuedJoinServer;
+			this.m_queuedJoinServer = ServerJoinData.None;
+			this.JoinServer();
+			return;
+		}
+		this.HideAll();
+		this.ShowCharacterSelection();
+	}
+
+	// Token: 0x0600164A RID: 5706 RVA: 0x000A8AB0 File Offset: 0x000A6CB0
+	private void UpdateCharacterRotation(float dt)
+	{
+		if (this.m_playerInstance == null)
+		{
+			return;
+		}
+		if (!this.m_characterSelectScreen.activeInHierarchy)
+		{
+			return;
+		}
+		if (ZInput.GetMouseButton(0) && !EventSystem.current.IsPointerOverGameObject())
+		{
+			float x = ZInput.GetMouseDelta().x;
+			this.m_playerInstance.transform.Rotate(0f, -x * this.m_characterRotateSpeed, 0f);
+		}
+		float joyRightStickX = ZInput.GetJoyRightStickX(true);
+		if (joyRightStickX != 0f)
+		{
+			this.m_playerInstance.transform.Rotate(0f, -joyRightStickX * this.m_characterRotateSpeedGamepad * dt, 0f);
+		}
+	}
+
+	// Token: 0x0600164B RID: 5707 RVA: 0x000A8B50 File Offset: 0x000A6D50
+	private void UpdatePasswordError()
+	{
+		string text = "";
+		if (this.NeedPassword())
+		{
+			text = this.GetPublicPasswordError(this.m_serverPassword.text, this.m_world);
+		}
+		this.m_passwordError.text = text;
+	}
+
+	// Token: 0x0600164C RID: 5708 RVA: 0x00019513 File Offset: 0x00017713
+	private bool NeedPassword()
+	{
+		return (this.m_publicServerToggle.isOn | this.m_crossplayServerToggle.isOn) & this.m_openServerToggle.isOn;
+	}
+
+	// Token: 0x0600164D RID: 5709 RVA: 0x000A8B90 File Offset: 0x000A6D90
+	private string GetPublicPasswordError(string password, World world)
+	{
+		if (password.Length < this.m_minimumPasswordLength)
+		{
+			return Localization.instance.Localize("$menu_passwordshort");
+		}
+		if (world != null && (world.m_name.Contains(password) || world.m_seedName.Contains(password)))
+		{
+			return Localization.instance.Localize("$menu_passwordinvalid");
+		}
+		return "";
+	}
+
+	// Token: 0x0600164E RID: 5710 RVA: 0x00019538 File Offset: 0x00017738
+	private bool IsPublicPasswordValid(string password, World world)
+	{
+		return password.Length >= this.m_minimumPasswordLength && !world.m_name.Contains(password) && !world.m_seedName.Contains(password);
+	}
+
+	// Token: 0x0600164F RID: 5711 RVA: 0x000A8BF0 File Offset: 0x000A6DF0
+	private bool CanStartServer()
+	{
+		if (this.m_world == null)
+		{
+			return false;
+		}
+		switch (this.m_world.m_dataError)
+		{
+		case World.SaveDataError.None:
+		case World.SaveDataError.LoadError:
+		case World.SaveDataError.Corrupt:
+		case World.SaveDataError.MissingMeta:
+			return !this.NeedPassword() || this.IsPublicPasswordValid(this.m_serverPassword.text, this.m_world);
+		default:
+			return false;
+		}
+	}
+
+	// Token: 0x06001650 RID: 5712 RVA: 0x000A8C54 File Offset: 0x000A6E54
+	private void UpdateCamera(float dt)
+	{
+		Transform transform = this.m_cameraMarkerMain;
+		if (this.m_characterSelectScreen.activeSelf)
+		{
+			transform = this.m_cameraMarkerCharacter;
+		}
+		else if (this.m_creditsPanel.activeSelf)
+		{
+			transform = this.m_cameraMarkerCredits;
+		}
+		else if (this.m_startGamePanel.activeSelf)
+		{
+			transform = this.m_cameraMarkerGame;
+		}
+		else if (this.m_manageSavesMenu.IsVisible())
+		{
+			transform = this.m_cameraMarkerSaves;
+		}
+		this.m_mainCamera.transform.position = Vector3.SmoothDamp(this.m_mainCamera.transform.position, transform.position, ref this.camSpeed, 1.5f, 1000f, dt);
+		Vector3 forward = Vector3.SmoothDamp(this.m_mainCamera.transform.forward, transform.forward, ref this.camRotSpeed, 1.5f, 1000f, dt);
+		forward.Normalize();
+		this.m_mainCamera.transform.rotation = Quaternion.LookRotation(forward);
+	}
+
+	// Token: 0x06001651 RID: 5713 RVA: 0x0001956B File Offset: 0x0001776B
+	public void ShowCloudQuotaWarning()
+	{
+		UnifiedPopup.Push(new WarningPopup("$menu_cloudstoragefull", "$menu_cloudstoragefulloperationfailed", delegate()
+		{
+			UnifiedPopup.Pop();
+		}, true));
+	}
+
+	// Token: 0x06001652 RID: 5714 RVA: 0x000A8D44 File Offset: 0x000A6F44
+	public void ShowCloudQuotaWorldDialog()
+	{
+		UnifiedPopup.Push(new YesNoPopup("$menu_cloudstoragefull", "$menu_cloudstoragefullworldprompt", delegate()
+		{
+			UnifiedPopup.Pop();
+			this.OnNewWorldDone(true);
+		}, delegate()
+		{
+			UnifiedPopup.Pop();
+		}, true));
+	}
+
+	// Token: 0x06001653 RID: 5715 RVA: 0x000A8D94 File Offset: 0x000A6F94
+	public void ShowCloudQuotaCharacterDialog()
+	{
+		UnifiedPopup.Push(new YesNoPopup("$menu_cloudstoragefull", "$menu_cloudstoragefullcharacterprompt", delegate()
+		{
+			UnifiedPopup.Pop();
+			this.OnNewCharacterDone(true);
+		}, delegate()
+		{
+			UnifiedPopup.Pop();
+		}, true));
+	}
+
+	// Token: 0x06001654 RID: 5716 RVA: 0x000A8DE4 File Offset: 0x000A6FE4
+	public void OnManageSaves(int index)
+	{
+		this.HideAll();
+		if (index == 0)
+		{
+			this.m_manageSavesMenu.Open(SaveDataType.World, (this.m_world != null) ? this.m_world.m_fileName : null, new ManageSavesMenu.ClosedCallback(this.ShowStartGame), new ManageSavesMenu.SavesModifiedCallback(this.OnSavesModified));
+			return;
+		}
+		if (index != 1)
+		{
+			return;
+		}
+		this.m_manageSavesMenu.Open(SaveDataType.Character, (this.m_profileIndex >= 0 && this.m_profileIndex < this.m_profiles.Count && this.m_profiles[this.m_profileIndex] != null) ? this.m_profiles[this.m_profileIndex].m_filename : null, new ManageSavesMenu.ClosedCallback(this.ShowCharacterSelection), new ManageSavesMenu.SavesModifiedCallback(this.OnSavesModified));
+	}
+
+	// Token: 0x06001655 RID: 5717 RVA: 0x000A8EA8 File Offset: 0x000A70A8
+	private void OnSavesModified(SaveDataType dataType)
+	{
+		if (dataType == SaveDataType.World)
+		{
+			SaveSystem.ClearWorldListCache(true);
+			this.RefreshWorldSelection();
+			return;
+		}
+		if (dataType != SaveDataType.Character)
+		{
+			return;
+		}
+		string selectedProfile = null;
+		if (this.m_profileIndex < this.m_profiles.Count && this.m_profileIndex >= 0)
+		{
+			selectedProfile = this.m_profiles[this.m_profileIndex].GetFilename();
+		}
+		this.m_profiles = SaveSystem.GetAllPlayerProfiles();
+		this.SetSelectedProfile(selectedProfile);
+		this.m_manageSavesMenu.Open(dataType, new ManageSavesMenu.ClosedCallback(this.ShowCharacterSelection), new ManageSavesMenu.SavesModifiedCallback(this.OnSavesModified));
+	}
+
+	// Token: 0x06001656 RID: 5718 RVA: 0x000A8F38 File Offset: 0x000A7138
+	private void UpdateCharacterList()
+	{
+		if (this.m_profiles == null)
+		{
+			this.m_profiles = SaveSystem.GetAllPlayerProfiles();
+		}
+		if (this.m_profileIndex >= this.m_profiles.Count)
+		{
+			this.m_profileIndex = this.m_profiles.Count - 1;
+		}
+		this.m_csRemoveButton.gameObject.SetActive(this.m_profiles.Count > 0);
+		this.m_csStartButton.gameObject.SetActive(this.m_profiles.Count > 0);
+		this.m_csNewButton.gameObject.SetActive(this.m_profiles.Count > 0);
+		this.m_csNewBigButton.gameObject.SetActive(this.m_profiles.Count == 0);
+		this.m_csLeftButton.interactable = (this.m_profileIndex > 0);
+		this.m_csRightButton.interactable = (this.m_profileIndex < this.m_profiles.Count - 1);
+		if (this.m_profileIndex >= 0 && this.m_profileIndex < this.m_profiles.Count)
+		{
+			PlayerProfile playerProfile = this.m_profiles[this.m_profileIndex];
+			if (playerProfile.GetName().ToLower() == playerProfile.m_filename.ToLower())
+			{
+				this.m_csName.text = playerProfile.GetName();
+			}
+			else
+			{
+				this.m_csName.text = playerProfile.GetName() + " (" + playerProfile.m_filename + ")";
+			}
+			this.m_csName.gameObject.SetActive(true);
+			this.m_csFileSource.gameObject.SetActive(true);
+			this.m_csFileSource.text = Localization.instance.Localize(FileHelpers.GetSourceString(playerProfile.m_fileSource));
+			this.m_csSourceInfo.text = Localization.instance.Localize(((playerProfile.m_fileSource == FileHelpers.FileSource.Legacy) ? "$menu_legacynotice \n\n" : "") + ((!FileHelpers.CloudStorageEnabled) ? "$menu_cloudsavesdisabled" : ""));
+			Transform transform = this.m_csFileSource.transform.Find("source_cloud");
+			if (transform != null)
+			{
+				transform.gameObject.SetActive(playerProfile.m_fileSource == FileHelpers.FileSource.Cloud);
+			}
+			Transform transform2 = this.m_csFileSource.transform.Find("source_local");
+			if (transform2 != null)
+			{
+				transform2.gameObject.SetActive(playerProfile.m_fileSource == FileHelpers.FileSource.Local);
+			}
+			Transform transform3 = this.m_csFileSource.transform.Find("source_legacy");
+			if (transform3 != null)
+			{
+				transform3.gameObject.SetActive(playerProfile.m_fileSource == FileHelpers.FileSource.Legacy);
+			}
+			this.SetupCharacterPreview(playerProfile);
+			return;
+		}
+		this.m_csName.gameObject.SetActive(false);
+		this.m_csFileSource.gameObject.SetActive(false);
+		this.ClearCharacterPreview();
+	}
+
+	// Token: 0x06001657 RID: 5719 RVA: 0x000A91F4 File Offset: 0x000A73F4
+	private void SetSelectedProfile(string filename)
+	{
+		if (this.m_profiles == null)
+		{
+			this.m_profiles = SaveSystem.GetAllPlayerProfiles();
+		}
+		this.m_profileIndex = 0;
+		if (filename != null)
+		{
+			for (int i = 0; i < this.m_profiles.Count; i++)
+			{
+				if (this.m_profiles[i].GetFilename() == filename)
+				{
+					this.m_profileIndex = i;
+					break;
+				}
+			}
+		}
+		this.UpdateCharacterList();
+	}
+
+	// Token: 0x06001658 RID: 5720 RVA: 0x000A925C File Offset: 0x000A745C
+	public void OnNewCharacterDone(bool forceLocal)
+	{
+		string text = this.m_csNewCharacterName.text;
+		string text2 = text.ToLower();
+		PlayerProfile playerProfile = new PlayerProfile(text2, FileHelpers.FileSource.Auto);
+		if (forceLocal)
+		{
+			playerProfile.m_fileSource = FileHelpers.FileSource.Local;
+		}
+		if (playerProfile.m_fileSource == FileHelpers.FileSource.Cloud && FileHelpers.OperationExceedsCloudCapacity(1048576UL * 3UL))
+		{
+			this.ShowCloudQuotaCharacterDialog();
+			ZLog.LogWarning("The character save operation may exceed the cloud save quota and has therefore been aborted! Prompt shown to user.");
+			return;
+		}
+		if (PlayerProfile.HaveProfile(text2))
+		{
+			this.m_newCharacterError.SetActive(true);
+			return;
+		}
+		Player component = this.m_playerInstance.GetComponent<Player>();
+		component.GiveDefaultItems();
+		playerProfile.SetName(text);
+		playerProfile.SavePlayerData(component);
+		playerProfile.Save();
+		this.m_selectCharacterPanel.SetActive(true);
+		this.m_newCharacterPanel.SetActive(false);
+		this.m_profiles = null;
+		this.SetSelectedProfile(text2);
+		this.m_csNewCharacterName.text = "";
+		Gogan.LogEvent("Menu", "NewCharacter", text, 0L);
+	}
+
+	// Token: 0x06001659 RID: 5721 RVA: 0x000195A1 File Offset: 0x000177A1
+	public void OnNewCharacterCancel()
+	{
+		this.m_selectCharacterPanel.SetActive(true);
+		this.m_newCharacterPanel.SetActive(false);
+		this.UpdateCharacterList();
+	}
+
+	// Token: 0x0600165A RID: 5722 RVA: 0x000A933C File Offset: 0x000A753C
+	public void OnCharacterNew()
+	{
+		this.m_newCharacterPanel.SetActive(true);
+		this.m_selectCharacterPanel.SetActive(false);
+		this.m_newCharacterError.SetActive(false);
+		this.SetupCharacterPreview(null);
+		Gogan.LogEvent("Screen", "Enter", "CreateCharacter", 0L);
+	}
+
+	// Token: 0x0600165B RID: 5723 RVA: 0x000A938C File Offset: 0x000A758C
+	public void OnCharacterRemove()
+	{
+		if (this.m_profileIndex < 0 || this.m_profileIndex >= this.m_profiles.Count)
+		{
+			return;
+		}
+		PlayerProfile playerProfile = this.m_profiles[this.m_profileIndex];
+		this.m_removeCharacterName.text = playerProfile.GetName() + " (" + Localization.instance.Localize(FileHelpers.GetSourceString(playerProfile.m_fileSource)) + ")";
+		this.m_tempRemoveCharacterName = playerProfile.GetFilename();
+		this.m_tempRemoveCharacterSource = playerProfile.m_fileSource;
+		this.m_tempRemoveCharacterIndex = this.m_profileIndex;
+		this.m_removeCharacterDialog.SetActive(true);
+	}
+
+	// Token: 0x0600165C RID: 5724 RVA: 0x000195C1 File Offset: 0x000177C1
+	public void OnButtonRemoveCharacterYes()
+	{
+		ZLog.Log("Remove character");
+		PlayerProfile.RemoveProfile(this.m_tempRemoveCharacterName, this.m_tempRemoveCharacterSource);
+		this.m_profiles.RemoveAt(this.m_tempRemoveCharacterIndex);
+		this.UpdateCharacterList();
+		this.m_removeCharacterDialog.SetActive(false);
+	}
+
+	// Token: 0x0600165D RID: 5725 RVA: 0x00019601 File Offset: 0x00017801
+	public void OnButtonRemoveCharacterNo()
+	{
+		this.m_removeCharacterDialog.SetActive(false);
+	}
+
+	// Token: 0x0600165E RID: 5726 RVA: 0x0001960F File Offset: 0x0001780F
+	public void OnCharacterLeft()
+	{
+		if (this.m_profileIndex > 0)
+		{
+			this.m_profileIndex--;
+		}
+		this.UpdateCharacterList();
+	}
+
+	// Token: 0x0600165F RID: 5727 RVA: 0x0001962E File Offset: 0x0001782E
+	public void OnCharacterRight()
+	{
+		if (this.m_profileIndex < this.m_profiles.Count - 1)
+		{
+			this.m_profileIndex++;
+		}
+		this.UpdateCharacterList();
+	}
+
+	// Token: 0x06001660 RID: 5728 RVA: 0x000A9430 File Offset: 0x000A7630
+	public void OnCharacterStart()
+	{
+		ZLog.Log("OnCharacterStart");
+		if (this.m_profileIndex < 0 || this.m_profileIndex >= this.m_profiles.Count)
+		{
+			return;
+		}
+		PlayerProfile playerProfile = this.m_profiles[this.m_profileIndex];
+		PlayerPrefs.SetString("profile", playerProfile.GetFilename());
+		Game.SetProfile(playerProfile.GetFilename(), playerProfile.m_fileSource);
+		this.m_characterSelectScreen.SetActive(false);
+		if (this.m_queuedJoinServer.IsValid)
+		{
+			this.m_joinServer = this.m_queuedJoinServer;
+			this.m_queuedJoinServer = ServerJoinData.None;
+			this.JoinServer();
+			return;
+		}
+		this.ShowStartGame();
+		if (this.m_worlds.Count == 0)
+		{
+			this.OnWorldNew();
+		}
+	}
+
+	// Token: 0x06001661 RID: 5729 RVA: 0x00019659 File Offset: 0x00017859
+	private void TransitionToMainScene()
+	{
+		this.m_menuAnimator.SetTrigger("FadeOut");
+		base.Invoke("LoadMainSceneIfBackendSelected", 1.5f);
+	}
+
+	// Token: 0x06001662 RID: 5730 RVA: 0x000A94E8 File Offset: 0x000A76E8
+	private void LoadMainSceneIfBackendSelected()
+	{
+		if (this.m_startingWorld || ZNet.HasServerHost())
+		{
+			ZLog.Log("Loading main scene");
+			this.LoadMainScene();
+			return;
+		}
+		FejdStartup.retries++;
+		if (FejdStartup.retries > 50)
+		{
+			ZLog.Log("Max retries reached, reloading startup scene with connection error");
+			ZNet.SetExternalError(ZNet.ConnectionStatus.ErrorConnectFailed);
+			this.m_menuAnimator.SetTrigger("FadeIn");
+			this.ShowConnectError(ZNet.ConnectionStatus.ErrorConnectFailed);
+			return;
+		}
+		base.Invoke("LoadMainSceneIfBackendSelected", 0.25f);
+		ZLog.Log("Backend not retreived yet, checking again in 0.25 seconds...");
+	}
+
+	// Token: 0x06001663 RID: 5731 RVA: 0x0001967B File Offset: 0x0001787B
+	private void LoadMainScene()
+	{
+		this.m_loading.SetActive(true);
+		SceneManager.LoadScene(this.m_mainScene, LoadSceneMode.Single);
+		this.m_startingWorld = false;
+	}
+
+	// Token: 0x06001664 RID: 5732 RVA: 0x000A956C File Offset: 0x000A776C
+	public void OnButtonSettings()
+	{
+		this.m_mainMenu.SetActive(false);
+		this.m_settingsPopup = UnityEngine.Object.Instantiate<GameObject>(this.m_settingsPrefab, base.transform);
+		this.m_settingsPopup.GetComponent<Settings>().SettingsPopupDestroyed += delegate()
+		{
+			GameObject mainMenu = this.m_mainMenu;
+			if (mainMenu == null)
+			{
+				return;
+			}
+			mainMenu.SetActive(true);
+		};
+	}
+
+	// Token: 0x06001665 RID: 5733 RVA: 0x0001969C File Offset: 0x0001789C
+	public void OnButtonFeedback()
+	{
+		UnityEngine.Object.Instantiate<GameObject>(this.m_feedbackPrefab, base.transform);
+	}
+
+	// Token: 0x06001666 RID: 5734 RVA: 0x000196B0 File Offset: 0x000178B0
+	public void OnButtonTwitter()
+	{
+		Application.OpenURL("https://twitter.com/valheimgame");
+	}
+
+	// Token: 0x06001667 RID: 5735 RVA: 0x000196BC File Offset: 0x000178BC
+	public void OnButtonWebPage()
+	{
+		Application.OpenURL("http://valheimgame.com/");
+	}
+
+	// Token: 0x06001668 RID: 5736 RVA: 0x000196C8 File Offset: 0x000178C8
+	public void OnButtonDiscord()
+	{
+		Application.OpenURL("https://discord.gg/44qXMJH");
+	}
+
+	// Token: 0x06001669 RID: 5737 RVA: 0x000196D4 File Offset: 0x000178D4
+	public void OnButtonFacebook()
+	{
+		Application.OpenURL("https://www.facebook.com/valheimgame/");
+	}
+
+	// Token: 0x0600166A RID: 5738 RVA: 0x000196E0 File Offset: 0x000178E0
+	public void OnButtonShowLog()
+	{
+		Application.OpenURL(Application.persistentDataPath + "/");
+	}
+
+	// Token: 0x0600166B RID: 5739 RVA: 0x000196F6 File Offset: 0x000178F6
+	private bool AcceptedNDA()
+	{
+		return PlayerPrefs.GetInt("accepted_nda", 0) == 1;
+	}
+
+	// Token: 0x0600166C RID: 5740 RVA: 0x00019706 File Offset: 0x00017906
+	public void OnButtonNDAAccept()
+	{
+		PlayerPrefs.SetInt("accepted_nda", 1);
+		this.m_ndaPanel.SetActive(false);
+		this.m_mainMenu.SetActive(true);
+	}
+
+	// Token: 0x0600166D RID: 5741 RVA: 0x000194AB File Offset: 0x000176AB
+	public void OnButtonNDADecline()
+	{
+		Application.Quit();
+	}
+
+	// Token: 0x0600166E RID: 5742 RVA: 0x0001972B File Offset: 0x0001792B
+	public void OnConnectionFailedOk()
+	{
+		this.m_connectionFailedPanel.SetActive(false);
+	}
+
+	// Token: 0x0600166F RID: 5743 RVA: 0x00019739 File Offset: 0x00017939
+	public Player GetPreviewPlayer()
+	{
+		if (this.m_playerInstance != null)
+		{
+			return this.m_playerInstance.GetComponent<Player>();
+		}
+		return null;
+	}
+
+	// Token: 0x06001670 RID: 5744 RVA: 0x000A95B8 File Offset: 0x000A77B8
+	private void ClearCharacterPreview()
+	{
+		if (this.m_playerInstance)
+		{
+			UnityEngine.Object.Instantiate<GameObject>(this.m_changeEffectPrefab, this.m_characterPreviewPoint.position, this.m_characterPreviewPoint.rotation);
+			UnityEngine.Object.Destroy(this.m_playerInstance);
+			this.m_playerInstance = null;
+		}
+	}
+
+	// Token: 0x06001671 RID: 5745 RVA: 0x000A9608 File Offset: 0x000A7808
+	private void SetupCharacterPreview(PlayerProfile profile)
+	{
+		this.ClearCharacterPreview();
+		ZNetView.m_forceDisableInit = true;
+		GameObject gameObject = UnityEngine.Object.Instantiate<GameObject>(this.m_playerPrefab, this.m_characterPreviewPoint.position, this.m_characterPreviewPoint.rotation);
+		ZNetView.m_forceDisableInit = false;
+		UnityEngine.Object.Destroy(gameObject.GetComponent<Rigidbody>());
+		Animator[] componentsInChildren = gameObject.GetComponentsInChildren<Animator>();
+		for (int i = 0; i < componentsInChildren.Length; i++)
+		{
+			componentsInChildren[i].updateMode = AnimatorUpdateMode.Normal;
+		}
+		Player component = gameObject.GetComponent<Player>();
+		if (profile != null)
+		{
+			try
+			{
+				profile.LoadPlayerData(component);
+			}
+			catch (Exception ex)
+			{
+				Debug.LogWarning("Error loading player data: " + profile.GetPath() + ", error: " + ex.Message);
+			}
+		}
+		this.m_playerInstance = gameObject;
+	}
+
+	// Token: 0x06001672 RID: 5746 RVA: 0x00019756 File Offset: 0x00017956
+	public void SetServerToJoin(ServerJoinData serverData)
+	{
+		this.m_joinServer = serverData;
+	}
+
+	// Token: 0x06001673 RID: 5747 RVA: 0x0001975F File Offset: 0x0001795F
+	public bool HasServerToJoin()
+	{
+		return this.m_joinServer.IsValid;
+	}
+
+	// Token: 0x06001674 RID: 5748 RVA: 0x0001976C File Offset: 0x0001796C
+	public ServerJoinData GetServerToJoin()
+	{
+		return this.m_joinServer;
+	}
+
+	// Token: 0x1700010C RID: 268
+	// (get) Token: 0x06001675 RID: 5749 RVA: 0x00019774 File Offset: 0x00017974
+	// (set) Token: 0x06001676 RID: 5750 RVA: 0x0001977B File Offset: 0x0001797B
+	public static string InstanceId { get; private set; } = null;
+
+	// Token: 0x1700010D RID: 269
+	// (get) Token: 0x06001677 RID: 5751 RVA: 0x00019783 File Offset: 0x00017983
+	// (set) Token: 0x06001678 RID: 5752 RVA: 0x0001978A File Offset: 0x0001798A
+	public static string ServerPassword { get; private set; } = null;
+
+	// Token: 0x14000014 RID: 20
+	// (add) Token: 0x06001679 RID: 5753 RVA: 0x000A96C4 File Offset: 0x000A78C4
+	// (remove) Token: 0x0600167A RID: 5754 RVA: 0x000A96FC File Offset: 0x000A78FC
+	private event Action m_cliUpdateAction;
+
+	// Token: 0x0600167F RID: 5759 RVA: 0x000A9814 File Offset: 0x000A7A14
+	[CompilerGenerated]
+	private void <OnWorldStart>g__RestoreMetaFromBackupPrompt|48_0(SaveWithBackups saveToRestore)
+	{
+		UnifiedPopup.Push(new YesNoPopup("$menu_restorebackup", "$menu_missingmetarestore", delegate()
+		{
+			UnifiedPopup.Pop();
+			SaveSystem.RestoreBackupResult restoreBackupResult = SaveSystem.RestoreMetaFromMostRecentBackup(saveToRestore.PrimaryFile);
+			switch (restoreBackupResult)
+			{
+			case SaveSystem.RestoreBackupResult.Success:
+				this.RefreshWorldSelection();
+				return;
+			case SaveSystem.RestoreBackupResult.NoBackup:
+				UnifiedPopup.Push(new WarningPopup("$error_cantrestoremeta", "$error_nosuitablebackupfound", new PopupButtonCallback(UnifiedPopup.Pop), true));
+				return;
+			}
+			UnifiedPopup.Push(new WarningPopup("$error_cantrestoremeta", "$menu_checklogfile", new PopupButtonCallback(UnifiedPopup.Pop), true));
+			ZLog.LogError(string.Format("Failed to restore meta file! Result: {0}", restoreBackupResult));
+		}, new PopupButtonCallback(UnifiedPopup.Pop), true));
+	}
+
+	// Token: 0x06001680 RID: 5760 RVA: 0x000A9864 File Offset: 0x000A7A64
+	[CompilerGenerated]
+	private void <OnWorldStart>g__RestoreBackupPrompt|48_1(SaveWithBackups saveToRestore)
+	{
+		UnifiedPopup.Push(new YesNoPopup("$menu_restorebackup", "$menu_corruptsaverestore", delegate()
+		{
+			UnifiedPopup.Pop();
+			SaveSystem.RestoreBackupResult restoreBackupResult = SaveSystem.RestoreMostRecentBackup(saveToRestore);
+			switch (restoreBackupResult)
+			{
+			case SaveSystem.RestoreBackupResult.Success:
+				SaveSystem.ClearWorldListCache(true);
+				this.RefreshWorldSelection();
+				return;
+			case SaveSystem.RestoreBackupResult.NoBackup:
+				UnifiedPopup.Push(new WarningPopup("$error_cantrestorebackup", "$error_nosuitablebackupfound", new PopupButtonCallback(UnifiedPopup.Pop), true));
+				return;
+			}
+			UnifiedPopup.Push(new WarningPopup("$error_cantrestorebackup", "$menu_checklogfile", new PopupButtonCallback(UnifiedPopup.Pop), true));
+			ZLog.LogError(string.Format("Failed to restore backup! Result: {0}", restoreBackupResult));
+		}, new PopupButtonCallback(UnifiedPopup.Pop), true));
+	}
+
+	// Token: 0x04001756 RID: 5974
+	private Vector3 camSpeed = Vector3.zero;
+
+	// Token: 0x04001757 RID: 5975
+	private Vector3 camRotSpeed = Vector3.zero;
+
+	// Token: 0x04001758 RID: 5976
+	private const int maxRetries = 50;
+
+	// Token: 0x04001759 RID: 5977
+	private static int retries = 0;
+
+	// Token: 0x0400175A RID: 5978
+	private static FejdStartup m_instance;
+
+	// Token: 0x0400175B RID: 5979
+	[Header("Start")]
+	public Animator m_menuAnimator;
+
+	// Token: 0x0400175C RID: 5980
+	public GameObject m_worldVersionPanel;
+
+	// Token: 0x0400175D RID: 5981
+	public GameObject m_playerVersionPanel;
+
+	// Token: 0x0400175E RID: 5982
+	public GameObject m_newGameVersionPanel;
+
+	// Token: 0x0400175F RID: 5983
+	public GameObject m_connectionFailedPanel;
+
+	// Token: 0x04001760 RID: 5984
+	public TMP_Text m_connectionFailedError;
+
+	// Token: 0x04001761 RID: 5985
+	public TMP_Text m_newVersionName;
+
+	// Token: 0x04001762 RID: 5986
+	public GameObject m_loading;
+
+	// Token: 0x04001763 RID: 5987
+	public GameObject m_pleaseWait;
+
+	// Token: 0x04001764 RID: 5988
+	public TMP_Text m_versionLabel;
+
+	// Token: 0x04001765 RID: 5989
+	public GameObject m_mainMenu;
+
+	// Token: 0x04001766 RID: 5990
+	public GameObject m_ndaPanel;
+
+	// Token: 0x04001767 RID: 5991
+	public GameObject m_betaText;
+
+	// Token: 0x04001768 RID: 5992
+	public GameObject m_moddedText;
+
+	// Token: 0x04001769 RID: 5993
+	public Scrollbar m_patchLogScroll;
+
+	// Token: 0x0400176A RID: 5994
+	public GameObject m_characterSelectScreen;
+
+	// Token: 0x0400176B RID: 5995
+	public GameObject m_selectCharacterPanel;
+
+	// Token: 0x0400176C RID: 5996
+	public GameObject m_newCharacterPanel;
+
+	// Token: 0x0400176D RID: 5997
+	public GameObject m_creditsPanel;
+
+	// Token: 0x0400176E RID: 5998
+	public GameObject m_startGamePanel;
+
+	// Token: 0x0400176F RID: 5999
+	public GameObject m_createWorldPanel;
+
+	// Token: 0x04001770 RID: 6000
+	public ServerOptionsGUI m_serverOptions;
+
+	// Token: 0x04001771 RID: 6001
+	public Button m_serverOptionsButton;
+
+	// Token: 0x04001772 RID: 6002
+	public GameObject m_menuList;
+
+	// Token: 0x04001773 RID: 6003
+	private Button[] m_menuButtons;
+
+	// Token: 0x04001774 RID: 6004
+	private Button m_menuSelectedButton;
+
+	// Token: 0x04001775 RID: 6005
+	public RectTransform m_creditsList;
+
+	// Token: 0x04001776 RID: 6006
+	public float m_creditsSpeed = 100f;
+
+	// Token: 0x04001777 RID: 6007
+	public SceneReference m_startScene;
+
+	// Token: 0x04001778 RID: 6008
+	public SceneReference m_mainScene;
+
+	// Token: 0x04001779 RID: 6009
+	[Header("Camera")]
+	public GameObject m_mainCamera;
+
+	// Token: 0x0400177A RID: 6010
+	public Transform m_cameraMarkerStart;
+
+	// Token: 0x0400177B RID: 6011
+	public Transform m_cameraMarkerMain;
+
+	// Token: 0x0400177C RID: 6012
+	public Transform m_cameraMarkerCharacter;
+
+	// Token: 0x0400177D RID: 6013
+	public Transform m_cameraMarkerCredits;
+
+	// Token: 0x0400177E RID: 6014
+	public Transform m_cameraMarkerGame;
+
+	// Token: 0x0400177F RID: 6015
+	public Transform m_cameraMarkerSaves;
+
+	// Token: 0x04001780 RID: 6016
+	public float m_cameraMoveSpeed = 1.5f;
+
+	// Token: 0x04001781 RID: 6017
+	public float m_cameraMoveSpeedStart = 1.5f;
+
+	// Token: 0x04001782 RID: 6018
+	[Header("Join")]
+	public GameObject m_serverListPanel;
+
+	// Token: 0x04001783 RID: 6019
+	public Toggle m_publicServerToggle;
+
+	// Token: 0x04001784 RID: 6020
+	public Toggle m_openServerToggle;
+
+	// Token: 0x04001785 RID: 6021
+	public Toggle m_crossplayServerToggle;
+
+	// Token: 0x04001786 RID: 6022
+	public Color m_toggleColor = new Color(1f, 0.6308316f, 0.2352941f);
+
+	// Token: 0x04001787 RID: 6023
+	public GuiInputField m_serverPassword;
+
+	// Token: 0x04001788 RID: 6024
+	public TMP_Text m_passwordError;
+
+	// Token: 0x04001789 RID: 6025
+	public int m_minimumPasswordLength = 5;
+
+	// Token: 0x0400178A RID: 6026
+	public float m_characterRotateSpeed = 4f;
+
+	// Token: 0x0400178B RID: 6027
+	public float m_characterRotateSpeedGamepad = 200f;
+
+	// Token: 0x0400178C RID: 6028
+	public int m_joinHostPort = 2456;
+
+	// Token: 0x0400178D RID: 6029
+	[Header("World")]
+	public GameObject m_worldListPanel;
+
+	// Token: 0x0400178E RID: 6030
+	public RectTransform m_worldListRoot;
+
+	// Token: 0x0400178F RID: 6031
+	public GameObject m_worldListElement;
+
+	// Token: 0x04001790 RID: 6032
+	public ScrollRectEnsureVisible m_worldListEnsureVisible;
+
+	// Token: 0x04001791 RID: 6033
+	public float m_worldListElementStep = 28f;
+
+	// Token: 0x04001792 RID: 6034
+	public TextMeshProUGUI m_worldSourceInfo;
+
+	// Token: 0x04001793 RID: 6035
+	public GameObject m_worldSourceInfoPanel;
+
+	// Token: 0x04001794 RID: 6036
+	public GuiInputField m_newWorldName;
+
+	// Token: 0x04001795 RID: 6037
+	public GuiInputField m_newWorldSeed;
+
+	// Token: 0x04001796 RID: 6038
+	public Button m_newWorldDone;
+
+	// Token: 0x04001797 RID: 6039
+	public Button m_worldStart;
+
+	// Token: 0x04001798 RID: 6040
+	public Button m_worldRemove;
+
+	// Token: 0x04001799 RID: 6041
+	public GameObject m_removeWorldDialog;
+
+	// Token: 0x0400179A RID: 6042
+	public TMP_Text m_removeWorldName;
+
+	// Token: 0x0400179B RID: 6043
+	public GameObject m_removeCharacterDialog;
+
+	// Token: 0x0400179C RID: 6044
+	public TMP_Text m_removeCharacterName;
+
+	// Token: 0x0400179D RID: 6045
+	public RectTransform m_tooltipAnchor;
+
+	// Token: 0x0400179E RID: 6046
+	public RectTransform m_tooltipSecondaryAnchor;
+
+	// Token: 0x0400179F RID: 6047
+	[Header("Character selection")]
+	public Button m_csStartButton;
+
+	// Token: 0x040017A0 RID: 6048
+	public Button m_csNewBigButton;
+
+	// Token: 0x040017A1 RID: 6049
+	public Button m_csNewButton;
+
+	// Token: 0x040017A2 RID: 6050
+	public Button m_csRemoveButton;
+
+	// Token: 0x040017A3 RID: 6051
+	public Button m_csLeftButton;
+
+	// Token: 0x040017A4 RID: 6052
+	public Button m_csRightButton;
+
+	// Token: 0x040017A5 RID: 6053
+	public Button m_csNewCharacterDone;
+
+	// Token: 0x040017A6 RID: 6054
+	public Button m_csNewCharacterCancel;
+
+	// Token: 0x040017A7 RID: 6055
+	public GameObject m_newCharacterError;
+
+	// Token: 0x040017A8 RID: 6056
+	public TMP_Text m_csName;
+
+	// Token: 0x040017A9 RID: 6057
+	public TMP_Text m_csFileSource;
+
+	// Token: 0x040017AA RID: 6058
+	public TMP_Text m_csSourceInfo;
+
+	// Token: 0x040017AB RID: 6059
+	public GuiInputField m_csNewCharacterName;
+
+	// Token: 0x040017AC RID: 6060
+	[Header("Misc")]
+	public Transform m_characterPreviewPoint;
+
+	// Token: 0x040017AD RID: 6061
+	public GameObject m_playerPrefab;
+
+	// Token: 0x040017AE RID: 6062
+	public GameObject m_objectDBPrefab;
+
+	// Token: 0x040017AF RID: 6063
+	public GameObject m_settingsPrefab;
+
+	// Token: 0x040017B0 RID: 6064
+	public GameObject m_consolePrefab;
+
+	// Token: 0x040017B1 RID: 6065
+	public GameObject m_feedbackPrefab;
+
+	// Token: 0x040017B2 RID: 6066
+	public GameObject m_changeEffectPrefab;
+
+	// Token: 0x040017B3 RID: 6067
+	public ManageSavesMenu m_manageSavesMenu;
+
+	// Token: 0x040017B4 RID: 6068
+	public GameObject m_cloudStorageWarningNextSave;
+
+	// Token: 0x040017B5 RID: 6069
+	private GameObject m_settingsPopup;
+
+	// Token: 0x040017B6 RID: 6070
+	private string m_downloadUrl = "";
+
+	// Token: 0x040017B7 RID: 6071
+	[TextArea]
+	public string m_versionXmlUrl = "https://dl.dropboxusercontent.com/s/5ibm05oelbqt8zq/fejdversion.xml?dl=0";
+
+	// Token: 0x040017B8 RID: 6072
+	private World m_world;
+
+	// Token: 0x040017B9 RID: 6073
+	private bool m_startingWorld;
+
+	// Token: 0x040017BA RID: 6074
+	private ServerJoinData m_joinServer = ServerJoinData.None;
+
+	// Token: 0x040017BB RID: 6075
+	private ServerJoinData m_queuedJoinServer = ServerJoinData.None;
+
+	// Token: 0x040017BC RID: 6076
+	private float m_worldListBaseSize;
+
+	// Token: 0x040017BD RID: 6077
+	private List<PlayerProfile> m_profiles;
+
+	// Token: 0x040017BE RID: 6078
+	private int m_profileIndex;
+
+	// Token: 0x040017BF RID: 6079
+	private string m_tempRemoveCharacterName = "";
+
+	// Token: 0x040017C0 RID: 6080
+	private FileHelpers.FileSource m_tempRemoveCharacterSource;
+
+	// Token: 0x040017C1 RID: 6081
+	private int m_tempRemoveCharacterIndex = -1;
+
+	// Token: 0x040017C2 RID: 6082
+	private BackgroundWorker m_moveFileWorker;
+
+	// Token: 0x040017C3 RID: 6083
+	private List<GameObject> m_worldListElements = new List<GameObject>();
+
+	// Token: 0x040017C4 RID: 6084
+	private List<World> m_worlds;
+
+	// Token: 0x040017C5 RID: 6085
+	private GameObject m_playerInstance;
+
+	// Token: 0x040017C6 RID: 6086
+	private static bool m_firstStartup = true;
+
+	// Token: 0x040017CA RID: 6090
+	private bool m_autoConnectionInProgress;
+
+	// Token: 0x040017CB RID: 6091
+	public static Action HandlePendingInvite;
+
+	// Token: 0x040017CC RID: 6092
+	public static Action ResetPendingInvite;
+
+	// Token: 0x040017CD RID: 6093
+	public static Action<Privilege> ResolvePrivilege;
+
+	// Token: 0x040017CE RID: 6094
+	private static GameObject s_monoUpdaters = null;
+
+	// Token: 0x02000242 RID: 578
+	// (Invoke) Token: 0x06001685 RID: 5765
+	private delegate void ContinueAction();
+}

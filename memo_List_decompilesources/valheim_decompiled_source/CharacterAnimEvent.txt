@@ -1,0 +1,709 @@
+using System;
+using System.Collections.Generic;
+using UnityEngine;
+
+// Token: 0x02000022 RID: 34
+public class CharacterAnimEvent : MonoBehaviour, IMonoUpdater
+{
+	// Token: 0x0600023D RID: 573 RVA: 0x000347B0 File Offset: 0x000329B0
+	private void Awake()
+	{
+		this.m_character = base.GetComponentInParent<Character>();
+		this.m_nview = this.m_character.GetComponent<ZNetView>();
+		this.m_animator = base.GetComponent<Animator>();
+		this.m_monsterAI = this.m_character.GetComponent<MonsterAI>();
+		this.m_visEquipment = this.m_character.GetComponent<VisEquipment>();
+		this.m_footStep = this.m_character.GetComponent<FootStep>();
+		this.m_head = Utils.GetBoneTransform(this.m_animator, HumanBodyBones.Head);
+		this.m_headLookDir = this.m_character.transform.forward;
+		if (CharacterAnimEvent.s_ikGroundMask == 0)
+		{
+			CharacterAnimEvent.s_ikGroundMask = LayerMask.GetMask(new string[]
+			{
+				"Default",
+				"static_solid",
+				"Default_small",
+				"piece",
+				"terrain",
+				"vehicle"
+			});
+		}
+	}
+
+	// Token: 0x0600023E RID: 574 RVA: 0x0000C27C File Offset: 0x0000A47C
+	private void OnEnable()
+	{
+		CharacterAnimEvent.Instances.Add(this);
+	}
+
+	// Token: 0x0600023F RID: 575 RVA: 0x0000C289 File Offset: 0x0000A489
+	private void OnDisable()
+	{
+		CharacterAnimEvent.Instances.Remove(this);
+	}
+
+	// Token: 0x06000240 RID: 576 RVA: 0x0000C297 File Offset: 0x0000A497
+	private void OnAnimatorMove()
+	{
+		if (!this.m_nview.IsValid() || !this.m_nview.IsOwner())
+		{
+			return;
+		}
+		this.m_character.AddRootMotion(this.m_animator.deltaPosition);
+	}
+
+	// Token: 0x06000241 RID: 577 RVA: 0x0003488C File Offset: 0x00032A8C
+	public void CustomFixedUpdate(float fixedDeltaTime)
+	{
+		if (this.m_character == null)
+		{
+			return;
+		}
+		if (!this.m_nview.IsValid())
+		{
+			return;
+		}
+		if (!this.m_character.InAttack() && !this.m_character.InMinorAction() && !this.m_character.InEmote() && this.m_character.CanMove())
+		{
+			this.m_animator.speed = 1f;
+		}
+		this.UpdateFreezeFrame(fixedDeltaTime);
+	}
+
+	// Token: 0x06000242 RID: 578 RVA: 0x0000C2CA File Offset: 0x0000A4CA
+	public bool CanChain()
+	{
+		return this.m_chain;
+	}
+
+	// Token: 0x06000243 RID: 579 RVA: 0x00034904 File Offset: 0x00032B04
+	public void FreezeFrame(float delay)
+	{
+		if (delay <= 0f)
+		{
+			return;
+		}
+		if (this.m_pauseTimer > 0f)
+		{
+			this.m_pauseTimer = delay;
+			return;
+		}
+		this.m_pauseTimer = delay;
+		this.m_pauseSpeed = this.m_animator.speed;
+		this.m_animator.speed = 0.0001f;
+		if (this.m_pauseSpeed <= 0.01f)
+		{
+			this.m_pauseSpeed = 1f;
+		}
+	}
+
+	// Token: 0x06000244 RID: 580 RVA: 0x00034970 File Offset: 0x00032B70
+	private void UpdateFreezeFrame(float dt)
+	{
+		if (this.m_pauseTimer > 0f)
+		{
+			this.m_pauseTimer -= dt;
+			if (this.m_pauseTimer <= 0f)
+			{
+				this.m_animator.speed = this.m_pauseSpeed;
+			}
+		}
+		if (this.m_animator.speed < 0.01f && this.m_pauseTimer <= 0f)
+		{
+			this.m_animator.speed = 1f;
+		}
+	}
+
+	// Token: 0x06000245 RID: 581 RVA: 0x0000C2D2 File Offset: 0x0000A4D2
+	public void Speed(float speedScale)
+	{
+		this.m_animator.speed = speedScale;
+	}
+
+	// Token: 0x06000246 RID: 582 RVA: 0x0000C2E0 File Offset: 0x0000A4E0
+	public void Chain()
+	{
+		this.m_chain = true;
+	}
+
+	// Token: 0x06000247 RID: 583 RVA: 0x0000C2E9 File Offset: 0x0000A4E9
+	public void ResetChain()
+	{
+		this.m_chain = false;
+	}
+
+	// Token: 0x06000248 RID: 584 RVA: 0x000349E8 File Offset: 0x00032BE8
+	public void FootStep(AnimationEvent e)
+	{
+		if ((double)e.animatorClipInfo.weight < 0.33)
+		{
+			return;
+		}
+		if (this.m_footStep)
+		{
+			if (e.stringParameter.Length > 0)
+			{
+				this.m_footStep.OnFoot(e.stringParameter);
+				return;
+			}
+			this.m_footStep.OnFoot();
+		}
+	}
+
+	// Token: 0x06000249 RID: 585 RVA: 0x0000C2F2 File Offset: 0x0000A4F2
+	public void Hit()
+	{
+		this.m_character.OnAttackTrigger();
+	}
+
+	// Token: 0x0600024A RID: 586 RVA: 0x0000C2F2 File Offset: 0x0000A4F2
+	public void OnAttackTrigger()
+	{
+		this.m_character.OnAttackTrigger();
+	}
+
+	// Token: 0x0600024B RID: 587 RVA: 0x0000C2FF File Offset: 0x0000A4FF
+	public void Jump()
+	{
+		this.m_character.Jump(true);
+	}
+
+	// Token: 0x0600024C RID: 588 RVA: 0x0000C30D File Offset: 0x0000A50D
+	public void Land()
+	{
+		if (this.m_character.IsFlying())
+		{
+			this.m_character.Land();
+		}
+	}
+
+	// Token: 0x0600024D RID: 589 RVA: 0x0000C327 File Offset: 0x0000A527
+	public void TakeOff()
+	{
+		if (!this.m_character.IsFlying())
+		{
+			this.m_character.TakeOff();
+		}
+	}
+
+	// Token: 0x0600024E RID: 590 RVA: 0x0000C341 File Offset: 0x0000A541
+	public void Stop(AnimationEvent e)
+	{
+		this.m_character.OnStopMoving();
+	}
+
+	// Token: 0x0600024F RID: 591 RVA: 0x00034A48 File Offset: 0x00032C48
+	public void DodgeMortal()
+	{
+		Player player = this.m_character as Player;
+		if (player)
+		{
+			player.OnDodgeMortal();
+		}
+	}
+
+	// Token: 0x06000250 RID: 592 RVA: 0x0000C34E File Offset: 0x0000A54E
+	public void TrailOn()
+	{
+		if (this.m_visEquipment)
+		{
+			this.m_visEquipment.SetWeaponTrails(true);
+		}
+		this.m_character.OnWeaponTrailStart();
+	}
+
+	// Token: 0x06000251 RID: 593 RVA: 0x0000C374 File Offset: 0x0000A574
+	public void TrailOff()
+	{
+		if (this.m_visEquipment)
+		{
+			this.m_visEquipment.SetWeaponTrails(false);
+		}
+	}
+
+	// Token: 0x06000252 RID: 594 RVA: 0x00034A70 File Offset: 0x00032C70
+	public void GPower()
+	{
+		Player player = this.m_character as Player;
+		if (player)
+		{
+			player.ActivateGuardianPower();
+		}
+	}
+
+	// Token: 0x06000253 RID: 595 RVA: 0x0000C38F File Offset: 0x0000A58F
+	private void OnAnimatorIK(int layerIndex)
+	{
+		if (!this.m_nview.IsValid())
+		{
+			return;
+		}
+		this.UpdateLookat();
+		this.UpdateFootIK();
+	}
+
+	// Token: 0x06000254 RID: 596 RVA: 0x00034A98 File Offset: 0x00032C98
+	public void CustomLateUpdate(float deltaTime)
+	{
+		this.UpdateHeadRotation(deltaTime);
+		if (this.m_femaleHack)
+		{
+			Character character = this.m_character;
+			float num = (this.m_visEquipment.GetModelIndex() == 1) ? this.m_femaleOffset : this.m_maleOffset;
+			Vector3 localPosition = this.m_leftShoulder.localPosition;
+			localPosition.x = -num;
+			this.m_leftShoulder.localPosition = localPosition;
+			Vector3 localPosition2 = this.m_rightShoulder.localPosition;
+			localPosition2.x = num;
+			this.m_rightShoulder.localPosition = localPosition2;
+		}
+	}
+
+	// Token: 0x06000255 RID: 597 RVA: 0x00034B1C File Offset: 0x00032D1C
+	private void UpdateLookat()
+	{
+		if (this.m_headRotation && this.m_head)
+		{
+			float target = this.m_lookWeight;
+			if (this.m_headLookDir != Vector3.zero)
+			{
+				this.m_animator.SetLookAtPosition(this.m_head.position + this.m_headLookDir * 10f);
+			}
+			if (this.m_character.InAttack() || (!this.m_character.IsPlayer() && !this.m_character.CanMove()))
+			{
+				target = 0f;
+			}
+			this.m_lookAtWeight = Mathf.MoveTowards(this.m_lookAtWeight, target, Time.deltaTime);
+			float bodyWeight = this.m_character.IsAttached() ? 0f : this.m_bodyLookWeight;
+			this.m_animator.SetLookAtWeight(this.m_lookAtWeight, bodyWeight, this.m_headLookWeight, this.m_eyeLookWeight, this.m_lookClamp);
+		}
+	}
+
+	// Token: 0x06000256 RID: 598 RVA: 0x00034C0C File Offset: 0x00032E0C
+	private void UpdateFootIK()
+	{
+		if (!this.m_footIK)
+		{
+			return;
+		}
+		Camera mainCamera = Utils.GetMainCamera();
+		if (mainCamera == null)
+		{
+			return;
+		}
+		if (Vector3.Distance(base.transform.position, mainCamera.transform.position) > 64f)
+		{
+			return;
+		}
+		if ((this.m_character.IsFlying() && !this.m_character.IsOnGround()) || (this.m_character.IsSwimming() && !this.m_character.IsOnGround()) || this.m_character.IsSitting())
+		{
+			for (int i = 0; i < this.m_feets.Length; i++)
+			{
+				CharacterAnimEvent.Foot foot = this.m_feets[i];
+				this.m_animator.SetIKPositionWeight(foot.m_ikHandle, 0f);
+				this.m_animator.SetIKRotationWeight(foot.m_ikHandle, 0f);
+			}
+			return;
+		}
+		bool flag = this.m_character.IsSitting();
+		float deltaTime = Time.deltaTime;
+		for (int j = 0; j < this.m_feets.Length; j++)
+		{
+			CharacterAnimEvent.Foot foot2 = this.m_feets[j];
+			Vector3 position = foot2.m_transform.position;
+			AvatarIKGoal ikHandle = foot2.m_ikHandle;
+			float num = this.m_useFeetValues ? foot2.m_footDownMax : this.m_footDownMax;
+			float d = this.m_useFeetValues ? foot2.m_footOffset : this.m_footOffset;
+			float num2 = this.m_useFeetValues ? foot2.m_footStepHeight : this.m_footStepHeight;
+			float num3 = this.m_useFeetValues ? foot2.m_stabalizeDistance : this.m_stabalizeDistance;
+			if (flag)
+			{
+				num2 /= 4f;
+			}
+			Vector3 vector = base.transform.InverseTransformPoint(position - base.transform.up * d);
+			float target = 1f - Mathf.Clamp01(vector.y / num);
+			foot2.m_ikWeight = Mathf.MoveTowards(foot2.m_ikWeight, target, deltaTime * 10f);
+			this.m_animator.SetIKPositionWeight(ikHandle, foot2.m_ikWeight);
+			this.m_animator.SetIKRotationWeight(ikHandle, foot2.m_ikWeight * 0.5f);
+			if (foot2.m_ikWeight > 0f)
+			{
+				RaycastHit raycastHit;
+				if (Physics.Raycast(position + Vector3.up * num2, Vector3.down, out raycastHit, num2 * 4f, CharacterAnimEvent.s_ikGroundMask))
+				{
+					Vector3 vector2 = raycastHit.point + Vector3.up * d;
+					Vector3 plantNormal = raycastHit.normal;
+					if (num3 > 0f)
+					{
+						if (foot2.m_ikWeight >= 1f)
+						{
+							if (!foot2.m_isPlanted)
+							{
+								foot2.m_plantPosition = vector2;
+								foot2.m_plantNormal = plantNormal;
+								foot2.m_isPlanted = true;
+							}
+							else if (Vector3.Distance(foot2.m_plantPosition, vector2) > num3)
+							{
+								foot2.m_isPlanted = false;
+							}
+							else
+							{
+								vector2 = foot2.m_plantPosition;
+								plantNormal = foot2.m_plantNormal;
+							}
+						}
+						else
+						{
+							foot2.m_isPlanted = false;
+						}
+					}
+					this.m_animator.SetIKPosition(ikHandle, vector2);
+					Quaternion goalRotation = Quaternion.LookRotation(Vector3.Cross(this.m_animator.GetIKRotation(ikHandle) * Vector3.right, raycastHit.normal), raycastHit.normal);
+					this.m_animator.SetIKRotation(ikHandle, goalRotation);
+				}
+				else
+				{
+					foot2.m_ikWeight = Mathf.MoveTowards(foot2.m_ikWeight, 0f, deltaTime * 4f);
+					this.m_animator.SetIKPositionWeight(ikHandle, foot2.m_ikWeight);
+					this.m_animator.SetIKRotationWeight(ikHandle, foot2.m_ikWeight * 0.5f);
+				}
+			}
+		}
+	}
+
+	// Token: 0x06000257 RID: 599 RVA: 0x00034FA4 File Offset: 0x000331A4
+	private void UpdateHeadRotation(float dt)
+	{
+		if (this.m_nview == null || !this.m_nview.IsValid())
+		{
+			return;
+		}
+		if (this.m_headRotation && this.m_head)
+		{
+			Vector3 lookFromPos = this.GetLookFromPos();
+			Vector3 vector = Vector3.zero;
+			if (this.m_nview.IsOwner())
+			{
+				if (this.m_monsterAI != null)
+				{
+					Character targetCreature = this.m_monsterAI.GetTargetCreature();
+					if (targetCreature != null)
+					{
+						vector = targetCreature.GetEyePoint();
+					}
+				}
+				else
+				{
+					vector = lookFromPos + this.m_character.GetLookDir() * 100f;
+				}
+				if (this.m_lookAt != null)
+				{
+					vector = this.m_lookAt.position;
+				}
+				this.m_sendTimer += Time.deltaTime;
+				if (this.m_sendTimer > 0.2f)
+				{
+					this.m_sendTimer = 0f;
+					if (!vector.Equals(this.m_lookTargetCached))
+					{
+						this.m_nview.GetZDO().Set(ZDOVars.s_lookTarget, vector);
+					}
+					this.m_lookTargetCached = vector;
+				}
+			}
+			else
+			{
+				vector = this.m_nview.GetZDO().GetVec3(ZDOVars.s_lookTarget, Vector3.zero);
+			}
+			if (vector != Vector3.zero)
+			{
+				Vector3 b = Vector3.Normalize(vector - lookFromPos);
+				this.m_headLookDir = Vector3.Lerp(this.m_headLookDir, b, 0.1f);
+				return;
+			}
+			this.m_headLookDir = this.m_character.transform.forward;
+		}
+	}
+
+	// Token: 0x06000258 RID: 600 RVA: 0x00035124 File Offset: 0x00033324
+	private Vector3 GetLookFromPos()
+	{
+		if (this.m_eyes != null && this.m_eyes.Length != 0)
+		{
+			Vector3 a = Vector3.zero;
+			foreach (Transform transform in this.m_eyes)
+			{
+				a += transform.position;
+			}
+			return a / (float)this.m_eyes.Length;
+		}
+		return this.m_head.position;
+	}
+
+	// Token: 0x06000259 RID: 601 RVA: 0x0003518C File Offset: 0x0003338C
+	public void FindJoints()
+	{
+		ZLog.Log("Finding joints");
+		List<Transform> list = new List<Transform>();
+		Transform transform = Utils.FindChild(base.transform, "LeftEye", Utils.IterativeSearchType.DepthFirst);
+		Transform transform2 = Utils.FindChild(base.transform, "RightEye", Utils.IterativeSearchType.DepthFirst);
+		if (transform)
+		{
+			list.Add(transform);
+		}
+		if (transform2)
+		{
+			list.Add(transform2);
+		}
+		this.m_eyes = list.ToArray();
+		Transform transform3 = Utils.FindChild(base.transform, "LeftFootFront", Utils.IterativeSearchType.DepthFirst);
+		Transform transform4 = Utils.FindChild(base.transform, "RightFootFront", Utils.IterativeSearchType.DepthFirst);
+		Transform transform5 = Utils.FindChild(base.transform, "LeftFoot", Utils.IterativeSearchType.DepthFirst);
+		if (transform5 == null)
+		{
+			transform5 = Utils.FindChild(base.transform, "LeftFootBack", Utils.IterativeSearchType.DepthFirst);
+		}
+		if (transform5 == null)
+		{
+			transform5 = Utils.FindChild(base.transform, "l_foot", Utils.IterativeSearchType.DepthFirst);
+		}
+		if (transform5 == null)
+		{
+			transform5 = Utils.FindChild(base.transform, "Foot.l", Utils.IterativeSearchType.DepthFirst);
+		}
+		if (transform5 == null)
+		{
+			transform5 = Utils.FindChild(base.transform, "foot.l", Utils.IterativeSearchType.DepthFirst);
+		}
+		Transform transform6 = Utils.FindChild(base.transform, "RightFoot", Utils.IterativeSearchType.DepthFirst);
+		if (transform6 == null)
+		{
+			transform6 = Utils.FindChild(base.transform, "RightFootBack", Utils.IterativeSearchType.DepthFirst);
+		}
+		if (transform6 == null)
+		{
+			transform6 = Utils.FindChild(base.transform, "r_foot", Utils.IterativeSearchType.DepthFirst);
+		}
+		if (transform6 == null)
+		{
+			transform6 = Utils.FindChild(base.transform, "Foot.r", Utils.IterativeSearchType.DepthFirst);
+		}
+		if (transform6 == null)
+		{
+			transform6 = Utils.FindChild(base.transform, "foot.r", Utils.IterativeSearchType.DepthFirst);
+		}
+		List<CharacterAnimEvent.Foot> list2 = new List<CharacterAnimEvent.Foot>();
+		if (transform3)
+		{
+			list2.Add(new CharacterAnimEvent.Foot(transform3, AvatarIKGoal.LeftHand));
+		}
+		if (transform4)
+		{
+			list2.Add(new CharacterAnimEvent.Foot(transform4, AvatarIKGoal.RightHand));
+		}
+		if (transform5)
+		{
+			list2.Add(new CharacterAnimEvent.Foot(transform5, AvatarIKGoal.LeftFoot));
+		}
+		if (transform6)
+		{
+			list2.Add(new CharacterAnimEvent.Foot(transform6, AvatarIKGoal.RightFoot));
+		}
+		this.m_feets = list2.ToArray();
+	}
+
+	// Token: 0x0600025A RID: 602 RVA: 0x00035390 File Offset: 0x00033590
+	private void OnDrawGizmosSelected()
+	{
+		if (this.m_footIK)
+		{
+			foreach (CharacterAnimEvent.Foot foot in this.m_feets)
+			{
+				float d = this.m_useFeetValues ? foot.m_footDownMax : this.m_footDownMax;
+				float d2 = this.m_useFeetValues ? foot.m_footOffset : this.m_footOffset;
+				float d3 = this.m_useFeetValues ? foot.m_footStepHeight : this.m_footStepHeight;
+				float num = this.m_useFeetValues ? foot.m_stabalizeDistance : this.m_stabalizeDistance;
+				Vector3 vector = foot.m_transform.position - base.transform.up * d2;
+				Gizmos.color = ((vector.y > base.transform.position.y) ? Color.red : Color.white);
+				Gizmos.DrawWireSphere(vector, 0.1f);
+				Gizmos.color = Color.yellow;
+				Gizmos.DrawWireCube(new Vector3(vector.x, base.transform.position.y, vector.z) + Vector3.up * d, new Vector3(1f, 0.01f, 1f));
+				Gizmos.color = Color.red;
+				Gizmos.DrawLine(vector, vector + Vector3.up * d3);
+				if (num > 0f)
+				{
+					Gizmos.color = Color.green;
+					Gizmos.DrawWireSphere(vector, num);
+					Gizmos.matrix = Matrix4x4.identity;
+				}
+				if (foot.m_isPlanted)
+				{
+					Gizmos.color = Color.yellow;
+					Gizmos.DrawWireCube(vector, new Vector3(0.4f, 0.3f, 0.4f));
+				}
+			}
+		}
+	}
+
+	// Token: 0x1700000A RID: 10
+	// (get) Token: 0x0600025B RID: 603 RVA: 0x0000C3AB File Offset: 0x0000A5AB
+	public static List<IMonoUpdater> Instances { get; } = new List<IMonoUpdater>();
+
+	// Token: 0x0400037A RID: 890
+	[Header("Foot IK")]
+	public bool m_footIK;
+
+	// Token: 0x0400037B RID: 891
+	public float m_footDownMax = 0.4f;
+
+	// Token: 0x0400037C RID: 892
+	public float m_footOffset = 0.1f;
+
+	// Token: 0x0400037D RID: 893
+	public float m_footStepHeight = 1f;
+
+	// Token: 0x0400037E RID: 894
+	public float m_stabalizeDistance;
+
+	// Token: 0x0400037F RID: 895
+	public bool m_useFeetValues;
+
+	// Token: 0x04000380 RID: 896
+	public CharacterAnimEvent.Foot[] m_feets = Array.Empty<CharacterAnimEvent.Foot>();
+
+	// Token: 0x04000381 RID: 897
+	[Header("Head/eye rotation")]
+	public bool m_headRotation = true;
+
+	// Token: 0x04000382 RID: 898
+	public Transform[] m_eyes;
+
+	// Token: 0x04000383 RID: 899
+	public float m_lookWeight = 0.5f;
+
+	// Token: 0x04000384 RID: 900
+	public float m_bodyLookWeight = 0.1f;
+
+	// Token: 0x04000385 RID: 901
+	public float m_headLookWeight = 1f;
+
+	// Token: 0x04000386 RID: 902
+	public float m_eyeLookWeight;
+
+	// Token: 0x04000387 RID: 903
+	public float m_lookClamp = 0.5f;
+
+	// Token: 0x04000388 RID: 904
+	private const float m_headRotationSmoothness = 0.1f;
+
+	// Token: 0x04000389 RID: 905
+	public Transform m_lookAt;
+
+	// Token: 0x0400038A RID: 906
+	[Header("Player Female hack")]
+	public bool m_femaleHack;
+
+	// Token: 0x0400038B RID: 907
+	public Transform m_leftShoulder;
+
+	// Token: 0x0400038C RID: 908
+	public Transform m_rightShoulder;
+
+	// Token: 0x0400038D RID: 909
+	public float m_femaleOffset = 0.0004f;
+
+	// Token: 0x0400038E RID: 910
+	public float m_maleOffset = 0.0007651657f;
+
+	// Token: 0x0400038F RID: 911
+	private Character m_character;
+
+	// Token: 0x04000390 RID: 912
+	private Animator m_animator;
+
+	// Token: 0x04000391 RID: 913
+	private ZNetView m_nview;
+
+	// Token: 0x04000392 RID: 914
+	private MonsterAI m_monsterAI;
+
+	// Token: 0x04000393 RID: 915
+	private VisEquipment m_visEquipment;
+
+	// Token: 0x04000394 RID: 916
+	private FootStep m_footStep;
+
+	// Token: 0x04000395 RID: 917
+	private float m_pauseTimer;
+
+	// Token: 0x04000396 RID: 918
+	private float m_pauseSpeed = 1f;
+
+	// Token: 0x04000397 RID: 919
+	private float m_sendTimer;
+
+	// Token: 0x04000398 RID: 920
+	private Vector3 m_headLookDir;
+
+	// Token: 0x04000399 RID: 921
+	private float m_lookAtWeight;
+
+	// Token: 0x0400039A RID: 922
+	private Transform m_head;
+
+	// Token: 0x0400039B RID: 923
+	private bool m_chain;
+
+	// Token: 0x0400039C RID: 924
+	private Vector3 m_lookTargetCached = Vector3.negativeInfinity;
+
+	// Token: 0x0400039D RID: 925
+	private static int s_ikGroundMask = 0;
+
+	// Token: 0x02000023 RID: 35
+	[Serializable]
+	public class Foot
+	{
+		// Token: 0x0600025E RID: 606 RVA: 0x000355F0 File Offset: 0x000337F0
+		public Foot(Transform t, AvatarIKGoal handle)
+		{
+			this.m_transform = t;
+			this.m_ikHandle = handle;
+			this.m_ikWeight = 0f;
+		}
+
+		// Token: 0x0400039F RID: 927
+		public Transform m_transform;
+
+		// Token: 0x040003A0 RID: 928
+		public AvatarIKGoal m_ikHandle;
+
+		// Token: 0x040003A1 RID: 929
+		public float m_footDownMax = 0.4f;
+
+		// Token: 0x040003A2 RID: 930
+		public float m_footOffset = 0.1f;
+
+		// Token: 0x040003A3 RID: 931
+		public float m_footStepHeight = 1f;
+
+		// Token: 0x040003A4 RID: 932
+		public float m_stabalizeDistance;
+
+		// Token: 0x040003A5 RID: 933
+		[NonSerialized]
+		public float m_ikWeight;
+
+		// Token: 0x040003A6 RID: 934
+		[NonSerialized]
+		public Vector3 m_plantPosition = Vector3.zero;
+
+		// Token: 0x040003A7 RID: 935
+		[NonSerialized]
+		public Vector3 m_plantNormal = Vector3.up;
+
+		// Token: 0x040003A8 RID: 936
+		[NonSerialized]
+		public bool m_isPlanted;
+	}
+}

@@ -21,23 +21,56 @@ namespace ExtraAttackSystem
             try
             {
                 var attackMode = ExtraAttackUtils.GetAttackMode(player);
-                string modeSuffix = attackMode switch
+
+                // Greatsword YAML key unification: when equipped and Style mode active, force clipName
+                ItemDrop.ItemData weapon = player.GetCurrentWeapon();
+                bool isGreatsword = weapon != null &&
+                                    weapon.m_shared.m_skillType == Skills.SkillType.Swords &&
+                                    weapon.m_shared.m_itemType == ItemDrop.ItemData.ItemType.TwoHandedWeapon;
+                if (isGreatsword && attackMode != ExtraAttackUtils.AttackMode.Normal)
                 {
-                    ExtraAttackUtils.AttackMode.ExtraQ => "_Q",
-                    ExtraAttackUtils.AttackMode.ExtraT => "_T",
-                    ExtraAttackUtils.AttackMode.ExtraG => "_G",
-                    _ => ""
+                    clipName = "greatsword_secondary";
+                }
+
+                // Prefer style-based suffix, then fallback to legacy suffixes (_Q/_T/_G), then no suffix
+                string styleSuffix = attackMode switch
+                {
+                    ExtraAttackUtils.AttackMode.ea_secondary_Q => "_ea_secondary_Q",
+                    ExtraAttackUtils.AttackMode.ea_secondary_T => "_ea_secondary_T",
+                    ExtraAttackUtils.AttackMode.ea_secondary_G => "_ea_secondary_G",
+                    _ => string.Empty
                 };
 
-                string key1 = $"{clipName}{modeSuffix}_hit{hitIndex}";
-                string key2 = $"{clipName}{modeSuffix}";
-                string key3 = $"{clipName}_hit{hitIndex}";
-                string key4 = clipName;
+                string legacySuffix = attackMode switch
+                {
+                    ExtraAttackUtils.AttackMode.ea_secondary_Q => "_Q",
+                    ExtraAttackUtils.AttackMode.ea_secondary_T => "_T",
+                    ExtraAttackUtils.AttackMode.ea_secondary_G => "_G",
+                    _ => string.Empty
+                };
 
-                if (AnimationTimingConfig.HasConfig(key1)) return key1;
-                if (AnimationTimingConfig.HasConfig(key2)) return key2;
-                if (AnimationTimingConfig.HasConfig(key3)) return key3;
-                if (AnimationTimingConfig.HasConfig(key4)) return key4;
+                var suffixCandidates = new List<string>();
+                if (!string.IsNullOrEmpty(styleSuffix)) suffixCandidates.Add(styleSuffix);
+                if (!string.IsNullOrEmpty(legacySuffix)) suffixCandidates.Add(legacySuffix);
+                suffixCandidates.Add(string.Empty);
+
+                // Try keys in order: clip + suffix + _hitN, clip + suffix, clip + _hitN, clip
+                foreach (var suffix in suffixCandidates)
+                {
+                    string keyHit = string.IsNullOrEmpty(suffix)
+                        ? $"{clipName}_hit{hitIndex}"
+                        : $"{clipName}{suffix}_hit{hitIndex}";
+                    string keyBase = string.IsNullOrEmpty(suffix)
+                        ? clipName
+                        : $"{clipName}{suffix}";
+
+                    if (AnimationTimingConfig.HasConfig(keyHit)) return keyHit;
+                    if (AnimationTimingConfig.HasConfig(keyBase)) return keyBase;
+                }
+
+                // Final fallback
+                if (AnimationTimingConfig.HasConfig($"{clipName}_hit{hitIndex}")) return $"{clipName}_hit{hitIndex}";
+                if (AnimationTimingConfig.HasConfig(clipName)) return clipName;
 
                 return clipName;
             }
@@ -82,6 +115,66 @@ namespace ExtraAttackSystem
             }
         }
 
+        // Common utility for getting current animation clip info
+        public static bool TryGetCurrentClipInfo(Player player, out string clipName, out AnimationClip clip, out int hitIndex)
+        {
+            clipName = string.Empty;
+            clip = null!;
+            hitIndex = 0;
+
+            try
+            {
+                if (!TryGetPlayerAnimator(player, out Animator animator) || animator == null)
+                {
+                    return false;
+                }
+
+                var clipInfos = animator.GetCurrentAnimatorClipInfo(0);
+                if (clipInfos.Length == 0)
+                {
+                    return false;
+                }
+
+                clip = clipInfos[0].clip;
+                clipName = clip.name;
+                hitIndex = GetCurrentHitIndex(animator, clip);
+                return true;
+            }
+            catch (Exception ex)
+            {
+                ExtraAttackPlugin.LogError("System", $"Error in TryGetCurrentClipInfo: {ex.Message}");
+                return false;
+            }
+        }
+
+        // Common utility for debug animator parameters
+        public static void LogAnimatorParameters(Player player, string context)
+        {
+            if (!ExtraAttackPlugin.DebugAnimationParameters.Value)
+                return;
+
+            try
+            {
+                if (TryGetPlayerAnimator(player, out Animator? animator) && animator != null)
+                {
+                    int crouchingHash = ZSyncAnimation.GetHash("crouching");
+                    int sitHash = ZSyncAnimation.GetHash("emote_sit");
+                    int chairHash = ZSyncAnimation.GetHash("emote_sitchair");
+                    bool crouchB = false, sitB = false, chairB = false;
+                    
+                    try { crouchB = animator.GetBool(crouchingHash); } catch { }
+                    try { sitB = animator.GetBool(sitHash); } catch { }
+                    try { chairB = animator.GetBool(chairHash); } catch { }
+                    
+                    ExtraAttackPlugin.LogInfo("AnimationParameters", $"{context}: crouch={crouchB} sit={sitB} sitchair={chairB}");
+                }
+            }
+            catch (Exception ex)
+            {
+                ExtraAttackPlugin.LogError("System", $"Error in LogAnimatorParameters: {ex.Message}");
+            }
+        }
+
         [HarmonyPatch(typeof(CharacterAnimEvent), "CustomFixedUpdate")]
         public static class CharacterAnimEvent_CacheAnimator_Patch
         {
@@ -101,10 +194,10 @@ namespace ExtraAttackSystem
                             if (ExtraAttackPlugin.DebugAnimationParameters.Value && !parametersLogged)
                             {
                                 parametersLogged = true;
-                                ExtraAttackPlugin.LogInfo("AnimationParameters", "=== DEBUG: ANIMATOR PARAMETERS ===");
-
+                                ExtraAttackPlugin.LogInfo("System", "=== DEBUG: ANIMATOR PARAMETERS ===");
+                                // Removed stray character causing compile error
                                 AnimatorControllerParameter[] parameters = ___m_animator.parameters;
-                                ExtraAttackPlugin.LogInfo("AnimationParameters", $"Total parameters: {parameters.Length}");
+                                ExtraAttackPlugin.LogInfo("System", $"Total parameters: {parameters.Length}");
 
                                 foreach (var param in parameters)
                                 {
@@ -117,10 +210,10 @@ namespace ExtraAttackSystem
                                         _ => "Unknown"
                                     };
 
-                                    ExtraAttackPlugin.LogInfo("AnimationParameters", $"  {typeStr.PadRight(10)} | {param.name}");
+                                    ExtraAttackPlugin.LogInfo("System", $"  {typeStr.PadRight(10)} | {param.name}");
                                 }
 
-                                ExtraAttackPlugin.LogInfo("AnimationParameters", "=== END ANIMATOR PARAMETERS ===");
+                                ExtraAttackPlugin.LogInfo("System", "=== END ANIMATOR PARAMETERS ===");
                             }
                         }
                     }
