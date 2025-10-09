@@ -475,8 +475,8 @@ namespace ExtraAttackSystem
 
                     // Keep vanilla chain: do not manually call ResetChain here; Attack.Start handles it in vanilla
 
-                    // ✅ 追加: StartAttack直前にAOC適用
-                    ExtraAttackPatches_Animation.ApplyStyleAOC(player, animator, mode);
+                    // ✅ 削除: 重複AOC適用（468行目で既に適用済み）
+                    // ExtraAttackPatches_Animation.ApplyStyleAOC(player, animator, mode);
                     
                     // Mark bypass for our own StartAttack call
                     ExtraAttackUtils.MarkBypassNextStartAttack(player);

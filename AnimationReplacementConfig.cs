@@ -436,11 +436,11 @@ namespace ExtraAttackSystem
                             if (weaponMap.ContainsKey(modeKeys[i]))
                             {
                                 string externalClip = weaponMap[modeKeys[i]];
-                                string vanillaClip = GetVanillaClipName(weaponType, modes[i]);
+                                string triggerName = GetVanillaClipName(weaponType, modes[i]);
                                 
                                 weaponTypeGroups[weaponType][modes[i]] = new Dictionary<string, string>
                                 {
-                                    { vanillaClip, externalClip }
+                                    { triggerName, externalClip }
                                 };
                             }
                         }
@@ -565,16 +565,16 @@ namespace ExtraAttackSystem
         {
             return weaponType switch
             {
-                "Swords" => mode == "Q" ? "Sword-Attack-R4" : mode == "T" ? "Greatsword Secondary Attack" : "BattleAxeAltAttack",
-                "Axes" => mode == "Q" ? "Axe Secondary Attack" : mode == "T" ? "Greatsword Secondary Attack" : "BattleAxeAltAttack",
-                "Clubs" => mode == "Q" ? "MaceAltAttack" : mode == "T" ? "Greatsword Secondary Attack" : "BattleAxeAltAttack",
-                "Spears" => mode == "Q" ? "Atgeir360Attack" : mode == "T" ? "Greatsword Secondary Attack" : "BattleAxeAltAttack",
-                "GreatSwords" => mode == "Q" ? "Greatsword Secondary Attack" : mode == "T" ? "Atgeir360Attack" : "BattleAxeAltAttack",
-                "BattleAxes" => mode == "Q" ? "BattleAxeAltAttack" : mode == "T" ? "Greatsword Secondary Attack" : "Atgeir360Attack",
-                "Polearms" => mode == "Q" ? "Atgeir360Attack" : mode == "T" ? "Greatsword Secondary Attack" : "BattleAxeAltAttack",
-                "Knives" => mode == "Q" ? "Knife JumpAttack" : mode == "T" ? "Greatsword Secondary Attack" : "BattleAxeAltAttack",
-                "Fists" => mode == "Q" ? "Kickstep" : mode == "T" ? "Greatsword Secondary Attack" : "BattleAxeAltAttack",
-                _ => "Sword-Attack-R4"
+                "Swords" => "sword_secondary",
+                "Axes" => "axe_secondary",
+                "Clubs" => "mace_secondary",
+                "Spears" => "spear_secondary",
+                "GreatSwords" => "greatsword_secondary",
+                "BattleAxes" => "battleaxe_secondary",
+                "Polearms" => "atgeir_secondary",
+                "Knives" => "knife_secondary",
+                "Fists" => "fist_secondary",
+                _ => "sword_secondary"
             };
         }
 
