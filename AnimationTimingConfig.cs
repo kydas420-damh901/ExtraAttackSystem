@@ -79,24 +79,20 @@ namespace ExtraAttackSystem
                 if (File.Exists(WeaponTypesConfigFilePath))
                 {
                     LoadWeaponTypeConfig();
-                    ExtraAttackPlugin.LogInfo("System", $"Loaded eas_attackconfig_weapon_types.yaml with {(weaponTypeConfig?.WeaponTypes?.Count ?? 0)} weapon types");
                 }
                 else
                 {
                     CreateDefaultWeaponTypeConfig();
-                    ExtraAttackPlugin.LogInfo("System", "Created default eas_attackconfig_weapon_types.yaml");
                 }
 
                 // Load individual weapons config
                 if (File.Exists(IndividualWeaponsConfigFilePath))
                 {
                     LoadIndividualWeaponsConfig();
-                    ExtraAttackPlugin.LogInfo("System", $"Loaded eas_attackconfig_individual_weapons.yaml with {(weaponTypeConfig?.IndividualWeapons?.Count ?? 0)} individual weapons");
                 }
                 else
                 {
                     CreateDefaultIndividualWeaponsConfig();
-                    ExtraAttackPlugin.LogInfo("System", "Created default eas_attackconfig_individual_weapons.yaml");
                 }
             }
             catch (Exception ex)
@@ -105,29 +101,6 @@ namespace ExtraAttackSystem
             }
         }
 
-        // DEPRECATED: Create default config using secondary Q/T/G maps
-        // This method is no longer used - replaced by weapon type specific config
-        private static void CreateDefaultConfig()
-        {
-            // Method disabled - use CreateDefaultWeaponTypeConfig instead
-            ExtraAttackPlugin.LogWarning("System", "CreateDefaultConfig is deprecated - use weapon type config instead");
-        }
-
-        // DEPRECATED: Save config with Japanese/English comments and External names
-        // This method is no longer used - replaced by weapon type specific config
-        private static void SaveConfigWithComments(Dictionary<string, string>? mappings = null)
-        {
-            // Method disabled - use weapon type specific config instead
-            ExtraAttackPlugin.LogWarning("System", "SaveConfigWithComments is deprecated - use weapon type config instead");
-        }
-
-        // DEPRECATED: Load config from YAML
-        // This method is no longer used - replaced by weapon type specific config
-        private static void LoadConfig()
-        {
-            // Method disabled - use LoadWeaponTypeConfig instead
-            ExtraAttackPlugin.LogWarning("System", "LoadConfig is deprecated - use weapon type config instead");
-        }
 
         // Get timing for specific animation using weapon type config
         public static AnimationTiming GetTiming(string animationName)
@@ -262,13 +235,11 @@ namespace ExtraAttackSystem
             if (File.Exists(WeaponTypesConfigFilePath))
             {
                 LoadWeaponTypeConfig();
-                ExtraAttackPlugin.LogInfo("System", "Reloaded eas_attackconfig_weapon_types.yaml");
             }
             
             if (File.Exists(IndividualWeaponsConfigFilePath))
             {
                 LoadIndividualWeaponsConfig();
-                ExtraAttackPlugin.LogInfo("System", "Reloaded eas_attackconfig_individual_weapons.yaml");
             }
         }
 
@@ -330,7 +301,6 @@ namespace ExtraAttackSystem
             {
                 // Generate weapon type config programmatically
                 GenerateWeaponTypeConfig();
-                ExtraAttackPlugin.LogInfo("System", "Generated weapon type config programmatically");
             }
             catch (Exception ex)
             {
@@ -442,7 +412,6 @@ namespace ExtraAttackSystem
                 }
 
                 File.WriteAllText(IndividualWeaponsConfigFilePath, sb.ToString(), Encoding.UTF8);
-                ExtraAttackPlugin.LogInfo("System", $"Saved eas_attackconfig_individual_weapons.yaml with {config.IndividualWeapons?.Count ?? 0} individual weapons");
             }
             catch (Exception ex)
             {
@@ -857,7 +826,6 @@ namespace ExtraAttackSystem
         // Create individual weapon settings
         private static void CreateIndividualWeaponSettings(WeaponTypeConfig config)
         {
-            ExtraAttackPlugin.LogInfo("System", "CreateIndividualWeaponSettings: Starting to create individual weapon settings for THSwordWood");
             // Individual weapon overrides - only create sample entries
             var individualWeapons = new Dictionary<string, AnimationTiming>();
 
@@ -887,7 +855,6 @@ namespace ExtraAttackSystem
             individualWeapons["ea_secondary_G_THSwordWood"] = woodenGreatswordG;
 
             config.IndividualWeapons = individualWeapons;
-            ExtraAttackPlugin.LogInfo("System", $"CreateIndividualWeaponSettings: Created {individualWeapons.Count} individual weapon settings for THSwordWood");
         }
 
         // Get weapon type from weapon identifier and skill type
@@ -954,17 +921,14 @@ namespace ExtraAttackSystem
                 if (weaponMap.ContainsKey(modeKey))
                 {
                     string actualAnimation = weaponMap[modeKey];
-                    ExtraAttackPlugin.LogInfo("System", $"GetReplacementAnimationName: {weaponType} {mode} -> {actualAnimation}");
                     return actualAnimation;
                 }
                 else
                 {
-                    ExtraAttackPlugin.LogWarning("System", $"GetReplacementAnimationName: Mode key {modeKey} not found in {weaponType}");
                 }
             }
             else
             {
-                ExtraAttackPlugin.LogWarning("System", $"GetReplacementAnimationName: Weapon type {weaponType} not found in ReplacementMap");
             }
             
             // Fallback to default names (matching AnimationManager.cs assignments)
@@ -982,7 +946,6 @@ namespace ExtraAttackSystem
                 _ => "Unknown"
             };
             
-            ExtraAttackPlugin.LogInfo("System", $"GetReplacementAnimationName: Using fallback for {weaponType} {mode} -> {fallbackAnimation}");
             return fallbackAnimation;
         }
 
@@ -1094,7 +1057,6 @@ namespace ExtraAttackSystem
                 }
 
                 File.WriteAllText(WeaponTypesConfigFilePath, sb.ToString(), Encoding.UTF8);
-                ExtraAttackPlugin.LogInfo("System", $"Saved eas_attackconfig_weapon_types.yaml with {config.WeaponTypes.Count} weapon types");
             }
             catch (Exception ex)
             {

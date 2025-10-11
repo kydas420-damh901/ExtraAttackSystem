@@ -45,10 +45,7 @@ namespace ExtraAttackSystem
         private static bool cachedDebugSkipGAOCApply;
 
         // General config - keys & cooldowns
-        public static ConfigEntry<KeyboardShortcut> ExtraAttackKey = null!;
-        public static ConfigEntry<KeyboardShortcut> TestButton1 = null!;
-        public static ConfigEntry<KeyboardShortcut> TestButton2 = null!;
-        // NEW: Separate keys for Q/T/G
+        // Q/T/G keys for extra attacks
         public static ConfigEntry<KeyboardShortcut> ExtraAttackKey_Q = null!;
         public static ConfigEntry<KeyboardShortcut> ExtraAttackKey_T = null!;
         public static ConfigEntry<KeyboardShortcut> ExtraAttackKey_G = null!;
@@ -312,18 +309,15 @@ private static bool cachedDisableAllGuardsChecks;
             try
             {
                 // Bind general keys
-                ExtraAttackKey = Config.Bind("1 - General", "Extra Attack Key (Q)", new KeyboardShortcut(KeyCode.Q), "Trigger Q extra attack.");
-                TestButton1 = Config.Bind("1 - General", "T Key (T)", new KeyboardShortcut(KeyCode.T), "Trigger T extra attack.");
-                TestButton2 = Config.Bind("1 - General", "G Key (G)", new KeyboardShortcut(KeyCode.G), "Trigger G extra attack.");
-                // NEW: Separate keys for Q/T/G
+                // Q/T/G keys for extra attacks
                 ExtraAttackKey_Q = Config.Bind("1 - General", "Extra Attack Key Q", new KeyboardShortcut(KeyCode.Q), "Trigger Q extra attack.");
                 ExtraAttackKey_T = Config.Bind("1 - General", "Extra Attack Key T", new KeyboardShortcut(KeyCode.T), "Trigger T extra attack.");
                 ExtraAttackKey_G = Config.Bind("1 - General", "Extra Attack Key G", new KeyboardShortcut(KeyCode.G), "Trigger G extra attack.");
 
                 // Bind cooldowns
-                ExtraAttackQCooldown = Config.Bind("1 - General", "Q (Q) Cooldown", 2f, "Cooldown seconds for Q extra attack.");
-                ExtraAttackTCooldown = Config.Bind("1 - General", "T (T) Cooldown", 2f, "Cooldown seconds for T extra attack.");
-                ExtraAttackGCooldown = Config.Bind("1 - General", "G (G) Cooldown", 2f, "Cooldown seconds for G extra attack.");
+                ExtraAttackQCooldown = Config.Bind("1 - General", "Q (Q) Cooldown", 0f, "Cooldown seconds for Q extra attack.");
+                ExtraAttackTCooldown = Config.Bind("1 - General", "T (T) Cooldown", 0f, "Cooldown seconds for T extra attack.");
+                ExtraAttackGCooldown = Config.Bind("1 - General", "G (G) Cooldown", 0f, "Cooldown seconds for G extra attack.");
 
                 // PostAttack emote_stop guard config
                 EnablePostAttackEmoteStopGuard = Config.Bind("2 - Guards & Safety", "Enable PostAttack Emote Stop Guard", false, "Suppress stand-up (emote_stop) for a short window after extra attack.");
@@ -408,20 +402,7 @@ private static bool cachedDisableAllGuardsChecks;
         ExtraAttackLogger.LogWarning($"[{category}] {message}");
     }
 
-    // NEW: Key input helpers for Q/T/G
-    public static bool IsExtraAttackKeyPressed()
-    {
-        return ExtraAttackKey.Value.IsDown();
-    }
-    public static bool IsTestButton1Pressed()
-    {
-        return TestButton1.Value.IsDown();
-    }
-    public static bool IsTestButton2Pressed()
-    {
-        return TestButton2.Value.IsDown();
-    }
-    // NEW: Separate key input helpers for Q/T/G
+    // Key input helpers for Q/T/G
     public static bool IsExtraAttackKey_QPressed()
     {
         return ExtraAttackKey_Q.Value.IsDown();

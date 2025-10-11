@@ -43,12 +43,10 @@ namespace ExtraAttackSystem
                 {
                     LoadWeaponTypesConfig();
                     LoadIndividualWeaponsConfig();
-                    ExtraAttackPlugin.LogInfo("System", $"Loaded AnimationReplacement YAML files with { (current?.AocTypes?.Count ?? 0) } weapon types and { (current?.AocItems?.Count ?? 0) } individual weapons");
                 }
                 else
                 {
                     CreateDefaultFromManager();
-                    ExtraAttackPlugin.LogInfo("System", "Created default AnimationReplacement YAML files from current ReplacementMap");
                 }
 
                 // Apply loaded (or created) YAML to manager map
@@ -62,7 +60,6 @@ namespace ExtraAttackSystem
                     if (hasManagerEntries)
                     {
                         SaveFromManager();
-                        ExtraAttackPlugin.LogInfo("System", "AnimationReplacement.yaml was empty; populated from current ReplacementMap");
                     }
                 }
             }
@@ -80,7 +77,6 @@ namespace ExtraAttackSystem
                 // If YAML file doesn't exist, create default configuration
                 if (!File.Exists(WeaponTypesConfigFilePath))
                 {
-                    ExtraAttackPlugin.LogInfo("System", "AnimationReplacement_WeaponTypes.yaml not found, creating default configuration");
                     CreateDefaultWeaponTypesConfig();
                 }
 
@@ -173,7 +169,6 @@ namespace ExtraAttackSystem
                 // Set the current config and save
                 current = defaultConfig;
                 SaveWeaponTypesConfig();
-                ExtraAttackPlugin.LogInfo("System", "Created default AnimationReplacement_WeaponTypes.yaml with MOD default settings");
             }
             catch (Exception ex)
             {
@@ -212,7 +207,6 @@ namespace ExtraAttackSystem
                 LoadWeaponTypesConfig();
                 LoadIndividualWeaponsConfig();
                 ApplyToManager();
-                ExtraAttackPlugin.LogInfo("System", "Reloaded AnimationReplacement YAML files and applied mappings");
             }
         }
 
@@ -247,7 +241,6 @@ namespace ExtraAttackSystem
             current.AocTypes.Clear();
             current.AocItems.Clear();
             
-            ExtraAttackPlugin.LogInfo("System", $"Processing {AnimationManager.ReplacementMap.Count} keys from ReplacementMap");
             
             foreach (var style in AnimationManager.ReplacementMap.Keys)
             {
@@ -258,7 +251,6 @@ namespace ExtraAttackSystem
                 // Weapon type keys: ea_secondary_Q/T/G_{武器種別}
                 // Individual weapon keys: ea_secondary_Q/T/G_{個別武器名}
                 bool isIndividual = IsIndividualWeaponKey(style);
-                ExtraAttackPlugin.LogInfo("System", $"Key: {style} -> Individual: {isIndividual}");
                 
                 if (isIndividual)
                 {
@@ -270,7 +262,6 @@ namespace ExtraAttackSystem
                 }
             }
             
-            ExtraAttackPlugin.LogInfo("System", $"Categorized: {current.AocTypes.Count} weapon types, {current.AocItems.Count} individual weapons");
         }
 
         // Check if a key represents an individual weapon (not weapon type)
@@ -303,12 +294,10 @@ namespace ExtraAttackSystem
         // Apply YAML mappings back to AnimationManager.ReplacementMap (override/merge)
         private static void ApplyToManager()
         {
-            ExtraAttackPlugin.LogInfo("System", "ApplyToManager: Starting to apply YAML mappings to ReplacementMap");
             
             // Process AocTypes (weapon types) first
             if (current.AocTypes != null && current.AocTypes.Count > 0)
             {
-                ExtraAttackPlugin.LogInfo("System", $"ApplyToManager: Found {current.AocTypes.Count} weapon types in AocTypes");
                 foreach (var weaponType in current.AocTypes)
                 {
                     if (!AnimationManager.ReplacementMap.ContainsKey(weaponType.Key))
@@ -326,7 +315,6 @@ namespace ExtraAttackSystem
                             if (!string.IsNullOrWhiteSpace(vanillaName) && !string.IsNullOrWhiteSpace(externalName))
                             {
                                 target[vanillaName] = externalName;
-                                ExtraAttackPlugin.LogInfo("System", $"ApplyToManager: Applied {weaponType.Key} -> {vanillaName} = {externalName}");
                             }
                         }
                     }
@@ -340,7 +328,6 @@ namespace ExtraAttackSystem
             // Process Maps (legacy format) if available
             if (current.Maps != null && current.Maps.Count > 0)
             {
-                ExtraAttackPlugin.LogInfo("System", $"ApplyToManager: Found {current.Maps.Count} weapon types in Maps");
             foreach (var style in current.Maps)
             {
                 if (!AnimationManager.ReplacementMap.ContainsKey(style.Key))
@@ -473,7 +460,6 @@ namespace ExtraAttackSystem
                 }
 
                 File.WriteAllText(WeaponTypesConfigFilePath, sb.ToString(), Encoding.UTF8);
-                ExtraAttackPlugin.LogInfo("System", $"Saved AnimationReplacement_WeaponTypes.yaml with {weaponTypeGroups.Count} weapon types");
             }
             catch (Exception ex)
             {
@@ -552,7 +538,6 @@ namespace ExtraAttackSystem
                 }
 
                 File.WriteAllText(IndividualWeaponsConfigFilePath, sb.ToString(), Encoding.UTF8);
-                ExtraAttackPlugin.LogInfo("System", $"Saved AnimationReplacement_IndividualWeapons.yaml with {individualWeaponGroups.Count} individual weapons");
             }
             catch (Exception ex)
             {

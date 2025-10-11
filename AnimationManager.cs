@@ -334,93 +334,83 @@ namespace ExtraAttackSystem
         }
 
         // AnimatorOverrideController creation
-        public static UnityEngine.RuntimeAnimatorController MakeAOC(Dictionary<string, string> replacement, UnityEngine.RuntimeAnimatorController original)
+        // Unified method to get weapon idle state
+        public static string GetWeaponIdleState(Player player)
+        {
+            try
+            {
+                var weapon = player.GetCurrentWeapon();
+                if (weapon?.m_shared == null)
+                {
+                    return "Idle"; // Default unarmed idle
+                }
+                
+                var skillType = weapon.m_shared.m_skillType;
+                var itemType = weapon.m_shared.m_itemType;
+                
+                // Determine weapon type using same logic as GetWeaponTypeFromSkillType
+                bool is2H = itemType == ItemDrop.ItemData.ItemType.TwoHandedWeapon;
+                
+                string weaponType = skillType switch
+                {
+                    Skills.SkillType.Axes => is2H ? "BattleAxes" : "Axes",
+                    Skills.SkillType.Swords => is2H ? "GreatSwords" : "Swords",
+                    Skills.SkillType.Clubs => "Clubs",
+                    Skills.SkillType.Spears => "Spears",
+                    Skills.SkillType.Polearms => "Polearms",
+                    Skills.SkillType.Knives => "Knives",
+                    Skills.SkillType.Unarmed => "Fists",
+                    _ => "Swords" // Default to Swords if unknown
+                };
+
+                // Map weapon type to idle animation state name
+                string idleState = weaponType switch
+                {
+                    "Swords" => "Idle_Sword",
+                    "Axes" => "Idle_Axe", 
+                    "Clubs" => "Idle_Club",
+                    "Spears" => "Idle_Spear",
+                    "GreatSwords" => "Idle_Greatsword",
+                    "BattleAxes" => "Idle_Battleaxe",
+                    "Polearms" => "Idle_Atgeir",
+                    "Knives" => "Idle_Knife",
+                    "Fists" => "Idle",
+                    _ => "Idle" // Default fallback
+                };
+
+
+                return idleState;
+            }
+            catch (System.Exception ex)
+            {
+                ExtraAttackPlugin.LogError("System", $"Error in GetWeaponIdleState: {ex.Message}");
+                return "Idle"; // Default fallback
+            }
+        }
+
+        public static UnityEngine.RuntimeAnimatorController MakeAOC(Dictionary<string, string> replacement, UnityEngine.RuntimeAnimatorController original, Player player = null)
         {
             AnimatorOverrideController aoc = new(original);
             List<KeyValuePair<AnimationClip, AnimationClip>> anims = new();
 
-            ExtraAttackPlugin.LogInfo("AOC", $"MakeAOC: Processing {aoc.animationClips.Length} clips");
-            ExtraAttackPlugin.LogInfo("AOC", $"MakeAOC: Replacement map has {replacement.Count} entries");
-            
-            // Debug: Log replacement mappings
-            if (replacement.Count > 0)
-            {
-                ExtraAttackPlugin.LogInfo("AOC", "=== REPLACEMENT MAPPINGS ===");
-                foreach (var kvp in replacement)
-                {
-                    ExtraAttackPlugin.LogInfo("AOC", $"  {kvp.Key} -> {kvp.Value}");
-                }
-                ExtraAttackPlugin.LogInfo("AOC", "=== END REPLACEMENT MAPPINGS ===");
-            }
-
-            // DEBUG: Animation Events
-            if (ExtraAttackPlugin.DebugAnimationEvents.Value && replacement.Count > 0)
-            {
-                ExtraAttackPlugin.LogInfo("AOC", "=== DEBUG: ANIMATION EVENTS (ALL CLIPS) ===");
-                foreach (AnimationClip animation in aoc.animationClips)
-                {
-                    string name = animation.name;
-                    AnimationEvent[] events = animation.events;
-                    if (events != null && events.Length > 0)
-                    {
-                        foreach (var evt in events)
-                        {
-                            ExtraAttackPlugin.LogInfo("AOC",
-                                $"  Event: time={evt.time:F3}, function={evt.functionName}, " +
-                                $"int={evt.intParameter}, float={evt.floatParameter:F3}, string={evt.stringParameter}");
-                        }
-                    }
-                }
-                ExtraAttackPlugin.LogInfo("AOC", "=== END ANIMATION EVENTS ===");
-            }
-
-            // DEBUG: Animation Clips
-            if (ExtraAttackPlugin.DebugAnimationClips.Value && replacement.Count > 0)
-            {
-                ExtraAttackPlugin.LogInfo("AOC", "=== DEBUG: ANIMATION CLIPS (ALL) ===");
-                foreach (AnimationClip animation in aoc.animationClips)
-                {
-                    ExtraAttackPlugin.LogInfo("AOC",
-                        $"  Clip: [{animation.name}] - Length: {animation.length:F3}s, " +
-                        $"FrameRate: {animation.frameRate}, Legacy: {animation.legacy}, Events: {animation.events.Length}");
-                }
-                ExtraAttackPlugin.LogInfo("AOC", "=== END ANIMATION CLIPS ===");
-            }
 
             foreach (AnimationClip animation in aoc.animationClips)
             {
                 string name = animation.name;
+                
                 if (replacement.TryGetValue(name, out string value) && ExternalAnimations.ContainsKey(value))
                 {
                     AnimationClip newClip = UnityEngine.Object.Instantiate(ExternalAnimations[value]);
                     newClip.name = name;
                     anims.Add(new KeyValuePair<AnimationClip, AnimationClip>(animation, newClip));
-                    ExtraAttackPlugin.LogInfo("AOC", $"Animation override SUCCESS: {name} -> {value}");
                 }
                 else
                 {
                     anims.Add(new KeyValuePair<AnimationClip, AnimationClip>(animation, animation));
-                    if (replacement.ContainsKey(name))
-                    {
-                        ExtraAttackPlugin.LogWarning("AOC", $"Animation override FAILED: {name} -> {replacement[name]} (External animation not found)");
-                    }
-                    else if (ExtraAttackPlugin.DebugAOCOperations.Value)
-                    {
-                        // Log when we have a replacement mapping but the animation name doesn't match
-                        bool hasReplacement = replacement.Values.Any(v => v.Contains(name) || name.Contains(v.Split('_')[0]));
-                        if (hasReplacement)
-                        {
-                            ExtraAttackPlugin.LogInfo("AOC", $"Animation not replaced: {name} (no direct mapping found)");
-                        }
-                    }
                 }
             }
 
             aoc.ApplyOverrides(anims);
-            if (ExtraAttackPlugin.DebugAOCOperations.Value)
-            {
-            ExtraAttackPlugin.LogInfo("AOC", $"Applied {anims.Count} animation overrides to AnimatorOverrideController");
-            }
             return aoc;
         }
 
@@ -464,12 +454,6 @@ namespace ExtraAttackSystem
                 }
 
                 var before = animator.runtimeAnimatorController;
-                if (ExtraAttackPlugin.DebugAOCOperations.Value)
-                {
-                    string beforeName = before is AnimatorOverrideController ? "AnimatorOverrideController" : before?.name ?? "null";
-                    string replaceName = replace is AnimatorOverrideController ? "AnimatorOverrideController" : replace?.name ?? "null";
-                    ExtraAttackPlugin.LogInfo("AOC", $"FastReplaceRAC(Player): Before={before?.GetType().Name ?? "null"} Name={beforeName} -> Replace={replace?.GetType().Name ?? "null"} Name={replaceName}");
-                }
 
                 if (animator.runtimeAnimatorController == replace)
                 {
@@ -481,12 +465,6 @@ namespace ExtraAttackSystem
                 animator.Rebind();
                 animator.Update(0f);
 
-                if (ExtraAttackPlugin.DebugAOCOperations.Value)
-                {
-                    var after = animator.runtimeAnimatorController;
-                    string afterName = after is AnimatorOverrideController ? "AnimatorOverrideController" : after?.name ?? "null";
-                    ExtraAttackPlugin.LogInfo("AOC", $"FastReplaceRAC(Player): After={after?.GetType().Name ?? "null"} Name={afterName}");
-                }
             }
             catch (Exception ex)
             {
@@ -508,12 +486,6 @@ namespace ExtraAttackSystem
                 }
 
                 var before = animator.runtimeAnimatorController;
-                if (ExtraAttackPlugin.DebugAOCOperations.Value)
-                {
-                    string beforeName = before is AnimatorOverrideController ? "AnimatorOverrideController" : before?.name ?? "null";
-                    string replaceName = replace is AnimatorOverrideController ? "AnimatorOverrideController" : replace?.name ?? "null";
-                    ExtraAttackPlugin.LogInfo("AOC", $"SoftReplaceRAC(Animator): Before={before?.GetType().Name ?? "null"} Name={beforeName} -> Replace={replace?.GetType().Name ?? "null"} Name={replaceName}");
-                }
 
                 if (animator.runtimeAnimatorController == replace)
                 {
@@ -546,12 +518,6 @@ namespace ExtraAttackSystem
                     try { if (sitChairHash != -1) animator.SetBool(sitChairHash, prevSitChair); } catch { }
                 }
 
-                if (ExtraAttackPlugin.DebugAOCOperations.Value)
-                {
-                    var after = animator.runtimeAnimatorController;
-                    string afterName = after is AnimatorOverrideController ? "AnimatorOverrideController" : after?.name ?? "null";
-                    ExtraAttackPlugin.LogInfo("AOC", $"SoftReplaceRAC(Animator): After={after?.GetType().Name ?? "null"} Name={afterName}");
-                }
             }
             catch (Exception ex)
             {
@@ -571,12 +537,6 @@ namespace ExtraAttackSystem
                 }
 
                 var before = animator.runtimeAnimatorController;
-                if (ExtraAttackPlugin.DebugAOCOperations.Value)
-                {
-                    string beforeName = before is AnimatorOverrideController ? "AnimatorOverrideController" : before?.name ?? "null";
-                    string replaceName = replace is AnimatorOverrideController ? "AnimatorOverrideController" : replace?.name ?? "null";
-                    ExtraAttackPlugin.LogInfo("AOC", $"FastReplaceRAC(Animator): Before={before?.GetType().Name ?? "null"} Name={beforeName} -> Replace={replace?.GetType().Name ?? "null"} Name={replaceName}");
-                }
 
                 if (animator.runtimeAnimatorController == replace)
                 {
@@ -591,12 +551,6 @@ namespace ExtraAttackSystem
                 animator.Rebind();
                 animator.Update(0f);
 
-                if (ExtraAttackPlugin.DebugAOCOperations.Value)
-                {
-                    var after = animator.runtimeAnimatorController;
-                    string afterName = after is AnimatorOverrideController ? "AnimatorOverrideController" : after?.name ?? "null";
-                    ExtraAttackPlugin.LogInfo("AOC", $"FastReplaceRAC(Animator): After={after?.GetType().Name ?? "null"} Name={afterName}");
-                }
             }
             catch (Exception ex)
             {
@@ -889,10 +843,6 @@ namespace ExtraAttackSystem
                 // Clear external clip length cache to force re-evaluation after reload
                 ExternalClipLengthCache.Clear();
 
-                if (ExtraAttackPlugin.DebugAOCOperations.Value)
-                {
-                    ExtraAttackPlugin.LogInfo("AOC", $"ClearAOCCache: keepOriginal={keepOriginal} remaining={CustomRuntimeControllers.Count}");
-                }
             }
             catch (Exception ex)
             {
@@ -997,7 +947,6 @@ namespace ExtraAttackSystem
                 // Get weapon type config
                 var weaponTypeConfig = AnimationTimingConfig.GetWeaponTypeConfig();
                 
-                // Debug: Check weaponTypeConfig state
                 ExtraAttackPlugin.LogInfo("System", $"ApplyWeaponTypeSettings: weaponTypeConfig is null: {weaponTypeConfig == null}");
                 if (weaponTypeConfig != null)
                 {

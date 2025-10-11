@@ -69,7 +69,6 @@ namespace ExtraAttackSystem
                         ExtraAttackPlugin.LogInfo("System", "F6: Reloading AnimationTiming configs");
                         AnimationTimingConfig.Reload();
                         
-                        ExtraAttackPlugin.LogInfo("System", "F6: Reloading ExtraAttackExclusion configs");
                         ExtraAttackExclusionConfig.Reload();
                         
                         // Clear AOC cache to force rebuild on next ApplyStyleAOC
@@ -153,7 +152,6 @@ namespace ExtraAttackSystem
 
                                 // Reset mode to Normal when Extra attack finishes
                                 ExtraAttackUtils.SetAttackMode(__instance, ExtraAttackUtils.AttackMode.Normal);
-                                ExtraAttackPlugin.LogInfo("AOC", $"Attack finished (InAttack=false), reset mode from {currentMode} to Normal");
                             }
                             else
                             {
@@ -300,7 +298,6 @@ namespace ExtraAttackSystem
                 // Secondary attack must be defined for Q/T/G route
                 if (!weapon.HaveSecondaryAttack())
                 {
-                    ExtraAttackPlugin.LogInfo("AttackTriggers", $"CanPerformExtraAttack: weapon={(weapon?.m_shared?.m_name ?? "null")} lacks secondary attack; blocking extra attack");
                     return false;
                 }
 
@@ -396,7 +393,6 @@ namespace ExtraAttackSystem
                     {
                         if (ExtraAttackPlugin.DebugAOCOperations.Value)
                         {
-                            ExtraAttackPlugin.LogInfo("AttackTriggers", $"TriggerNormalAttack[{buttonName}] - standing up from sitting");
                         }
                         // Use reflection to call StopEmote since it's protected
                         try
@@ -419,7 +415,6 @@ namespace ExtraAttackSystem
                     }
 
                     // Diagnostic: capture weapon/state when normal (Style2/3) path is triggered
-                    ExtraAttackPlugin.LogInfo("AttackTriggers", $"TriggerNormalAttack[{buttonName}] weapon={(weapon?.m_shared?.m_name ?? "null")} skill={(weapon?.m_shared?.m_skillType.ToString() ?? "null")} type={(weapon?.m_shared?.m_itemType.ToString() ?? "null")} secondary={weapon?.HaveSecondaryAttack() ?? false} stamina={player.GetStamina():F1}");
 
                     if (!ExtraAttackPatches_Core.TryGetPlayerAnimator(player, out Animator? animator) || animator == null)
                     {
@@ -462,7 +457,6 @@ namespace ExtraAttackSystem
 
                     // Diagnostic: runtime animator controller state just before StartAttack
                     var rac = animator.runtimeAnimatorController;
-                    ExtraAttackPlugin.LogInfo("AOC", $"Before StartAttack: RACType={(rac != null ? rac.GetType().Name : "null")} RACName={(rac is AnimatorOverrideController ? "AnimatorOverrideController" : rac?.name ?? "null")} mode={mode}");
 
                     // Apply pre-generated AOC for the attack mode
                     ExtraAttackPatches_Animation.ApplyStyleAOC(player, animator, mode);
@@ -501,7 +495,6 @@ namespace ExtraAttackSystem
                     {
                         if (ExtraAttackPlugin.DebugAOCOperations.Value)
                         {
-                            ExtraAttackPlugin.LogInfo("AttackTriggers", "TriggerExtraAttack[Q] - standing up from sitting");
                         }
                         // Use reflection to call StopEmote since it's protected
                         try
@@ -552,7 +545,6 @@ namespace ExtraAttackSystem
                     {
                         if (ExtraAttackPlugin.DebugAOCOperations.Value)
                         {
-                            ExtraAttackPlugin.LogInfo("AttackTriggers", $"TriggerExtraAttackWithMode[{mode}] - standing up from sitting");
                         }
                         // Use reflection to call StopEmote since it's protected
                         try

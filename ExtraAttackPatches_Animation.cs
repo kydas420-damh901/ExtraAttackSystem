@@ -32,11 +32,6 @@ namespace ExtraAttackSystem
                     return;
                 }
         
-                if (ExtraAttackSystem.ExtraAttackPlugin.DebugAOCOperations.Value)
-                {
-                    var rac = animator.runtimeAnimatorController;
-                    ExtraAttackPlugin.LogInfo("AOC", $"InitializeAOC: animator RAC={rac?.GetType().Name ?? "null"} name={(rac is AnimatorOverrideController ? "AnimatorOverrideController" : rac?.name ?? "null")}");
-                }
         
                 // Cache original runtime controller once
                 if (!AnimationManager.CustomRuntimeControllers.ContainsKey("Original"))
@@ -45,7 +40,6 @@ namespace ExtraAttackSystem
                     if (original != null)
                     {
                         AnimationManager.CustomRuntimeControllers["Original"] = original;
-                        ExtraAttackPlugin.LogInfo("AOC", "Cached Original runtime animator controller");
                     }
                 }
         
@@ -58,10 +52,6 @@ namespace ExtraAttackSystem
                     {
                         PrewarmAOCForStyles(player, animator);
                         s_AOCPrewarmed = true;
-                        if (ExtraAttackPlugin.DebugAOCOperations.Value)
-                        {
-                            ExtraAttackPlugin.LogInfo("AOC", "Prewarmed style AnimatorOverrideControllers");
-                        }
                     }
                     catch (Exception prewarmEx)
                     {
@@ -91,10 +81,6 @@ namespace ExtraAttackSystem
                 BuildOrGetAOCFor(player, animator, ExtraAttackUtils.AttackMode.ea_secondary_T);
                 BuildOrGetAOCFor(player, animator, ExtraAttackUtils.AttackMode.ea_secondary_G);
                 
-                if (ExtraAttackPlugin.DebugAOCOperations.Value)
-                {
-                    ExtraAttackPlugin.LogInfo("AOC", "Pre-generated base weapon type AOCs");
-                }
                 
                 // Individual weapon AOCs will be generated on-demand when equipment changes
                 // This avoids the complexity of creating mock players for pre-generation
@@ -269,7 +255,6 @@ namespace ExtraAttackSystem
                     {
                         if (ExtraAttackPlugin.DebugAOCOperations.Value)
                         {
-                            ExtraAttackPlugin.LogInfo("AOC", $"Skipping individual weapon AOC generation for {individualWeaponKey} - not in YAML");
                         }
                         // Fall back to weapon type AOC instead of individual weapon AOC
                         rightIdent = string.Empty;
@@ -417,8 +402,6 @@ namespace ExtraAttackSystem
                 if (!string.IsNullOrEmpty(baseKey) && AnimationManager.ReplacementMap.ContainsKey(baseKey))
                 {
                     var weaponTypeMap = AnimationManager.ReplacementMap[baseKey];
-                    ExtraAttackPlugin.LogInfo("AOC", $"Checking weapon type {baseKey} for mode {secondaryPrefix}");
-                    ExtraAttackPlugin.LogInfo("AOC", $"Available modes: {string.Join(", ", weaponTypeMap.Keys)}");
                     
                     // NEW: 直接モードキー（ea_secondary_Q/T/G）で検索
                     if (weaponTypeMap.ContainsKey(secondaryPrefix))
@@ -428,11 +411,9 @@ namespace ExtraAttackSystem
                         string modeKey = secondaryPrefix.Replace("ea_secondary_", "");
                         string vanillaClip = GetVanillaClipName(baseKey, modeKey);
                         map = new Dictionary<string, string> { { vanillaClip, externalClip } };
-                        ExtraAttackPlugin.LogInfo("AOC", $"Found mapping for {baseKey} {secondaryPrefix}: {vanillaClip} -> {externalClip}");
                     }
                     else
                     {
-                        ExtraAttackPlugin.LogWarning("AOC", $"Mode key {secondaryPrefix} not found in weapon type {baseKey}");
                     }
                 }
                 
@@ -456,24 +437,20 @@ namespace ExtraAttackSystem
                 int externalTotal = AnimationManager.ExternalAnimations.Count;
                 string originalName = (original is AnimatorOverrideController) ? "AnimatorOverrideController" : (original?.name ?? "null");
                 string mapKey = map == null ? "<none>" : resolvedKey;
-                ExtraAttackPlugin.LogInfo("AOC", $"BuildOrGetAOCFor: mode={mode} right={rightIdent} rightSkill={rightSkill} leftSkill={leftSkill} leftShield={leftIsShield} leftTorch={leftIsTorch} mapKey={mapKey} entries={(map?.Count ?? 0)} externalResolved={externalResolved} externalMissing={externalMissing} ExternalAnimations={externalTotal} originalName={originalName}");
 
                 // No mappings -> wrap Original in empty AOC to maintain AOC->AOC swaps
                 if (map == null || map.Count == 0)
                 {
-                    ExtraAttackPlugin.LogWarning("AOC", $"BuildOrGetAOCFor: No mappings for {mode}; returning Original wrapped in AOC");
                     try
                     {
                         var originalRac = animator?.runtimeAnimatorController;
                         if (originalRac == null)
                         {
-                            ExtraAttackPlugin.LogWarning("AOC", "BuildOrGetAOCFor: original runtimeAnimatorController is null; fallback to null");
                             return null;
                         }
 
                         var empty = new Dictionary<string, string>();
                         var wrappedController = AnimationManager.MakeAOC(empty, originalRac);
-                        ExtraAttackPlugin.LogInfo("AOC", $"BuildOrGetAOCFor: Created AOC(empty) for original {(originalRac is AnimatorOverrideController ? "AnimatorOverrideController" : originalRac.name)}");
                         return wrappedController;
                     }
                     catch (Exception ex)
@@ -497,19 +474,16 @@ namespace ExtraAttackSystem
                     var originalNonNull = original ?? (AnimationManager.CustomRuntimeControllers.ContainsKey("Original") ? AnimationManager.CustomRuntimeControllers["Original"] : null);
                     if (originalNonNull == null)
                     {
-                        ExtraAttackPlugin.LogWarning("AOC", $"BuildOrGetAOCFor: Original controller is null; skipping AOC and using original");
                         return original;
                     }
-                    controller = AnimationManager.MakeAOC(map, originalNonNull);
+                    controller = AnimationManager.MakeAOC(map, originalNonNull, player);
                     AnimationManager.CustomRuntimeControllers[cacheKey] = controller;
                     if (ExtraAttackPlugin.DebugAOCOperations.Value)
                     {
-                        ExtraAttackPlugin.LogInfo("AOC", $"BuildOrGetAOCFor: Created and cached controller for {cacheKey}");
                     }
                 }
                 else if (ExtraAttackPlugin.DebugAOCOperations.Value)
                 {
-                    ExtraAttackPlugin.LogInfo("AOC", $"BuildOrGetAOCFor: Using cached controller for {cacheKey}");
                 }
 
                 return controller;
@@ -527,7 +501,6 @@ namespace ExtraAttackSystem
         {
             if (ExtraAttackPlugin.DebugAOCOperations.Value)
             {
-                ExtraAttackPlugin.LogInfo("AOC", $"GetWeaponTypeFromSkillType: skillType='{skillType}', weaponData='{weaponData?.m_shared?.m_name}'");
             }
             
             // Check if it's a 2H weapon using ItemDrop.ItemData.SharedData.m_itemType
@@ -543,7 +516,6 @@ namespace ExtraAttackSystem
             if (ExtraAttackPlugin.DebugAOCOperations.Value)
             {
                 var itemTypeStr = weaponData?.m_shared?.m_itemType.ToString() ?? "null";
-                ExtraAttackPlugin.LogInfo("AOC", $"GetWeaponTypeFromSkillType: itemType={itemTypeStr}, is2H={is2H}");
             }
             
             // Battle Axe is Axes skill type + 2H, Great Sword is Swords skill type + 2H
@@ -553,7 +525,6 @@ namespace ExtraAttackSystem
                 {
                     if (ExtraAttackPlugin.DebugAOCOperations.Value)
                     {
-                        ExtraAttackPlugin.LogInfo("AOC", $"GetWeaponTypeFromSkillType: Battle Axe detected (Axes + 2H) -> BattleAxes");
                     }
                     return "BattleAxes";
                 }
@@ -566,7 +537,6 @@ namespace ExtraAttackSystem
                 {
                     if (ExtraAttackPlugin.DebugAOCOperations.Value)
                     {
-                        ExtraAttackPlugin.LogInfo("AOC", $"GetWeaponTypeFromSkillType: Great Sword detected (Swords + 2H) -> GreatSwords");
                     }
                     return "GreatSwords";
                 }
@@ -627,7 +597,6 @@ namespace ExtraAttackSystem
                         if (ExtraAttackPlugin.DebugAOCOperations.Value)
                         {
                             string fromKey = source != null ? "copied" : "empty";
-                            ExtraAttackPlugin.LogInfo("AOC", $"Created item map: {targetKey} ({fromKey})");
                         }
                     }
                     return AnimationManager.ReplacementMap[targetKey].Count > 0;
@@ -719,7 +688,6 @@ namespace ExtraAttackSystem
                         if (ExtraAttackPlugin.DebugAOCOperations.Value)
                         {
                             string fromKey = source != null ? "copied" : "empty";
-                            ExtraAttackPlugin.LogInfo("AOC", $"Created secondary item map: {targetKey} ({fromKey})");
                         }
                     }
                     return AnimationManager.ReplacementMap[targetKey].Count > 0;
@@ -758,14 +726,12 @@ namespace ExtraAttackSystem
                 // Guard: animator is required
                 if (animator == null)
                 {
-                    ExtraAttackPlugin.LogWarning("AOC", "ApplyStyleAOC: Animator is null; skip");
                     return;
                 }
 
                 var desired = BuildOrGetAOCFor(player, animator, mode);
                 if (desired == null)
                 {
-                    ExtraAttackPlugin.LogWarning("AOC", $"ApplyStyleAOC: desired controller is null for mode={mode}; skipping swap");
                     return;
                 }
 
@@ -787,11 +753,9 @@ namespace ExtraAttackSystem
                 // Guard: animator is required
                 if (animator == null)
                 {
-                    ExtraAttackPlugin.LogWarning("AOC", "ApplyStyleAOC: Animator is null; skip");
                     return;
                 }
                 var rac0 = animator.runtimeAnimatorController;
-                ExtraAttackPlugin.LogInfo("AOC", $"ApplyStyleAOC: Begin mode={mode} CurrentRAC={rac0?.GetType().Name ?? "null"} name={(rac0 is AnimatorOverrideController ? "AnimatorOverrideController" : rac0?.name ?? "null")} ");
                 // NEW Diagnostics: capture crouch/emote before swap
                 int crouchHash0 = ZSyncAnimation.GetHash("crouching");
                 int emoteSitHash0 = ZSyncAnimation.GetHash("emote_sit");
@@ -799,11 +763,9 @@ namespace ExtraAttackSystem
                 try { crouch0 = animator.GetBool(crouchHash0); } catch { }
                 try { emoteSit0 = animator.GetBool(emoteSitHash0); } catch { }
                 try { inEmote0 = player.InEmote(); } catch { }
-                ExtraAttackPlugin.LogInfo("AOC", $"ApplyStyleAOC: PreSwap flags crouch={crouch0} inEmote={inEmote0} emote_sit={emoteSit0}");
                 var desired = BuildOrGetAOCFor(player, animator, mode);
                 if (desired == null)
                 {
-                    ExtraAttackPlugin.LogWarning("AOC", $"ApplyStyleAOC: desired controller is null for mode={mode}; skipping swap");
                     return;
                 }
 
@@ -820,7 +782,6 @@ namespace ExtraAttackSystem
                 var before = animator.runtimeAnimatorController;
                 if (ExtraAttackPlugin.DebugAOCOperations.Value)
                 {
-                    ExtraAttackPlugin.LogInfo("AOC", $"ApplyStyleAOC: Before swap RAC={(before != null ? before.GetType().Name : "null")} name={(before is AnimatorOverrideController ? "AnimatorOverrideController" : before?.name ?? "null")} mode={mode}");
                 }
                 // Preserve emote flags across controller swap only if player is currently in emote to avoid unintended transitions
                 int emoteSitHash = ZSyncAnimation.GetHash("emote_sit");
@@ -848,7 +809,6 @@ namespace ExtraAttackSystem
                 try { emoteSit1 = animator.GetBool(emoteSitHash1); } catch { }
                 try { inEmote1 = player.InEmote(); } catch { }
                 var after = animator.runtimeAnimatorController;
-                ExtraAttackPlugin.LogInfo("AOC", $"ApplyStyleAOC: After swap RAC={(after != null ? after.GetType().Name : "null")} name={(after is AnimatorOverrideController ? "AnimatorOverrideController" : after?.name ?? "null")} crouch={crouch1} inEmote={inEmote1} emote_sit={emoteSit1}");
                 // Restore emote flags only when originally in emote
                 // CHANGED: Do NOT restore sit flags when starting attack from emote; let vanilla stop emote
                 // if (wasInEmote)
@@ -863,12 +823,6 @@ namespace ExtraAttackSystem
             }
         }
 
-        // DEPRECATED: AOC is now set at equipment change time, no need to revert
-        public static void RevertStyleAOC(Player player, Animator animator)
-        {
-            // Method disabled - AOC is now set at equipment change time
-            return;
-        }
         
         /*
         // Original implementation - disabled
@@ -878,7 +832,6 @@ namespace ExtraAttackSystem
             {
                 if (animator == null)
                 {
-                    ExtraAttackPlugin.LogWarning("AOC", "RevertStyleAOC: Animator is null; skip");
                     return;
                 }
 
@@ -890,7 +843,6 @@ namespace ExtraAttackSystem
 
                 if (original == null)
                 {
-                    ExtraAttackPlugin.LogWarning("AOC", "RevertStyleAOC: Original controller not found; skip");
                     return;
                 }
 
@@ -907,7 +859,6 @@ namespace ExtraAttackSystem
                 var before = animator.runtimeAnimatorController;
                 if (ExtraAttackPlugin.DebugAOCOperations.Value)
                 {
-                    ExtraAttackPlugin.LogInfo("AOC", $"RevertStyleAOC: Before swap RAC={(before != null ? before.GetType().Name : "null")} name={(before is AnimatorOverrideController ? "AnimatorOverrideController" : before?.name ?? "null")} ");
                 }
 
                 AnimationManager.SoftReplaceRAC(animator, original, preserveSitCrouch: true);
@@ -915,7 +866,6 @@ namespace ExtraAttackSystem
                 var after = animator.runtimeAnimatorController;
                 if (ExtraAttackPlugin.DebugAOCOperations.Value)
                 {
-                    ExtraAttackPlugin.LogInfo("AOC", $"RevertStyleAOC: After swap RAC={(after != null ? after.GetType().Name : "null")} name={(after is AnimatorOverrideController ? "AnimatorOverrideController" : after?.name ?? "null")} ");
                 }
 
                 if (wasInEmote)
@@ -942,7 +892,6 @@ namespace ExtraAttackSystem
                 if (ExtraAttackPlugin.DebugAOCOperations.Value)
                 {
                     string dname = (desired is AnimatorOverrideController) ? "AnimatorOverrideController" : (desired?.name ?? "null");
-                    ExtraAttackPlugin.LogInfo("AOC", $"ScrubMissingRootMotionOverrides: mode={mode} desired={dname} (no-op)");
                 }
                 // NOTE: Intentionally left as no-op until vanilla root motion curve checks are defined.
             }
@@ -995,7 +944,6 @@ namespace ExtraAttackSystem
                     {
                         if (ExtraAttackPlugin.DebugAOCOperations.Value)
                         {
-                            ExtraAttackPlugin.LogInfo("AOC", "GuardWindow: Suppressed ZSyncAnimation.SetTrigger('emote_stop')");
                         }
                         return false; // skip original
                     }
