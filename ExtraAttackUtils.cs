@@ -490,6 +490,3 @@ namespace ExtraAttackSystem
 
     }
 }
-    }
-
-}

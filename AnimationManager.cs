@@ -228,9 +228,6 @@ namespace ExtraAttackSystem
 
             // Legacy maps are now handled by weapon type specific initialization above
 
-            // Apply weapon type specific settings from AnimationTimingConfig
-            ApplyWeaponTypeSettings();
-
             if (ExternalAnimations.Count > 0)
             {
                 ExtraAttackPlugin.LogInfo("System", "Available animations:");
@@ -245,11 +242,16 @@ namespace ExtraAttackSystem
 
                 // Load weapon type mappings from YAML files
                 ExtraAttackPlugin.LogInfo("System", "Loading weapon type mappings from YAML files...");
-                AnimationReplacementConfig.LoadWeaponTypesConfig();
-                ExtraAttackPlugin.LogInfo("System", "Weapon type mappings loaded from YAML files");
-
-                // Apply weapon type settings to populate ReplacementMap
-                ApplyWeaponTypeSettings();
+                try
+                {
+                    AnimationReplacementConfig.LoadWeaponTypesConfig();
+                    ExtraAttackPlugin.LogInfo("System", "Weapon type mappings loaded from YAML files");
+                }
+                catch (Exception ex)
+                {
+                    ExtraAttackPlugin.LogError("System", $"Error loading weapon type mappings in ApplyWeaponTypeSettings: {ex.Message}");
+                    ExtraAttackPlugin.LogError("System", $"Stack trace: {ex.StackTrace}");
+                }
 
                 // Generate combo keys for all pairs of one-handed weapon skills (right x left) - DualWield compatibility
                 var oneHandSkills = new Skills.SkillType[]
@@ -388,7 +390,7 @@ namespace ExtraAttackSystem
             }
         }
 
-        public static UnityEngine.RuntimeAnimatorController MakeAOC(Dictionary<string, string> replacement, UnityEngine.RuntimeAnimatorController original, Player player = null)
+        public static UnityEngine.RuntimeAnimatorController MakeAOC(Dictionary<string, string> replacement, UnityEngine.RuntimeAnimatorController original, Player? player = null)
         {
             AnimatorOverrideController aoc = new(original);
             List<KeyValuePair<AnimationClip, AnimationClip>> anims = new();
@@ -461,9 +463,6 @@ namespace ExtraAttackSystem
                 }
 
                 animator.runtimeAnimatorController = replace;
-                // Reset and stabilize animator immediately after controller swap to prevent unintended state transitions (e.g., stand-up)
-                animator.Rebind();
-                animator.Update(0f);
 
             }
             catch (Exception ex)
@@ -544,12 +543,6 @@ namespace ExtraAttackSystem
                 }
 
                 animator.runtimeAnimatorController = replace;
-                // 差し替え直後の評価進行を完全停止（NoUpdate）。
-                // （Rebindも呼ばない）
-                animator.Update(Time.deltaTime);
-                // Reset and stabilize animator immediately after controller swap to prevent unintended state transitions (e.g., stand-up)
-                animator.Rebind();
-                animator.Update(0f);
 
             }
             catch (Exception ex)
@@ -942,8 +935,15 @@ namespace ExtraAttackSystem
         // Apply weapon type specific settings to ReplacementMap
         public static void ApplyWeaponTypeSettings()
         {
+            ExtraAttackPlugin.LogInfo("System", "ApplyWeaponTypeSettings: START");
             try
             {
+                // Log stack trace to find where this is being called from
+                var stackTrace = new System.Diagnostics.StackTrace(1, true);
+                var callerMethod = stackTrace.GetFrame(0)?.GetMethod()?.Name ?? "Unknown";
+                ExtraAttackPlugin.LogInfo("System", $"ApplyWeaponTypeSettings called from: {callerMethod}");
+                ExtraAttackPlugin.LogInfo("System", $"ApplyWeaponTypeSettings full stack trace: {stackTrace}");
+                
                 // Get weapon type config
                 var weaponTypeConfig = AnimationTimingConfig.GetWeaponTypeConfig();
                 
@@ -954,6 +954,10 @@ namespace ExtraAttackSystem
                     if (weaponTypeConfig.WeaponTypes != null)
                     {
                         ExtraAttackPlugin.LogInfo("System", $"ApplyWeaponTypeSettings: WeaponTypes.Count: {weaponTypeConfig.WeaponTypes.Count}");
+                        if (weaponTypeConfig.WeaponTypes.Count > 0)
+                        {
+                            ExtraAttackPlugin.LogInfo("System", $"ApplyWeaponTypeSettings: WeaponTypes keys: {string.Join(", ", weaponTypeConfig.WeaponTypes.Keys)}");
+                        }
                     }
                 }
                 
@@ -1239,7 +1243,7 @@ namespace ExtraAttackSystem
         }
 
         // Create default weapon type mappings when config is empty
-        private static void CreateDefaultWeaponTypeMappings()
+        public static void CreateDefaultWeaponTypeMappings()
         {
             try
             {

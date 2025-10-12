@@ -23,9 +23,138 @@ namespace ExtraAttackSystem
             // New YAML sections for AOC pair format: type-level and item-level maps
             public Dictionary<string, Dictionary<string, string>> AocTypes { get; set; } = new();
             public Dictionary<string, Dictionary<string, string>> AocItems { get; set; } = new();
+            
+            // Direct weapon type mappings (current YAML structure: Axes -> Q -> {vanillaClip: externalClip})
+            public Dictionary<string, Dictionary<string, string>> Axes { get; set; } = new();
+            public Dictionary<string, Dictionary<string, string>> BattleAxes { get; set; } = new();
+            public Dictionary<string, Dictionary<string, string>> Clubs { get; set; } = new();
+            public Dictionary<string, Dictionary<string, string>> Fists { get; set; } = new();
+            public Dictionary<string, Dictionary<string, string>> GreatSwords { get; set; } = new();
+            public Dictionary<string, Dictionary<string, string>> Knives { get; set; } = new();
+            public Dictionary<string, Dictionary<string, string>> Polearms { get; set; } = new();
+            public Dictionary<string, Dictionary<string, string>> Spears { get; set; } = new();
+            public Dictionary<string, Dictionary<string, string>> Swords { get; set; } = new();
         }
 
         private static ReplacementYaml current = new ReplacementYaml();
+
+        // Clean up YAML content to handle malformed structure
+        private static string CleanupYamlContent(string yaml)
+        {
+            try
+            {
+                ExtraAttackPlugin.LogInfo("System", "CleanupYamlContent: Starting cleanup");
+                
+                // Remove duplicate headers and fix structure
+                var lines = yaml.Split('\n').ToList();
+                var cleanedLines = new List<string>();
+                bool inAocTypes = false;
+                bool foundFirstWeaponType = false;
+                
+                foreach (var line in lines)
+                {
+                    // Skip duplicate headers after AocTypes:
+                    if (line.Trim() == "AocTypes:")
+                    {
+                        if (!inAocTypes)
+                        {
+                            cleanedLines.Add(line);
+                            inAocTypes = true;
+                        }
+                        continue;
+                    }
+                    
+                    // Skip duplicate headers until we find the first weapon type
+                    if (inAocTypes && !foundFirstWeaponType)
+                    {
+                        if (line.Trim().StartsWith("#") || string.IsNullOrWhiteSpace(line))
+                        {
+                            continue;
+                        }
+                        
+                        // Found first weapon type
+                        if (line.Trim().EndsWith(":"))
+                        {
+                            foundFirstWeaponType = true;
+                            cleanedLines.Add(line);
+                        }
+                        continue;
+                    }
+                    
+                    // Add all other lines
+                    cleanedLines.Add(line);
+                }
+                
+                string cleanedYaml = string.Join("\n", cleanedLines);
+                ExtraAttackPlugin.LogInfo("System", $"CleanupYamlContent: Cleaned YAML length: {cleanedYaml.Length}");
+                
+                return cleanedYaml;
+            }
+            catch (Exception ex)
+            {
+                ExtraAttackPlugin.LogError("System", $"Error in CleanupYamlContent: {ex.Message}");
+                return yaml; // Return original if cleanup fails
+            }
+        }
+
+        // Convert direct weapon type mappings to AocTypes format
+        private static void ConvertDirectMappingsToAocTypes(ReplacementYaml config)
+        {
+            try
+            {
+                ExtraAttackPlugin.LogInfo("System", "ConvertDirectMappingsToAocTypes: Starting conversion");
+                
+                // Initialize AocTypes if null
+                if (config.AocTypes == null)
+                {
+                    config.AocTypes = new Dictionary<string, Dictionary<string, string>>();
+                }
+                
+                // Convert each weapon type
+                var weaponTypes = new[]
+                {
+                    ("Axes", config.Axes),
+                    ("BattleAxes", config.BattleAxes),
+                    ("Clubs", config.Clubs),
+                    ("Fists", config.Fists),
+                    ("GreatSwords", config.GreatSwords),
+                    ("Knives", config.Knives),
+                    ("Polearms", config.Polearms),
+                    ("Spears", config.Spears),
+                    ("Swords", config.Swords)
+                };
+                
+                foreach (var (weaponType, weaponTypeDict) in weaponTypes)
+                {
+                    if (weaponTypeDict != null && weaponTypeDict.Count > 0)
+                    {
+                        ExtraAttackPlugin.LogInfo("System", $"ConvertDirectMappingsToAocTypes: Converting {weaponType} with {weaponTypeDict.Count} modes");
+                        
+                        config.AocTypes[weaponType] = new Dictionary<string, string>();
+                        
+                        // Convert Q/T/G modes to ea_secondary_Q/T/G format
+                        foreach (var mode in weaponTypeDict.Keys)
+                        {
+                            if (weaponTypeDict[mode] != null && weaponTypeDict[mode].Count > 0)
+                            {
+                                // Get the first (and usually only) mapping
+                                var mapping = weaponTypeDict[mode].First();
+                                string modeKey = $"ea_secondary_{mode}";
+                                config.AocTypes[weaponType][modeKey] = mapping.Value;
+                                
+                                ExtraAttackPlugin.LogInfo("System", $"ConvertDirectMappingsToAocTypes: {weaponType}.{modeKey} = {mapping.Value}");
+                            }
+                        }
+                    }
+                }
+                
+                ExtraAttackPlugin.LogInfo("System", $"ConvertDirectMappingsToAocTypes: Conversion completed. AocTypes.Count: {config.AocTypes.Count}");
+            }
+            catch (Exception ex)
+            {
+                ExtraAttackPlugin.LogError("System", $"Error in ConvertDirectMappingsToAocTypes: {ex.Message}");
+            }
+        }
 
         // Initialize: create or load YAML, then apply to AnimationManager.ReplacementMap
         public static void Initialize()
@@ -37,31 +166,22 @@ namespace ExtraAttackSystem
                     Directory.CreateDirectory(ConfigFolderPath);
                 }
 
-                bool weaponTypesExisted = File.Exists(WeaponTypesConfigFilePath);
-                bool individualWeaponsExisted = File.Exists(IndividualWeaponsConfigFilePath);
-                if (weaponTypesExisted && individualWeaponsExisted)
+                // Check and create weapon types config if needed, then load it
+                if (ShouldCreateOrRegenerateWeaponTypesConfig())
                 {
-                    LoadWeaponTypesConfig();
-                    LoadIndividualWeaponsConfig();
+                    CreateDefaultWeaponTypesConfig();
                 }
-                else
+                LoadWeaponTypesConfig();
+
+                // Check and create individual weapons config if needed, then load it
+                if (ShouldCreateOrRegenerateIndividualWeaponsConfig())
                 {
-                    CreateDefaultFromManager();
+                    CreateDefaultIndividualWeaponsConfig();
                 }
+                LoadIndividualWeaponsConfig();
 
                 // Apply loaded (or created) YAML to manager map
                 ApplyToManager();
-
-                // Auto-populate empty existing YAML from manager defaults to help first-run users
-                if (weaponTypesExisted && individualWeaponsExisted && (current?.AocTypes?.Count ?? 0) == 0 && (current?.AocItems?.Count ?? 0) == 0)
-                {
-                    // Only if manager already has entries
-                    bool hasManagerEntries = AnimationManager.ReplacementMap != null && AnimationManager.ReplacementMap.Any(kv => kv.Value != null && kv.Value.Count > 0);
-                    if (hasManagerEntries)
-                    {
-                        SaveFromManager();
-                    }
-                }
             }
             catch (Exception ex)
             {
@@ -69,34 +189,149 @@ namespace ExtraAttackSystem
             }
         }
 
+        // Check if weapon types config should be created or regenerated
+        private static bool ShouldCreateOrRegenerateWeaponTypesConfig()
+        {
+            if (!File.Exists(WeaponTypesConfigFilePath))
+            {
+                ExtraAttackPlugin.LogInfo("Config", "AnimationReplacement_WeaponTypes.yaml not found, will create");
+                return true;
+            }
+
+            // Check if file is empty or has no content
+            try
+            {
+                string content = File.ReadAllText(WeaponTypesConfigFilePath, Encoding.UTF8).Trim();
+                if (string.IsNullOrEmpty(content))
+                {
+                    ExtraAttackPlugin.LogInfo("Config", "AnimationReplacement_WeaponTypes.yaml is empty, will regenerate");
+                    return true;
+                }
+
+                // Check if file has actual AOC type data
+                if (!content.Contains("AocTypes:") || !content.Contains("ea_secondary_"))
+                {
+                    ExtraAttackPlugin.LogInfo("Config", "AnimationReplacement_WeaponTypes.yaml has no AOC type data, will regenerate");
+                    return true;
+                }
+
+                ExtraAttackPlugin.LogInfo("Config", "AnimationReplacement_WeaponTypes.yaml exists and has content, skipping generation");
+                return false;
+            }
+            catch (Exception ex)
+            {
+                ExtraAttackPlugin.LogError("System", $"Error checking AnimationReplacement_WeaponTypes.yaml: {ex.Message}");
+                return true; // Regenerate on error
+            }
+        }
+
+        // Check if individual weapons config should be created or regenerated
+        private static bool ShouldCreateOrRegenerateIndividualWeaponsConfig()
+        {
+            if (!File.Exists(IndividualWeaponsConfigFilePath))
+            {
+                ExtraAttackPlugin.LogInfo("Config", "AnimationReplacement_IndividualWeapons.yaml not found, will create");
+                return true;
+            }
+
+            // Check if file is empty or has no content
+            try
+            {
+                string content = File.ReadAllText(IndividualWeaponsConfigFilePath, Encoding.UTF8).Trim();
+                if (string.IsNullOrEmpty(content))
+                {
+                    ExtraAttackPlugin.LogInfo("Config", "AnimationReplacement_IndividualWeapons.yaml is empty, will regenerate");
+                    return true;
+                }
+
+                // Check if file has actual AOC item data
+                if (!content.Contains("AocItems:") || !content.Contains("ea_secondary_"))
+                {
+                    ExtraAttackPlugin.LogInfo("Config", "AnimationReplacement_IndividualWeapons.yaml has no AOC item data, will regenerate");
+                    return true;
+                }
+
+                ExtraAttackPlugin.LogInfo("Config", "AnimationReplacement_IndividualWeapons.yaml exists and has content, skipping generation");
+                return false;
+            }
+            catch (Exception ex)
+            {
+                ExtraAttackPlugin.LogError("System", $"Error checking AnimationReplacement_IndividualWeapons.yaml: {ex.Message}");
+                return true; // Regenerate on error
+            }
+        }
+
         // Load weapon types YAML
         public static void LoadWeaponTypesConfig()
         {
+            ExtraAttackPlugin.LogInfo("System", "LoadWeaponTypesConfig: Starting to load weapon types config");
             try
             {
-                // If YAML file doesn't exist, create default configuration
+                ExtraAttackPlugin.LogInfo("System", $"LoadWeaponTypesConfig: Reading file: {WeaponTypesConfigFilePath}");
+                
                 if (!File.Exists(WeaponTypesConfigFilePath))
                 {
-                    CreateDefaultWeaponTypesConfig();
+                    ExtraAttackPlugin.LogWarning("System", $"LoadWeaponTypesConfig: File does not exist: {WeaponTypesConfigFilePath}");
+                    return;
                 }
-
+                
                 string yaml = File.ReadAllText(WeaponTypesConfigFilePath, Encoding.UTF8);
+                ExtraAttackPlugin.LogInfo("System", $"LoadWeaponTypesConfig: YAML content length: {yaml.Length}");
+                
+                if (string.IsNullOrEmpty(yaml))
+                {
+                    ExtraAttackPlugin.LogWarning("System", "LoadWeaponTypesConfig: YAML content is empty");
+                    return;
+                }
+                
+                ExtraAttackPlugin.LogInfo("System", $"LoadWeaponTypesConfig: YAML preview: {yaml.Substring(0, Math.Min(200, yaml.Length))}...");
+                
+                ExtraAttackPlugin.LogInfo("System", "LoadWeaponTypesConfig: Creating deserializer");
                 var deserializer = new DeserializerBuilder()
                     .WithNamingConvention(CamelCaseNamingConvention.Instance)
                     .IgnoreUnmatchedProperties()
                     .Build();
+                
+                // Clean up YAML content to handle malformed structure
+                yaml = CleanupYamlContent(yaml);
 
+                ExtraAttackPlugin.LogInfo("System", "LoadWeaponTypesConfig: Deserializing YAML");
                 var weaponTypesConfig = deserializer.Deserialize<ReplacementYaml>(yaml) ?? new ReplacementYaml();
+                
+                // Convert direct weapon type mappings to AocTypes format
+                ConvertDirectMappingsToAocTypes(weaponTypesConfig);
+                
+                ExtraAttackPlugin.LogInfo("System", $"LoadWeaponTypesConfig: weaponTypesConfig.AocTypes is null: {weaponTypesConfig.AocTypes == null}");
                 if (weaponTypesConfig.AocTypes != null)
                 {
+                    ExtraAttackPlugin.LogInfo("System", $"LoadWeaponTypesConfig: weaponTypesConfig.AocTypes.Count: {weaponTypesConfig.AocTypes.Count}");
+                    foreach (var kvp in weaponTypesConfig.AocTypes)
+                    {
+                        ExtraAttackPlugin.LogInfo("System", $"LoadWeaponTypesConfig: {kvp.Key}: {kvp.Value?.Count ?? 0} modes");
+                    }
                     current.AocTypes = weaponTypesConfig.AocTypes;
+                    ExtraAttackPlugin.LogInfo("System", "LoadWeaponTypesConfig: Successfully set current.AocTypes");
                 }
+                else
+                {
+                    ExtraAttackPlugin.LogWarning("System", "LoadWeaponTypesConfig: weaponTypesConfig.AocTypes is null after deserialization");
+                }
+                
+                ExtraAttackPlugin.LogInfo("System", "LoadWeaponTypesConfig: Calling ApplyToManager");
                 // Apply the loaded configuration to ReplacementMap (always call, even if AocTypes is null)
                 ApplyToManager();
+                ExtraAttackPlugin.LogInfo("System", "LoadWeaponTypesConfig: Completed successfully");
             }
             catch (Exception ex)
             {
-                ExtraAttackPlugin.LogError("System", $"Error loading AnimationReplacement_WeaponTypes.yaml: {ex.Message}");
+                ExtraAttackPlugin.LogError("System", $"CRITICAL ERROR in LoadWeaponTypesConfig: {ex.Message}");
+                ExtraAttackPlugin.LogError("System", $"CRITICAL ERROR Stack trace: {ex.StackTrace}");
+                
+                // Ensure current.AocTypes is reset on error
+                current.AocTypes = new Dictionary<string, Dictionary<string, string>>();
+                
+                // Re-throw to ensure the error is not silently ignored
+                throw;
             }
         }
 
@@ -176,6 +411,24 @@ namespace ExtraAttackSystem
             }
         }
 
+        // Create default individual weapons configuration
+        private static void CreateDefaultIndividualWeaponsConfig()
+        {
+            try
+            {
+                // Initialize empty individual weapons configuration
+                current.AocItems = new Dictionary<string, Dictionary<string, string>>();
+                
+                // Save the empty configuration
+                SaveIndividualWeaponsConfig();
+                ExtraAttackPlugin.LogInfo("System", "Created default individual weapons configuration");
+            }
+            catch (Exception ex)
+            {
+                ExtraAttackPlugin.LogError("System", $"Error creating default individual weapons config: {ex.Message}");
+            }
+        }
+
         // Load individual weapons YAML
         private static void LoadIndividualWeaponsConfig()
         {
@@ -202,11 +455,23 @@ namespace ExtraAttackSystem
         // Reload at runtime (e.g., F6 hotkey handled elsewhere)
         public static void Reload()
         {
+            ExtraAttackPlugin.LogInfo("System", $"F6: AnimationReplacementConfig.Reload() - Checking files...");
+            ExtraAttackPlugin.LogInfo("System", $"F6: WeaponTypesConfigFilePath: {WeaponTypesConfigFilePath}");
+            ExtraAttackPlugin.LogInfo("System", $"F6: IndividualWeaponsConfigFilePath: {IndividualWeaponsConfigFilePath}");
+            ExtraAttackPlugin.LogInfo("System", $"F6: WeaponTypes file exists: {File.Exists(WeaponTypesConfigFilePath)}");
+            ExtraAttackPlugin.LogInfo("System", $"F6: IndividualWeapons file exists: {File.Exists(IndividualWeaponsConfigFilePath)}");
+            
             if (File.Exists(WeaponTypesConfigFilePath) && File.Exists(IndividualWeaponsConfigFilePath))
             {
+                ExtraAttackPlugin.LogInfo("System", "F6: Both files exist, loading...");
                 LoadWeaponTypesConfig();
                 LoadIndividualWeaponsConfig();
                 ApplyToManager();
+                ExtraAttackPlugin.LogInfo("System", "F6: AnimationReplacementConfig reload completed");
+            }
+            else
+            {
+                ExtraAttackPlugin.LogWarning("System", "F6: One or both AnimationReplacement YAML files missing, skipping reload");
             }
         }
 
@@ -322,7 +587,10 @@ namespace ExtraAttackSystem
             }
             else
             {
-                ExtraAttackPlugin.LogWarning("System", "ApplyToManager: current.AocTypes is null or empty");
+                ExtraAttackPlugin.LogWarning("System", "ApplyToManager: current.AocTypes is null or empty - initializing with default values");
+                
+                // Initialize with default weapon type mappings if YAML is empty
+                AnimationManager.CreateDefaultWeaponTypeMappings();
             }
             
             // Process Maps (legacy format) if available
@@ -430,6 +698,21 @@ namespace ExtraAttackSystem
                                     { triggerName, externalClip }
                                 };
                             }
+                            else
+                            {
+                                // Add empty entry if mode key doesn't exist
+                                weaponTypeGroups[weaponType][modes[i]] = new Dictionary<string, string>();
+                            }
+                        }
+                    }
+                    else
+                    {
+                        // Add empty entry if weapon type doesn't exist
+                        weaponTypeGroups[weaponType] = new Dictionary<string, Dictionary<string, string>>();
+                        var modes = new[] { "Q", "T", "G" };
+                        foreach (var mode in modes)
+                        {
+                            weaponTypeGroups[weaponType][mode] = new Dictionary<string, string>();
                         }
                     }
                 }
@@ -447,13 +730,22 @@ namespace ExtraAttackSystem
                         {
                             sb.AppendLine($"  {mode}:");
                             var map = weaponTypeGroups[weaponType][mode];
-                            if (map != null)
+                            if (map != null && map.Count > 0)
                             {
-                    foreach (var kvp in map.OrderBy(k => k.Key))
-                    {
+                                foreach (var kvp in map.OrderBy(k => k.Key))
+                                {
                                     sb.AppendLine($"    {kvp.Key}: {kvp.Value}  # Vanilla: {kvp.Key} | Replacement: {kvp.Value}");
                                 }
                             }
+                            else
+                            {
+                                sb.AppendLine($"    # No mappings defined for {mode} mode");
+                            }
+                        }
+                        else
+                        {
+                            sb.AppendLine($"  {mode}:");
+                            sb.AppendLine($"    # No mappings defined for {mode} mode");
                         }
                     }
                     sb.AppendLine();

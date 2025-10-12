@@ -31,20 +31,56 @@ namespace ExtraAttackSystem
                     Directory.CreateDirectory(ConfigFolderPath);
                 }
 
-                if (File.Exists(ConfigFilePath))
+                if (ShouldCreateOrRegenerateExclusionConfig())
                 {
-                    Load();
-                    ExtraAttackPlugin.LogInfo("System", $"Loaded ExtraAttackExclusion.yaml: names={current.ExcludedItemNames.Count}, types={current.ExcludedItemTypes.Count}, prefabs={current.ExcludedPrefabNames.Count}");
+                    CreateDefault();
+                    ExtraAttackPlugin.LogInfo("System", "Created/regenerated ExtraAttackExclusion.yaml");
                 }
                 else
                 {
-                    CreateDefault();
-                    ExtraAttackPlugin.LogInfo("System", "Created default ExtraAttackExclusion.yaml");
+                    Load();
+                    ExtraAttackPlugin.LogInfo("System", $"Loaded ExtraAttackExclusion.yaml: names={current.ExcludedItemNames.Count}, types={current.ExcludedItemTypes.Count}, prefabs={current.ExcludedPrefabNames.Count}");
                 }
             }
             catch (Exception ex)
             {
                 ExtraAttackPlugin.LogError("System", $"Error initializing ExtraAttackExclusionConfig: {ex.Message}");
+            }
+        }
+
+        // Check if exclusion config should be created or regenerated
+        private static bool ShouldCreateOrRegenerateExclusionConfig()
+        {
+            if (!File.Exists(ConfigFilePath))
+            {
+                ExtraAttackPlugin.LogInfo("Config", "ExtraAttackExclusion.yaml not found, will create");
+                return true;
+            }
+
+            // Check if file is empty or has no content
+            try
+            {
+                string content = File.ReadAllText(ConfigFilePath, Encoding.UTF8).Trim();
+                if (string.IsNullOrEmpty(content))
+                {
+                    ExtraAttackPlugin.LogInfo("Config", "ExtraAttackExclusion.yaml is empty, will regenerate");
+                    return true;
+                }
+
+                // Check if file has actual exclusion data
+                if (!content.Contains("ExcludedItemNames:") && !content.Contains("ExcludedItemTypes:") && !content.Contains("ExcludedPrefabNames:"))
+                {
+                    ExtraAttackPlugin.LogInfo("Config", "ExtraAttackExclusion.yaml has no exclusion data, will regenerate");
+                    return true;
+                }
+
+                ExtraAttackPlugin.LogInfo("Config", "ExtraAttackExclusion.yaml exists and has content, skipping generation");
+                return false;
+            }
+            catch (Exception ex)
+            {
+                ExtraAttackPlugin.LogError("System", $"Error checking ExtraAttackExclusion.yaml: {ex.Message}");
+                return true; // Regenerate on error
             }
         }
 

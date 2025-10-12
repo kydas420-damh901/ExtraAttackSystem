@@ -75,25 +75,19 @@ namespace ExtraAttackSystem
                     Directory.CreateDirectory(ConfigFolderPath);
                 }
 
-                // Load weapon types config
-                if (File.Exists(WeaponTypesConfigFilePath))
-                {
-                    LoadWeaponTypeConfig();
-                }
-                else
+                // Check and create weapon types config if needed, then load it
+                if (ShouldCreateOrRegenerateWeaponTypesConfig())
                 {
                     CreateDefaultWeaponTypeConfig();
                 }
+                LoadWeaponTypeConfig();
 
-                // Load individual weapons config
-                if (File.Exists(IndividualWeaponsConfigFilePath))
-                {
-                    LoadIndividualWeaponsConfig();
-                }
-                else
+                // Check and create individual weapons config if needed, then load it
+                if (ShouldCreateOrRegenerateIndividualWeaponsConfig())
                 {
                     CreateDefaultIndividualWeaponsConfig();
                 }
+                LoadIndividualWeaponsConfig();
             }
             catch (Exception ex)
             {
@@ -101,6 +95,77 @@ namespace ExtraAttackSystem
             }
         }
 
+        // Check if weapon types config should be created or regenerated
+        private static bool ShouldCreateOrRegenerateWeaponTypesConfig()
+        {
+            if (!File.Exists(WeaponTypesConfigFilePath))
+            {
+                ExtraAttackPlugin.LogInfo("Config", "WeaponTypes config file not found, will create");
+                return true;
+            }
+
+            // Check if file is empty or has no content
+            try
+            {
+                string content = File.ReadAllText(WeaponTypesConfigFilePath, Encoding.UTF8).Trim();
+                if (string.IsNullOrEmpty(content))
+                {
+                    ExtraAttackPlugin.LogInfo("Config", "WeaponTypes config file is empty, will regenerate");
+                    return true;
+                }
+
+                // Check if file has actual weapon type data (not just comments/headers)
+                if (!content.Contains("WeaponTypes:") || !content.Contains("_secondary_"))
+                {
+                    ExtraAttackPlugin.LogInfo("Config", "WeaponTypes config file has no weapon type data, will regenerate");
+                    return true;
+                }
+
+                ExtraAttackPlugin.LogInfo("Config", "WeaponTypes config file exists and has content, skipping generation");
+                return false;
+            }
+            catch (Exception ex)
+            {
+                ExtraAttackPlugin.LogError("System", $"Error checking WeaponTypes config file: {ex.Message}");
+                return true; // Regenerate on error
+            }
+        }
+
+        // Check if individual weapons config should be created or regenerated
+        private static bool ShouldCreateOrRegenerateIndividualWeaponsConfig()
+        {
+            if (!File.Exists(IndividualWeaponsConfigFilePath))
+            {
+                ExtraAttackPlugin.LogInfo("Config", "IndividualWeapons config file not found, will create");
+                return true;
+            }
+
+            // Check if file is empty or has no content
+            try
+            {
+                string content = File.ReadAllText(IndividualWeaponsConfigFilePath, Encoding.UTF8).Trim();
+                if (string.IsNullOrEmpty(content))
+                {
+                    ExtraAttackPlugin.LogInfo("Config", "IndividualWeapons config file is empty, will regenerate");
+                    return true;
+                }
+
+                // Check if file has actual individual weapon data
+                if (!content.Contains("IndividualWeapons:") || !content.Contains("_secondary_"))
+                {
+                    ExtraAttackPlugin.LogInfo("Config", "IndividualWeapons config file has no individual weapon data, will regenerate");
+                    return true;
+                }
+
+                ExtraAttackPlugin.LogInfo("Config", "IndividualWeapons config file exists and has content, skipping generation");
+                return false;
+            }
+            catch (Exception ex)
+            {
+                ExtraAttackPlugin.LogError("System", $"Error checking IndividualWeapons config file: {ex.Message}");
+                return true; // Regenerate on error
+            }
+        }
 
         // Get timing for specific animation using weapon type config
         public static AnimationTiming GetTiming(string animationName)
@@ -232,15 +297,36 @@ namespace ExtraAttackSystem
         // Reload config (for runtime changes)
         public static void Reload()
         {
+            ExtraAttackPlugin.LogInfo("System", $"F6: AnimationTimingConfig.Reload() - Checking files...");
+            ExtraAttackPlugin.LogInfo("System", $"F6: WeaponTypesConfigFilePath: {WeaponTypesConfigFilePath}");
+            ExtraAttackPlugin.LogInfo("System", $"F6: IndividualWeaponsConfigFilePath: {IndividualWeaponsConfigFilePath}");
+            ExtraAttackPlugin.LogInfo("System", $"F6: WeaponTypes file exists: {File.Exists(WeaponTypesConfigFilePath)}");
+            ExtraAttackPlugin.LogInfo("System", $"F6: IndividualWeapons file exists: {File.Exists(IndividualWeaponsConfigFilePath)}");
+            
             if (File.Exists(WeaponTypesConfigFilePath))
             {
+                ExtraAttackPlugin.LogInfo("System", "F6: Loading WeaponTypes config...");
                 LoadWeaponTypeConfig();
+            }
+            else
+            {
+                ExtraAttackPlugin.LogWarning("System", "F6: WeaponTypes YAML file missing, skipping reload");
             }
             
             if (File.Exists(IndividualWeaponsConfigFilePath))
             {
+                ExtraAttackPlugin.LogInfo("System", "F6: Loading IndividualWeapons config...");
                 LoadIndividualWeaponsConfig();
             }
+            else
+            {
+                ExtraAttackPlugin.LogWarning("System", "F6: IndividualWeapons YAML file missing, skipping reload");
+            }
+            
+            // Apply the reloaded settings to the manager
+            ExtraAttackPlugin.LogInfo("System", "F6: Applying reloaded settings to manager...");
+            AnimationManager.ApplyWeaponTypeSettings();
+            ExtraAttackPlugin.LogInfo("System", "F6: AnimationTimingConfig reload completed");
         }
 
         // Load weapon type specific config
@@ -253,23 +339,41 @@ namespace ExtraAttackSystem
                     .Build();
 
                 var yamlContent = File.ReadAllText(WeaponTypesConfigFilePath);
-                weaponTypeConfig = deserializer.Deserialize<WeaponTypeConfig>(yamlContent) ?? new WeaponTypeConfig();
+                ExtraAttackPlugin.LogInfo("Config", $"YAML content length: {yamlContent.Length}");
+                ExtraAttackPlugin.LogInfo("Config", $"YAML content preview (first 500 chars): {yamlContent.Substring(0, Math.Min(500, yamlContent.Length))}");
+                
+                // Try to deserialize with better error handling
+                try
+                {
+                    weaponTypeConfig = deserializer.Deserialize<WeaponTypeConfig>(yamlContent) ?? new WeaponTypeConfig();
+                }
+                catch (Exception deserializeEx)
+                {
+                    ExtraAttackPlugin.LogError("System", $"Deserialization failed: {deserializeEx.Message}");
+                    ExtraAttackPlugin.LogError("System", $"YAML content causing error: {yamlContent}");
+                    throw; // Re-throw to be caught by outer catch
+                }
                 
                 ExtraAttackPlugin.LogInfo("Config", $"Loaded weapon type config: {weaponTypeConfig?.WeaponTypes?.Count ?? 0} weapon types");
-                if (ExtraAttackPlugin.IsDebugAOCOperationsEnabled)
+                ExtraAttackPlugin.LogInfo("Config", $"weaponTypeConfig is null: {weaponTypeConfig == null}");
+                ExtraAttackPlugin.LogInfo("Config", $"WeaponTypes is null: {weaponTypeConfig?.WeaponTypes == null}");
+                
+                if (weaponTypeConfig?.WeaponTypes != null)
                 {
-                    if (weaponTypeConfig?.WeaponTypes != null)
+                    foreach (var weaponType in weaponTypeConfig.WeaponTypes)
                     {
-                        foreach (var weaponType in weaponTypeConfig.WeaponTypes)
-                        {
-                            ExtraAttackPlugin.LogInfo("Config", $"  {weaponType.Key}: {weaponType.Value.Count} attack modes");
-                        }
+                        ExtraAttackPlugin.LogInfo("Config", $"  {weaponType.Key}: {weaponType.Value.Count} attack modes");
                     }
+                }
+                else
+                {
+                    ExtraAttackPlugin.LogWarning("Config", "WeaponTypes is null or empty after deserialization");
                 }
             }
             catch (Exception ex)
             {
                 ExtraAttackPlugin.LogError("System", $"Error loading weapon type config: {ex.Message}");
+                ExtraAttackPlugin.LogError("System", $"Stack trace: {ex.StackTrace}");
                 weaponTypeConfig = new WeaponTypeConfig();
             }
         }
@@ -311,7 +415,7 @@ namespace ExtraAttackSystem
         {
             try
             {
-                // Generate weapon type config programmatically
+                ExtraAttackPlugin.LogInfo("Config", "Generating default WeaponTypes config");
                 GenerateWeaponTypeConfig();
             }
             catch (Exception ex)
@@ -325,7 +429,7 @@ namespace ExtraAttackSystem
         {
             try
             {
-                // Generate individual weapons config programmatically
+                ExtraAttackPlugin.LogInfo("Config", "Generating default IndividualWeapons config");
                 var config = new WeaponTypeConfig();
                 CreateIndividualWeaponSettings(config);
                 SaveIndividualWeaponsConfig(config);
@@ -353,7 +457,7 @@ namespace ExtraAttackSystem
 
                 if (config.IndividualWeapons != null && config.IndividualWeapons.Count > 0)
                 {
-                    sb.AppendLine("individual_weapons:");
+                    sb.AppendLine("IndividualWeapons:");
                     
                     // Group by individual weapon name and sort by Q/T/G
                     var individualWeaponGroups = new Dictionary<string, Dictionary<string, AnimationTiming>>();
@@ -455,6 +559,7 @@ namespace ExtraAttackSystem
         {
             try
             {
+                ExtraAttackPlugin.LogInfo("Config", "GenerateWeaponTypeConfig: Starting generation");
                 var config = new WeaponTypeConfig();
                 config.Default = new AnimationTiming();
 
@@ -508,6 +613,7 @@ namespace ExtraAttackSystem
                 // Generate settings for each weapon type
                 foreach (var weaponType in weaponTypeMappings.Keys)
                 {
+                    ExtraAttackPlugin.LogInfo("Config", $"GenerateWeaponTypeConfig: Processing weapon type: {weaponType}");
                     var weaponSettings = new Dictionary<string, AnimationTiming>();
                     var mappings = weaponTypeMappings[weaponType];
 
@@ -516,18 +622,22 @@ namespace ExtraAttackSystem
                         var targetWeaponType = mappings[mode];
                         var key = $"{weaponType}_secondary_{mode}";
                         
+                        ExtraAttackPlugin.LogInfo("Config", $"GenerateWeaponTypeConfig: Creating timing for {key} -> {targetWeaponType}_{mode}");
+                        
                         // Create timing based on target weapon type
                         var timing = CreateTimingForWeaponType(targetWeaponType, mode);
                         weaponSettings[key] = timing;
                     }
 
                     config.WeaponTypes[weaponType] = weaponSettings;
+                    ExtraAttackPlugin.LogInfo("Config", $"GenerateWeaponTypeConfig: Added {weaponType} with {weaponSettings.Count} modes");
                 }
 
                 // Create individual weapon settings
                 CreateIndividualWeaponSettings(config);
 
                 // Save the generated config
+                ExtraAttackPlugin.LogInfo("Config", $"GenerateWeaponTypeConfig: Final config has {config.WeaponTypes.Count} weapon types");
                 SaveWeaponTypeConfig(config);
             }
             catch (Exception ex)
@@ -540,12 +650,9 @@ namespace ExtraAttackSystem
         private static AnimationTiming CreateTimingForWeaponType(string weaponType, string mode)
         {
             var timing = new AnimationTiming();
-
-            // Get the target weapon type for this mode
-            string targetWeaponType = GetTargetWeaponTypeForMode(weaponType, mode);
             
             // Try to get actual animation clip length from ReplacementMap
-            string key = $"ea_secondary_{mode}_{targetWeaponType}";
+            string key = $"ea_secondary_{mode}";
             float clipLength = GetAdjustedClipLength(key);
             
             if (clipLength > 0)
@@ -987,7 +1094,7 @@ namespace ExtraAttackSystem
                 sb.AppendLine("# ==============================================================================");
                 sb.AppendLine("# Default Settings");
                 sb.AppendLine("# ==============================================================================");
-                sb.AppendLine("default:");
+                sb.AppendLine("Default:");
                 sb.AppendLine("  # Animation Event Timing (0.0 ~ 1.0)");
                 sb.AppendLine($"  HitTiming: {config.Default.HitTiming:F2}");
                 sb.AppendLine($"  TrailOnTiming: {config.Default.TrailOnTiming:F2}");
@@ -1014,7 +1121,7 @@ namespace ExtraAttackSystem
                 sb.AppendLine("# Weapon Type Specific Settings");
                 sb.AppendLine("# ==============================================================================");
                 sb.AppendLine();
-                sb.AppendLine("weapon_types:");
+                sb.AppendLine("WeaponTypes:");
                 
                 // Filter only weapon types (not individual weapons)
                 string[] validWeaponTypes = { "Swords", "Axes", "Clubs", "Spears", "Polearms", "Knives", "Fists", "BattleAxes", "GreatSwords", "Unarmed", "DualAxes", "DualKnives", "Sledges", "Torch" };
@@ -1092,9 +1199,9 @@ namespace ExtraAttackSystem
                 // Try weapon type specific
                 if (weaponTypeConfig.WeaponTypes.TryGetValue(weaponType, out var weaponTypeSettings))
                 {
-                    if (weaponTypeSettings.TryGetValue($"{weaponType}_{attackMode}", out var typeTiming))
+                    if (weaponTypeSettings.TryGetValue($"{weaponType}_secondary_{attackMode}", out var typeTiming))
                     {
-                        ExtraAttackPlugin.LogInfo("Config", $"Using weapon type setting: {weaponType}_{attackMode}");
+                        ExtraAttackPlugin.LogInfo("Config", $"Using weapon type setting: {weaponType}_secondary_{attackMode}");
                         return typeTiming;
                     }
                 }
@@ -1144,43 +1251,43 @@ namespace ExtraAttackSystem
         {
             try
             {
-#if DEBUG_CONFIG_LOADING
-                if (ExtraAttackPlugin.IsDebugAOCOperationsEnabled)
+                ExtraAttackPlugin.LogInfo("Config", $"GetAttackCost called: weaponType={weaponType}, attackMode={attackMode}");
+                ExtraAttackPlugin.LogInfo("Config", $"WeaponTypes count: {weaponTypeConfig?.WeaponTypes?.Count ?? 0}");
+                
+                if (weaponTypeConfig?.WeaponTypes?.Count > 0)
                 {
-                    ExtraAttackPlugin.LogInfo("Config", $"GetAttackCost called: weaponType={weaponType}, attackMode={attackMode}");
-                    ExtraAttackPlugin.LogInfo("Config", $"WeaponTypes count: {weaponTypeConfig?.WeaponTypes?.Count ?? 0}");
+                    ExtraAttackPlugin.LogInfo("Config", $"WeaponTypes keys: {string.Join(", ", weaponTypeConfig.WeaponTypes.Keys)}");
                 }
-#endif
                 
                 if (weaponTypeConfig?.WeaponTypes?.TryGetValue(weaponType, out var weaponTypeDict) == true)
                 {
-#if DEBUG_CONFIG_LOADING
-                    if (ExtraAttackPlugin.IsDebugAOCOperationsEnabled)
+                    ExtraAttackPlugin.LogInfo("Config", $"Found weaponType '{weaponType}', modes count: {weaponTypeDict?.Count ?? 0}");
+                    if (weaponTypeDict?.Count > 0)
                     {
-                        ExtraAttackPlugin.LogInfo("Config", $"Found weaponType '{weaponType}', modes count: {weaponTypeDict?.Count ?? 0}");
+                        ExtraAttackPlugin.LogInfo("Config", $"Available modes: {string.Join(", ", weaponTypeDict.Keys)}");
                     }
-#endif
                     
+                    // Try direct lookup first
                     if (weaponTypeDict?.TryGetValue(attackMode, out AnimationTiming timing) == true)
                     {
-#if DEBUG_CONFIG_LOADING
-                        if (ExtraAttackPlugin.IsDebugAOCOperationsEnabled)
-                        {
-                            ExtraAttackPlugin.LogInfo("Config", $"Found specific timing for {weaponType}_{attackMode}: StaminaCost={timing.StaminaCost}, EitrCost={timing.EitrCost}");
-                        }
-#endif
+                        ExtraAttackPlugin.LogInfo("Config", $"Found specific timing for {weaponType}_{attackMode}: StaminaCost={timing.StaminaCost}, EitrCost={timing.EitrCost}");
                         return timing;
                     }
+                    
+                    // Try with secondary key format
+                    string secondaryKey = ResolveToSecondaryKey(attackMode);
+                    if (secondaryKey != attackMode && weaponTypeDict?.TryGetValue(secondaryKey, out timing) == true)
+                    {
+                        ExtraAttackPlugin.LogInfo("Config", $"Found specific timing for {weaponType}_{secondaryKey} (resolved from {attackMode}): StaminaCost={timing.StaminaCost}, EitrCost={timing.EitrCost}");
+                        return timing;
+                    }
+                    
+                    ExtraAttackPlugin.LogWarning("Config", $"No specific timing found for {weaponType}_{attackMode} or {weaponType}_{secondaryKey}");
                 }
                 
                 // Fallback to default if no specific timing found
                 var defaultTiming = weaponTypeConfig?.Default;
-#if DEBUG_CONFIG_LOADING
-                if (ExtraAttackPlugin.IsDebugAOCOperationsEnabled)
-                {
-                    ExtraAttackPlugin.LogInfo("Config", $"Using default timing for {weaponType}_{attackMode}: StaminaCost={defaultTiming?.StaminaCost ?? 0f}, EitrCost={defaultTiming?.EitrCost ?? 0f}");
-                }
-#endif
+                ExtraAttackPlugin.LogWarning("Config", $"Using default timing for {weaponType}_{attackMode}: StaminaCost={defaultTiming?.StaminaCost ?? 0f}, EitrCost={defaultTiming?.EitrCost ?? 0f}");
                 return defaultTiming;
             }
             catch (Exception ex)

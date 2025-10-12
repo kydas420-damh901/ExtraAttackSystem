@@ -648,35 +648,8 @@ namespace ExtraAttackSystem
                 try
                 {
                     // Only adjust local player; prevent vanilla from forcing crouching=false during attack when extra mode is active
-                    if (__instance == Player.m_localPlayer && __instance != null)
-                    {
-                        if (!ExtraAttackPlugin.EnableCrouchGuard.Value)
-                        {
-                            return true; // Config disables crouch guard; run vanilla
-                        }
-                        bool crouchToggle = false;
-                        var fiCrouch = HarmonyLib.AccessTools.Field(typeof(Player), "m_crouchToggled");
-                        if (fiCrouch != null)
-                        {
-                            try { crouchToggle = (bool)fiCrouch.GetValue(__instance); } catch { }
-                        }
-                        bool crouchRecorded = false;
-                        try { crouchRecorded = ExtraAttackUtils.WasCrouchingBeforeExtraAttack(__instance); } catch { }
-
-                        // When InAttack/IsDrawingBow during Extra attack, keep crouching true and skip original UpdateCrouch to avoid stand-up transition
-                        if (ExtraAttackUtils.IsPlayerInExtraAttack(__instance) &&
-                            (__instance.InAttack() || __instance.IsDrawingBow()) &&
-                            (crouchToggle || crouchRecorded))
-                        {
-                            int crouchingHash = ZSyncAnimation.GetHash("crouching");
-                            ___m_zanim?.SetBool(crouchingHash, true);
-                            if (ExtraAttackPlugin.DebugAOCOperations.Value)
-                            {
-                                ExtraAttackPlugin.LogInfo("AOC", "UpdateCrouch Prefix: forced crouching=true (skip original while extra attack)");
-                            }
-                            return false; // Skip original to prevent crouching=false
-                        }
-                    }
+                    // Crouch guard system disabled - run vanilla behavior
+                    return true;
                 }
                 catch (System.Exception ex)
                 {
@@ -733,33 +706,8 @@ namespace ExtraAttackSystem
                 {
                     if (__instance == null || __instance != Player.m_localPlayer)
                         return;
-                    if (!ExtraAttackPlugin.EnableCrouchGuard.Value)
-                        return; // Config disables crouch guard restoration
-
-                    // Only maintain crouch while in Extra attack modes
-                    if (!ExtraAttackUtils.IsPlayerInExtraAttack(__instance))
-                        return;
-
-                    bool wasCrouching = false;
-                    try { wasCrouching = ExtraAttackUtils.WasCrouchingBeforeExtraAttack(__instance); } catch { }
-
-                    // Read current toggle from publicized field
-                    bool crouchToggle = false;
-                    var fiCT = HarmonyLib.AccessTools.Field(typeof(Player), "m_crouchToggled");
-                    if (fiCT != null)
-                    {
-                        try { crouchToggle = (bool)fiCT.GetValue(__instance); } catch { }
-                    }
-
-                    // If previously crouching and toggle became false (e.g., player pressed crouch), restore to true during extra
-                    if (wasCrouching && !crouchToggle)
-                    {
-                        // CHANGED: Reduce intervention â€” skip SetCrouch here. Visual retention handled in UpdateCrouch Prefix/Postfix.
-                        if (ExtraAttackPlugin.DebugAOCOperations.Value)
-                        {
-                            ExtraAttackPlugin.LogInfo("AOC", "SetControls Postfix: crouch toggle restoration skipped (retained by UpdateCrouch guards)");
-                        }
-                    }
+                    // Crouch guard system disabled - no processing needed
+                    return;
                 }
                 catch (System.Exception ex)
                 {
@@ -869,6 +817,48 @@ namespace ExtraAttackSystem
             catch (Exception ex)
             {
                 ExtraAttackPlugin.LogError("System", $"Error in RevertToOriginalAOC: {ex.Message}");
+            }
+        }
+
+        // Reload YAML configs (for F6 key or button)
+        public static void ReloadYamlConfigs()
+        {
+            try
+            {
+                ExtraAttackPlugin.LogInfo("System", "Starting YAML reload process");
+                
+                // What: Reload YAML configs from BepInEx\config\ExtraAttackSystem
+                // Why: Apply user edits without restarting the game
+                ExtraAttackPlugin.LogInfo("System", "Reloading AnimationReplacement configs");
+                AnimationReplacementConfig.Reload();
+                
+                // Also reload timing & exclusion configs to reflect user edits consistently
+                ExtraAttackPlugin.LogInfo("System", "Reloading AnimationTiming configs");
+                AnimationTimingConfig.Reload();
+                
+                ExtraAttackExclusionConfig.Reload();
+                
+                // Clear AOC cache to force rebuild on next ApplyStyleAOC
+                ExtraAttackPlugin.LogInfo("System", "Clearing AOC cache");
+                AnimationManager.ClearAOCCache(true);
+                
+                ExtraAttackPlugin.LogInfo("System", "YAML reload process completed");
+                
+                // Show notification in game
+                if (MessageHud.instance != null)
+                {
+                    MessageHud.instance.ShowMessage(MessageHud.MessageType.TopLeft, "YAML設定を再読み込みしました", 0, null);
+                }
+            }
+            catch (Exception ex)
+            {
+                ExtraAttackPlugin.LogError("System", $"Error during YAML reload: {ex.Message}");
+                
+                // Show error notification in game
+                if (MessageHud.instance != null)
+                {
+                    MessageHud.instance.ShowMessage(MessageHud.MessageType.TopLeft, "YAML再読み込みエラー", 0, null);
+                }
             }
         }
     }
