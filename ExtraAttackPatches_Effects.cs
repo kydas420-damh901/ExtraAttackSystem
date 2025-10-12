@@ -23,22 +23,7 @@ namespace ExtraAttackSystem
 
                     if (character is Player player && player == Player.m_localPlayer)
                     {
-                        var mode = ExtraAttackUtils.GetAttackMode(player);
-                        if (mode != ExtraAttackUtils.AttackMode.Normal)
-                        {
-                            if (ExtraAttackPatches_Core.TryGetCurrentClipInfo(player, out string clipName, out AnimationClip clip, out int hitIndex))
-                            {
-                                string configKey = ExtraAttackPatches_Core.BuildConfigKey(player, clipName, hitIndex);
-                                var timing = AnimationTimingConfig.GetTiming(configKey);
-
-                                if (!timing.EnableVFX)
-                                {
-                                    ExtraAttackPlugin.LogInfo("VFX",
-                                        $"[SKIP] Attack.OnTrailStart: [{configKey}] EnableVFX=false");
-                                    return false; // Skip effect spawn entirely
-                                }
-                            }
-                        }
+                        // VFX is always enabled (EnableVFX removed)
                     }
                 }
                 catch (System.Exception ex)

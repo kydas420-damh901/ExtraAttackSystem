@@ -39,12 +39,6 @@ namespace ExtraAttackSystem
             public float MaxYAngle { get; set; } = 0.0f;
             public bool EnableHit { get; set; } = true;
             public bool EnableSound { get; set; } = true;
-            public bool EnableVFX { get; set; } = true;
-
-            // NEW: Costs and cooldown (can be overridden per animation)
-            public float StaminaCost { get; set; } = 0.0f;
-            public float EitrCost { get; set; } = 0.0f;
-            public float CooldownSec { get; set; } = 0.0f;
         }
 
         // Config file structure
@@ -317,6 +311,7 @@ namespace ExtraAttackSystem
             try
             {
                 var deserializer = new DeserializerBuilder()
+                    .WithNamingConvention(CamelCaseNamingConvention.Instance)
                     .IgnoreUnmatchedProperties()
                     .Build();
 
@@ -1095,7 +1090,6 @@ namespace ExtraAttackSystem
                 sb.AppendLine("  # Enable Flags");
                 sb.AppendLine($"  EnableHit: {(config.Default.EnableHit ? "true" : "false")}");
                 sb.AppendLine($"  EnableSound: {(config.Default.EnableSound ? "true" : "false")}");
-                sb.AppendLine($"  EnableVFX: {(config.Default.EnableVFX ? "true" : "false")}");
                 sb.AppendLine();
                 sb.AppendLine("# ==============================================================================");
                 sb.AppendLine("# Weapon Type Specific Settings");
@@ -1242,28 +1236,27 @@ namespace ExtraAttackSystem
                         ExtraAttackPlugin.LogInfo("Config", $"Available modes: {string.Join(", ", weaponTypeDict.Keys)}");
                     }
                     
-                    // Try unified key format: {WeaponType}_secondary_{Mode}
+                    // Try unified key format: secondary_{Mode} (YAML format)
                     string mode = ExtractModeFromAttackMode(attackMode);
-                    string unifiedKey = $"{weaponType}_{mode}";
-                    if (weaponTypeDict?.TryGetValue(unifiedKey, out AnimationTiming timing) == true)
+                    if (weaponTypeDict?.TryGetValue(mode, out AnimationTiming timing) == true)
                     {
-                        ExtraAttackPlugin.LogInfo("Config", $"Found specific timing for {unifiedKey} (unified from {attackMode}): StaminaCost={timing.StaminaCost}, EitrCost={timing.EitrCost}");
+                        ExtraAttackPlugin.LogInfo("Config", $"Found specific timing for {mode} (unified from {attackMode}): HitTiming={timing.HitTiming}, TrailOnTiming={timing.TrailOnTiming}");
                         return timing;
                     }
                     
                     // Try direct lookup as fallback
                     if (weaponTypeDict?.TryGetValue(attackMode, out timing) == true)
                     {
-                        ExtraAttackPlugin.LogInfo("Config", $"Found specific timing for {weaponType}_{attackMode}: StaminaCost={timing.StaminaCost}, EitrCost={timing.EitrCost}");
+                        ExtraAttackPlugin.LogInfo("Config", $"Found specific timing for {weaponType}_{attackMode}: HitTiming={timing.HitTiming}, TrailOnTiming={timing.TrailOnTiming}");
                         return timing;
                     }
                     
-                    ExtraAttackPlugin.LogWarning("Config", $"No specific timing found for {unifiedKey} or {weaponType}_{attackMode}");
+                    ExtraAttackPlugin.LogWarning("Config", $"No specific timing found for {mode} or {weaponType}_{attackMode}");
                 }
                 
                 // Fallback to default if no specific timing found
                 var defaultTiming = weaponTypeConfig?.Default;
-                ExtraAttackPlugin.LogWarning("Config", $"Using default timing for {weaponType}_{attackMode}: StaminaCost={defaultTiming?.StaminaCost ?? 0f}, EitrCost={defaultTiming?.EitrCost ?? 0f}");
+                ExtraAttackPlugin.LogWarning("Config", $"Using default timing for {weaponType}_{attackMode}: HitTiming={defaultTiming?.HitTiming ?? 0.45f}, TrailOnTiming={defaultTiming?.TrailOnTiming ?? 0.35f}");
                 return defaultTiming;
             }
             catch (Exception ex)

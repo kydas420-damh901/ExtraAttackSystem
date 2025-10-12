@@ -102,48 +102,19 @@ namespace ExtraAttackSystem
         {
             try
             {
-                ExtraAttackPlugin.LogInfo("System", "ConvertDirectMappingsToAocTypes: Starting conversion");
-                ExtraAttackPlugin.LogInfo("System", $"ConvertDirectMappingsToAocTypes: config is null: {config == null}");
-                if (config != null)
-                {
-                    ExtraAttackPlugin.LogInfo("System", $"ConvertDirectMappingsToAocTypes: config.Axes is null: {config.Axes == null}");
-                    ExtraAttackPlugin.LogInfo("System", $"ConvertDirectMappingsToAocTypes: config.BattleAxes is null: {config.BattleAxes == null}");
-                    ExtraAttackPlugin.LogInfo("System", $"ConvertDirectMappingsToAocTypes: config.Clubs is null: {config.Clubs == null}");
-                    ExtraAttackPlugin.LogInfo("System", $"ConvertDirectMappingsToAocTypes: config.Fists is null: {config.Fists == null}");
-                    ExtraAttackPlugin.LogInfo("System", $"ConvertDirectMappingsToAocTypes: config.GreatSwords is null: {config.GreatSwords == null}");
-                    ExtraAttackPlugin.LogInfo("System", $"ConvertDirectMappingsToAocTypes: config.Knives is null: {config.Knives == null}");
-                    ExtraAttackPlugin.LogInfo("System", $"ConvertDirectMappingsToAocTypes: config.Polearms is null: {config.Polearms == null}");
-                    ExtraAttackPlugin.LogInfo("System", $"ConvertDirectMappingsToAocTypes: config.Spears is null: {config.Spears == null}");
-                    ExtraAttackPlugin.LogInfo("System", $"ConvertDirectMappingsToAocTypes: config.Swords is null: {config.Swords == null}");
-                    
-                    // Check if any weapon type has data
-                    if (config.Axes != null && config.Axes.Count > 0)
-                    {
-                        ExtraAttackPlugin.LogInfo("System", $"ConvertDirectMappingsToAocTypes: config.Axes has {config.Axes.Count} entries: {string.Join(", ", config.Axes.Keys)}");
-                    }
-                    if (config.BattleAxes != null && config.BattleAxes.Count > 0)
-                    {
-                        ExtraAttackPlugin.LogInfo("System", $"ConvertDirectMappingsToAocTypes: config.BattleAxes has {config.BattleAxes.Count} entries: {string.Join(", ", config.BattleAxes.Keys)}");
-                    }
-                    if (config.GreatSwords != null && config.GreatSwords.Count > 0)
-                    {
-                        ExtraAttackPlugin.LogInfo("System", $"ConvertDirectMappingsToAocTypes: config.GreatSwords has {config.GreatSwords.Count} entries: {string.Join(", ", config.GreatSwords.Keys)}");
-                    }
-                }
+                // Convert direct weapon type mappings to AocTypes format
                 
                 // Initialize AocTypes if null
                 if (config.AocTypes == null)
                 {
                     config.AocTypes = new Dictionary<string, Dictionary<string, string>>();
-                    ExtraAttackPlugin.LogInfo("System", "ConvertDirectMappingsToAocTypes: Initialized AocTypes dictionary");
-                }
-                else
-                {
-                    ExtraAttackPlugin.LogInfo("System", $"ConvertDirectMappingsToAocTypes: AocTypes already exists with {config.AocTypes.Count} entries");
                 }
                 
-                // Convert each weapon type
-                var weaponTypes = new[]
+                // The YAML structure is: AocTypes -> WeaponType -> Mode -> {vanilla: external}
+                // We need to convert this to: AocTypes -> WeaponType -> {secondary_Mode: external}
+                
+                // Check each weapon type property (Axes, BattleAxes, etc.)
+                var weaponTypeProperties = new[]
                 {
                     ("Axes", config.Axes),
                     ("BattleAxes", config.BattleAxes),
@@ -156,88 +127,31 @@ namespace ExtraAttackSystem
                     ("Swords", config.Swords)
                 };
                 
-                ExtraAttackPlugin.LogInfo("System", $"ConvertDirectMappingsToAocTypes: Created weaponTypes array with {weaponTypes.Length} entries");
-                for (int i = 0; i < weaponTypes.Length; i++)
+                foreach (var (weaponTypeName, weaponTypeDict) in weaponTypeProperties)
                 {
-                    try
-                    {
-                        var (name, dict) = weaponTypes[i];
-                        ExtraAttackPlugin.LogInfo("System", $"ConvertDirectMappingsToAocTypes: weaponTypes[{i}] = ({name}, {dict?.Count ?? -1} entries)");
-                        if (dict != null && dict.Count > 0)
-                        {
-                            ExtraAttackPlugin.LogInfo("System", $"ConvertDirectMappingsToAocTypes: {name} keys: {string.Join(", ", dict.Keys)}");
-                            foreach (var kvp in dict)
-                            {
-                                ExtraAttackPlugin.LogInfo("System", $"ConvertDirectMappingsToAocTypes: {name}.{kvp.Key} = {kvp.Value?.Count ?? -1} entries");
-                                if (kvp.Value != null && kvp.Value.Count > 0)
-                                {
-                                    ExtraAttackPlugin.LogInfo("System", $"ConvertDirectMappingsToAocTypes: {name}.{kvp.Key} values: {string.Join(", ", kvp.Value.Keys)}");
-                                }
-                            }
-                        }
-                        else
-                        {
-                            ExtraAttackPlugin.LogWarning("System", $"ConvertDirectMappingsToAocTypes: {name} is null or empty");
-                        }
-                    }
-                    catch (Exception ex)
-                    {
-                        ExtraAttackPlugin.LogError("System", $"ConvertDirectMappingsToAocTypes: Error in weaponTypes[{i}]: {ex.Message}");
-                        ExtraAttackPlugin.LogError("System", $"ConvertDirectMappingsToAocTypes: Stack trace: {ex.StackTrace}");
-                    }
-                }
-                
-                ExtraAttackPlugin.LogInfo("System", $"ConvertDirectMappingsToAocTypes: About to process {weaponTypes.Length} weapon types");
-                
-                foreach (var (weaponType, weaponTypeDict) in weaponTypes)
-                {
-                    try
-                    {
-                        ExtraAttackPlugin.LogInfo("System", $"ConvertDirectMappingsToAocTypes: Checking {weaponType} - weaponTypeDict is null: {weaponTypeDict == null}");
-                        if (weaponTypeDict != null)
-                        {
-                            ExtraAttackPlugin.LogInfo("System", $"ConvertDirectMappingsToAocTypes: {weaponType} has {weaponTypeDict.Count} modes");
-                            if (weaponTypeDict.Count > 0)
-                            {
-                                ExtraAttackPlugin.LogInfo("System", $"ConvertDirectMappingsToAocTypes: {weaponType} modes: {string.Join(", ", weaponTypeDict.Keys)}");
-                            }
-                        }
-                    }
-                    catch (Exception ex)
-                    {
-                        ExtraAttackPlugin.LogError("System", $"ConvertDirectMappingsToAocTypes: Error processing {weaponType}: {ex.Message}");
-                        ExtraAttackPlugin.LogError("System", $"ConvertDirectMappingsToAocTypes: Stack trace: {ex.StackTrace}");
-                        continue;
-                    }
-                    
                     if (weaponTypeDict != null && weaponTypeDict.Count > 0)
                     {
-                        ExtraAttackPlugin.LogInfo("System", $"ConvertDirectMappingsToAocTypes: Converting {weaponType} with {weaponTypeDict.Count} modes");
+                        ExtraAttackPlugin.LogInfo("System", $"ConvertDirectMappingsToAocTypes: Processing {weaponTypeName} with {weaponTypeDict.Count} modes");
                         
-                        config.AocTypes[weaponType] = new Dictionary<string, string>();
+                        config.AocTypes[weaponTypeName] = new Dictionary<string, string>();
                         
-                               // Convert Q/T/G modes to unified format: {WeaponType}_Secondary_{Mode}
-                               foreach (var mode in weaponTypeDict.Keys)
-                               {
-                                   ExtraAttackPlugin.LogInfo("System", $"ConvertDirectMappingsToAocTypes: Processing mode '{mode}' for {weaponType}");
-                                   if (weaponTypeDict[mode] != null && weaponTypeDict[mode].Count > 0)
-                                   {
-                                       // Get the first (and usually only) mapping
-                                       var mapping = weaponTypeDict[mode].First();
-                                       string unifiedKey = $"{weaponType}_secondary_{mode}";
-                                       config.AocTypes[weaponType][unifiedKey] = mapping.Value;
-                                       
-                                       ExtraAttackPlugin.LogInfo("System", $"ConvertDirectMappingsToAocTypes: {weaponType}.{unifiedKey} = {mapping.Value}");
-                                   }
-                                   else
-                                   {
-                                       ExtraAttackPlugin.LogWarning("System", $"ConvertDirectMappingsToAocTypes: {weaponType}.{mode} is null or empty");
-                                   }
-                               }
-                    }
-                    else
-                    {
-                        ExtraAttackPlugin.LogWarning("System", $"ConvertDirectMappingsToAocTypes: {weaponType} is null or empty, skipping");
+                        // Convert Q/T/G modes to unified format
+                        foreach (var modeEntry in weaponTypeDict)
+                        {
+                            var mode = modeEntry.Key; // Q, T, G
+                            var modeDict = modeEntry.Value; // Dictionary<string, string> (vanilla -> external)
+                            
+                            if (modeDict != null && modeDict.Count > 0)
+                            {
+                                // Get the first (and usually only) mapping
+                                var firstMapping = modeDict.First();
+                                var externalClip = firstMapping.Value;
+                                var unifiedKey = $"secondary_{mode}";
+                                
+                                config.AocTypes[weaponTypeName][unifiedKey] = externalClip;
+                                ExtraAttackPlugin.LogInfo("System", $"ConvertDirectMappingsToAocTypes: Added {weaponTypeName}.{unifiedKey} = {externalClip}");
+                            }
+                        }
                     }
                 }
                 
@@ -302,7 +216,7 @@ namespace ExtraAttackSystem
                 }
 
                 // Check if file has actual AOC type data
-                if (!content.Contains("AocTypes:") || !content.Contains("ea_secondary_"))
+                if (!content.Contains("AocTypes:") || !content.Contains("secondary_"))
                 {
                     ExtraAttackPlugin.LogInfo("Config", "AnimationReplacement_WeaponTypes.yaml has no AOC type data, will regenerate");
                     return true;
@@ -321,37 +235,10 @@ namespace ExtraAttackSystem
         // Check if individual weapons config should be created or regenerated
         private static bool ShouldCreateOrRegenerateIndividualWeaponsConfig()
         {
-            if (!File.Exists(IndividualWeaponsConfigFilePath))
-            {
-                ExtraAttackPlugin.LogInfo("Config", "AnimationReplacement_IndividualWeapons.yaml not found, will create");
-                return true;
-            }
-
-            // Check if file is empty or has no content
-            try
-            {
-                string content = File.ReadAllText(IndividualWeaponsConfigFilePath, Encoding.UTF8).Trim();
-                if (string.IsNullOrEmpty(content))
-                {
-                    ExtraAttackPlugin.LogInfo("Config", "AnimationReplacement_IndividualWeapons.yaml is empty, will regenerate");
-                    return true;
-                }
-
-                // Check if file has actual AOC item data
-                if (!content.Contains("AocItems:") || !content.Contains("ea_secondary_"))
-                {
-                    ExtraAttackPlugin.LogInfo("Config", "AnimationReplacement_IndividualWeapons.yaml has no AOC item data, will regenerate");
-                    return true;
-                }
-
-                ExtraAttackPlugin.LogInfo("Config", "AnimationReplacement_IndividualWeapons.yaml exists and has content, skipping generation");
-                return false;
-            }
-            catch (Exception ex)
-            {
-                ExtraAttackPlugin.LogError("System", $"Error checking AnimationReplacement_IndividualWeapons.yaml: {ex.Message}");
-                return true; // Regenerate on error
-            }
+            // AnimationReplacement_IndividualWeapons.yaml should never be regenerated
+            // User must create and manage this file manually
+            ExtraAttackPlugin.LogInfo("Config", "AnimationReplacement_IndividualWeapons.yaml: Never auto-generate (user-managed file)");
+            return false;
         }
 
         // Load weapon types YAML
@@ -360,6 +247,9 @@ namespace ExtraAttackSystem
             ExtraAttackPlugin.LogInfo("System", "LoadWeaponTypesConfig: Starting to load weapon types config");
             try
             {
+                ExtraAttackPlugin.LogInfo("System", $"LoadWeaponTypesConfig: ConfigFolderPath: {ConfigFolderPath}");
+                ExtraAttackPlugin.LogInfo("System", $"LoadWeaponTypesConfig: WeaponTypesConfigFilePath: {WeaponTypesConfigFilePath}");
+                ExtraAttackPlugin.LogInfo("System", $"LoadWeaponTypesConfig: File exists: {File.Exists(WeaponTypesConfigFilePath)}");
                 ExtraAttackPlugin.LogInfo("System", $"LoadWeaponTypesConfig: Reading file: {WeaponTypesConfigFilePath}");
                 
                 if (!File.Exists(WeaponTypesConfigFilePath))
@@ -367,7 +257,7 @@ namespace ExtraAttackSystem
                     ExtraAttackPlugin.LogWarning("System", $"LoadWeaponTypesConfig: File does not exist: {WeaponTypesConfigFilePath}");
                     return;
                 }
-                
+
                 string yaml = File.ReadAllText(WeaponTypesConfigFilePath, Encoding.UTF8);
                 ExtraAttackPlugin.LogInfo("System", $"LoadWeaponTypesConfig: YAML content length: {yaml.Length}");
                 
@@ -378,19 +268,19 @@ namespace ExtraAttackSystem
                 }
                 
                 ExtraAttackPlugin.LogInfo("System", $"LoadWeaponTypesConfig: YAML preview: {yaml.Substring(0, Math.Min(200, yaml.Length))}...");
+                ExtraAttackPlugin.LogInfo("System", $"LoadWeaponTypesConfig: YAML contains 'AocTypes:': {yaml.Contains("AocTypes:")}");
+                ExtraAttackPlugin.LogInfo("System", $"LoadWeaponTypesConfig: YAML contains 'Axes:': {yaml.Contains("Axes:")}");
                 
                 ExtraAttackPlugin.LogInfo("System", "LoadWeaponTypesConfig: Creating deserializer");
                 var deserializer = new DeserializerBuilder()
                     .WithNamingConvention(CamelCaseNamingConvention.Instance)
                     .IgnoreUnmatchedProperties()
                     .Build();
-                
+
                 // Clean up YAML content to handle malformed structure
                 try
                 {
-                    ExtraAttackPlugin.LogInfo("System", "LoadWeaponTypesConfig: About to call CleanupYamlContent");
                     yaml = CleanupYamlContent(yaml);
-                    ExtraAttackPlugin.LogInfo("System", "LoadWeaponTypesConfig: CleanupYamlContent completed");
                 }
                 catch (Exception ex)
                 {
@@ -398,15 +288,12 @@ namespace ExtraAttackSystem
                     ExtraAttackPlugin.LogError("System", $"ERROR in CleanupYamlContent stack trace: {ex.StackTrace}");
                 }
 
-                ExtraAttackPlugin.LogInfo("System", "LoadWeaponTypesConfig: Deserializing YAML");
                 var weaponTypesConfig = deserializer.Deserialize<ReplacementYaml>(yaml) ?? new ReplacementYaml();
                 
                 // Convert direct weapon type mappings to AocTypes format
                 try
                 {
-                    ExtraAttackPlugin.LogInfo("System", "LoadWeaponTypesConfig: About to call ConvertDirectMappingsToAocTypes");
                     ConvertDirectMappingsToAocTypes(weaponTypesConfig);
-                    ExtraAttackPlugin.LogInfo("System", "LoadWeaponTypesConfig: ConvertDirectMappingsToAocTypes completed");
                 }
                 catch (Exception ex)
                 {
@@ -414,26 +301,10 @@ namespace ExtraAttackSystem
                     ExtraAttackPlugin.LogError("System", $"ERROR in ConvertDirectMappingsToAocTypes stack trace: {ex.StackTrace}");
                 }
                 
-                ExtraAttackPlugin.LogInfo("System", $"LoadWeaponTypesConfig: weaponTypesConfig.AocTypes is null: {weaponTypesConfig.AocTypes == null}");
-                if (weaponTypesConfig.AocTypes != null)
-                {
-                    ExtraAttackPlugin.LogInfo("System", $"LoadWeaponTypesConfig: weaponTypesConfig.AocTypes.Count: {weaponTypesConfig.AocTypes.Count}");
-                    foreach (var kvp in weaponTypesConfig.AocTypes)
-                    {
-                        ExtraAttackPlugin.LogInfo("System", $"LoadWeaponTypesConfig: {kvp.Key}: {kvp.Value?.Count ?? 0} modes");
-                    }
-                    current.AocTypes = weaponTypesConfig.AocTypes;
-                    ExtraAttackPlugin.LogInfo("System", "LoadWeaponTypesConfig: Successfully set current.AocTypes");
-                }
-                else
-                {
-                    ExtraAttackPlugin.LogWarning("System", "LoadWeaponTypesConfig: weaponTypesConfig.AocTypes is null after deserialization");
-                }
+                current.AocTypes = weaponTypesConfig.AocTypes;
                 
-                ExtraAttackPlugin.LogInfo("System", "LoadWeaponTypesConfig: Calling ApplyToManager");
-                // Apply the loaded configuration to ReplacementMap (always call, even if AocTypes is null)
+                // Apply the loaded configuration to ReplacementMap
                 ApplyToManager();
-                ExtraAttackPlugin.LogInfo("System", "LoadWeaponTypesConfig: Completed successfully");
             }
             catch (Exception ex)
             {
@@ -691,8 +562,8 @@ namespace ExtraAttackSystem
                 current.Maps[style] = src.ToDictionary(k => k.Key, v => v.Value);
                 
                 // Categorize into types/items based on new naming convention
-                // Weapon type keys: ea_secondary_Q/T/G_{æ­¦å™¨ç¨®åˆ¥}
-                // Individual weapon keys: ea_secondary_Q/T/G_{å€‹åˆ¥æ­¦å™¨å}
+                // Weapon type keys: secondary_Q/T/G_{
+                // Individual weapon keys: secondary_Q/T/G_{å€‹åˆ¥æ­¦å™¨å}
                 bool isIndividual = IsIndividualWeaponKey(style);
                 
                 if (isIndividual)
@@ -710,8 +581,8 @@ namespace ExtraAttackSystem
         // Check if a key represents an individual weapon (not weapon type)
         private static bool IsIndividualWeaponKey(string key)
         {
-            // Individual weapon keys: ea_secondary_Q/T/G_{å€‹åˆ¥æ­¦å™¨å}
-            // Weapon type keys: ea_secondary_Q/T/G_{æ­¦å™¨ç¨®åˆ¥}
+            // Individual weapon keys: secondary_Q/T/G_
+            // Weapon type keys: secondary_Q/T/G_{æ­¦å™¨ç¨®åˆ¥}
             
             if (!key.StartsWith("secondary_"))
                 return false;
@@ -737,6 +608,39 @@ namespace ExtraAttackSystem
         // Apply YAML mappings back to AnimationManager.ReplacementMap (override/merge)
         private static void ApplyToManager()
         {
+            // If AocTypes is empty, only use default mappings if no YAML file exists or is empty
+            if (current.AocTypes == null || current.AocTypes.Count == 0)
+            {
+                // Check if YAML file exists and has content
+                bool yamlExists = File.Exists(WeaponTypesConfigFilePath);
+                bool yamlHasContent = false;
+                
+                if (yamlExists)
+                {
+                    try
+                    {
+                        string content = File.ReadAllText(WeaponTypesConfigFilePath, Encoding.UTF8).Trim();
+                        yamlHasContent = !string.IsNullOrEmpty(content) && content.Contains("AocTypes:") && content.Contains("secondary_");
+                    }
+                    catch (Exception ex)
+                    {
+                        ExtraAttackPlugin.LogError("System", $"Error checking YAML content: {ex.Message}");
+                    }
+                }
+                
+                if (!yamlExists || !yamlHasContent)
+                {
+                    ExtraAttackPlugin.LogInfo("System", "ApplyToManager: AocTypes is empty and no valid YAML found, using default mappings");
+                    var defaultConfig = CreateDefaultWeaponTypesConfigForYaml();
+                    current.AocTypes = defaultConfig.AocTypes;
+                }
+                else
+                {
+                    ExtraAttackPlugin.LogInfo("System", "ApplyToManager: AocTypes is empty but YAML file exists with content - skipping default mapping override");
+                    // Don't process AocTypes if YAML exists but deserialization failed
+                    return;
+                }
+            }
             
             // Process AocTypes (weapon types) first
             if (current.AocTypes != null && current.AocTypes.Count > 0)
@@ -840,7 +744,6 @@ namespace ExtraAttackSystem
                 sb.AppendLine("# Extra Attack System - Weapon Types Animation Replacement");
                 sb.AppendLine("# ============================================================================");
                 sb.AppendLine("# Format: WeaponType -> Q/T/G -> Vanilla -> External");
-                sb.AppendLine("# ");
                 sb.AppendLine("# ============================================================================");
                 sb.AppendLine();
 
@@ -852,6 +755,9 @@ namespace ExtraAttackSystem
                 // Check if ReplacementMap has data, if not use default mappings
                 bool hasReplacementMapData = AnimationManager.ReplacementMap.Count > 0;
                 ExtraAttackPlugin.LogInfo("System", $"SaveWeaponTypesConfig: ReplacementMap.Count = {AnimationManager.ReplacementMap.Count}, hasData = {hasReplacementMapData}");
+                ExtraAttackPlugin.LogInfo("System", $"SaveWeaponTypesConfig: ReplacementMap keys: {string.Join(", ", AnimationManager.ReplacementMap.Keys)}");
+                
+                ExtraAttackPlugin.LogInfo("System", $"SaveWeaponTypesConfig: About to check hasReplacementMapData = {hasReplacementMapData}");
                 
                 if (!hasReplacementMapData)
                 {
@@ -899,31 +805,39 @@ namespace ExtraAttackSystem
                 }
                 else
                 {
-                    foreach (var weaponType in weaponTypes)
+                    ExtraAttackPlugin.LogInfo("System", "SaveWeaponTypesConfig: ReplacementMap has data, processing weapon types");
+                foreach (var weaponType in weaponTypes)
+                {
+                    if (AnimationManager.ReplacementMap.ContainsKey(weaponType))
                     {
-                        if (AnimationManager.ReplacementMap.ContainsKey(weaponType))
-                        {
-                            var weaponMap = AnimationManager.ReplacementMap[weaponType];
-                            weaponTypeGroups[weaponType] = new Dictionary<string, Dictionary<string, string>>();
-                            
+                        var weaponMap = AnimationManager.ReplacementMap[weaponType];
+                            ExtraAttackPlugin.LogInfo("System", $"SaveWeaponTypesConfig: Processing {weaponType}, weaponMap keys: {string.Join(", ", weaponMap.Keys)}");
+                            ExtraAttackPlugin.LogInfo("System", $"SaveWeaponTypesConfig: Processing {weaponType}, weaponMap values: {string.Join(", ", weaponMap.Values)}");
+                        weaponTypeGroups[weaponType] = new Dictionary<string, Dictionary<string, string>>();
+                        
                             // Check for Q/T/G modes using unified key format
-                            var modes = new[] { "Q", "T", "G" };
+                        var modes = new[] { "Q", "T", "G" };
                             var modeKeys = new[] { "secondary_Q", "secondary_T", "secondary_G" };
-                            
-                            for (int i = 0; i < modes.Length; i++)
+                        
+                        for (int i = 0; i < modes.Length; i++)
+                        {
+                                ExtraAttackPlugin.LogInfo("System", $"SaveWeaponTypesConfig: Checking {weaponType}.{modeKeys[i]}");
+                                ExtraAttackPlugin.LogInfo("System", $"SaveWeaponTypesConfig: weaponMap.ContainsKey({modeKeys[i]}) = {weaponMap.ContainsKey(modeKeys[i])}");
+                            if (weaponMap.ContainsKey(modeKeys[i]))
                             {
-                                if (weaponMap.ContainsKey(modeKeys[i]))
-                                {
-                                    string externalClip = weaponMap[modeKeys[i]];
-                                    string triggerName = GetVanillaClipName(weaponType, modes[i]);
+                                string externalClip = weaponMap[modeKeys[i]];
+                                string triggerName = GetVanillaClipName(weaponType, modes[i]);
                                     
-                                    weaponTypeGroups[weaponType][modes[i]] = new Dictionary<string, string>
-                                    {
-                                        { triggerName, externalClip }
-                                    };
+                                    ExtraAttackPlugin.LogInfo("System", $"SaveWeaponTypesConfig: Found {weaponType}.{modeKeys[i]} = {externalClip}, triggerName = {triggerName}");
+                                
+                                weaponTypeGroups[weaponType][modes[i]] = new Dictionary<string, string>
+                                {
+                                    { triggerName, externalClip }
+                                };
                                 }
                                 else
                                 {
+                                    ExtraAttackPlugin.LogInfo("System", $"SaveWeaponTypesConfig: Missing {weaponType}.{modeKeys[i]}");
                                     // Add empty entry if mode key doesn't exist
                                     weaponTypeGroups[weaponType][modes[i]] = new Dictionary<string, string>();
                                 }
@@ -942,35 +856,49 @@ namespace ExtraAttackSystem
                     }
                 }
 
+                // Log weaponTypeGroups for debugging
+                ExtraAttackPlugin.LogInfo("System", $"SaveWeaponTypesConfig: weaponTypeGroups.Count = {weaponTypeGroups.Count}");
+                foreach (var wt in weaponTypeGroups)
+                {
+                    ExtraAttackPlugin.LogInfo("System", $"SaveWeaponTypesConfig: weaponTypeGroups[{wt.Key}].Count = {wt.Value.Count}");
+                    foreach (var mode in wt.Value)
+                    {
+                        ExtraAttackPlugin.LogInfo("System", $"SaveWeaponTypesConfig: weaponTypeGroups[{wt.Key}][{mode.Key}].Count = {mode.Value?.Count ?? -1}");
+                    }
+                }
+
+                // Output AocTypes section
+                sb.AppendLine("AocTypes:");
+
                 // Output in weapon type order: Q, T, G
                 foreach (var weaponType in weaponTypeGroups.Keys.OrderBy(k => k))
                 {
-                    sb.AppendLine($"# {weaponType}");
-                    sb.AppendLine($"{weaponType}:");
+                    sb.AppendLine($"  # {weaponType}");
+                    sb.AppendLine($"  {weaponType}:");
                     
                     var modes = new[] { "Q", "T", "G" };
                     foreach (var mode in modes)
                     {
                         if (weaponTypeGroups[weaponType].ContainsKey(mode))
                         {
-                            sb.AppendLine($"  {mode}:");
+                            sb.AppendLine($"    {mode}:");
                             var map = weaponTypeGroups[weaponType][mode];
                             if (map != null && map.Count > 0)
                             {
-                                foreach (var kvp in map.OrderBy(k => k.Key))
-                                {
-                                    sb.AppendLine($"    {kvp.Key}: {kvp.Value}  # Vanilla: {kvp.Key} | Replacement: {kvp.Value}");
+                    foreach (var kvp in map.OrderBy(k => k.Key))
+                    {
+                                    sb.AppendLine($"      {kvp.Key}: {kvp.Value}  # Vanilla: {kvp.Key} | Replacement: {kvp.Value}");
                                 }
                             }
                             else
                             {
-                                sb.AppendLine($"    # No mappings defined for {mode} mode");
+                                sb.AppendLine($"      # No mappings defined for {mode} mode");
                             }
                         }
                         else
                         {
-                            sb.AppendLine($"  {mode}:");
-                            sb.AppendLine($"    # No mappings defined for {mode} mode");
+                            sb.AppendLine($"    {mode}:");
+                            sb.AppendLine($"      # No mappings defined for {mode} mode");
                         }
                     }
                     sb.AppendLine();
@@ -992,10 +920,8 @@ namespace ExtraAttackSystem
                 var sb = new StringBuilder();
                 sb.AppendLine("# ============================================================================");
                 sb.AppendLine("# Extra Attack System - Individual Weapons Animation Replacement");
-                sb.AppendLine("# å€‹åˆ¥æ­¦å™¨ã‚¢ãƒ‹ãƒ¡ãƒ¼ã‚·ãƒ§ãƒ³ç½®æ›è¨­å®šãƒ•ã‚¡ã‚¤ãƒ«");
                 sb.AppendLine("# ============================================================================");
                 sb.AppendLine("# Format: IndividualWeapon -> Q/T/G -> Vanilla -> External");
-                sb.AppendLine("# é©å¿œé †åº: å€‹åˆ¥æ­¦å™¨ -> æ­¦å™¨ç¨® -> ãƒãƒ‹ãƒ©");
                 sb.AppendLine("# ============================================================================");
                 sb.AppendLine();
 
@@ -1006,7 +932,7 @@ namespace ExtraAttackSystem
                 
                 foreach (var style in itemsRef.Keys)
                 {
-                    if (style.StartsWith("ea_secondary_"))
+                    if (style.StartsWith("secondary_"))
                     {
                         string? weaponName = ExtractWeaponNameFromKey(style);
                         string? mode = ExtractModeFromKey(style);
@@ -1029,24 +955,27 @@ namespace ExtraAttackSystem
                     }
                 }
 
+                // Output AocItems section
+                sb.AppendLine("AocItems:");
+
                 // Output in individual weapon order: Q, T, G
                 foreach (var weaponName in individualWeaponGroups.Keys.OrderBy(k => k))
                 {
-                    sb.AppendLine($"# {weaponName} / {weaponName}");
-                    sb.AppendLine($"{weaponName}:");
+                    sb.AppendLine($"  # {weaponName}");
+                    sb.AppendLine($"  {weaponName}:");
                     
                     var modes = new[] { "Q", "T", "G" };
                     foreach (var mode in modes)
                     {
                         if (individualWeaponGroups[weaponName].ContainsKey(mode))
                         {
-                            sb.AppendLine($"  {mode}:");
+                            sb.AppendLine($"    {mode}:");
                             var map = individualWeaponGroups[weaponName][mode];
                             if (map != null)
                             {
                                 foreach (var kvp in map.OrderBy(k => k.Key))
                                 {
-                                    sb.AppendLine($"    {kvp.Key}: {kvp.Value}  # Vanilla: {kvp.Key} | Replacement: {kvp.Value}");
+                                    sb.AppendLine($"      {kvp.Key}: {kvp.Value}  # Vanilla: {kvp.Key} | Replacement: {kvp.Value}");
                                 }
                             }
                         }

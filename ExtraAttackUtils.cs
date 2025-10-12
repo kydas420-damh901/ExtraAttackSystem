@@ -108,10 +108,10 @@ namespace ExtraAttackSystem
                     string weaponType = GetWeaponTypeFromSkill(player.GetCurrentWeapon().m_shared.m_skillType, player.GetCurrentWeapon());
                     string modeString = mode.ToString();
                     
-                    var attackCost = AnimationTimingConfig.GetAttackCost(weaponType, modeString);
-                    if (attackCost != null && attackCost.CooldownSec > 0f)
+                    var attackCooldown = ExtraAttackCostConfig.GetAttackCooldown(weaponType, modeString);
+                    if (attackCooldown != null && attackCooldown.CooldownSec > 0f)
                     {
-                        cooldownDuration = attackCost.CooldownSec;
+                        cooldownDuration = attackCooldown.CooldownSec;
                     }
                 }
                 
@@ -181,7 +181,8 @@ namespace ExtraAttackSystem
 
         public static float GetEffectiveStaminaCost(Player player, ItemDrop.ItemData weapon, AttackMode mode)
         {
-            // Compute effective stamina cost for extra attacks before starting Attack; mirrors vanilla modifiers except home-item and missing HP (not available pre-attack)
+            // Simplified: Just return base cost from YAML
+            // The actual stamina calculation with all modifiers is now handled by Attack_GetAttackStamina_Prefix
             if (player == null || weapon == null)
             {
                 return 0f;
@@ -189,155 +190,42 @@ namespace ExtraAttackSystem
 
             float baseCost = 0f;
             
-            // Try to get stamina cost from CostConfig based on weapon type and mode
+            // Get base stamina cost from CostConfig
             try
             {
                 string weaponType = GetWeaponTypeFromSkill(weapon.m_shared.m_skillType, weapon);
                 string modeString = mode.ToString();
                 
-                var attackCost = AnimationTimingConfig.GetAttackCost(weaponType, modeString);
+                var attackCost = ExtraAttackCostConfig.GetAttackCost(weaponType, modeString);
                 if (attackCost != null && attackCost.StaminaCost > 0f)
                 {
                     baseCost = attackCost.StaminaCost;
                     if (ExtraAttackPlugin.IsDebugAOCOperationsEnabled)
                     {
-                        ExtraAttackPlugin.LogInfo("System", $"Using CostConfig stamina cost: {weaponType}_{modeString} = {baseCost}");
+                        ExtraAttackPlugin.LogInfo("System", $"Using CostConfig base stamina cost: {weaponType}_{modeString} = {baseCost}");
                     }
                 }
                 
                 // Use default if CostConfig not available
                 if (baseCost <= 0f)
                 {
-                    baseCost = 20f; // Default stamina cost
+                    baseCost = 15f; // Default base stamina cost
                 }
             }
             catch (System.Exception ex)
             {
                 ExtraAttackPlugin.LogError("System", $"Error getting CostConfig stamina cost, using default: {ex.Message}");
-                baseCost = 20f; // Default stamina cost
+                baseCost = 15f; // Default base stamina cost
             }
             
-            if (baseCost <= 0f)
-            {
-                return 0f; // allow no-cost extra attack when configured
-            }
-
-            float cost = baseCost;
-            float skillFactor = player.GetSkillFactor(weapon.m_shared.m_skillType);
-
-            // Apply equipment stamina modifier for weapon attacks (home item flag not known at pre-check time)
-            cost *= 1f + player.GetEquipmentAttackStaminaModifier();
-
-            // Apply SEMan stamina usage modifiers
-            var seMan = player.GetSEMan();
-            if (seMan != null)
-            {
-                seMan.ModifyAttackStaminaUsage(cost, ref cost, true);
-            }
-
-            // Skill factor reduction
-            cost -= cost * 0.33f * skillFactor;
-
-            if (cost < 0f) cost = 0f;
-            return cost;
+            return baseCost;
         }
 
         public static float GetEffectiveStaminaCost(Attack attack, Player player, ItemDrop.ItemData weapon, AttackMode mode)
         {
-            // Compute effective stamina cost during Attack.GetAttackStamina; mirrors vanilla logic including home-item and missing HP
-            if (attack == null || player == null || weapon == null)
-            {
-                return 0f;
-            }
-
-            float baseCost = 0f;
-            
-            // Try to get stamina cost from CostConfig based on weapon type and mode
-            try
-            {
-                if (weapon != null)
-                {
-                    string weaponType = GetWeaponTypeFromSkill(weapon.m_shared.m_skillType, weapon);
-                    string modeString = mode.ToString();
-                    
-                    var attackCost = AnimationTimingConfig.GetAttackCost(weaponType, modeString);
-                    if (attackCost != null && attackCost.StaminaCost > 0f)
-                    {
-                        baseCost = attackCost.StaminaCost;
-                        if (ExtraAttackPlugin.IsDebugAOCOperationsEnabled)
-                        {
-                            ExtraAttackPlugin.LogInfo("System", $"Using CostConfig stamina cost: {weaponType}_{modeString} = {baseCost}");
-                        }
-                        
-                        // Show in-game message for cost application
-                        if (Player.m_localPlayer != null)
-                        {
-                            Player.m_localPlayer.Message(MessageHud.MessageType.TopLeft, $"Extra Attack: {weaponType} {modeString} = {baseCost} stamina");
-                        }
-                    }
-                }
-                
-                // Use default if CostConfig not available
-                if (baseCost <= 0f)
-                {
-                    baseCost = 20f; // Default stamina cost
-                }
-            }
-            catch (System.Exception ex)
-            {
-                ExtraAttackPlugin.LogError("System", $"Error getting CostConfig stamina cost, using default: {ex.Message}");
-                baseCost = 20f; // Default stamina cost
-            }
-
-            if (baseCost <= 0f)
-            {
-                return 0f;
-            }
-
-            float cost = baseCost;
-            float skillFactor = 0f;
-            if (weapon?.m_shared?.m_skillType != Skills.SkillType.None)
-            {
-                skillFactor = player.GetSkillFactor(weapon!.m_shared!.m_skillType);
-            }
-
-            // Use Traverse to avoid FieldAccessException on private fields
-            var traverse = Traverse.Create(attack);
-            bool isHomeItem = false;
-            float staminaReturnPerMissingHP = 0f;
-            Character? charRef = null;
-            try { isHomeItem = traverse.Field("m_isHomeItem").GetValue<bool>(); } catch { /* fallback false */ }
-            try { staminaReturnPerMissingHP = traverse.Field("m_staminaReturnPerMissingHP").GetValue<float>(); } catch { /* fallback 0 */ }
-            try { charRef = traverse.Field("m_character").GetValue<Character>(); } catch { /* fallback null */ }
-
-            // Home item vs attack stamina modifier
-            if (isHomeItem)
-            {
-                cost *= 1f + player.GetEquipmentHomeItemModifier();
-            }
-            else
-            {
-                cost *= 1f + player.GetEquipmentAttackStaminaModifier();
-            }
-
-            // SEMan modifier (prefer player; use character if available)
-            var seMan = (charRef != null ? charRef.GetSEMan() : player.GetSEMan());
-            if (seMan != null)
-            {
-                seMan.ModifyAttackStaminaUsage(cost, ref cost, true);
-            }
-
-            // Skill factor reduction
-            cost -= cost * 0.33f * skillFactor;
-
-            // Stamina return per missing HP
-            if (staminaReturnPerMissingHP > 0f)
-            {
-                cost -= (player.GetMaxHealth() - player.GetHealth()) * staminaReturnPerMissingHP;
-            }
-
-            if (cost < 0f) cost = 0f;
-            return cost;
+            // Simplified: Just return base cost from YAML
+            // The actual stamina calculation with all modifiers is now handled by Attack_GetAttackStamina_Prefix
+            return GetEffectiveStaminaCost(player, weapon, mode);
         }
 
 
@@ -387,6 +275,8 @@ namespace ExtraAttackSystem
         // Get effective eitr cost for attack
         public static float GetEffectiveEitrCost(Attack attack, Player player, ItemDrop.ItemData weapon, AttackMode mode)
         {
+            // Simplified: Just return base cost from YAML
+            // The actual eitr calculation with skill modifiers is now handled by Attack_GetAttackEitr_Prefix
             if (attack == null || player == null || weapon == null)
             {
                 return 0f;
@@ -394,19 +284,19 @@ namespace ExtraAttackSystem
 
             float baseCost = 0f;
             
-            // Try to get eitr cost from CostConfig based on weapon type and mode
+            // Get base eitr cost from CostConfig
             try
             {
                 string weaponType = GetWeaponTypeFromSkill(weapon.m_shared.m_skillType, weapon);
                 string modeString = mode.ToString();
                 
-                var attackCost = AnimationTimingConfig.GetAttackCost(weaponType, modeString);
+                var attackCost = ExtraAttackCostConfig.GetAttackCost(weaponType, modeString);
                 if (attackCost != null && attackCost.EitrCost > 0f)
                 {
                     baseCost = attackCost.EitrCost;
                     if (ExtraAttackPlugin.IsDebugAOCOperationsEnabled)
                     {
-                        ExtraAttackPlugin.LogInfo("System", $"Using CostConfig eitr cost: {weaponType}_{modeString} = {baseCost}");
+                        ExtraAttackPlugin.LogInfo("System", $"Using CostConfig base eitr cost: {weaponType}_{modeString} = {baseCost}");
                     }
                 }
             }

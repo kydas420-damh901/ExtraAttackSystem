@@ -206,7 +206,7 @@ namespace ExtraAttackSystem
                     string suffix = key.StartsWith("secondary_Q", StringComparison.Ordinal) ? "_secondary_Q" :
                                     key.StartsWith("secondary_T", StringComparison.Ordinal) ? "_secondary_T" :
                                     key.StartsWith("secondary_G", StringComparison.Ordinal) ? "_secondary_G" :
-                                    key.StartsWith("ea_secondary", StringComparison.Ordinal) ? "_ea_secondary" : string.Empty;
+                                    string.Empty;
 
                     foreach (var kv in entry.Value)
                     {

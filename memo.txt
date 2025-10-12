@@ -94,7 +94,6 @@ Clubs + Shileds
 
 Torch + Sword or Axe or Club or Spear or Knife
 
-
 × 置き換え Animation Clip 指定 装備している武器のトリガーとクリップがあっていないと再生されない
 - Unarmed/Fists unarmed_kick
 - Knives:       Knife JumpAttack
@@ -106,7 +105,6 @@ Torch + Sword or Axe or Club or Spear or Knife
 - Polearms      Atgeir360Attack
 他の武器種、個別武器も上記ルールに合わせて指定 
 ※現在は、QTGすべて装備している武器のセカンダリ攻撃を設定
-
 
 トリガー名
 axe_secondary
@@ -121,17 +119,61 @@ dualaxes_secondary
 
 
 
-11 skip G aoc apply 
- disable set tigger override
- debug master switch
+1. 根本的な問題
+YAMLファイルは正常に読み込まれていたが、ConvertDirectMappingsToAocTypesでconfig.AocTypes.Count: 0となっていた
+カスタムアニメーションは実際には動作していたが、YAML設定値が反映されていない状態
+2. 具体的な問題点
+3. ログから判明した事実
+起動時: ReplacementMapにデータが正しく設定されている
+YAML保存: SaveWeaponTypesConfigで正常に書き込み
+YAML読み込み: ファイルは存在し、内容も読み込まれている
+デシリアライズ: config.Axes.Count: 0 で空になっている
+🛠️ 修正内容
+1. デバッグログの追加
+
+// AnimationReplacementConfig.cs に追加
+ExtraAttackPlugin.LogInfo("System", $"LoadWeaponTypesConfig: ConfigFolderPath: {ConfigFolderPath}");
+ExtraAttackPlugin.LogInfo("System", $"LoadWeaponTypesConfig: WeaponTypesConfigFilePath: {WeaponTypesConfigFilePath}");
+ExtraAttackPlugin.LogInfo("System", $"LoadWeaponTypesConfig: File exists: {File.Exists(WeaponTypesConfigFilePath)}");
+ExtraAttackPlugin.LogInfo("System", $"LoadWeaponTypesConfig: YAML content length: {yaml.Length}");
+ExtraAttackPlugin.LogInfo("System", $"LoadWeaponTypesConfig: YAML contains 'AocTypes:': {yaml.Contains("AocTypes:")}");
+ExtraAttackPlugin.LogInfo("System", $"LoadWeaponTypesConfig: After deserialization:");
+ExtraAttackPlugin.LogInfo("System", $"  - config.AocTypes is null: {weaponTypesConfig.AocTypes == null}");
+ExtraAttackPlugin.LogInfo("System", $"  - config.AocTypes.Count: {weaponTypesConfig.AocTypes?.Count ?? -1}");
+ExtraAttackPlugin.LogInfo("System", $"  - config.Axes is null: {weaponTypesConfig.Axes == null}");
+ExtraAttackPlugin.LogInfo("System", $"  - config.Axes.Count: {weaponTypesConfig.Axes?.Count ?? -1}");
+
+// 統一前: ea_secondary_Q, ea_secondary_T, ea_secondary_G
+// 統一後: secondary_Q, secondary_T, secondary_G
 
 
 
- animation Clip
- animation event
- animation parameters
 
-clip
+## 解決策: Prefix で m_attackStamina を変更
+スキルボーナスを活かすには、Prefix で基準値を変更してバニラ計算を続行:
+csharp[HarmonyPatch(typeof(Attack), "GetAttackStamina")]
+public static class Attack_GetAttackStamina_Prefix
+{
+    public static void Prefix(Attack __instance, Humanoid ___m_character)
+    {
+        if (___m_character is Player player && ExtraAttackUtils.IsPlayerInExtraAttack(player))
+        {
+            // YAMLから基準スタミナ値を取得
+            float yamlBaseStamina = GetYAMLBaseStaminaCost(...);
+            
+            // m_attackStaminaを上書き
+            __instance.m_attackStamina = yamlBaseStamina;
+            
+            // バニラの計算続行:
+            // - 装備補正
+            // - SEMan補正
+            // - スキル補正 (-33%)
+            // - HP補正
+        }
+    }
+}
 
-# Perfromance check
-performance metrics
+計算例
+YAML設定: StaminaCost: 60（基準値）
+スキルレベル計算最終コスト060 × 1.0 × (1 - 0.33×0.0)605060 × 1.0 × (1 - 0.33×0.5)50.110060 × 1.0 × (1 - 0.33×1.0)40.2
+スキルレベルが高いほどスタミナ消費が減る = バニラと同じ仕様

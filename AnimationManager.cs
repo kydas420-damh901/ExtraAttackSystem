@@ -205,24 +205,9 @@ namespace ExtraAttackSystem
             // Initialize weapon type specific maps for Q/T/G
             var weaponTypes = new[] { "Swords", "Axes", "Clubs", "Spears", "GreatSwords", "BattleAxes", "Polearms", "Knives", "Fists", "Unarmed" };
             
-            foreach (var weaponType in weaponTypes)
-            {
-                // Q/T/G maps for each weapon type
-                if (!ReplacementMap.ContainsKey($"{weaponType}_secondary_Q")) 
-                    ReplacementMap[$"{weaponType}_secondary_Q"] = new Dictionary<string, string>();
-                if (!ReplacementMap.ContainsKey($"{weaponType}_secondary_T")) 
-                    ReplacementMap[$"{weaponType}_secondary_T"] = new Dictionary<string, string>();
-                if (!ReplacementMap.ContainsKey($"{weaponType}_secondary_G")) 
-                    ReplacementMap[$"{weaponType}_secondary_G"] = new Dictionary<string, string>();
-            }
+            // Weapon type dictionaries are now initialized in CreateDefaultWeaponTypeMappings or ApplyWeaponTypeSettings
 
-            // Initialize base Q/T/G maps for fallback
-            // Initialize weapon type dictionaries
-            string[] weaponTypeNames = { "Swords", "Axes", "Clubs", "Spears", "GreatSwords", "BattleAxes", "Polearms", "Knives", "Fists" };
-            foreach (string weaponType in weaponTypeNames)
-            {
-                if (!ReplacementMap.ContainsKey(weaponType)) ReplacementMap[weaponType] = new Dictionary<string, string>();
-            }
+            // Weapon type dictionaries will be initialized by ApplyWeaponTypeSettings or CreateDefaultWeaponTypeMappings
 
             // If external animations are available, populate example entries for secondary maps (mirrors Q defaults)
 
@@ -966,20 +951,30 @@ namespace ExtraAttackSystem
                 {
                     var weaponSettings = weaponTypeConfig.WeaponTypes[weaponType];
                     
+                    ExtraAttackPlugin.LogInfo("System", $"ApplyWeaponTypeSettings: {weaponType} has {weaponSettings.Count} settings, keys: {string.Join(", ", weaponSettings.Keys)}");
+                    
                     foreach (var setting in weaponSettings.Keys)
                     {
                         var timing = weaponSettings[setting];
                         
+                        ExtraAttackPlugin.LogInfo("System", $"ApplyWeaponTypeSettings: Processing {weaponType}, setting: {setting}");
+                        
                         // Create animation clip mappings based on weapon type and mode
                         var animationMappings = CreateWeaponTypeAnimationMappings(weaponType, setting, timing);
                         
-                        // Apply to ReplacementMap
-                        if (ReplacementMap.ContainsKey(setting))
+                        ExtraAttackPlugin.LogInfo("System", $"ApplyWeaponTypeSettings: animationMappings.Count = {animationMappings.Count}");
+                        
+                        // Apply to ReplacementMap - create key if it doesn't exist
+                        if (!ReplacementMap.ContainsKey(weaponType))
                         {
-                            foreach (var mapping in animationMappings)
-                            {
-                                ReplacementMap[setting][mapping.Key] = mapping.Value;
-                            }
+                            ReplacementMap[weaponType] = new Dictionary<string, string>();
+                            ExtraAttackPlugin.LogInfo("System", $"ApplyWeaponTypeSettings: Created ReplacementMap[{weaponType}]");
+                        }
+                        
+                        foreach (var mapping in animationMappings)
+                        {
+                            ReplacementMap[weaponType][mapping.Key] = mapping.Value;
+                            ExtraAttackPlugin.LogInfo("System", $"ApplyWeaponTypeSettings: Added {weaponType}[{mapping.Key}] = {mapping.Value}");
                         }
                     }
                 }

@@ -69,6 +69,9 @@ namespace ExtraAttackSystem
                         ExtraAttackPlugin.LogInfo("System", "F6: Reloading AnimationTiming configs");
                         AnimationTimingConfig.Reload();
                         
+                        ExtraAttackPlugin.LogInfo("System", "F6: Reloading Cost configs");
+                        ExtraAttackCostConfig.ReloadCostConfig();
+                        
                         ExtraAttackExclusionConfig.Reload();
                         
                         // Clear AOC cache to force rebuild on next ApplyStyleAOC

@@ -20,7 +20,7 @@ namespace ExtraAttackSystem
     {
         internal const string PluginGUID = "Dyju420.ExtraAttackSystem";
         internal const string PluginName = "Extra Attack System";
-        internal const string PluginVersion = "0.7.5";
+        internal const string PluginVersion = "0.7.6StaminaEitr";
 
         internal static readonly ManualLogSource ExtraAttackLogger = BepInEx.Logging.Logger.CreateLogSource(PluginName);
         // NEW: Dual-wield mod detection flag
@@ -289,8 +289,6 @@ namespace ExtraAttackSystem
                 // 1. AnimationReplacementConfig (2 files)
                 LogInfo("System", "Generating AnimationReplacementConfig files...");
                 AnimationReplacementConfig.Initialize();
-                // Save YAML files after initialization to ensure ReplacementMap data is written
-                AnimationReplacementConfig.SaveFromManager();
                 
                 // 2. AnimationTimingConfig (4 files)
                 LogInfo("System", "Generating AnimationTimingConfig files...");
@@ -328,14 +326,23 @@ namespace ExtraAttackSystem
 
                 // Stamina costs are now managed by YAML CostConfig
                 
+                // Initialize cost configuration
+                ExtraAttackCostConfig.Initialize();
+                
                 // Load external animation assets first to populate ReplacementMap
                 AnimationManager.LoadAssets();
+                
+                // Apply weapon type settings to populate ReplacementMap before generating YAML
+                AnimationManager.ApplyWeaponTypeSettings();
                 
                 // Generate all 6 YAML configs in one unified process
                 GenerateAllYamlConfigs();
                 
-                // Apply weapon type settings after all configs are initialized
-                AnimationManager.ApplyWeaponTypeSettings();
+                // Generate cost config file
+                ExtraAttackCostConfig.GenerateCostConfig();
+                
+                // Only save YAML files if they don't exist or are empty
+                // (existing YAML files should not be overwritten)
                 
                 // Apply Harmony patches
                 ApplyPatches();
