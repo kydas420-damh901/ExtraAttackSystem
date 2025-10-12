@@ -224,7 +224,7 @@ namespace ExtraAttackSystem
                                    {
                                        // Get the first (and usually only) mapping
                                        var mapping = weaponTypeDict[mode].First();
-                                       string unifiedKey = $"{weaponType}_Secondary_{mode}";
+                                       string unifiedKey = $"{weaponType}_secondary_{mode}";
                                        config.AocTypes[weaponType][unifiedKey] = mapping.Value;
                                        
                                        ExtraAttackPlugin.LogInfo("System", $"ConvertDirectMappingsToAocTypes: {weaponType}.{unifiedKey} = {mapping.Value}");
@@ -448,6 +448,71 @@ namespace ExtraAttackSystem
             }
         }
 
+        // Create default weapon types configuration for YAML generation
+        private static ReplacementYaml CreateDefaultWeaponTypesConfigForYaml()
+        {
+            return new ReplacementYaml
+            {
+                AocTypes = new Dictionary<string, Dictionary<string, string>>
+                {
+                    ["Swords"] = new Dictionary<string, string>
+                    {
+                        ["secondary_Q"] = "Sw-Ma-GS-Up_Attack_A_1External", // Q mode
+                        ["secondary_T"] = "Sw-Ma-GS-Up_Attack_A_2External", // T mode
+                        ["secondary_G"] = "Sw-Ma-GS-Up_Attack_A_3External" // G mode
+                    },
+                    ["Axes"] = new Dictionary<string, string>
+                    {
+                        ["secondary_Q"] = "OneHand_Up_Attack_B_1External", // Q mode
+                        ["secondary_T"] = "OneHand_Up_Attack_B_2External", // T mode
+                        ["secondary_G"] = "OneHand_Up_Attack_B_3External" // G mode
+                    },
+                    ["Clubs"] = new Dictionary<string, string>
+                    {
+                        ["secondary_Q"] = "0MWA_DualWield_Attack02External", // Q mode
+                        ["secondary_T"] = "MWA_RightHand_Attack03External", // T mode
+                        ["secondary_G"] = "Shield@ShieldAttack01External" // G mode
+                    },
+                    ["Spears"] = new Dictionary<string, string>
+                    {
+                        ["secondary_Q"] = "Shield@ShieldAttack02External", // Q mode
+                        ["secondary_T"] = "Attack04External", // T mode
+                        ["secondary_G"] = "0MGSA_Attack_Dash01External" // G mode
+                    },
+                    ["GreatSwords"] = new Dictionary<string, string>
+                    {
+                        ["secondary_Q"] = "2Hand-Sword-Attack8External", // Q mode
+                        ["secondary_T"] = "2Hand_Skill01_WhirlWindExternal", // T mode
+                        ["secondary_G"] = "Eas_GreatSword_Combo1External" // G mode
+                    },
+                    ["BattleAxes"] = new Dictionary<string, string>
+                    {
+                        ["secondary_Q"] = "0MGSA_Attack_Dash02External", // Q mode
+                        ["secondary_T"] = "0MGSA_Attack_Ground01External", // T mode
+                        ["secondary_G"] = "0MGSA_Attack_Ground02External" // G mode
+                    },
+                    ["Polearms"] = new Dictionary<string, string>
+                    {
+                        ["secondary_Q"] = "Pa_1handShiled_attack02External", // Q mode
+                        ["secondary_T"] = "Attack_ShieldExternal", // T mode
+                        ["secondary_G"] = "0DS_Attack_07External" // G mode
+                    },
+                    ["Knives"] = new Dictionary<string, string>
+                    {
+                        ["secondary_Q"] = "ChargeAttkExternal", // Q mode
+                        ["secondary_T"] = "HardAttkExternal", // T mode
+                        ["secondary_G"] = "StrongAttk3External" // G mode
+                    },
+                    ["Fists"] = new Dictionary<string, string>
+                    {
+                        ["secondary_Q"] = "Flying Knee Punch ComboExternal", // Q mode
+                        ["secondary_T"] = "Eas_GreatSword_SlideAttackExternal", // T mode
+                        ["secondary_G"] = "Eas_GreatSwordSlash_01External" // G mode
+                    }
+                }
+            };
+        }
+
         // Create default weapon types configuration
         private static void CreateDefaultWeaponTypesConfig()
         {
@@ -459,57 +524,57 @@ namespace ExtraAttackSystem
                     {
                         ["Swords"] = new Dictionary<string, string>
                         {
-                            ["ea_secondary_Q"] = "Sw-Ma-GS-Up_Attack_A_1External", // Q mode
-                            ["ea_secondary_T"] = "Sw-Ma-GS-Up_Attack_A_2External", // T mode
-                            ["ea_secondary_G"] = "Sw-Ma-GS-Up_Attack_A_3External" // G mode
+                            ["secondary_Q"] = "Sw-Ma-GS-Up_Attack_A_1External", // Q mode
+                            ["secondary_T"] = "Sw-Ma-GS-Up_Attack_A_2External", // T mode
+                            ["secondary_G"] = "Sw-Ma-GS-Up_Attack_A_3External" // G mode
                         },
                         ["Axes"] = new Dictionary<string, string>
                         {
-                            ["ea_secondary_Q"] = "OneHand_Up_Attack_B_1External", // Q mode
-                            ["ea_secondary_T"] = "OneHand_Up_Attack_B_2External", // T mode
-                            ["ea_secondary_G"] = "OneHand_Up_Attack_B_3External" // G mode
+                            ["secondary_Q"] = "OneHand_Up_Attack_B_1External", // Q mode
+                            ["secondary_T"] = "OneHand_Up_Attack_B_2External", // T mode
+                            ["secondary_G"] = "OneHand_Up_Attack_B_3External" // G mode
                         },
                         ["Clubs"] = new Dictionary<string, string>
                         {
-                            ["ea_secondary_Q"] = "0MWA_DualWield_Attack02External", // Q mode
-                            ["ea_secondary_T"] = "MWA_RightHand_Attack03External", // T mode
-                            ["ea_secondary_G"] = "Shield@ShieldAttack01External" // G mode
+                            ["secondary_Q"] = "0MWA_DualWield_Attack02External", // Q mode
+                            ["secondary_T"] = "MWA_RightHand_Attack03External", // T mode
+                            ["secondary_G"] = "Shield@ShieldAttack01External" // G mode
                         },
                         ["Spears"] = new Dictionary<string, string>
                         {
-                            ["ea_secondary_Q"] = "Shield@ShieldAttack02External", // Q mode
-                            ["ea_secondary_T"] = "Attack04External", // T mode
-                            ["ea_secondary_G"] = "0MGSA_Attack_Dash01External" // G mode
+                            ["secondary_Q"] = "Shield@ShieldAttack02External", // Q mode
+                            ["secondary_T"] = "Attack04External", // T mode
+                            ["secondary_G"] = "0MGSA_Attack_Dash01External" // G mode
                         },
                         ["GreatSwords"] = new Dictionary<string, string>
                         {
-                            ["ea_secondary_Q"] = "2Hand-Sword-Attack8External", // Q mode
-                            ["ea_secondary_T"] = "2Hand_Skill01_WhirlWindExternal", // T mode
-                            ["ea_secondary_G"] = "Eas_GreatSword_Combo1External" // G mode
+                            ["secondary_Q"] = "2Hand-Sword-Attack8External", // Q mode
+                            ["secondary_T"] = "2Hand_Skill01_WhirlWindExternal", // T mode
+                            ["secondary_G"] = "Eas_GreatSword_Combo1External" // G mode
                         },
                         ["BattleAxes"] = new Dictionary<string, string>
                         {
-                            ["ea_secondary_Q"] = "0MGSA_Attack_Dash02External", // Q mode
-                            ["ea_secondary_T"] = "0MGSA_Attack_Ground01External", // T mode
-                            ["ea_secondary_G"] = "0MGSA_Attack_Ground02External" // G mode
+                            ["secondary_Q"] = "0MGSA_Attack_Dash02External", // Q mode
+                            ["secondary_T"] = "0MGSA_Attack_Ground01External", // T mode
+                            ["secondary_G"] = "0MGSA_Attack_Ground02External" // G mode
                         },
                         ["Polearms"] = new Dictionary<string, string>
                         {
-                            ["ea_secondary_Q"] = "Pa_1handShiled_attack02External", // Q mode
-                            ["ea_secondary_T"] = "Attack_ShieldExternal", // T mode
-                            ["ea_secondary_G"] = "0DS_Attack_07External" // G mode
+                            ["secondary_Q"] = "Pa_1handShiled_attack02External", // Q mode
+                            ["secondary_T"] = "Attack_ShieldExternal", // T mode
+                            ["secondary_G"] = "0DS_Attack_07External" // G mode
                         },
                         ["Knives"] = new Dictionary<string, string>
                         {
-                            ["ea_secondary_Q"] = "ChargeAttkExternal", // Q mode
-                            ["ea_secondary_T"] = "HardAttkExternal", // T mode
-                            ["ea_secondary_G"] = "StrongAttk3External" // G mode
+                            ["secondary_Q"] = "ChargeAttkExternal", // Q mode
+                            ["secondary_T"] = "HardAttkExternal", // T mode
+                            ["secondary_G"] = "StrongAttk3External" // G mode
                         },
                         ["Fists"] = new Dictionary<string, string>
                         {
-                            ["ea_secondary_Q"] = "Flying Knee Punch ComboExternal", // Q mode
-                            ["ea_secondary_T"] = "Eas_GreatSword_SlideAttackExternal", // T mode
-                            ["ea_secondary_G"] = "Eas_GreatSwordSlash_01External" // G mode
+                            ["secondary_Q"] = "Flying Knee Punch ComboExternal", // Q mode
+                            ["secondary_T"] = "Eas_GreatSword_SlideAttackExternal", // T mode
+                            ["secondary_G"] = "Eas_GreatSwordSlash_01External" // G mode
                         }
                     }
                 };
@@ -788,44 +853,95 @@ namespace ExtraAttackSystem
                 
                 string[] weaponTypes = { "Swords", "Axes", "Clubs", "Spears", "GreatSwords", "BattleAxes", "Polearms", "Knives", "Fists" };
                 
-                foreach (var weaponType in weaponTypes)
+                // Check if ReplacementMap has data, if not use default mappings
+                bool hasReplacementMapData = AnimationManager.ReplacementMap.Count > 0;
+                ExtraAttackPlugin.LogInfo("System", $"SaveWeaponTypesConfig: ReplacementMap.Count = {AnimationManager.ReplacementMap.Count}, hasData = {hasReplacementMapData}");
+                
+                if (!hasReplacementMapData)
                 {
-                    if (AnimationManager.ReplacementMap.ContainsKey(weaponType))
+                    ExtraAttackPlugin.LogInfo("System", "SaveWeaponTypesConfig: ReplacementMap is empty, using default mappings");
+                    // Use default mappings from CreateDefaultWeaponTypesConfig
+                    var defaultConfig = CreateDefaultWeaponTypesConfigForYaml();
+                    
+                    foreach (var weaponType in weaponTypes)
                     {
-                        var weaponMap = AnimationManager.ReplacementMap[weaponType];
                         weaponTypeGroups[weaponType] = new Dictionary<string, Dictionary<string, string>>();
                         
-                        // Check for Q/T/G modes using unified key format
-                        var modes = new[] { "Q", "T", "G" };
-                        var modeKeys = new[] { $"{weaponType}_Secondary_Q", $"{weaponType}_Secondary_T", $"{weaponType}_Secondary_G" };
-                        
-                        for (int i = 0; i < modes.Length; i++)
+                        if (defaultConfig.AocTypes.ContainsKey(weaponType))
                         {
-                            if (weaponMap.ContainsKey(modeKeys[i]))
+                            var weaponMap = defaultConfig.AocTypes[weaponType];
+                            var modes = new[] { "Q", "T", "G" };
+                            var modeKeys = new[] { $"{weaponType}_secondary_Q", $"{weaponType}_secondary_T", $"{weaponType}_secondary_G" };
+                            
+                            for (int i = 0; i < modes.Length; i++)
                             {
-                                string externalClip = weaponMap[modeKeys[i]];
-                                string triggerName = GetVanillaClipName(weaponType, modes[i]);
-                                
-                                weaponTypeGroups[weaponType][modes[i]] = new Dictionary<string, string>
+                                if (weaponMap.ContainsKey(modeKeys[i]))
                                 {
-                                    { triggerName, externalClip }
-                                };
+                                    string externalClip = weaponMap[modeKeys[i]];
+                                    string triggerName = GetVanillaClipName(weaponType, modes[i]);
+                                    
+                                    weaponTypeGroups[weaponType][modes[i]] = new Dictionary<string, string>
+                                    {
+                                        { triggerName, externalClip }
+                                    };
+                                }
+                                else
+                                {
+                                    weaponTypeGroups[weaponType][modes[i]] = new Dictionary<string, string>();
+                                }
                             }
-                            else
+                        }
+                        else
+                        {
+                            var modes = new[] { "Q", "T", "G" };
+                            foreach (var mode in modes)
                             {
-                                // Add empty entry if mode key doesn't exist
-                                weaponTypeGroups[weaponType][modes[i]] = new Dictionary<string, string>();
+                                weaponTypeGroups[weaponType][mode] = new Dictionary<string, string>();
                             }
                         }
                     }
-                    else
+                }
+                else
+                {
+                    foreach (var weaponType in weaponTypes)
                     {
-                        // Add empty entry if weapon type doesn't exist
-                        weaponTypeGroups[weaponType] = new Dictionary<string, Dictionary<string, string>>();
-                        var modes = new[] { "Q", "T", "G" };
-                        foreach (var mode in modes)
+                        if (AnimationManager.ReplacementMap.ContainsKey(weaponType))
                         {
-                            weaponTypeGroups[weaponType][mode] = new Dictionary<string, string>();
+                            var weaponMap = AnimationManager.ReplacementMap[weaponType];
+                            weaponTypeGroups[weaponType] = new Dictionary<string, Dictionary<string, string>>();
+                            
+                            // Check for Q/T/G modes using unified key format
+                            var modes = new[] { "Q", "T", "G" };
+                            var modeKeys = new[] { $"{weaponType}_secondary_Q", $"{weaponType}_secondary_T", $"{weaponType}_secondary_G" };
+                            
+                            for (int i = 0; i < modes.Length; i++)
+                            {
+                                if (weaponMap.ContainsKey(modeKeys[i]))
+                                {
+                                    string externalClip = weaponMap[modeKeys[i]];
+                                    string triggerName = GetVanillaClipName(weaponType, modes[i]);
+                                    
+                                    weaponTypeGroups[weaponType][modes[i]] = new Dictionary<string, string>
+                                    {
+                                        { triggerName, externalClip }
+                                    };
+                                }
+                                else
+                                {
+                                    // Add empty entry if mode key doesn't exist
+                                    weaponTypeGroups[weaponType][modes[i]] = new Dictionary<string, string>();
+                                }
+                            }
+                        }
+                        else
+                        {
+                            // Add empty entry if weapon type doesn't exist
+                            weaponTypeGroups[weaponType] = new Dictionary<string, Dictionary<string, string>>();
+                            var modes = new[] { "Q", "T", "G" };
+                            foreach (var mode in modes)
+                            {
+                                weaponTypeGroups[weaponType][mode] = new Dictionary<string, string>();
+                            }
                         }
                     }
                 }

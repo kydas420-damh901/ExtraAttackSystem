@@ -216,12 +216,12 @@ namespace ExtraAttackSystem
             if (normalizedMode.StartsWith("secondary_"))
             {
                 string mode = normalizedMode.Replace("secondary_", "");
-                return $"Secondary_{mode}";
+                return $"secondary_{mode}"; // Use lowercase 's' to match YAML format
             }
             // Handle format: {Mode} (Q/T/G only)
             else if (attackMode == "Q" || attackMode == "T" || attackMode == "G")
             {
-                return $"Secondary_{attackMode}";
+                return $"secondary_{attackMode}"; // Use lowercase 's' to match YAML format
             }
 
             return attackMode; // Return original if can't parse
@@ -267,9 +267,9 @@ namespace ExtraAttackSystem
                 string[] weaponTypes = { "Swords", "Axes", "Clubs", "Spears", "GreatSwords", "BattleAxes", "Polearms", "Knives", "Fists" };
                 foreach (var weaponType in weaponTypes)
                 {
-                    AppendFromWeaponType(weaponType, "ea_secondary_Q", "secondary_Q");
-                    AppendFromWeaponType(weaponType, "ea_secondary_T", "secondary_T");
-                    AppendFromWeaponType(weaponType, "ea_secondary_G", "secondary_G");
+                    AppendFromWeaponType(weaponType, "Secondary_Q", "Secondary_Q");
+                    AppendFromWeaponType(weaponType, "Secondary_T", "Secondary_T");
+                    AppendFromWeaponType(weaponType, "Secondary_G", "Secondary_G");
                 }
 
                 // DEPRECATED: Persist with comments including replacement names
@@ -942,7 +942,7 @@ namespace ExtraAttackSystem
             woodenGreatswordQ.TrailOffTiming = 0.70f;
             woodenGreatswordQ.AttackRange = 2.20f;
             woodenGreatswordQ.AttackHeight = 0.90f;
-            individualWeapons["ea_secondary_Q_THSwordWood"] = woodenGreatswordQ;
+            individualWeapons["Secondary_Q_THSwordWood"] = woodenGreatswordQ;
 
             var woodenGreatswordT = new AnimationTiming();
             woodenGreatswordT.HitTiming = 0.60f;
@@ -950,7 +950,7 @@ namespace ExtraAttackSystem
             woodenGreatswordT.TrailOffTiming = 0.70f;
             woodenGreatswordT.AttackRange = 1.90f;
             woodenGreatswordT.AttackHeight = 0.80f;
-            individualWeapons["ea_secondary_T_THSwordWood"] = woodenGreatswordT;
+            individualWeapons["Secondary_T_THSwordWood"] = woodenGreatswordT;
 
             var woodenGreatswordG = new AnimationTiming();
             woodenGreatswordG.HitTiming = 0.65f;
@@ -958,7 +958,7 @@ namespace ExtraAttackSystem
             woodenGreatswordG.TrailOffTiming = 0.70f;
             woodenGreatswordG.AttackRange = 2.40f;
             woodenGreatswordG.AttackHeight = 0.80f;
-            individualWeapons["ea_secondary_G_THSwordWood"] = woodenGreatswordG;
+            individualWeapons["Secondary_G_THSwordWood"] = woodenGreatswordG;
 
             config.IndividualWeapons = individualWeapons;
         }
@@ -1023,7 +1023,7 @@ namespace ExtraAttackSystem
                 var weaponMap = AnimationManager.ReplacementMap[weaponType];
                 
                 // NEW: ãƒ¢ãƒ¼ãƒ‰ã‚­ãƒ¼ (ea_secondary_Q/T/G) ã§ç›´æŽ¥æ¤œç´¢
-                string modeKey = $"ea_secondary_{mode}";
+                string modeKey = $"Secondary_{mode}";
                 if (weaponMap.ContainsKey(modeKey))
                 {
                     string actualAnimation = weaponMap[modeKey];
