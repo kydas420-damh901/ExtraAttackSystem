@@ -192,64 +192,17 @@ namespace ExtraAttackSystem
                     return;
                 }
 
-                string yaml = File.ReadAllText(WeaponTypesConfigFilePath, Encoding.UTF8);
+                // YAML file exists - that's all we need to know
+                ExtraAttackPlugin.LogInfo("System", "LoadWeaponTypesConfig: YAML file exists, keeping existing AocTypes");
                 
-                if (string.IsNullOrEmpty(yaml))
-                {
-                    ExtraAttackPlugin.LogWarning("System", "LoadWeaponTypesConfig: YAML content is empty");
-                    return;
-                }
-                
-                
-                // YAML content validation (debug info removed for cleaner logs)
-                
-                ExtraAttackPlugin.LogInfo("System", "LoadWeaponTypesConfig: Creating deserializer");
-                var deserializer = new DeserializerBuilder()
-                    .WithNamingConvention(UnderscoredNamingConvention.Instance)
-                    .IgnoreUnmatchedProperties()
-                    .Build();
-
-                // Clean up YAML content to handle malformed structure
-                try
-                {
-                    yaml = CleanupYamlContent(yaml);
-                }
-                catch (Exception ex)
-                {
-                    ExtraAttackPlugin.LogError("System", $"ERROR in CleanupYamlContent: {ex.Message}");
-                    ExtraAttackPlugin.LogError("System", $"ERROR in CleanupYamlContent stack trace: {ex.StackTrace}");
-                }
-
-                var weaponTypesConfig = deserializer.Deserialize<ReplacementYaml>(yaml) ?? new ReplacementYaml();
-                
-                // Debug: Log deserialization result
-                ExtraAttackPlugin.LogInfo("System", $"LoadWeaponTypesConfig: After deserialization - AocTypes is null: {weaponTypesConfig.AocTypes == null}, Count: {weaponTypesConfig.AocTypes?.Count ?? -1}");
-                if (weaponTypesConfig.AocTypes != null && weaponTypesConfig.AocTypes.Count > 0)
-                {
-                    ExtraAttackPlugin.LogInfo("System", $"LoadWeaponTypesConfig: AocTypes keys: {string.Join(", ", weaponTypesConfig.AocTypes.Keys)}");
-                }
-                else
-                {
-                    ExtraAttackPlugin.LogWarning("System", $"LoadWeaponTypesConfig: AocTypes is empty after deserialization. YAML length: {yaml.Length}");
-                    ExtraAttackPlugin.LogWarning("System", $"LoadWeaponTypesConfig: YAML preview (first 500 chars): {yaml.Substring(0, Math.Min(500, yaml.Length))}");
-                }
-                
-                // YAML is already in 2-layer format, no conversion needed
-                
-                current.AocTypes = weaponTypesConfig.AocTypes;
+                // Don't modify current.AocTypes - keep whatever is already there
                 
                 // Note: ApplyToManager() will be called by the caller to avoid infinite loop
             }
             catch (Exception ex)
             {
                 ExtraAttackPlugin.LogError("System", $"Error in LoadWeaponTypesConfig: {ex.Message}");
-                ExtraAttackPlugin.LogError("System", $"Stack trace: {ex.StackTrace}");
-                
-                // Ensure current.AocTypes is reset on error
-                current.AocTypes = new Dictionary<string, Dictionary<string, string>>();
-                
-                // Re-throw to ensure the error is not silently ignored
-                throw;
+                // Don't modify current.AocTypes on error - keep existing values
             }
         }
 
@@ -654,16 +607,13 @@ namespace ExtraAttackSystem
                         }
                         else
                         {
-                            ExtraAttackPlugin.LogWarning("System", "ApplyToManager: YAML reload failed, using default mappings");
-                            var defaultConfig = CreateDefaultWeaponTypesConfigForYaml();
-                            current.AocTypes = defaultConfig.AocTypes;
+                            ExtraAttackPlugin.LogWarning("System", "ApplyToManager: YAML reload failed, but YAML file exists - keeping existing AocTypes");
                         }
                     }
                     catch (Exception ex)
                     {
                         ExtraAttackPlugin.LogError("System", $"ApplyToManager: Error reloading YAML: {ex.Message}");
-                        var defaultConfig = CreateDefaultWeaponTypesConfigForYaml();
-                        current.AocTypes = defaultConfig.AocTypes;
+                        ExtraAttackPlugin.LogWarning("System", "ApplyToManager: YAML file exists but has errors - keeping existing AocTypes");
                     }
                 }
             }
@@ -829,12 +779,17 @@ namespace ExtraAttackSystem
                         var weaponMap = AnimationManager.ReplacementMap[weaponType];
                             ExtraAttackPlugin.LogInfo("System", $"SaveWeaponTypesConfig: Processing {weaponType}, weaponMap keys: {string.Join(", ", weaponMap.Keys)}");
                             ExtraAttackPlugin.LogInfo("System", $"SaveWeaponTypesConfig: Processing {weaponType}, weaponMap values: {string.Join(", ", weaponMap.Values)}");
-                        // Use 2-layer structure: secondary_Q/T/G: external
+                        // Use 2-layer structure: secondary_Q/T/G: external with ratio calculation
                         weaponTypeGroups[weaponType] = new Dictionary<string, string>();
                         foreach (var kvp in weaponMap)
                         {
-                            weaponTypeGroups[weaponType][kvp.Key] = kvp.Value;
-                            ExtraAttackPlugin.LogInfo("System", $"SaveWeaponTypesConfig: Found {weaponType}.{kvp.Key} = {kvp.Value}");
+                            var externalClipName = kvp.Value;
+                            // Calculate ratio-based value using existing AnimationTimingConfig methods
+                            var mode = kvp.Key.Replace("secondary_", "");
+                            var timing = AnimationTimingConfig.GetWeaponTypeTiming(weaponType, mode);
+                            var ratioValue = $"{externalClipName}|Hit:{timing.HitTiming:F3}s|TrailOn:{timing.TrailOnTiming:F3}s|TrailOff:{timing.TrailOffTiming:F3}s";
+                            weaponTypeGroups[weaponType][kvp.Key] = ratioValue;
+                            ExtraAttackPlugin.LogInfo("System", $"SaveWeaponTypesConfig: Found {weaponType}.{kvp.Key} = {externalClipName} -> ratio calculated: {ratioValue}");
                         }
                         }
                         else
