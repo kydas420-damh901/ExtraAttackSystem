@@ -1,4 +1,4 @@
-using HarmonyLib;
+﻿using HarmonyLib;
 using System;
 using System.Collections.Generic;
 using UnityEngine;
@@ -184,29 +184,6 @@ namespace ExtraAttackSystem
                             return; // Defer to Player.Update revert path
                         }
 
-                        // AOC is now set at equipment change time - no need to revert
-                        // ExtraAttackPatches_Animation.RevertStyleAOC(player, animator);
-                        
-                        // ❌ 削除: Attack.Stopでのモードリセットを削除
-                        // 理由: 次の攻撃のモード設定より先に呼ばれるため、カスタムアニメが失われる
-                        // ExtraAttackUtils.SetAttackMode(player, ExtraAttackUtils.AttackMode.Normal);
-                        // ExtraAttackPlugin.LogInfo("AOC", "Attack.Stop: reset mode to Normal");
-
-                        // Class: ExtraAttackPatches_Attack
-                        // 例: 攻撃終了時の emote_stop ガード開始処理の周辺
-                        if (!ExtraAttackPlugin.AreGuardsDisabled() && ExtraAttackPlugin.EnablePostAttackEmoteStopGuard.Value)
-                        {
-                        // 既存のポスト攻撃ガード処理（タイマー開始など）
-                            float guardSec = Math.Max(0f, ExtraAttackPlugin.PostAttackEmoteStopGuardSeconds.Value);
-                            if (guardSec > 0f)
-                            {
-                                ExtraAttackUtils.SetEmoteStopGuardWindow(player, guardSec);
-                                if (ExtraAttackPlugin.DebugAOCOperations.Value)
-                                {
-                                    ExtraAttackPlugin.LogInfo("AOC", $"PostAttack emote_stop guard started: {guardSec:F2}s");
-                                }
-                            }
-                        }
                     }
                 }
                 catch (Exception ex)

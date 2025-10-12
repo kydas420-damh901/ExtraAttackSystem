@@ -19,17 +19,6 @@ namespace ExtraAttackSystem
         // Attack mode tracking
         private static readonly Dictionary<Player, AttackMode> playerAttackModes = new();
         private static readonly Dictionary<Player, Dictionary<AttackMode, float>> playerCooldowns = new();
-        // NEW: Flag to nullify previousAttack on next Attack.Start after exiting Extra mode
-        private static readonly Dictionary<Player, bool> playerNullifyNextChain = new();
-        // NEW: Pair-specific block flags to prevent combo for the very next attack
-        private static readonly Dictionary<Player, bool> playerBlockNextPrimary = new();
-        private static readonly Dictionary<Player, bool> playerBlockNextSecondary = new();
-        // NEW: Continuous block flag during vanilla chain window after exiting Extra
-        private static readonly Dictionary<Player, bool> playerBlockPrimaryDuringChainWindow = new();
-        // NEW: Message deduplication per player
-        private static readonly Dictionary<Player, string> lastMessageKey = new();
-        private static readonly Dictionary<Player, float> lastMessageTime = new();
-        private const float MessageRepeatThreshold = 1.0f; // seconds
 
         // Static message dictionary for localization
         private static readonly Dictionary<string, string> MessageDictionary = new()
@@ -44,13 +33,7 @@ namespace ExtraAttackSystem
             { "extra_attack_ac", "Animator Controller for {0}: {1}" }
         };
 
-        // NEW: Track crouch state before Extra attack to restore/maintain during custom animation
-        private static readonly Dictionary<Player, bool> playerWasCrouchingBeforeExtra = new();
         
-        // NEW: Bypass flag to allow our next StartAttack call while otherwise blocking vanilla inputs
-        private static readonly Dictionary<Player, bool> playerBypassNextStartAttack = new();
-        // NEW: PostAttack emote_stop guard window end time per player
-        private static readonly Dictionary<Player, float> emoteStopGuardUntil = new();
         // Attack mode management
         public static void SetAttackMode(Player player, AttackMode mode)
         {
@@ -116,37 +99,32 @@ namespace ExtraAttackSystem
                 playerCooldowns[player] = new Dictionary<AttackMode, float>();
             }
 
-            // Try to get cooldown from YAML timing based on current animation clip
+            // Try to get cooldown from CostConfig based on current weapon and mode
             float cooldownDuration = 0f;
             try
             {
-                if (ExtraAttackPatches_Core.TryGetPlayerAnimator(player, out Animator animator) && animator != null)
+                if (player.GetCurrentWeapon() != null)
                 {
-                    var clipInfo = animator.GetCurrentAnimatorClipInfo(0);
-                    if (clipInfo != null && clipInfo.Length > 0)
+                    string weaponType = GetWeaponTypeFromSkill(player.GetCurrentWeapon().m_shared.m_skillType, player.GetCurrentWeapon());
+                    string modeString = mode.ToString();
+                    
+                    var attackCost = AnimationTimingConfig.GetAttackCost(weaponType, modeString);
+                    if (attackCost != null && attackCost.CooldownSec > 0f)
                     {
-                        string clipName = clipInfo[0].clip.name;
-                        int hitIndex = ExtraAttackPatches_Core.GetCurrentHitIndex(animator, clipInfo[0].clip);
-                        string configKey = ExtraAttackPatches_Core.BuildConfigKey(player, clipName, hitIndex);
-                        
-                        var timing = AnimationTimingConfig.GetTiming(configKey);
-                        if (timing != null && timing.CooldownSec > 0f)
-                        {
-                            cooldownDuration = timing.CooldownSec;
-                        }
+                        cooldownDuration = attackCost.CooldownSec;
                     }
                 }
                 
-                // Fallback to config if YAML timing not available
+                // Fallback to config if CostConfig not available
                 if (cooldownDuration <= 0f)
                 {
-                    cooldownDuration = ExtraAttackPlugin.GetCooldown(mode);
+                    cooldownDuration = 0f; // No cooldown
                 }
             }
             catch (System.Exception ex)
             {
-                ExtraAttackPlugin.LogError("System", $"Error getting YAML cooldown, falling back to config: {ex.Message}");
-                cooldownDuration = ExtraAttackPlugin.GetCooldown(mode);
+                ExtraAttackPlugin.LogError("System", $"Error getting CostConfig cooldown, falling back to config: {ex.Message}");
+                cooldownDuration = 0f; // No cooldown
             }
             
             playerCooldowns[player][mode] = Time.time + cooldownDuration;
@@ -158,186 +136,12 @@ namespace ExtraAttackSystem
             {
                 playerAttackModes.Remove(player);
                 playerCooldowns.Remove(player);
-                // NEW: cleanup nullify flag
-                playerNullifyNextChain.Remove(player);
-                // NEW: cleanup pair-specific flags
-                playerBlockNextPrimary.Remove(player);
-                playerBlockNextSecondary.Remove(player);
-                // NEW: cleanup continuous block flag
-                playerBlockPrimaryDuringChainWindow.Remove(player);
-                // NEW: cleanup last message state
-                lastMessageKey.Remove(player);
-                lastMessageTime.Remove(player);
-                // NEW: cleanup crouch-before-extra flag
-                playerWasCrouchingBeforeExtra.Remove(player);
-                // NEW: cleanup StartAttack bypass flag
-                playerBypassNextStartAttack.Remove(player);
-                // NEW: cleanup PostAttack emote_stop guard window
-                emoteStopGuardUntil.Remove(player);
             }
         }
 
-        // NEW: Mark that player was crouching before Extra attack
-        public static void SetWasCrouchingBeforeExtraAttack(Player player, bool wasCrouching)
-        {
-            if (player != null)
-            {
-                playerWasCrouchingBeforeExtra[player] = wasCrouching;
-            }
-        }
 
-        // NEW: Query whether player was crouching before Extra attack
-        public static bool WasCrouchingBeforeExtraAttack(Player player)
-        {
-            return player != null && playerWasCrouchingBeforeExtra.TryGetValue(player, out bool wasCrouching) && wasCrouching;
-        }
 
-        // NEW: Clear stored crouch-before-extra flag
-        public static void ClearWasCrouchingBeforeExtraAttack(Player player)
-        {
-            if (player != null)
-            {
-                playerWasCrouchingBeforeExtra.Remove(player);
-            }
-        }
 
-        // NEW: Mark to nullify previousAttack once on next Attack.Start
-        public static void MarkNullifyNextChain(Player player)
-        {
-            if (player != null)
-            {
-                playerNullifyNextChain[player] = true;
-            }
-        }
-
-        // NEW: Consume flag; returns true if nullification should occur
-        public static bool ConsumeNullifyNextChain(Player player)
-        {
-            if (player != null && playerNullifyNextChain.TryGetValue(player, out bool flag) && flag)
-            {
-                playerNullifyNextChain[player] = false;
-                return true;
-            }
-            return false;
-        }
-
-        // NEW: Check flag without consuming it
-        public static bool HasNullifyNextChain(Player player)
-        {
-            return player != null && playerNullifyNextChain.TryGetValue(player, out bool flag) && flag;
-        }
-
-        // NEW: Pair-specific block helpers
-        public static void MarkBlockNextPrimary(Player player)
-        {
-            if (player != null)
-            {
-                playerBlockNextPrimary[player] = true;
-            }
-        }
-
-        public static bool ConsumeBlockNextPrimary(Player player)
-        {
-            if (player != null && playerBlockNextPrimary.TryGetValue(player, out bool flag) && flag)
-            {
-                playerBlockNextPrimary[player] = false;
-                return true;
-            }
-            return false;
-        }
-
-        public static bool HasBlockNextPrimary(Player player)
-        {
-            return player != null && playerBlockNextPrimary.TryGetValue(player, out bool flag) && flag;
-        }
-
-        public static void MarkBlockNextSecondary(Player player)
-        {
-            if (player != null)
-            {
-                playerBlockNextSecondary[player] = true;
-            }
-        }
-
-        public static bool ConsumeBlockNextSecondary(Player player)
-        {
-            if (player != null && playerBlockNextSecondary.TryGetValue(player, out bool flag) && flag)
-            {
-                playerBlockNextSecondary[player] = false;
-                return true;
-            }
-            return false;
-        }
-
-        public static bool HasBlockNextSecondary(Player player)
-        {
-            return player != null && playerBlockNextSecondary.TryGetValue(player, out bool flag) && flag;
-        }
-
-        // NEW: Continuous block helpers for LMB chain window
-        public static void MarkBlockPrimaryDuringChainWindow(Player player)
-        {
-            if (player != null)
-            {
-                playerBlockPrimaryDuringChainWindow[player] = true;
-            }
-        }
-
-        public static void ClearBlockPrimaryDuringChainWindow(Player player)
-        {
-            if (player != null)
-            {
-                playerBlockPrimaryDuringChainWindow.Remove(player);
-                // NEW: cleanup last message state
-                lastMessageKey.Remove(player);
-                lastMessageTime.Remove(player);
-                // NEW: cleanup crouch-before-extra flag
-                playerWasCrouchingBeforeExtra.Remove(player);
-                // NEW: cleanup StartAttack bypass flag
-                playerBypassNextStartAttack.Remove(player);
-            }
-        }
-
-        // NEW: Query continuous LMB chain block window flag
-        public static bool HasBlockPrimaryDuringChainWindow(Player player)
-        {
-            return player != null && playerBlockPrimaryDuringChainWindow.ContainsKey(player);
-        }
-
-        // NEW: Consume continuous LMB chain block window flag (one-shot)
-        public static bool ConsumeBlockPrimaryDuringChainWindow(Player player)
-        {
-            if (player != null && playerBlockPrimaryDuringChainWindow.TryGetValue(player, out bool flag) && flag)
-            {
-                playerBlockPrimaryDuringChainWindow[player] = false;
-                return true;
-            }
-            return false;
-        }
-
-        // NEW: Allow-bypass helpers for our own StartAttack calls
-        public static void MarkBypassNextStartAttack(Player player)
-        {
-            if (player != null)
-            {
-                playerBypassNextStartAttack[player] = true;
-            }
-        }
-
-        public static bool ConsumeBypassNextStartAttack(Player player)
-        {
-            if (player != null && playerBypassNextStartAttack.TryGetValue(player, out bool flag) && flag)
-            {
-                playerBypassNextStartAttack[player] = false;
-                return true;
-            }
-            return false;
-        }
-
-        public static bool HasBypassNextStartAttack(Player player)
-        {
-            return player != null && playerBypassNextStartAttack.TryGetValue(player, out bool flag) && flag;
-        }
 
         // Localization helper methods
         public static string GetLocalizedString(string key, params object[] args)
@@ -365,32 +169,11 @@ namespace ExtraAttackSystem
             return key; // Fallback to key if message not found
         }
 
-        // NEW: Dedup helper to suppress rapid duplicate messages of the same key per player
-        private static bool ShouldSuppressDuplicateMessage(Player player, string key)
-        {
-            if (player == null)
-            {
-                return true;
-            }
-            if (lastMessageKey.TryGetValue(player, out var prevKey) && prevKey == key &&
-                lastMessageTime.TryGetValue(player, out var prevTime) && Time.time - prevTime < MessageRepeatThreshold)
-            {
-                return true;
-            }
-            lastMessageKey[player] = key;
-            lastMessageTime[player] = Time.time;
-            return false;
-        }
 
         public static void ShowMessage(Player player, string messageKey, params object[] args)
         {
             if (player != null)
             {
-                // Suppress rapid duplicate messages with the same key
-                if (ShouldSuppressDuplicateMessage(player, messageKey))
-                {
-                    return;
-                }
                 string message = GetLocalizedString(messageKey, args);
                 player.Message(MessageHud.MessageType.Center, message);
             }
@@ -406,36 +189,32 @@ namespace ExtraAttackSystem
 
             float baseCost = 0f;
             
-            // Try to get stamina cost from YAML timing based on current animation clip
+            // Try to get stamina cost from CostConfig based on weapon type and mode
             try
             {
-                if (ExtraAttackPatches_Core.TryGetPlayerAnimator(player, out Animator animator) && animator != null)
+                string weaponType = GetWeaponTypeFromSkill(weapon.m_shared.m_skillType, weapon);
+                string modeString = mode.ToString();
+                
+                var attackCost = AnimationTimingConfig.GetAttackCost(weaponType, modeString);
+                if (attackCost != null && attackCost.StaminaCost > 0f)
                 {
-                    var clipInfo = animator.GetCurrentAnimatorClipInfo(0);
-                    if (clipInfo != null && clipInfo.Length > 0)
+                    baseCost = attackCost.StaminaCost;
+                    if (ExtraAttackPlugin.IsDebugAOCOperationsEnabled)
                     {
-                        string clipName = clipInfo[0].clip.name;
-                        int hitIndex = ExtraAttackPatches_Core.GetCurrentHitIndex(animator, clipInfo[0].clip);
-                        string configKey = ExtraAttackPatches_Core.BuildConfigKey(player, clipName, hitIndex);
-                        
-                        var timing = AnimationTimingConfig.GetTiming(configKey);
-                        if (timing != null && timing.StaminaCost > 0f)
-                        {
-                            baseCost = timing.StaminaCost;
-                        }
+                        ExtraAttackPlugin.LogInfo("System", $"Using CostConfig stamina cost: {weaponType}_{modeString} = {baseCost}");
                     }
                 }
                 
-                // Fallback to config if YAML timing not available
+                // Use default if CostConfig not available
                 if (baseCost <= 0f)
                 {
-                    baseCost = ExtraAttackPlugin.GetStaminaCost(weapon.m_shared.m_skillType, mode);
+                    baseCost = 20f; // Default stamina cost
                 }
             }
             catch (System.Exception ex)
             {
-                ExtraAttackPlugin.LogError("System", $"Error getting YAML stamina cost, falling back to config: {ex.Message}");
-                baseCost = ExtraAttackPlugin.GetStaminaCost(weapon.m_shared.m_skillType, mode);
+                ExtraAttackPlugin.LogError("System", $"Error getting CostConfig stamina cost, using default: {ex.Message}");
+                baseCost = 20f; // Default stamina cost
             }
             
             if (baseCost <= 0f)
@@ -473,36 +252,41 @@ namespace ExtraAttackSystem
 
             float baseCost = 0f;
             
-            // Try to get stamina cost from YAML timing based on current animation clip
+            // Try to get stamina cost from CostConfig based on weapon type and mode
             try
             {
-                if (ExtraAttackPatches_Core.TryGetPlayerAnimator(player, out Animator animator) && animator != null)
+                if (weapon != null)
                 {
-                    var clipInfo = animator.GetCurrentAnimatorClipInfo(0);
-                    if (clipInfo != null && clipInfo.Length > 0)
+                    string weaponType = GetWeaponTypeFromSkill(weapon.m_shared.m_skillType, weapon);
+                    string modeString = mode.ToString();
+                    
+                    var attackCost = AnimationTimingConfig.GetAttackCost(weaponType, modeString);
+                    if (attackCost != null && attackCost.StaminaCost > 0f)
                     {
-                        string clipName = clipInfo[0].clip.name;
-                        int hitIndex = ExtraAttackPatches_Core.GetCurrentHitIndex(animator, clipInfo[0].clip);
-                        string configKey = ExtraAttackPatches_Core.BuildConfigKey(player, clipName, hitIndex);
-                        
-                        var timing = AnimationTimingConfig.GetTiming(configKey);
-                        if (timing != null && timing.StaminaCost > 0f)
+                        baseCost = attackCost.StaminaCost;
+                        if (ExtraAttackPlugin.IsDebugAOCOperationsEnabled)
                         {
-                            baseCost = timing.StaminaCost;
+                            ExtraAttackPlugin.LogInfo("System", $"Using CostConfig stamina cost: {weaponType}_{modeString} = {baseCost}");
+                        }
+                        
+                        // Show in-game message for cost application
+                        if (Player.m_localPlayer != null)
+                        {
+                            Player.m_localPlayer.Message(MessageHud.MessageType.TopLeft, $"Extra Attack: {weaponType} {modeString} = {baseCost} stamina");
                         }
                     }
                 }
                 
-                // Fallback to config if YAML timing not available
+                // Use default if CostConfig not available
                 if (baseCost <= 0f)
                 {
-                    baseCost = ExtraAttackPlugin.GetStaminaCost(weapon.m_shared.m_skillType, mode);
+                    baseCost = 20f; // Default stamina cost
                 }
             }
             catch (System.Exception ex)
             {
-                ExtraAttackPlugin.LogError("System", $"Error getting YAML stamina cost, falling back to config: {ex.Message}");
-                baseCost = ExtraAttackPlugin.GetStaminaCost(weapon.m_shared.m_skillType, mode);
+                ExtraAttackPlugin.LogError("System", $"Error getting CostConfig stamina cost, using default: {ex.Message}");
+                baseCost = 20f; // Default stamina cost
             }
 
             if (baseCost <= 0f)
@@ -511,7 +295,11 @@ namespace ExtraAttackSystem
             }
 
             float cost = baseCost;
-            float skillFactor = player.GetSkillFactor(weapon.m_shared.m_skillType);
+            float skillFactor = 0f;
+            if (weapon?.m_shared?.m_skillType != Skills.SkillType.None)
+            {
+                skillFactor = player.GetSkillFactor(weapon!.m_shared!.m_skillType);
+            }
 
             // Use Traverse to avoid FieldAccessException on private fields
             var traverse = Traverse.Create(attack);
@@ -552,35 +340,156 @@ namespace ExtraAttackSystem
             return cost;
         }
 
-        // NEW: Set PostAttack emote_stop guard window (seconds)
-        public static void SetEmoteStopGuardWindow(Player player, float seconds)
+
+        // Get weapon type string from skill type and weapon name
+        public static string GetWeaponTypeFromSkill(Skills.SkillType skillType, ItemDrop.ItemData? weapon = null)
         {
-            if (player == null || seconds <= 0f)
+            // First determine base weapon type from skill
+            string baseType = skillType switch
             {
-                return;
+                Skills.SkillType.Swords => "Swords",
+                Skills.SkillType.Axes => "Axes", // Both regular axes and battle axes use Axes skill
+                Skills.SkillType.Clubs => "Clubs",
+                Skills.SkillType.Spears => "Spears",
+                Skills.SkillType.Polearms => "Polearms",
+                Skills.SkillType.Knives => "Knives",
+                Skills.SkillType.Unarmed => "Fists",
+                _ => "Swords" // Default fallback
+            };
+
+            // Refine weapon type based on two-handed status for GreatSwords and BattleAxes
+            if (weapon != null && weapon.m_shared != null)
+            {
+                bool isTwoHanded = weapon.m_shared.m_itemType == ItemDrop.ItemData.ItemType.TwoHandedWeapon;
+                
+                // Check for GreatSwords (two-handed swords)
+                if (baseType == "Swords" && isTwoHanded)
+                {
+                    return "GreatSwords";
+                }
+                
+                // Check for BattleAxes (two-handed axes)
+                if (baseType == "Axes" && isTwoHanded)
+                {
+                    return "BattleAxes";
+                }
             }
-            emoteStopGuardUntil[player] = Time.time + seconds;
+
+            return baseType;
         }
 
-        // NEW: Check if player is currently within emote_stop guard window
-        public static bool IsInEmoteStopGuardWindow(Player player)
+        // Legacy method for backward compatibility
+        public static string GetWeaponTypeFromSkill(Skills.SkillType skillType)
         {
-            if (player == null) return false;
-            if (emoteStopGuardUntil.TryGetValue(player, out float until))
+            return GetWeaponTypeFromSkill(skillType, (ItemDrop.ItemData?)null);
+        }
+
+        // Get effective eitr cost for attack
+        public static float GetEffectiveEitrCost(Attack attack, Player player, ItemDrop.ItemData weapon, AttackMode mode)
+        {
+            if (attack == null || player == null || weapon == null)
             {
-                return Time.time < until;
+                return 0f;
+            }
+
+            float baseCost = 0f;
+            
+            // Try to get eitr cost from CostConfig based on weapon type and mode
+            try
+            {
+                string weaponType = GetWeaponTypeFromSkill(weapon.m_shared.m_skillType, weapon);
+                string modeString = mode.ToString();
+                
+                var attackCost = AnimationTimingConfig.GetAttackCost(weaponType, modeString);
+                if (attackCost != null && attackCost.EitrCost > 0f)
+                {
+                    baseCost = attackCost.EitrCost;
+                    if (ExtraAttackPlugin.IsDebugAOCOperationsEnabled)
+                    {
+                        ExtraAttackPlugin.LogInfo("System", $"Using CostConfig eitr cost: {weaponType}_{modeString} = {baseCost}");
+                    }
+                }
+            }
+            catch (System.Exception ex)
+            {
+                ExtraAttackPlugin.LogError("System", $"Error getting CostConfig eitr cost: {ex.Message}");
+                baseCost = 0f; // Default eitr cost is 0
+            }
+
+            return baseCost;
+        }
+
+        
+        // Stub methods for guard system (disabled)
+        public static void SetEmoteStopGuardWindow(Player player, float duration) { }
+        public static bool IsInEmoteStopGuardWindow(Player player) { return false; }
+        public static void SetWasCrouchingBeforeExtraAttack(Player player, bool wasCrouching) { }
+        public static bool WasCrouchingBeforeExtraAttack(Player player) { return false; }
+        public static void ClearWasCrouchingBeforeExtraAttack(Player player) { }
+
+        // Attack bypass management
+        private static Dictionary<Player, bool> bypassNextStartAttack = new Dictionary<Player, bool>();
+        
+        public static void MarkBypassNextStartAttack(Player player)
+        {
+            if (player != null)
+            {
+                bypassNextStartAttack[player] = true;
+            }
+        }
+        
+        public static bool ConsumeBypassNextStartAttack(Player player)
+        {
+            if (player != null && bypassNextStartAttack.TryGetValue(player, out bool shouldBypass))
+            {
+                bypassNextStartAttack.Remove(player);
+                return shouldBypass;
             }
             return false;
         }
 
-        // NEW: Clear guard window
-        public static void ClearEmoteStopGuardWindow(Player player)
+        // Block management during chain window
+        private static Dictionary<Player, bool> blockPrimaryDuringChainWindow = new Dictionary<Player, bool>();
+        
+        public static void MarkBlockPrimaryDuringChainWindow(Player player)
         {
             if (player != null)
             {
-                emoteStopGuardUntil.Remove(player);
+                blockPrimaryDuringChainWindow[player] = true;
             }
+        }
+        
+        public static bool HasBlockPrimaryDuringChainWindow(Player player)
+        {
+            return player != null && blockPrimaryDuringChainWindow.TryGetValue(player, out bool shouldBlock) && shouldBlock;
+        }
+        
+        public static void ClearBlockPrimaryDuringChainWindow(Player player)
+        {
+            if (player != null)
+            {
+                blockPrimaryDuringChainWindow.Remove(player);
+            }
+        }
+        
+        public static bool ConsumeBlockNextPrimary(Player player)
+        {
+            if (player != null && blockPrimaryDuringChainWindow.TryGetValue(player, out bool shouldBlock))
+            {
+                blockPrimaryDuringChainWindow.Remove(player);
+                return shouldBlock;
+            }
+            return false;
+        }
+        
+        public static bool ConsumeBlockNextSecondary(Player player)
+        {
+            // Secondary attacks are not blocked by default
+            return false;
         }
 
     }
+}
+    }
+
 }

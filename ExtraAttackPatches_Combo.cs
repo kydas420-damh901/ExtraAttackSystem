@@ -9,7 +9,7 @@ namespace ExtraAttackSystem
     {
         /// <summary>
         /// Force m_previousAttack to null AFTER Humanoid.StartAttack completes
-        /// This prevents combo chaining from T/G → left-click
+        /// This prevents combo chaining from T/G â†’ left-click
         /// </summary>
         [HarmonyPatch(typeof(Humanoid), nameof(Humanoid.StartAttack))]
         [HarmonyPriority(Priority.Last)]  // Execute after all other patches
@@ -143,7 +143,7 @@ namespace ExtraAttackSystem
                         if (!ExtraAttackPlugin.AreGuardsDisabled() && ExtraAttackUtils.IsPlayerInExtraAttack(player))
                         {
                             // Skip when the StartAttack call is not ours (avoid interfering with other systems)
-                            // AOC適用はPlayer.StartAttack直前で実行されるため、ここでは不要
+                            // AOCé©ç”¨ã¯Player.StartAttackç›´å‰ã§å®Ÿè¡Œã•ã‚Œã‚‹ãŸã‚ã€ã“ã“ã§ã¯ä¸è¦
                         }
                     }
                 }

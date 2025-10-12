@@ -20,7 +20,7 @@ namespace ExtraAttackSystem
     {
         internal const string PluginGUID = "Dyju420.ExtraAttackSystem";
         internal const string PluginName = "Extra Attack System";
-        internal const string PluginVersion = "1.0.0";
+        internal const string PluginVersion = "0.7.2";
 
         internal static readonly ManualLogSource ExtraAttackLogger = BepInEx.Logging.Logger.CreateLogSource(PluginName);
         // NEW: Dual-wield mod detection flag
@@ -31,37 +31,22 @@ namespace ExtraAttackSystem
         private readonly Harmony harmony = new Harmony(PluginGUID);
 
         // Cached debug toggles for performance
-        private static bool cachedDebugMaster;
         private static bool cachedDebugClipNames;
         private static bool cachedDebugAnimationEvents;
         private static bool cachedDebugAnimationClips;
         private static bool cachedDebugAnimationParameters;
         private static bool cachedDebugAttackTriggers;
-        private static bool cachedDebugAOCOperations;
         private static bool cachedDebugDamageCalculation;
         private static bool cachedDebugSystemMessages;
         private static bool cachedDebugPerformanceMetrics;
-        private static bool cachedDebugDisableSetTriggerOverride;
-        private static bool cachedDebugSkipGAOCApply;
+        private static bool cachedDebugAOCOperations;
 
         // General config - keys & cooldowns
         // Q/T/G keys for extra attacks
         public static ConfigEntry<KeyboardShortcut> ExtraAttackKey_Q = null!;
         public static ConfigEntry<KeyboardShortcut> ExtraAttackKey_T = null!;
         public static ConfigEntry<KeyboardShortcut> ExtraAttackKey_G = null!;
-        public static ConfigEntry<float> ExtraAttackQCooldown = null!;
-        public static ConfigEntry<float> ExtraAttackTCooldown = null!;
-        public static ConfigEntry<float> ExtraAttackGCooldown = null!;
-        public static ConfigEntry<bool> EnableCrouchGuard = null!;
-        public static ConfigEntry<bool> EnablePostAttackEmoteStopGuard = null!;
-        public static ConfigEntry<float> PostAttackEmoteStopGuardSeconds = null!;
-        public static ConfigEntry<bool> EnableInsufficientStaminaEmoteStopGuard = null!;
-        public static ConfigEntry<float> InsufficientStaminaEmoteStopGuardSeconds = null!;
-public static ConfigEntry<bool> DisableAllGuardsChecks = null!;
-private static bool cachedDisableAllGuardsChecks;
 
-        // Debug configurations - Master switch
-        public static ConfigEntry<bool> DebugMasterSwitch = null!;
 
         // Debug configurations - Individual categories
         public static ConfigEntry<bool> DebugClipNames = null!;
@@ -69,12 +54,22 @@ private static bool cachedDisableAllGuardsChecks;
         public static ConfigEntry<bool> DebugAnimationClips = null!;
         public static ConfigEntry<bool> DebugAnimationParameters = null!;
         public static ConfigEntry<bool> DebugAttackTriggers = null!;
-        public static ConfigEntry<bool> DebugAOCOperations = null!;
         public static ConfigEntry<bool> DebugDamageCalculation = null!;
         public static ConfigEntry<bool> DebugSystemMessages = null!;
         public static ConfigEntry<bool> DebugPerformanceMetrics = null!;
+        public static ConfigEntry<bool> DebugAOCOperations = null!;
         public static ConfigEntry<bool> DebugDisableSetTriggerOverride = null!;
-        public static ConfigEntry<bool> DebugSkipGAOCApply = null!;
+        
+        // Cached debug flags for performance (all controlled by System Messages)
+        public static bool IsDebugSystemMessagesEnabled => cachedDebugSystemMessages;
+        public static bool IsDebugAttackTriggersEnabled => cachedDebugSystemMessages && cachedDebugAttackTriggers;
+        public static bool IsDebugDamageCalculationEnabled => cachedDebugSystemMessages && cachedDebugDamageCalculation;
+        public static bool IsDebugAnimationClipsEnabled => cachedDebugSystemMessages && cachedDebugAnimationClips;
+        public static bool IsDebugAnimationEventsEnabled => cachedDebugSystemMessages && cachedDebugAnimationEvents;
+        public static bool IsDebugAnimationParametersEnabled => cachedDebugSystemMessages && cachedDebugAnimationParameters;
+        public static bool IsDebugPerformanceMetricsEnabled => cachedDebugSystemMessages && cachedDebugPerformanceMetrics;
+        public static bool IsDebugClipNamesEnabled => cachedDebugSystemMessages && cachedDebugClipNames;
+        public static bool IsDebugAOCOperationsEnabled => cachedDebugSystemMessages && cachedDebugAOCOperations;
         
         // ========================================================================
         // 3 - COMPAT
@@ -176,23 +171,17 @@ private static bool cachedDisableAllGuardsChecks;
         // ========================================================================
         private void InitializeDebugConfigs()
         {
-            // Debug master switch
-            DebugMasterSwitch = Config.Bind("5 - Debug", "0. Debug Master Switch", false,
-                "Enable/Disable ALL debug logging at once");
-            cachedDebugMaster = DebugMasterSwitch.Value;
-            DebugMasterSwitch.SettingChanged += (s, e) => cachedDebugMaster = DebugMasterSwitch.Value;
-
             // ========================================================================
-            // CORE SYSTEM LOGGING
+            // CORE SYSTEM LOGGING (Master Control)
             // ========================================================================
             
-            // Essential system messages (always available)
+            // Essential system messages (master control for all debug messages)
             DebugSystemMessages = Config.Bind("5 - Debug", "1. System Messages", false,
-                "Core system logs (initialization, errors, warnings)");
+                "Master control: Enable/disable all debug messages at once");
             cachedDebugSystemMessages = DebugSystemMessages.Value;
             DebugSystemMessages.SettingChanged += (s, e) => {
                 cachedDebugSystemMessages = DebugSystemMessages.Value;
-                LogInfo("Config", $"DebugSystemMessages changed to: {cachedDebugSystemMessages}");
+                LogInfo("Config", $"DebugSystemMessages (Master Control) changed to: {cachedDebugSystemMessages}");
             };
 
             // ========================================================================
@@ -201,7 +190,7 @@ private static bool cachedDisableAllGuardsChecks;
             
             // Attack trigger detection and processing
             DebugAttackTriggers = Config.Bind("5 - Debug", "2. Attack Triggers", false,
-                "Log attack trigger detection and processing");
+                "Log attack trigger detection and processing (requires System Messages enabled)");
             cachedDebugAttackTriggers = DebugAttackTriggers.Value;
             DebugAttackTriggers.SettingChanged += (s, e) => {
                 cachedDebugAttackTriggers = DebugAttackTriggers.Value;
@@ -210,7 +199,7 @@ private static bool cachedDisableAllGuardsChecks;
 
             // Damage calculation and restoration
             DebugDamageCalculation = Config.Bind("5 - Debug", "3. Damage Calculation", false,
-                "Log damage multiplier application and restoration");
+                "Log damage multiplier application and restoration (requires System Messages enabled)");
             cachedDebugDamageCalculation = DebugDamageCalculation.Value;
             DebugDamageCalculation.SettingChanged += (s, e) => {
                 cachedDebugDamageCalculation = DebugDamageCalculation.Value;
@@ -218,12 +207,12 @@ private static bool cachedDisableAllGuardsChecks;
             };
 
             // ========================================================================
-            // ANIMATION SYSTEM LOGGING
+            // GET LIST DATA (Data Collection)
             // ========================================================================
             
             // Animation clip information
-            DebugAnimationClips = Config.Bind("5 - Debug", "4. Animation Clips", false,
-                "Log AnimationClip information during AOC creation");
+            DebugAnimationClips = Config.Bind("6 - Get List Data", "1. Animation Clips", false,
+                "Log AnimationClip information during AOC creation (requires System Messages enabled)");
             cachedDebugAnimationClips = DebugAnimationClips.Value;
             DebugAnimationClips.SettingChanged += (s, e) => {
                 cachedDebugAnimationClips = DebugAnimationClips.Value;
@@ -231,8 +220,8 @@ private static bool cachedDisableAllGuardsChecks;
             };
 
             // Animation events
-            DebugAnimationEvents = Config.Bind("5 - Debug", "5. Animation Events", false,
-                "Log AnimationEvent information during AOC creation");
+            DebugAnimationEvents = Config.Bind("6 - Get List Data", "2. Animation Events", false,
+                "Log AnimationEvent information during AOC creation (requires System Messages enabled)");
             cachedDebugAnimationEvents = DebugAnimationEvents.Value;
             DebugAnimationEvents.SettingChanged += (s, e) => {
                 cachedDebugAnimationEvents = DebugAnimationEvents.Value;
@@ -240,68 +229,81 @@ private static bool cachedDisableAllGuardsChecks;
             };
 
             // Animator parameters
-            DebugAnimationParameters = Config.Bind("5 - Debug", "6. Animation Parameters", false,
-                "Log Animator parameters during initialization");
+            DebugAnimationParameters = Config.Bind("6 - Get List Data", "3. Animation Parameters", false,
+                "Log Animator parameters during initialization (requires System Messages enabled)");
             cachedDebugAnimationParameters = DebugAnimationParameters.Value;
             DebugAnimationParameters.SettingChanged += (s, e) => {
                 cachedDebugAnimationParameters = DebugAnimationParameters.Value;
                 if (cachedDebugSystemMessages) LogInfo("Config", $"DebugAnimationParameters changed to: {cachedDebugAnimationParameters}");
             };
 
+
+            // ========================================================================
+            // DEBUG (System Operations)
+            // ========================================================================
+
             // AOC (Animator Override Controller) operations
-            DebugAOCOperations = Config.Bind("5 - Debug", "7. AOC Operations", false,
-                "Log AOC creation, switching, and animation overrides");
+            DebugAOCOperations = Config.Bind("5 - Debug", "1. AOC Operations", false,
+                "Log AOC creation, switching, and animation overrides (requires System Messages enabled)");
             cachedDebugAOCOperations = DebugAOCOperations.Value;
             DebugAOCOperations.SettingChanged += (s, e) => {
                 cachedDebugAOCOperations = DebugAOCOperations.Value;
                 if (cachedDebugSystemMessages) LogInfo("Config", $"DebugAOCOperations changed to: {cachedDebugAOCOperations}");
             };
-
-            // ========================================================================
-            // PERFORMANCE & DIAGNOSTICS
-            // ========================================================================
             
             // Performance metrics
-            DebugPerformanceMetrics = Config.Bind("5 - Debug", "8. Performance Metrics", false,
-                "Log performance measurements (timings, allocations)");
+            DebugPerformanceMetrics = Config.Bind("5 - Debug", "2. Performance Metrics", false,
+                "Log performance measurements (timings, allocations) (requires System Messages enabled)");
             cachedDebugPerformanceMetrics = DebugPerformanceMetrics.Value;
             DebugPerformanceMetrics.SettingChanged += (s, e) => {
                 cachedDebugPerformanceMetrics = DebugPerformanceMetrics.Value;
                 if (cachedDebugSystemMessages) LogInfo("Config", $"DebugPerformanceMetrics changed to: {cachedDebugPerformanceMetrics}");
             };
 
-            // Clip names during gameplay
-            DebugClipNames = Config.Bind("5 - Debug", "9. Clip Names", false,
-                "Log actual clip names being played when pressing Q/T/G keys");
+            // Current playing animation names
+            DebugClipNames = Config.Bind("5 - Debug", "3. Current Playing Animations", false,
+                "Log which animation clips are currently playing when pressing Q/T/G keys (requires System Messages enabled)");
             cachedDebugClipNames = DebugClipNames.Value;
             DebugClipNames.SettingChanged += (s, e) => {
                 cachedDebugClipNames = DebugClipNames.Value;
                 if (cachedDebugSystemMessages) LogInfo("Config", $"DebugClipNames changed to: {cachedDebugClipNames}");
             };
-
-            // ========================================================================
-            // ADVANCED DIAGNOSTICS (Crash Isolation)
-            // ========================================================================
             
-            // Disable animation trigger overrides
-            DebugDisableSetTriggerOverride = Config.Bind("5 - Debug", "10. Disable SetTrigger Override", false,
-                "Disable animation trigger overrides (for crash isolation)");
-            cachedDebugDisableSetTriggerOverride = DebugDisableSetTriggerOverride.Value;
+            // SetTrigger override debug
+            DebugDisableSetTriggerOverride = Config.Bind("5 - Debug", "4. Disable SetTrigger Override", false,
+                "Disable SetTrigger override for debugging (requires System Messages enabled)");
             DebugDisableSetTriggerOverride.SettingChanged += (s, e) => {
-                cachedDebugDisableSetTriggerOverride = DebugDisableSetTriggerOverride.Value;
-                if (cachedDebugSystemMessages) LogInfo("Config", $"DebugDisableSetTriggerOverride changed to: {cachedDebugDisableSetTriggerOverride}");
-            };
-
-            // Skip G attack AOC application
-            DebugSkipGAOCApply = Config.Bind("5 - Debug", "11. Skip G AOC Apply", false,
-                "Skip applying AOC for G attacks (for crash isolation)");
-            cachedDebugSkipGAOCApply = DebugSkipGAOCApply.Value;
-            DebugSkipGAOCApply.SettingChanged += (s, e) => {
-                cachedDebugSkipGAOCApply = DebugSkipGAOCApply.Value;
-                if (cachedDebugSystemMessages) LogInfo("Config", $"DebugSkipGAOCApply changed to: {cachedDebugSkipGAOCApply}");
+                if (cachedDebugSystemMessages) LogInfo("Config", $"DebugDisableSetTriggerOverride changed to: {DebugDisableSetTriggerOverride.Value}");
             };
 
             LogInfo("System", "Debug configuration initialized");
+        }
+
+        // Generate all 6 YAML config files in one unified process
+        private void GenerateAllYamlConfigs()
+        {
+            try
+            {
+                LogInfo("System", "GenerateAllYamlConfigs: Starting unified YAML generation for all 6 config files");
+                
+                // 1. AnimationReplacementConfig (2 files)
+                LogInfo("System", "Generating AnimationReplacementConfig files...");
+                AnimationReplacementConfig.Initialize();
+                
+                // 2. AnimationTimingConfig (4 files)
+                LogInfo("System", "Generating AnimationTimingConfig files...");
+                AnimationTimingConfig.Initialize();
+                
+                // 3. ExtraAttackExclusionConfig (1 file)
+                LogInfo("System", "Generating ExtraAttackExclusionConfig file...");
+                ExtraAttackExclusionConfig.Initialize();
+                
+                LogInfo("System", "GenerateAllYamlConfigs: Successfully generated all 6 YAML config files");
+            }
+            catch (Exception ex)
+            {
+                LogError("System", $"Error in GenerateAllYamlConfigs: {ex.Message}");
+            }
         }
 
         private void Awake()
@@ -309,32 +311,12 @@ private static bool cachedDisableAllGuardsChecks;
             try
             {
                 // Bind general keys
-                // Q/T/G keys for extra attacks
-                ExtraAttackKey_Q = Config.Bind("1 - General", "Extra Attack Key Q", new KeyboardShortcut(KeyCode.Q), "Trigger Q extra attack.");
-                ExtraAttackKey_T = Config.Bind("1 - General", "Extra Attack Key T", new KeyboardShortcut(KeyCode.T), "Trigger T extra attack.");
-                ExtraAttackKey_G = Config.Bind("1 - General", "Extra Attack Key G", new KeyboardShortcut(KeyCode.G), "Trigger G extra attack.");
+                // Q/T/G keys for extra attacks (ordered Q/T/G)
+                ExtraAttackKey_Q = Config.Bind("1 - General", "1. Extra Attack Key Q", new KeyboardShortcut(KeyCode.Q), "Trigger Q extra attack.");
+                ExtraAttackKey_T = Config.Bind("1 - General", "2. Extra Attack Key T", new KeyboardShortcut(KeyCode.T), "Trigger T extra attack.");
+                ExtraAttackKey_G = Config.Bind("1 - General", "3. Extra Attack Key G", new KeyboardShortcut(KeyCode.G), "Trigger G extra attack.");
 
-                // Bind cooldowns
-                ExtraAttackQCooldown = Config.Bind("1 - General", "Q (Q) Cooldown", 0f, "Cooldown seconds for Q extra attack.");
-                ExtraAttackTCooldown = Config.Bind("1 - General", "T (T) Cooldown", 0f, "Cooldown seconds for T extra attack.");
-                ExtraAttackGCooldown = Config.Bind("1 - General", "G (G) Cooldown", 0f, "Cooldown seconds for G extra attack.");
 
-                // PostAttack emote_stop guard config
-                EnablePostAttackEmoteStopGuard = Config.Bind("2 - Guards & Safety", "Enable PostAttack Emote Stop Guard", false, "Suppress stand-up (emote_stop) for a short window after extra attack.");
-                PostAttackEmoteStopGuardSeconds = Config.Bind("2 - Guards & Safety", "PostAttack Emote Stop Guard Seconds", 0.5f, "Length of guard window in seconds after extra attack.");
-
-                // Insufficient stamina guard config
-                EnableInsufficientStaminaEmoteStopGuard = Config.Bind("2 - Guards & Safety", "Enable Insufficient Stamina Emote Stop Guard", false, "Suppress stand-up (emote_stop) when extra attack fails due to insufficient stamina.");
-                InsufficientStaminaEmoteStopGuardSeconds = Config.Bind("2 - Guards & Safety", "Insufficient Stamina Emote Stop Guard Seconds", 0.6f, "Length of guard window in seconds when attack is blocked.");
-
-                // Crouch guard
-                EnableCrouchGuard = Config.Bind("2 - Guards & Safety", "Enable Crouch Guard", false, "Prevent forced stand-up (crouch=false) during extra attack flow.");
-
-                // Inside Awake() after EnableCrouchGuard and timing configs
-                DisableAllGuardsChecks = Config.Bind("3 - Debug & Troubleshooting", "Disable All Guards & Checks", false,
-                    "Turns off all guard/check logic: emote_stop guard, crouch guards, stamina guards, SetTrigger guard override, etc. Use for troubleshooting.");
-                cachedDisableAllGuardsChecks = DisableAllGuardsChecks.Value;
-                DisableAllGuardsChecks.SettingChanged += (s, e) => cachedDisableAllGuardsChecks = DisableAllGuardsChecks.Value;
 
                 // Compatibility detection (DualWield/DualWielder)
                 DetectDualWieldMods();
@@ -342,19 +324,19 @@ private static bool cachedDisableAllGuardsChecks;
                 // Initialize debug configs
                 InitializeDebugConfigs();
 
-                // Initialize stamina balancing configs per skill type
-                // After InitializeBalancingConfigs(); insert runtime config/asset initialization
-                InitializeBalancingConfigs();
+                // Stamina costs are now managed by YAML CostConfig
                 
                 // Load external animation assets first to populate ReplacementMap
                 AnimationManager.LoadAssets();
-                // Initialize YAML configs after assets to generate default mappings properly
-                AnimationReplacementConfig.Initialize();
-                AnimationTimingConfig.Initialize();
-                ExtraAttackExclusionConfig.Initialize();
+                
+                // Generate all 6 YAML configs in one unified process
+                GenerateAllYamlConfigs();
+                
+                // Apply weapon type settings after all configs are initialized
+                AnimationManager.ApplyWeaponTypeSettings();
                 
                 // Apply Harmony patches
-                harmony.PatchAll();
+                ApplyPatches();
             }
             catch (Exception ex)
             {
@@ -383,9 +365,8 @@ private static bool cachedDisableAllGuardsChecks;
 
     public static void LogInfo(string category, string message)
     {
-        // Guard: DebugMasterSwitch may be null during early Awake before config binding.
-        bool master = DebugMasterSwitch != null && DebugMasterSwitch.Value;
-        if (master || category is "System" or "AOC" or "AttackTriggers" or "COMBO" or "AnimationParameters" or "Diag")
+        // Always log essential system messages
+        if (category is "System" or "AOC" or "AttackTriggers" or "COMBO" or "AnimationParameters" or "Diag")
         {
             ExtraAttackLogger.LogInfo($"[{category}] {message}");
         }
@@ -416,82 +397,16 @@ private static bool cachedDisableAllGuardsChecks;
         return ExtraAttackKey_G.Value.IsDown();
     }
 
-    // NEW: Stamina cost resolver per skill type and style
-    public static float GetStaminaCost(Skills.SkillType skill, ExtraAttackUtils.AttackMode mode)
-    {
-        if (!BalancingMap.TryGetValue(skill, out var cfg))
-        {
-            return 0f;
-        }
-        switch (mode)
-        {
-            case ExtraAttackUtils.AttackMode.ea_secondary_Q:
-                return cfg.staminaCostQ.Value;
-            case ExtraAttackUtils.AttackMode.ea_secondary_T:
-                return cfg.staminaCostT.Value;
-            case ExtraAttackUtils.AttackMode.ea_secondary_G:
-                return cfg.staminaCostG.Value;
-            default:
-                return cfg.staminaCost.Value;
-        }
-    }
+    // Stamina costs are now managed by YAML CostConfig via ExtraAttackUtils.GetEffectiveStaminaCost()
 
-    // NEW: Cooldown resolver per style
-    public static float GetCooldown(ExtraAttackUtils.AttackMode mode)
-    {
-        switch (mode)
-        {
-            case ExtraAttackUtils.AttackMode.ea_secondary_Q:
-                return ExtraAttackQCooldown.Value;
-            case ExtraAttackUtils.AttackMode.ea_secondary_T:
-                return ExtraAttackTCooldown.Value;
-            case ExtraAttackUtils.AttackMode.ea_secondary_G:
-                return ExtraAttackGCooldown.Value;
-            default:
-                return 0f;
-        }
-    }
+    // Stub methods for guard system (disabled)
+    public static bool AreGuardsDisabled() { return true; }
+    public static ConfigEntry<bool> EnablePostAttackEmoteStopGuard => null!;
+    public static ConfigEntry<float> PostAttackEmoteStopGuardSeconds => null!;
+    public static ConfigEntry<bool> EnableCrouchGuard => null!;
+    public static ConfigEntry<bool> EnableInsufficientStaminaEmoteStopGuard => null!;
+    public static ConfigEntry<float> InsufficientStaminaEmoteStopGuardSeconds => null!;
 
-    // Helper method inside class
-    public static bool AreGuardsDisabled()
-    {
-        return cachedDisableAllGuardsChecks;
-    }
 
-    // Stamina balancing map per skill type
-    private static readonly Dictionary<Skills.SkillType, ExtraAttackBalancingConfig> BalancingMap = new();
-
-    // Holder for stamina cost config entries per style
-    private sealed class ExtraAttackBalancingConfig
-    {
-        public ConfigEntry<float> staminaCost = null!;
-        public ConfigEntry<float> staminaCostQ = null!;
-        public ConfigEntry<float> staminaCostT = null!;
-        public ConfigEntry<float> staminaCostG = null!;
-    }
-
-    // Initialize stamina balancing configs per skill type (inside class)
-    private void InitializeBalancingConfigs()
-    {
-        // Create default entries for supported weapon skills
-        Skills.SkillType[] skills = new[]
-        {
-            Skills.SkillType.Swords,
-            Skills.SkillType.Axes,
-            Skills.SkillType.Clubs,
-            Skills.SkillType.Knives,
-            Skills.SkillType.Spears,
-        };
-
-        foreach (var skill in skills)
-        {
-            var cfg = new ExtraAttackBalancingConfig();
-            cfg.staminaCost = Config.Bind("2 - Balancing", $"{skill} Stamina Cost (Base)", 20f, "Base stamina cost for extra attacks (fallback).");
-            cfg.staminaCostQ = Config.Bind("2 - Balancing", $"{skill} Stamina Cost Q (Q)", 20f, "Stamina cost for Q.");
-            cfg.staminaCostT = Config.Bind("2 - Balancing", $"{skill} Stamina Cost T (T)", 22f, "Stamina cost for T.");
-            cfg.staminaCostG = Config.Bind("2 - Balancing", $"{skill} Stamina Cost G (G)", 24f, "Stamina cost for G.");
-            BalancingMap[skill] = cfg;
-        }
-    }
 }
 }

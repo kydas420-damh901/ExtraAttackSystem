@@ -14,8 +14,8 @@ namespace ExtraAttackSystem
         // Config file path
         private static string ConfigFolderPath => Path.Combine(BepInEx.Paths.ConfigPath, "ExtraAttackSystem");
         private static string ConfigFilePath => Path.Combine(ConfigFolderPath, "eas_attackconfig.yaml");
-        private static string WeaponTypesConfigFilePath => Path.Combine(ConfigFolderPath, "eas_attackconfig_weapon_types.yaml");
-        private static string IndividualWeaponsConfigFilePath => Path.Combine(ConfigFolderPath, "eas_attackconfig_individual_weapons.yaml");
+        private static string WeaponTypesConfigFilePath => Path.Combine(ConfigFolderPath, "eas_attackconfig_WeaponTypes.yaml");
+        private static string IndividualWeaponsConfigFilePath => Path.Combine(ConfigFolderPath, "eas_attackconfig_IndividualWeapons.yaml");
 
         // Timing data for each animation
         public class AnimationTiming
@@ -254,6 +254,18 @@ namespace ExtraAttackSystem
 
                 var yamlContent = File.ReadAllText(WeaponTypesConfigFilePath);
                 weaponTypeConfig = deserializer.Deserialize<WeaponTypeConfig>(yamlContent) ?? new WeaponTypeConfig();
+                
+                ExtraAttackPlugin.LogInfo("Config", $"Loaded weapon type config: {weaponTypeConfig?.WeaponTypes?.Count ?? 0} weapon types");
+                if (ExtraAttackPlugin.IsDebugAOCOperationsEnabled)
+                {
+                    if (weaponTypeConfig?.WeaponTypes != null)
+                    {
+                        foreach (var weaponType in weaponTypeConfig.WeaponTypes)
+                        {
+                            ExtraAttackPlugin.LogInfo("Config", $"  {weaponType.Key}: {weaponType.Value.Count} attack modes");
+                        }
+                    }
+                }
             }
             catch (Exception ex)
             {
@@ -332,10 +344,10 @@ namespace ExtraAttackSystem
                 var sb = new StringBuilder();
                 sb.AppendLine("# ============================================================================");
                 sb.AppendLine("# Extra Attack System - Individual Weapons Attack Config");
-                sb.AppendLine("# 個別武器攻撃設定ファイル");
+                sb.AppendLine("# å€‹åˆ¥æ­¦å™¨æ”»æ’ƒè¨­å®šãƒ•ã‚¡ã‚¤ãƒ«");
                 sb.AppendLine("# ============================================================================");
                 sb.AppendLine("# Format: IndividualWeapon -> Q/T/G -> Timing Settings");
-                sb.AppendLine("# 形式: 個別武器 -> Q/T/G -> タイミング設定");
+                sb.AppendLine("# å½¢å¼: å€‹åˆ¥æ­¦å™¨ -> Q/T/G -> ã‚¿ã‚¤ãƒŸãƒ³ã‚°è¨­å®š");
                 sb.AppendLine("# ============================================================================");
                 sb.AppendLine();
 
@@ -858,7 +870,7 @@ namespace ExtraAttackSystem
         }
 
         // Get weapon type from weapon identifier and skill type
-        // 武器名とスキルタイプから正しい武器タイプを判定する
+        // æ­¦å™¨åã¨ã‚¹ã‚­ãƒ«ã‚¿ã‚¤ãƒ—ã‹ã‚‰æ­£ã—ã„æ­¦å™¨ã‚¿ã‚¤ãƒ—ã‚’åˆ¤å®šã™ã‚‹
         private static string GetWeaponTypeFromIdent(string weaponIdent, Skills.SkillType skillType)
         {
             if (string.IsNullOrEmpty(weaponIdent)) return skillType.ToString();
@@ -889,7 +901,7 @@ namespace ExtraAttackSystem
         }
 
         // Get vanilla clip name for weapon type and mode
-        // 装備している武器の実際のセカンダリアニメーションクリップ名を返す
+        // è£…å‚™ã—ã¦ã„ã‚‹æ­¦å™¨ã®å®Ÿéš›ã®ã‚»ã‚«ãƒ³ãƒ€ãƒªã‚¢ãƒ‹ãƒ¡ãƒ¼ã‚·ãƒ§ãƒ³ã‚¯ãƒªãƒƒãƒ—åã‚’è¿”ã™
         private static string GetVanillaClipName(string weaponType, string mode)
         {
             // Always return the equipped weapon's secondary trigger name
@@ -916,7 +928,7 @@ namespace ExtraAttackSystem
             {
                 var weaponMap = AnimationManager.ReplacementMap[weaponType];
                 
-                // NEW: モードキー (ea_secondary_Q/T/G) で直接検索
+                // NEW: ãƒ¢ãƒ¼ãƒ‰ã‚­ãƒ¼ (ea_secondary_Q/T/G) ã§ç›´æŽ¥æ¤œç´¢
                 string modeKey = $"ea_secondary_{mode}";
                 if (weaponMap.ContainsKey(modeKey))
                 {
@@ -959,13 +971,13 @@ namespace ExtraAttackSystem
                 // Header
                 sb.AppendLine("# ==============================================================================");
                 sb.AppendLine("# Extra Attack System - Weapon Type Specific Configuration");
-                sb.AppendLine("# 武器種別ごとの設定ファイル");
+                sb.AppendLine("# æ­¦å™¨ç¨®åˆ¥ã”ã¨ã®è¨­å®šãƒ•ã‚¡ã‚¤ãƒ«");
                 sb.AppendLine("# ==============================================================================");
                 sb.AppendLine("# IMPORTANT: Configuration is organized by weapon types (Swords, Axes, Clubs, etc.)");
-                sb.AppendLine("# 重要: 設定は武器種別（剣、斧、棍棒など）ごとに整理されています");
+                sb.AppendLine("# é‡è¦: è¨­å®šã¯æ­¦å™¨ç¨®åˆ¥ï¼ˆå‰£ã€æ–§ã€æ£æ£’ãªã©ï¼‰ã”ã¨ã«æ•´ç†ã•ã‚Œã¦ã„ã¾ã™");
                 sb.AppendLine("# ==============================================================================");
                 sb.AppendLine();
-                sb.AppendLine("# Key Format / キー形式:");
+                sb.AppendLine("# Key Format / ã‚­ãƒ¼å½¢å¼:");
                 sb.AppendLine("#   WeaponType_secondary_Q      - Q key ( secondary_Q secondary attack)");
                 sb.AppendLine("#   WeaponType_secondary_T      - T key ( secondary_T secondary attack)  ");
                 sb.AppendLine("#   WeaponType_secondary_G      - G key ( secondary_G secondary attack)");
@@ -1125,6 +1137,57 @@ namespace ExtraAttackSystem
         public static WeaponTypeConfig GetWeaponTypeConfig()
         {
             return weaponTypeConfig;
+        }
+        
+        // Get attack cost for weapon type and attack mode
+        public static AnimationTiming? GetAttackCost(string weaponType, string attackMode)
+        {
+            try
+            {
+#if DEBUG_CONFIG_LOADING
+                if (ExtraAttackPlugin.IsDebugAOCOperationsEnabled)
+                {
+                    ExtraAttackPlugin.LogInfo("Config", $"GetAttackCost called: weaponType={weaponType}, attackMode={attackMode}");
+                    ExtraAttackPlugin.LogInfo("Config", $"WeaponTypes count: {weaponTypeConfig?.WeaponTypes?.Count ?? 0}");
+                }
+#endif
+                
+                if (weaponTypeConfig?.WeaponTypes?.TryGetValue(weaponType, out var weaponTypeDict) == true)
+                {
+#if DEBUG_CONFIG_LOADING
+                    if (ExtraAttackPlugin.IsDebugAOCOperationsEnabled)
+                    {
+                        ExtraAttackPlugin.LogInfo("Config", $"Found weaponType '{weaponType}', modes count: {weaponTypeDict?.Count ?? 0}");
+                    }
+#endif
+                    
+                    if (weaponTypeDict?.TryGetValue(attackMode, out AnimationTiming timing) == true)
+                    {
+#if DEBUG_CONFIG_LOADING
+                        if (ExtraAttackPlugin.IsDebugAOCOperationsEnabled)
+                        {
+                            ExtraAttackPlugin.LogInfo("Config", $"Found specific timing for {weaponType}_{attackMode}: StaminaCost={timing.StaminaCost}, EitrCost={timing.EitrCost}");
+                        }
+#endif
+                        return timing;
+                    }
+                }
+                
+                // Fallback to default if no specific timing found
+                var defaultTiming = weaponTypeConfig?.Default;
+#if DEBUG_CONFIG_LOADING
+                if (ExtraAttackPlugin.IsDebugAOCOperationsEnabled)
+                {
+                    ExtraAttackPlugin.LogInfo("Config", $"Using default timing for {weaponType}_{attackMode}: StaminaCost={defaultTiming?.StaminaCost ?? 0f}, EitrCost={defaultTiming?.EitrCost ?? 0f}");
+                }
+#endif
+                return defaultTiming;
+            }
+            catch (Exception ex)
+            {
+                ExtraAttackPlugin.LogError("System", $"Error getting attack cost for {weaponType}_{attackMode}: {ex.Message}");
+                return null;
+            }
         }
     }
 }

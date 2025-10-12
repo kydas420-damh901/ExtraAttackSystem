@@ -277,7 +277,7 @@ namespace ExtraAttackSystem
                     string modeKey = secondaryPrefix; // ea_secondary_Q, ea_secondary_T, ea_secondary_G
                     
                     // Check if weapon type has the mode mapping
-                    // ✅ 修正: 直接モードキー（ea_secondary_Q/T/G）で検索
+                    // âœ… ä¿®æ­£: ç›´æŽ¥ãƒ¢ãƒ¼ãƒ‰ã‚­ãƒ¼ï¼ˆea_secondary_Q/T/Gï¼‰ã§æ¤œç´¢
                     bool hasWeaponTypeMapping = AnimationManager.ReplacementMap.ContainsKey(currentWeaponType) && 
                                               AnimationManager.ReplacementMap[currentWeaponType].ContainsKey(secondaryPrefix);
                     
@@ -403,11 +403,11 @@ namespace ExtraAttackSystem
                 {
                     var weaponTypeMap = AnimationManager.ReplacementMap[baseKey];
                     
-                    // NEW: 直接モードキー（ea_secondary_Q/T/G）で検索
+                    // NEW: ç›´æŽ¥ãƒ¢ãƒ¼ãƒ‰ã‚­ãƒ¼ï¼ˆea_secondary_Q/T/Gï¼‰ã§æ¤œç´¢
                     if (weaponTypeMap.ContainsKey(secondaryPrefix))
                     {
                         string externalClip = weaponTypeMap[secondaryPrefix];
-                        // バニラクリップ名を取得してマッピングを作成
+                        // ãƒãƒ‹ãƒ©ã‚¯ãƒªãƒƒãƒ—åã‚’å–å¾—ã—ã¦ãƒžãƒƒãƒ”ãƒ³ã‚°ã‚’ä½œæˆ
                         string modeKey = secondaryPrefix.Replace("ea_secondary_", "");
                         string vanillaClip = GetVanillaClipName(baseKey, modeKey);
                         map = new Dictionary<string, string> { { vanillaClip, externalClip } };
@@ -496,7 +496,7 @@ namespace ExtraAttackSystem
         }
 
         // Get weapon type from skill type and weapon data
-        // スキルタイプと武器データから武器タイプを判定する
+        // ã‚¹ã‚­ãƒ«ã‚¿ã‚¤ãƒ—ã¨æ­¦å™¨ãƒ‡ãƒ¼ã‚¿ã‹ã‚‰æ­¦å™¨ã‚¿ã‚¤ãƒ—ã‚’åˆ¤å®šã™ã‚‹
         private static string GetWeaponTypeFromSkillType(Skills.SkillType skillType, ItemDrop.ItemData? weaponData = null)
         {
             if (ExtraAttackPlugin.DebugAOCOperations.Value)
@@ -548,7 +548,7 @@ namespace ExtraAttackSystem
         }
 
         // Get vanilla clip name for weapon type and mode
-        // 装備している武器の実際のセカンダリアニメーションクリップ名を返す
+        // è£…å‚™ã—ã¦ã„ã‚‹æ­¦å™¨ã®å®Ÿéš›ã®ã‚»ã‚«ãƒ³ãƒ€ãƒªã‚¢ãƒ‹ãƒ¡ãƒ¼ã‚·ãƒ§ãƒ³ã‚¯ãƒªãƒƒãƒ—åã‚’è¿”ã™
         private static string GetVanillaClipName(string weaponType, string mode)
         {
             // Always return the equipped weapon's secondary trigger name

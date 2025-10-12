@@ -469,7 +469,7 @@ namespace ExtraAttackSystem
 
                     // Keep vanilla chain: do not manually call ResetChain here; Attack.Start handles it in vanilla
 
-                    // ✅ 削除: 重複AOC適用（468行目で既に適用済み）
+                    // âœ… å‰Šé™¤: é‡è¤‡AOCé©ç”¨ï¼ˆ468è¡Œç›®ã§æ—¢ã«é©ç”¨æ¸ˆã¿ï¼‰
                     // ExtraAttackPatches_Animation.ApplyStyleAOC(player, animator, mode);
                     
                     // Mark bypass for our own StartAttack call
@@ -620,7 +620,7 @@ namespace ExtraAttackSystem
                     ExtraAttackUtils.MarkBypassNextStartAttack(player);
                     player.StartAttack(null, true);
                     
-                    // ✅ 修正: StartAttack後にAOC適用（アニメーション遷移競合を回避）
+                    // âœ… ä¿®æ­£: StartAttackå¾Œã«AOCé©ç”¨ï¼ˆã‚¢ãƒ‹ãƒ¡ãƒ¼ã‚·ãƒ§ãƒ³é·ç§»ç«¶åˆã‚’å›žé¿ï¼‰
                     ExtraAttackPatches_Animation.ApplyStyleAOC(player, animator, mode);
                     
                     // Debug: Log current animator state after AOC application
@@ -754,7 +754,7 @@ namespace ExtraAttackSystem
                     // If previously crouching and toggle became false (e.g., player pressed crouch), restore to true during extra
                     if (wasCrouching && !crouchToggle)
                     {
-                        // CHANGED: Reduce intervention — skip SetCrouch here. Visual retention handled in UpdateCrouch Prefix/Postfix.
+                        // CHANGED: Reduce intervention â€” skip SetCrouch here. Visual retention handled in UpdateCrouch Prefix/Postfix.
                         if (ExtraAttackPlugin.DebugAOCOperations.Value)
                         {
                             ExtraAttackPlugin.LogInfo("AOC", "SetControls Postfix: crouch toggle restoration skipped (retained by UpdateCrouch guards)");

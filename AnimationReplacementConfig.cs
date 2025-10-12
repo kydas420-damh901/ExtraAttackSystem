@@ -248,8 +248,8 @@ namespace ExtraAttackSystem
                 current.Maps[style] = src.ToDictionary(k => k.Key, v => v.Value);
                 
                 // Categorize into types/items based on new naming convention
-                // Weapon type keys: ea_secondary_Q/T/G_{武器種別}
-                // Individual weapon keys: ea_secondary_Q/T/G_{個別武器名}
+                // Weapon type keys: ea_secondary_Q/T/G_{æ­¦å™¨ç¨®åˆ¥}
+                // Individual weapon keys: ea_secondary_Q/T/G_{å€‹åˆ¥æ­¦å™¨å}
                 bool isIndividual = IsIndividualWeaponKey(style);
                 
                 if (isIndividual)
@@ -267,8 +267,8 @@ namespace ExtraAttackSystem
         // Check if a key represents an individual weapon (not weapon type)
         private static bool IsIndividualWeaponKey(string key)
         {
-            // Individual weapon keys: ea_secondary_Q/T/G_{個別武器名}
-            // Weapon type keys: ea_secondary_Q/T/G_{武器種別}
+            // Individual weapon keys: ea_secondary_Q/T/G_{å€‹åˆ¥æ­¦å™¨å}
+            // Weapon type keys: ea_secondary_Q/T/G_{æ­¦å™¨ç¨®åˆ¥}
             
             if (!key.StartsWith("ea_secondary_"))
                 return false;
@@ -395,10 +395,10 @@ namespace ExtraAttackSystem
                 var sb = new StringBuilder();
                 sb.AppendLine("# ============================================================================");
                 sb.AppendLine("# Extra Attack System - Weapon Types Animation Replacement");
-                sb.AppendLine("# 武器種別アニメーション置換設定ファイル");
+                sb.AppendLine("# ");
                 sb.AppendLine("# ============================================================================");
                 sb.AppendLine("# Format: WeaponType -> Q/T/G -> Vanilla -> External");
-                sb.AppendLine("# 適応順序: 個別武器 -> 武器種 -> バニラ");
+                sb.AppendLine("# ");
                 sb.AppendLine("# ============================================================================");
                 sb.AppendLine();
 
@@ -475,10 +475,10 @@ namespace ExtraAttackSystem
                 var sb = new StringBuilder();
                 sb.AppendLine("# ============================================================================");
                 sb.AppendLine("# Extra Attack System - Individual Weapons Animation Replacement");
-                sb.AppendLine("# 個別武器アニメーション置換設定ファイル");
+                sb.AppendLine("# å€‹åˆ¥æ­¦å™¨ã‚¢ãƒ‹ãƒ¡ãƒ¼ã‚·ãƒ§ãƒ³ç½®æ›è¨­å®šãƒ•ã‚¡ã‚¤ãƒ«");
                 sb.AppendLine("# ============================================================================");
                 sb.AppendLine("# Format: IndividualWeapon -> Q/T/G -> Vanilla -> External");
-                sb.AppendLine("# 適応順序: 個別武器 -> 武器種 -> バニラ");
+                sb.AppendLine("# é©å¿œé †åº: å€‹åˆ¥æ­¦å™¨ -> æ­¦å™¨ç¨® -> ãƒãƒ‹ãƒ©");
                 sb.AppendLine("# ============================================================================");
                 sb.AppendLine();
 

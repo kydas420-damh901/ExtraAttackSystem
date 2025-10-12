@@ -940,7 +940,7 @@ namespace ExtraAttackSystem
         }
 
         // Apply weapon type specific settings to ReplacementMap
-        private static void ApplyWeaponTypeSettings()
+        public static void ApplyWeaponTypeSettings()
         {
             try
             {
