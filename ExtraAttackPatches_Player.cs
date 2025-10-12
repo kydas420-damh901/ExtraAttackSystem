@@ -76,6 +76,12 @@ namespace ExtraAttackSystem
                         AnimationManager.ClearAOCCache(true);
                         
                         ExtraAttackPlugin.LogInfo("System", "F6: YAML reload process completed");
+                        
+                        // Show notification in game
+                        if (MessageHud.instance != null)
+                        {
+                            MessageHud.instance.ShowMessage(MessageHud.MessageType.TopLeft, "YAML configs reloaded successfully", 0, null);
+                        }
                     }
 
                     // Check for equipment changes and update AOC
@@ -847,7 +853,7 @@ namespace ExtraAttackSystem
                 // Show notification in game
                 if (MessageHud.instance != null)
                 {
-                    MessageHud.instance.ShowMessage(MessageHud.MessageType.TopLeft, "YAML設定を再読み込みしました", 0, null);
+                    MessageHud.instance.ShowMessage(MessageHud.MessageType.TopLeft, "YAML configs reloaded successfully", 0, null);
                 }
             }
             catch (Exception ex)
@@ -857,7 +863,7 @@ namespace ExtraAttackSystem
                 // Show error notification in game
                 if (MessageHud.instance != null)
                 {
-                    MessageHud.instance.ShowMessage(MessageHud.MessageType.TopLeft, "YAML再読み込みエラー", 0, null);
+                    MessageHud.instance.ShowMessage(MessageHud.MessageType.TopLeft, "YAML reload error", 0, null);
                 }
             }
         }
