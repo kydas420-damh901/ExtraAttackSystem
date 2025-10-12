@@ -97,7 +97,7 @@ namespace ExtraAttackSystem
             {
                 // Determine current attack mode once for suffix candidates
                 var mode = ExtraAttackSystem.ExtraAttackUtils.GetAttackMode(player);
-        
+
                 // Map attack mode to unified secondary suffix
                 string secondarySuffix = mode switch
                 {
@@ -116,7 +116,7 @@ namespace ExtraAttackSystem
                         candidateSuffixes.Add(secondarySuffix);
                     }
                     candidateSuffixes.Add(string.Empty);
-        
+
                     var seen = new HashSet<string>();
                     foreach (var suf in candidateSuffixes)
                     {
@@ -127,7 +127,7 @@ namespace ExtraAttackSystem
                         if (AnimationTimingConfig.HasConfig(keyBase)) return keyBase;
                     }
                 }
-        
+
                 // Fallback: probe using clipName with unified secondary suffix
                 {
                     var candidateSuffixes2 = new List<string>();
@@ -136,7 +136,7 @@ namespace ExtraAttackSystem
                         candidateSuffixes2.Add(secondarySuffix);
                     }
                     candidateSuffixes2.Add(string.Empty);
-        
+
                     var seen2 = new HashSet<string>();
                     foreach (var suf in candidateSuffixes2)
                     {
@@ -147,7 +147,7 @@ namespace ExtraAttackSystem
                         if (AnimationTimingConfig.HasConfig(keyBase2)) return keyBase2;
                     }
                 }
-        
+
                 // Final fallback
                 return ExtraAttackPatches_Core.BuildConfigKey(player, clipName, hitIndex);
             }
@@ -258,7 +258,7 @@ namespace ExtraAttackSystem
                         rightIdent = string.Empty;
                     }
                 }
-
+        
                 // Create item/type specific maps as needed based on current equipment
                 EnsureItemStyleMaps(rightSkill, leftSkill, leftIsShield, leftIsTorch, rightIdent);
                 // NEW: Ensure secondary maps exist (item/type/left variants) for current equipment
@@ -344,55 +344,55 @@ namespace ExtraAttackSystem
                             {
                                 string typeKey2 = AnimationManager.ReplacementMap.ContainsKey($"secondary_T_{rightSkill}") ? $"secondary_T_{rightSkill}" : "secondary_T_Swords";
                                 baseKey = string.IsNullOrEmpty(rightIdent) ? typeKey2 : $"secondary_T_{rightIdent}";
-                                if (!AnimationManager.ReplacementMap.ContainsKey(baseKey) || AnimationManager.ReplacementMap[baseKey].Count == 0)
-                                {
-                                    baseKey = typeKey2;
-                                }
-                            }
-                            break;
-                        case ExtraAttackUtils.AttackMode.secondary_G:
+                            if (!AnimationManager.ReplacementMap.ContainsKey(baseKey) || AnimationManager.ReplacementMap[baseKey].Count == 0)
                             {
+                                baseKey = typeKey2;
+                            }
+                        }
+                        break;
+                        case ExtraAttackUtils.AttackMode.secondary_G:
+                        {
                                 string typeKey3 = AnimationManager.ReplacementMap.ContainsKey($"secondary_G_{rightSkill}") ? $"secondary_G_{rightSkill}" : "secondary_G_Swords";
                                 baseKey = string.IsNullOrEmpty(rightIdent) ? typeKey3 : $"secondary_G_{rightIdent}";
-                                if (!AnimationManager.ReplacementMap.ContainsKey(baseKey) || AnimationManager.ReplacementMap[baseKey].Count == 0)
-                                {
-                                    baseKey = typeKey3;
-                                }
+                            if (!AnimationManager.ReplacementMap.ContainsKey(baseKey) || AnimationManager.ReplacementMap[baseKey].Count == 0)
+                            {
+                                baseKey = typeKey3;
                             }
-                            break;
-                        default:
+                        }
+                        break;
+                    default:
                             baseKey = "secondary_Q";
-                            break;
-                    }
-
+                        break;
+                }
+        
                     // Consider left-hand variants for style
                     resolvedKey = baseKey;
-                    if (leftIsShield)
+                if (leftIsShield)
+                {
+                    string candidate = $"{baseKey}_LeftShield";
+                    if (AnimationManager.ReplacementMap.ContainsKey(candidate) && AnimationManager.ReplacementMap[candidate].Count > 0)
                     {
-                        string candidate = $"{baseKey}_LeftShield";
-                        if (AnimationManager.ReplacementMap.ContainsKey(candidate) && AnimationManager.ReplacementMap[candidate].Count > 0)
-                        {
-                            resolvedKey = candidate;
-                        }
+                        resolvedKey = candidate;
                     }
-                    else if (leftIsTorch)
+                }
+                else if (leftIsTorch)
+                {
+                    string candidate = $"{baseKey}_LeftTorch";
+                    if (AnimationManager.ReplacementMap.ContainsKey(candidate) && AnimationManager.ReplacementMap[candidate].Count > 0)
                     {
-                        string candidate = $"{baseKey}_LeftTorch";
-                        if (AnimationManager.ReplacementMap.ContainsKey(candidate) && AnimationManager.ReplacementMap[candidate].Count > 0)
-                        {
-                            resolvedKey = candidate;
-                        }
+                        resolvedKey = candidate;
                     }
-                    else if (leftSkill != Skills.SkillType.None)
+                }
+                else if (leftSkill != Skills.SkillType.None)
+                {
+                    string candidate = $"{baseKey}_Left{leftSkill}";
+                    if (AnimationManager.ReplacementMap.ContainsKey(candidate) && AnimationManager.ReplacementMap[candidate].Count > 0)
                     {
-                        string candidate = $"{baseKey}_Left{leftSkill}";
-                        if (AnimationManager.ReplacementMap.ContainsKey(candidate) && AnimationManager.ReplacementMap[candidate].Count > 0)
-                        {
-                            resolvedKey = candidate;
+                        resolvedKey = candidate;
                         }
                     }
                 }
-
+        
                 // Select replacement map
                 Dictionary<string, string>? map = null;
                 
@@ -435,7 +435,7 @@ namespace ExtraAttackSystem
                 int externalTotal = AnimationManager.ExternalAnimations.Count;
                 string originalName = (original is AnimatorOverrideController) ? "AnimatorOverrideController" : (original?.name ?? "null");
                 string mapKey = map == null ? "<none>" : resolvedKey;
-
+        
                 // No mappings -> wrap Original in empty AOC to maintain AOC->AOC swaps
                 if (map == null || map.Count == 0)
                 {
@@ -457,7 +457,7 @@ namespace ExtraAttackSystem
                         return animator?.runtimeAnimatorController; // Fallback: raw RAC
                     }
                 }
-
+        
                 // Cache per mode + weapon type + resolved key (equipment-specific)
                 string styleKey = mode == ExtraAttackUtils.AttackMode.secondary_Q ? "secondary_Q" : mode == ExtraAttackUtils.AttackMode.secondary_T ? "secondary_T" : "secondary_G";
                 // Include base controller identity and weapon type to avoid cache collisions across different weapon controllers
@@ -466,7 +466,7 @@ namespace ExtraAttackSystem
                 // Map "Unarmed" to "Fists" for consistency
                 if (cacheWeaponType == "Unarmed") cacheWeaponType = "Fists";
                 string cacheKey = $"{cacheWeaponType}:{styleKey}:{resolvedKey}:{baseId}";
-
+        
                 if (!AnimationManager.CustomRuntimeControllers.TryGetValue(cacheKey, out var controller) || controller == null)
                 {
                     var originalNonNull = original ?? (AnimationManager.CustomRuntimeControllers.ContainsKey("Original") ? AnimationManager.CustomRuntimeControllers["Original"] : null);
@@ -483,7 +483,7 @@ namespace ExtraAttackSystem
                 else if (ExtraAttackPlugin.DebugAOCOperations.Value)
                 {
                 }
-
+        
                 return controller;
             }
             catch (Exception ex)
@@ -683,8 +683,8 @@ namespace ExtraAttackSystem
                         }
                         AnimationManager.ReplacementMap[targetKey] = source ?? new Dictionary<string, string>();
                         created = true;
-                        if (ExtraAttackPlugin.DebugAOCOperations.Value)
-                        {
+                if (ExtraAttackPlugin.DebugAOCOperations.Value)
+                {
                             string fromKey = source != null ? "copied" : "empty";
                         }
                     }
@@ -767,49 +767,49 @@ namespace ExtraAttackSystem
 
         // NEW: Suppress vanilla 'emote_stop' only during configured guard windows
         // Why: Avoid global suppression; allow vanilla stand-up outside guard windows while protecting post-attack/insufficient-stamina windows.
-        [HarmonyPatch(typeof(ZSyncAnimation), nameof(ZSyncAnimation.SetTrigger), new Type[] { typeof(string) })]
-        [HarmonyPriority(Priority.First)]
-        internal static class ExtraAttackPatches_EmoteStopSuppressor
+    [HarmonyPatch(typeof(ZSyncAnimation), nameof(ZSyncAnimation.SetTrigger), new Type[] { typeof(string) })]
+    [HarmonyPriority(Priority.First)]
+    internal static class ExtraAttackPatches_EmoteStopSuppressor
+    {
+        [HarmonyPrefix]
+        private static bool ZSyncAnimation_SetTrigger_SuppressEmoteStop(ZSyncAnimation __instance, string name)
         {
-            [HarmonyPrefix]
-            private static bool ZSyncAnimation_SetTrigger_SuppressEmoteStop(ZSyncAnimation __instance, string name)
+            try
             {
-                try
+                // Only care about 'emote_stop'
+                if (!string.Equals(name, "emote_stop", StringComparison.Ordinal))
                 {
-                    // Only care about 'emote_stop'
-                    if (!string.Equals(name, "emote_stop", StringComparison.Ordinal))
-                    {
-                        return true; // run original
-                    }
+                    return true; // run original
+                }
 
                     // Optional global disable for troubleshooting
                     if (ExtraAttackPlugin.DebugDisableSetTriggerOverride.Value)
-                    {
-                        return true; // run original
-                    }
+                {
+                    return true; // run original
+                }
 
-                    // Resolve player
-                    Player? player = null;
-                    try { player = __instance.GetComponentInParent<Player>(); } catch { }
-                    if (player == null)
-                    {
+                // Resolve player
+                Player? player = null;
+                try { player = __instance.GetComponentInParent<Player>(); } catch { }
+                if (player == null)
+                {
                         return true; // run original; context unknown
                     }
 
                     // Allow emote_stop when actually in emote (vanilla flow)
-                    if (player.InEmote())
-                    {
-                        return true; // run original
-                    }
+                if (player.InEmote())
+                {
+                    return true; // run original
+                }
 
 
                     // Outside guard window, allow vanilla behavior
                     return true;
-                }
-                catch (Exception ex)
-                {
-                    ExtraAttackSystem.ExtraAttackPlugin.LogError("System", $"Error in EmoteStop suppressor: {ex.Message}");
-                    return true; // fail-safe: do not block original
+            }
+            catch (Exception ex)
+            {
+                ExtraAttackSystem.ExtraAttackPlugin.LogError("System", $"Error in EmoteStop suppressor: {ex.Message}");
+                return true; // fail-safe: do not block original
                 }
             }
         }

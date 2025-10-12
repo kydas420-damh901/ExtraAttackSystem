@@ -371,9 +371,9 @@ namespace ExtraAttackSystem
             List<KeyValuePair<AnimationClip, AnimationClip>> anims = new();
 
 
-            foreach (AnimationClip animation in aoc.animationClips)
-            {
-                string name = animation.name;
+                foreach (AnimationClip animation in aoc.animationClips)
+                {
+                    string name = animation.name;
                 
                 if (replacement.TryGetValue(name, out string value) && ExternalAnimations.ContainsKey(value))
                 {

@@ -16,6 +16,33 @@ namespace ExtraAttackSystem
         private static string WeaponTypesConfigFilePath => Path.Combine(ConfigFolderPath, "eas_attackconfig_WeaponTypes.yaml");
         private static string IndividualWeaponsConfigFilePath => Path.Combine(ConfigFolderPath, "eas_attackconfig_IndividualWeapons.yaml");
 
+        // Clean up YAML content to handle malformed structure
+        private static string CleanupYamlContent(string yamlContent)
+        {
+            if (string.IsNullOrEmpty(yamlContent))
+                return yamlContent;
+
+            var lines = yamlContent.Split('\n');
+            var cleanedLines = new List<string>();
+            
+            foreach (var line in lines)
+            {
+                // Skip lines that start with random characters (like "8e36e9a1")
+                if (line.Trim().Length > 0 && !line.Trim().StartsWith("#") && !line.Trim().StartsWith("Default:") && !line.Trim().StartsWith("WeaponTypes:"))
+                {
+                    // Check if line looks like a random string (contains only alphanumeric characters and is short)
+                    if (line.Trim().Length < 10 && System.Text.RegularExpressions.Regex.IsMatch(line.Trim(), "^[a-zA-Z0-9]+$"))
+                    {
+                        ExtraAttackPlugin.LogInfo("Config", $"Skipping malformed line: {line.Trim()}");
+                        continue;
+                    }
+                }
+                cleanedLines.Add(line);
+            }
+            
+            return string.Join("\n", cleanedLines);
+        }
+
         // Timing data for each animation
         public class AnimationTiming
         {
@@ -322,7 +349,7 @@ namespace ExtraAttackSystem
         }
 
         // Load weapon type specific config
-        private static void LoadWeaponTypeConfig()
+        public static void LoadWeaponTypeConfig()
         {
             ExtraAttackPlugin.LogInfo("Config", "LoadWeaponTypeConfig: Method entry point reached");
             try
@@ -333,6 +360,9 @@ namespace ExtraAttackSystem
                     .Build();
 
                 var yamlContent = File.ReadAllText(WeaponTypesConfigFilePath);
+                // Clean up YAML content to handle malformed structure
+                yamlContent = CleanupYamlContent(yamlContent);
+                
                 // YAML content loaded successfully
                 // YAML content preview removed for cleaner logs
                 
@@ -340,11 +370,26 @@ namespace ExtraAttackSystem
                 try
                 {
                     weaponTypeConfig = deserializer.Deserialize<WeaponTypeConfig>(yamlContent) ?? new WeaponTypeConfig();
+                    ExtraAttackPlugin.LogInfo("Config", $"Deserialization successful: {weaponTypeConfig?.WeaponTypes?.Count ?? 0} weapon types loaded");
+                    
+                    // Debug: Check specific weapon types
+                    if (weaponTypeConfig?.WeaponTypes != null)
+                    {
+                        foreach (var weaponType in weaponTypeConfig.WeaponTypes.Keys.Take(3))
+                        {
+                            var modes = weaponTypeConfig.WeaponTypes[weaponType];
+                            ExtraAttackPlugin.LogInfo("Config", $"  {weaponType}: {modes.Count} modes");
+                            foreach (var mode in modes.Keys.Take(3))
+                            {
+                                var timing = modes[mode];
+                                ExtraAttackPlugin.LogInfo("Config", $"    {mode}: HitTiming={timing.HitTiming}, TrailOn={timing.TrailOnTiming}, TrailOff={timing.TrailOffTiming}");
+                            }
+                        }
+                    }
                 }
                 catch (Exception deserializeEx)
                 {
                     ExtraAttackPlugin.LogError("System", $"Deserialization failed: {deserializeEx.Message}");
-                    ExtraAttackPlugin.LogError("System", $"YAML content causing error: {yamlContent}");
                     throw; // Re-throw to be caught by outer catch
                 }
                 
@@ -360,7 +405,7 @@ namespace ExtraAttackSystem
                 }
                 else
                 {
-                    ExtraAttackPlugin.LogWarning("Config", "Swords not found in WeaponTypes");
+                    ExtraAttackPlugin.LogInfo("Config", "Swords not found in WeaponTypes - this is normal during initial setup");
                 }
                 
                 if (weaponTypeConfig?.WeaponTypes != null)
@@ -572,44 +617,56 @@ namespace ExtraAttackSystem
                     ["Swords"] = new Dictionary<string, string>
                     {
                         ["Q"] = "Swords",      // Sword secondary
-                        ["T"] = "GreatSwords",  // Great Sword secondary
-                        ["G"] = "BattleAxes"    // Battle Axe secondary
+                        ["T"] = "Swords",      // Sword secondary (same weapon type)
+                        ["G"] = "Swords"       // Sword secondary (same weapon type)
                     },
                     ["Axes"] = new Dictionary<string, string>
                     {
                         ["Q"] = "Axes",        // Axe secondary
-                        ["T"] = "GreatSwords",  // Great Sword secondary
-                        ["G"] = "Polearms"      // Polearm secondary
+                        ["T"] = "Axes",        // Axe secondary (same weapon type)
+                        ["G"] = "Axes"         // Axe secondary (same weapon type)
                     },
                     ["Clubs"] = new Dictionary<string, string>
                     {
                         ["Q"] = "Clubs",       // Club secondary
-                        ["T"] = "GreatSwords", // Great Sword secondary
-                        ["G"] = "BattleAxes"   // Battle Axe secondary
+                        ["T"] = "Clubs",       // Club secondary (same weapon type)
+                        ["G"] = "Clubs"        // Club secondary (same weapon type)
                     },
                     ["Spears"] = new Dictionary<string, string>
                     {
                         ["Q"] = "Spears",      // Spear secondary
-                        ["T"] = "GreatSwords", // Great Sword secondary
-                        ["G"] = "BattleAxes"   // Battle Axe secondary
+                        ["T"] = "Spears",      // Spear secondary (same weapon type)
+                        ["G"] = "Spears"       // Spear secondary (same weapon type)
                     },
                     ["GreatSwords"] = new Dictionary<string, string>
                     {
                         ["Q"] = "GreatSwords", // Great Sword secondary
-                        ["T"] = "BattleAxes",  // Battle Axe secondary
-                        ["G"] = "Polearms"     // Polearm secondary
+                        ["T"] = "GreatSwords", // Great Sword secondary (same weapon type)
+                        ["G"] = "GreatSwords"  // Great Sword secondary (same weapon type)
                     },
                     ["BattleAxes"] = new Dictionary<string, string>
                     {
                         ["Q"] = "BattleAxes",  // Battle Axe secondary
-                        ["T"] = "GreatSwords", // Great Sword secondary
-                        ["G"] = "Polearms"     // Polearm secondary
+                        ["T"] = "BattleAxes",  // Battle Axe secondary (same weapon type)
+                        ["G"] = "BattleAxes"   // Battle Axe secondary (same weapon type)
                     },
                     ["Polearms"] = new Dictionary<string, string>
                     {
                         ["Q"] = "Polearms",    // Polearm secondary
-                        ["T"] = "GreatSwords", // Great Sword secondary
-                        ["G"] = "BattleAxes"   // Battle Axe secondary
+                        ["T"] = "Polearms",    // Polearm secondary (same weapon type)
+                        ["G"] = "Polearms"     // Polearm secondary (same weapon type)
+                    },
+                    ["Knives"] = new Dictionary<string, string>
+                    {
+                        ["Q"] = "Knives",      // Knife secondary
+                        ["T"] = "Knives",      // Knife secondary (same weapon type)
+                        ["G"] = "Knives"       // Knife secondary (same weapon type)
+                    },
+                    ["Fists"] = new Dictionary<string, string>
+                    {
+                        ["Q"] = "Fists",       // Fist secondary
+                        ["T"] = "Fists",       // Fist secondary (same weapon type)
+                        ["G"] = "Fists"        // Fist secondary (same weapon type)
                     }
                 };
 

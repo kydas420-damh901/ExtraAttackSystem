@@ -223,29 +223,29 @@ namespace ExtraAttackSystem
             private static bool IsUIOrCameraBlocking()
             {
                 return (Chat.instance != null && Chat.instance.HasFocus()) ||
-                       Console.IsVisible() ||
-                       TextInput.IsVisible() ||
-                       StoreGui.IsVisible() ||
-                       InventoryGui.IsVisible() ||
-                       Menu.IsVisible() ||
-                       (TextViewer.instance != null && TextViewer.instance.IsVisible()) ||
-                       Minimap.IsOpen() ||
-                       GameCamera.InFreeFly() ||
-                       PlayerCustomizaton.IsBarberGuiVisible() ||
-                       Hud.InRadial();
-            }
+                    Console.IsVisible() ||
+                    TextInput.IsVisible() ||
+                    StoreGui.IsVisible() ||
+                    InventoryGui.IsVisible() ||
+                    Menu.IsVisible() ||
+                    (TextViewer.instance != null && TextViewer.instance.IsVisible()) ||
+                    Minimap.IsOpen() ||
+                    GameCamera.InFreeFly() ||
+                    PlayerCustomizaton.IsBarberGuiVisible() ||
+                    Hud.InRadial();
+                }
 
             // Check if player state blocks input
             private static bool IsPlayerStateBlocking(Player player)
-            {
+                {
                 return player.IsDead() || player.InCutscene() || player.IsTeleporting();
-            }
+                }
 
             // Check if player is in blocking interaction state
             private static bool IsInteractionBlocking(Player player)
-            {
+                {
                 return player.InAttack() || player.InDodge() || player.IsBlocking() || player.InMinorAction();
-            }
+                }
 
             // Check if equipped items block extra attacks
             private static bool AreItemsBlocking(Player player)
@@ -439,7 +439,7 @@ namespace ExtraAttackSystem
                     // Keep vanilla chain: do not clear queued timer or primary hold
 
                     // Keep vanilla chain: do not manually call ResetChain here; Attack.Start handles it in vanilla
-                    
+
                     // Mark bypass for our own StartAttack call
                     ExtraAttackUtils.MarkBypassNextStartAttack(player);
                     player.StartAttack(null, true);
@@ -649,7 +649,7 @@ namespace ExtraAttackSystem
                 {
                     if (__instance == null || __instance != Player.m_localPlayer)
                         return;
-                    return;
+                        return;
                 }
                 catch (System.Exception ex)
                 {
