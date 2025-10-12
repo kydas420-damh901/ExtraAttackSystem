@@ -209,16 +209,13 @@ namespace ExtraAttackSystem
                 return attackMode;
             }
 
-            // Handle format: ea_secondary_{Mode}
-            if (attackMode.StartsWith("ea_secondary_"))
-            {
-                string mode = attackMode.Replace("ea_secondary_", "");
-                return $"Secondary_{mode}";
-            }
+            // Normalize ea_secondary_ to secondary_ first
+            string normalizedMode = attackMode.Replace("ea_secondary_", "secondary_");
+            
             // Handle format: secondary_{Mode}
-            else if (attackMode.StartsWith("secondary_"))
+            if (normalizedMode.StartsWith("secondary_"))
             {
-                string mode = attackMode.Replace("secondary_", "");
+                string mode = normalizedMode.Replace("secondary_", "");
                 return $"Secondary_{mode}";
             }
             // Handle format: {Mode} (Q/T/G only)
