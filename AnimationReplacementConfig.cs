@@ -235,9 +235,15 @@ namespace ExtraAttackSystem
         // Check if individual weapons config should be created or regenerated
         private static bool ShouldCreateOrRegenerateIndividualWeaponsConfig()
         {
-            // AnimationReplacement_IndividualWeapons.yaml should never be regenerated
-            // User must create and manage this file manually
-            ExtraAttackPlugin.LogInfo("Config", "AnimationReplacement_IndividualWeapons.yaml: Never auto-generate (user-managed file)");
+            // AnimationReplacement_IndividualWeapons.yaml: ファイルが存在しない場合のみ再生成
+            // ファイルが存在する場合は、内容が空でも再生成しない（ユーザー設定維持）
+            if (!File.Exists(IndividualWeaponsConfigFilePath))
+            {
+                ExtraAttackPlugin.LogInfo("Config", "AnimationReplacement_IndividualWeapons.yaml: File does not exist, will create default");
+                return true;
+            }
+            
+            ExtraAttackPlugin.LogInfo("Config", "AnimationReplacement_IndividualWeapons.yaml: File exists, will not regenerate (user settings preserved)");
             return false;
         }
 
@@ -259,7 +265,6 @@ namespace ExtraAttackSystem
                 }
 
                 string yaml = File.ReadAllText(WeaponTypesConfigFilePath, Encoding.UTF8);
-                ExtraAttackPlugin.LogInfo("System", $"LoadWeaponTypesConfig: YAML content length: {yaml.Length}");
                 
                 if (string.IsNullOrEmpty(yaml))
                 {
@@ -267,9 +272,7 @@ namespace ExtraAttackSystem
                     return;
                 }
                 
-                ExtraAttackPlugin.LogInfo("System", $"LoadWeaponTypesConfig: YAML preview: {yaml.Substring(0, Math.Min(200, yaml.Length))}...");
-                ExtraAttackPlugin.LogInfo("System", $"LoadWeaponTypesConfig: YAML contains 'AocTypes:': {yaml.Contains("AocTypes:")}");
-                ExtraAttackPlugin.LogInfo("System", $"LoadWeaponTypesConfig: YAML contains 'Axes:': {yaml.Contains("Axes:")}");
+                // YAML content validation (debug info removed for cleaner logs)
                 
                 ExtraAttackPlugin.LogInfo("System", "LoadWeaponTypesConfig: Creating deserializer");
                 var deserializer = new DeserializerBuilder()
@@ -483,6 +486,12 @@ namespace ExtraAttackSystem
         {
             try
             {
+                if (!File.Exists(IndividualWeaponsConfigFilePath))
+                {
+                    ExtraAttackPlugin.LogInfo("System", $"Individual weapons config file not found at {IndividualWeaponsConfigFilePath} - This is normal, user must create this file manually");
+                    return;
+                }
+
                 string yaml = File.ReadAllText(IndividualWeaponsConfigFilePath, Encoding.UTF8);
                 var deserializer = new DeserializerBuilder()
                     .WithNamingConvention(CamelCaseNamingConvention.Instance)
@@ -493,6 +502,7 @@ namespace ExtraAttackSystem
                 if (individualWeaponsConfig.AocItems != null)
                 {
                     current.AocItems = individualWeaponsConfig.AocItems;
+                    ExtraAttackPlugin.LogInfo("System", $"Loaded {individualWeaponsConfig.AocItems.Count} individual weapon mappings from YAML");
                 }
             }
             catch (Exception ex)
@@ -510,17 +520,28 @@ namespace ExtraAttackSystem
             ExtraAttackPlugin.LogInfo("System", $"F6: WeaponTypes file exists: {File.Exists(WeaponTypesConfigFilePath)}");
             ExtraAttackPlugin.LogInfo("System", $"F6: IndividualWeapons file exists: {File.Exists(IndividualWeaponsConfigFilePath)}");
             
-            if (File.Exists(WeaponTypesConfigFilePath) && File.Exists(IndividualWeaponsConfigFilePath))
+            if (File.Exists(WeaponTypesConfigFilePath))
             {
-                ExtraAttackPlugin.LogInfo("System", "F6: Both files exist, loading...");
+                ExtraAttackPlugin.LogInfo("System", "F6: WeaponTypes config exists, loading...");
                 LoadWeaponTypesConfig();
+                
+                // IndividualWeapons config is optional (user-managed)
+                if (File.Exists(IndividualWeaponsConfigFilePath))
+                {
+                    ExtraAttackPlugin.LogInfo("System", "F6: IndividualWeapons config exists, loading...");
                 LoadIndividualWeaponsConfig();
+                }
+                else
+                {
+                    ExtraAttackPlugin.LogInfo("System", "F6: IndividualWeapons config not found - This is normal, user must create this file manually");
+                }
+                
                 ApplyToManager();
                 ExtraAttackPlugin.LogInfo("System", "F6: AnimationReplacementConfig reload completed");
             }
             else
             {
-                ExtraAttackPlugin.LogWarning("System", "F6: One or both AnimationReplacement YAML files missing, skipping reload");
+                ExtraAttackPlugin.LogWarning("System", "F6: WeaponTypes YAML file missing, skipping reload");
             }
         }
 

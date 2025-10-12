@@ -4,6 +4,10 @@
 		<LangVersion>latest</LangVersion>
 		<Nullable>enable</Nullable>
 		<Deterministic>true</Deterministic>
+		<Version>0.7.6</Version>
+		<AssemblyVersion>0.7.6.0</AssemblyVersion>
+		<FileVersion>0.7.6.0</FileVersion>
+		<InformationalVersion>0.7.6-stamina-eitr+20250112</InformationalVersion>
 	</PropertyGroup>
 	<ItemGroup>
 	  <Compile Remove="memo_List_decompilesources\**" />

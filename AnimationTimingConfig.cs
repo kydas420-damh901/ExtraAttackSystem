@@ -13,7 +13,6 @@ namespace ExtraAttackSystem
     {
         // Config file path
         private static string ConfigFolderPath => Path.Combine(BepInEx.Paths.ConfigPath, "ExtraAttackSystem");
-        private static string ConfigFilePath => Path.Combine(ConfigFolderPath, "eas_attackconfig.yaml");
         private static string WeaponTypesConfigFilePath => Path.Combine(ConfigFolderPath, "eas_attackconfig_WeaponTypes.yaml");
         private static string IndividualWeaponsConfigFilePath => Path.Combine(ConfigFolderPath, "eas_attackconfig_IndividualWeapons.yaml");
 
@@ -62,18 +61,26 @@ namespace ExtraAttackSystem
         // Load or create config file
         public static void Initialize()
         {
+            ExtraAttackPlugin.LogInfo("Config", "AnimationTimingConfig.Initialize: Method entry point reached");
             try
             {
+                ExtraAttackPlugin.LogInfo("Config", "AnimationTimingConfig.Initialize: Starting initialization");
+                
                 if (!Directory.Exists(ConfigFolderPath))
                 {
                     Directory.CreateDirectory(ConfigFolderPath);
                 }
 
                 // Check and create weapon types config if needed, then load it
+                ExtraAttackPlugin.LogInfo("Config", $"AnimationTimingConfig.Initialize: WeaponTypesConfigFilePath = {WeaponTypesConfigFilePath}");
+                
                 if (ShouldCreateOrRegenerateWeaponTypesConfig())
                 {
+                    ExtraAttackPlugin.LogInfo("Config", "AnimationTimingConfig.Initialize: Creating default weapon type config");
                     CreateDefaultWeaponTypeConfig();
                 }
+                
+                ExtraAttackPlugin.LogInfo("Config", "AnimationTimingConfig.Initialize: Loading weapon type config");
                 LoadWeaponTypeConfig();
 
                 // Check and create individual weapons config if needed, then load it
@@ -109,7 +116,7 @@ namespace ExtraAttackSystem
                 }
 
                 // Check if file has actual weapon type data (not just comments/headers)
-                if (!content.Contains("WeaponTypes:") || !content.Contains("_secondary_"))
+                if (!content.Contains("WeaponTypes:") || !content.Contains("secondary_"))
                 {
                     ExtraAttackPlugin.LogInfo("Config", "WeaponTypes config file has no weapon type data, will regenerate");
                     return true;
@@ -172,17 +179,17 @@ namespace ExtraAttackSystem
             if (animationName.Contains("_secondary_Q"))
             {
                 attackMode = "Q";
-                weaponType = animationName.Replace("_secondary_Q", "").Replace("ea_", "");
+                weaponType = CapitalizeFirstLetter(animationName.Replace("_secondary_Q", "").Replace("ea_", ""));
             }
             else if (animationName.Contains("_secondary_T"))
             {
                 attackMode = "T";
-                weaponType = animationName.Replace("_secondary_T", "").Replace("ea_", "");
+                weaponType = CapitalizeFirstLetter(animationName.Replace("_secondary_T", "").Replace("ea_", ""));
             }
             else if (animationName.Contains("_secondary_G"))
             {
                 attackMode = "G";
-                weaponType = animationName.Replace("_secondary_G", "").Replace("ea_", "");
+                weaponType = CapitalizeFirstLetter(animationName.Replace("_secondary_G", "").Replace("ea_", ""));
             }
             
             return GetWeaponTypeTiming(weaponType, attackMode);
@@ -193,6 +200,15 @@ namespace ExtraAttackSystem
         {
             // Use weapon type config instead of old config
             return GetTiming(animationName) != null;
+        }
+
+        // Helper method to capitalize first letter
+        private static string CapitalizeFirstLetter(string input)
+        {
+            if (string.IsNullOrEmpty(input))
+                return input;
+            
+            return char.ToUpper(input[0]) + input.Substring(1);
         }
 
         // Extract mode from various attack mode formats and convert to secondary_{Mode}
@@ -308,6 +324,7 @@ namespace ExtraAttackSystem
         // Load weapon type specific config
         private static void LoadWeaponTypeConfig()
         {
+            ExtraAttackPlugin.LogInfo("Config", "LoadWeaponTypeConfig: Method entry point reached");
             try
             {
                 var deserializer = new DeserializerBuilder()
@@ -316,8 +333,8 @@ namespace ExtraAttackSystem
                     .Build();
 
                 var yamlContent = File.ReadAllText(WeaponTypesConfigFilePath);
-                ExtraAttackPlugin.LogInfo("Config", $"YAML content length: {yamlContent.Length}");
-                ExtraAttackPlugin.LogInfo("Config", $"YAML content preview (first 500 chars): {yamlContent.Substring(0, Math.Min(500, yamlContent.Length))}");
+                // YAML content loaded successfully
+                // YAML content preview removed for cleaner logs
                 
                 // Try to deserialize with better error handling
                 try
@@ -334,6 +351,17 @@ namespace ExtraAttackSystem
                 ExtraAttackPlugin.LogInfo("Config", $"Loaded weapon type config: {weaponTypeConfig?.WeaponTypes?.Count ?? 0} weapon types");
                 ExtraAttackPlugin.LogInfo("Config", $"weaponTypeConfig is null: {weaponTypeConfig == null}");
                 ExtraAttackPlugin.LogInfo("Config", $"WeaponTypes is null: {weaponTypeConfig?.WeaponTypes == null}");
+                
+                // Debug: Check if Swords exists and what modes it has
+                if (weaponTypeConfig?.WeaponTypes != null && weaponTypeConfig.WeaponTypes.ContainsKey("Swords"))
+                {
+                    var swordsModes = weaponTypeConfig.WeaponTypes["Swords"];
+                    ExtraAttackPlugin.LogInfo("Config", $"Swords modes found: {string.Join(", ", swordsModes.Keys)}");
+                }
+                else
+                {
+                    ExtraAttackPlugin.LogWarning("Config", "Swords not found in WeaponTypes");
+                }
                 
                 if (weaponTypeConfig?.WeaponTypes != null)
                 {
@@ -595,9 +623,9 @@ namespace ExtraAttackSystem
                     foreach (var mode in new[] { "Q", "T", "G" })
                     {
                         var targetWeaponType = mappings[mode];
-                        var key = $"{weaponType}_secondary_{mode}";
+                        var key = $"secondary_{mode}";
                         
-                        ExtraAttackPlugin.LogInfo("Config", $"GenerateWeaponTypeConfig: Creating timing for {key} -> {targetWeaponType}_{mode}");
+                        ExtraAttackPlugin.LogInfo("Config", $"GenerateWeaponTypeConfig: Creating timing for {weaponType}_{key} -> {targetWeaponType}_{mode}");
                         
                         // Create timing based on target weapon type
                         var timing = CreateTimingForWeaponType(targetWeaponType, mode);
@@ -1053,13 +1081,11 @@ namespace ExtraAttackSystem
                 // Header
                 sb.AppendLine("# ==============================================================================");
                 sb.AppendLine("# Extra Attack System - Weapon Type Specific Configuration");
-                sb.AppendLine("# æ­¦å™¨ç¨®åˆ¥ã”ã¨ã®è¨­å®šãƒ•ã‚¡ã‚¤ãƒ«");
                 sb.AppendLine("# ==============================================================================");
                 sb.AppendLine("# IMPORTANT: Configuration is organized by weapon types (Swords, Axes, Clubs, etc.)");
-                sb.AppendLine("# é‡è¦: è¨­å®šã¯æ­¦å™¨ç¨®åˆ¥ï¼ˆå‰£ã€æ–§ã€æ£æ£’ãªã©ï¼‰ã”ã¨ã«æ•´ç†ã•ã‚Œã¦ã„ã¾ã™");
                 sb.AppendLine("# ==============================================================================");
                 sb.AppendLine();
-                sb.AppendLine("# Key Format / ã‚­ãƒ¼å½¢å¼:");
+                sb.AppendLine("# Key Format");
                 sb.AppendLine("#   WeaponType_secondary_Q      - Q key ( secondary_Q secondary attack)");
                 sb.AppendLine("#   WeaponType_secondary_T      - T key ( secondary_T secondary attack)  ");
                 sb.AppendLine("#   WeaponType_secondary_G      - G key ( secondary_G secondary attack)");
@@ -1098,7 +1124,7 @@ namespace ExtraAttackSystem
                 sb.AppendLine("WeaponTypes:");
                 
                 // Filter only weapon types (not individual weapons)
-                string[] validWeaponTypes = { "Swords", "Axes", "Clubs", "Spears", "Polearms", "Knives", "Fists", "BattleAxes", "GreatSwords", "Unarmed", "DualAxes", "DualKnives", "Sledges", "Torch" };
+                string[] validWeaponTypes = { "Axes", "BattleAxes", "Clubs", "DualAxes", "DualKnives", "Fists", "GreatSwords", "Knives", "Polearms", "Sledges", "Spears", "Swords", "Torch", "Unarmed" };
                 
                 var filteredWeaponTypes = config.WeaponTypes
                     .Where(kvp => validWeaponTypes.Contains(kvp.Key))
@@ -1109,36 +1135,36 @@ namespace ExtraAttackSystem
                     sb.AppendLine($"  # ========== {weaponType.Key} ==========");
                     sb.AppendLine($"  {weaponType.Key}:");
                     
-                    // Sort by Q, T, G order (unified format: {WeaponType}_secondary_{Mode})
+                    // Sort by Q, T, G order (unified format: secondary_{Mode})
                     var sortedModes = weaponType.Value.OrderBy(kvp => 
-                        kvp.Key.Contains("_secondary_Q") ? 0 : 
-                        kvp.Key.Contains("_secondary_T") ? 1 : 
-                        kvp.Key.Contains("_secondary_G") ? 2 : 3);
+                        kvp.Key.Contains("secondary_Q") ? 0 : 
+                        kvp.Key.Contains("secondary_T") ? 1 : 
+                        kvp.Key.Contains("secondary_G") ? 2 : 3);
                     
                     foreach (var mode in sortedModes)
                     {
                         var timing = mode.Value;
                         
                         // Extract mode (Q/T/G) and get replacement animation name
-                        string modeKey = mode.Key.Replace($"{weaponType.Key}_secondary_", "");
+                        string modeKey = mode.Key.Replace("secondary_", "");
                         string replacementAnimation = GetReplacementAnimationName(weaponType.Key, modeKey);
                         
                         sb.AppendLine($"    # secondary_{modeKey} - ExtraAttack 1 -> {replacementAnimation}");
                         sb.AppendLine($"    {mode.Key}:");
-                        sb.AppendLine($"      HitTiming: {timing.HitTiming:F2}  # Hit event timing");
-                        sb.AppendLine($"      TrailOnTiming: {timing.TrailOnTiming:F2}  # TrailOn event timing");
-                        sb.AppendLine($"      TrailOffTiming: {timing.TrailOffTiming:F2}  # TrailOff event timing");
+                        sb.AppendLine($"      HitTiming: {timing.HitTiming:F2}");
+                        sb.AppendLine($"      TrailOnTiming: {timing.TrailOnTiming:F2}");
+                        sb.AppendLine($"      TrailOffTiming: {timing.TrailOffTiming:F2}");
                         sb.AppendLine($"      # Attack Parameters (from vanilla Attack class)");
-                        sb.AppendLine($"      AttackRange: {timing.AttackRange:F2}  # m_attackRange");
-                        sb.AppendLine($"      AttackHeight: {timing.AttackHeight:F2}  # m_attackHeight");
-                        sb.AppendLine($"      AttackOffset: {timing.AttackOffset:F2}  # m_attackOffset");
-                        sb.AppendLine($"      AttackAngle: {timing.AttackAngle:F2}  # m_attackAngle");
-                        sb.AppendLine($"      AttackHeightChar1: {timing.AttackHeightChar1:F2}  # m_attackHeightChar1");
-                        sb.AppendLine($"      AttackHeightChar2: {timing.AttackHeightChar2:F2}  # m_attackHeightChar2");
-                        sb.AppendLine($"      MaxYAngle: {timing.MaxYAngle:F2}  # m_maxYAngle");
+                        sb.AppendLine($"      AttackRange: {timing.AttackRange:F2}");
+                        sb.AppendLine($"      AttackHeight: {timing.AttackHeight:F2}");
+                        sb.AppendLine($"      AttackOffset: {timing.AttackOffset:F2}");
+                        sb.AppendLine($"      AttackAngle: {timing.AttackAngle:F2}");
+                        sb.AppendLine($"      AttackHeightChar1: {timing.AttackHeightChar1:F2}");
+                        sb.AppendLine($"      AttackHeightChar2: {timing.AttackHeightChar2:F2}");
+                        sb.AppendLine($"      MaxYAngle: {timing.MaxYAngle:F2}");
                         sb.AppendLine($"      # Attack Control Flags");
-                        sb.AppendLine($"      EnableHit: {(timing.EnableHit ? "true" : "false")}  # Enable hit detection");
-                        sb.AppendLine($"      EnableSound: {(timing.EnableSound ? "true" : "false")}  # Enable attack sound");
+                        sb.AppendLine($"      EnableHit: {(timing.EnableHit ? "true" : "false")}");
+                        sb.AppendLine($"      EnableSound: {(timing.EnableSound ? "true" : "false")}");
                     }
                     sb.AppendLine();
                 }
@@ -1167,10 +1193,10 @@ namespace ExtraAttackSystem
                 // Try weapon type specific using unified key format
                 if (weaponTypeConfig.WeaponTypes.TryGetValue(weaponType, out var weaponTypeSettings))
                 {
-                    string unifiedKey = $"{weaponType}_secondary_{attackMode}";
-                    if (weaponTypeSettings.TryGetValue(unifiedKey, out var typeTiming))
+                    string modeKey = $"secondary_{attackMode}";
+                    if (weaponTypeSettings.TryGetValue(modeKey, out var typeTiming))
                     {
-                        ExtraAttackPlugin.LogInfo("Config", $"Using weapon type setting: {unifiedKey}");
+                        ExtraAttackPlugin.LogInfo("Config", $"Using weapon type setting: {weaponType}_{modeKey}");
                         return typeTiming;
                     }
                 }
@@ -1215,55 +1241,5 @@ namespace ExtraAttackSystem
             return weaponTypeConfig;
         }
         
-        // Get attack cost for weapon type and attack mode
-        public static AnimationTiming? GetAttackCost(string weaponType, string attackMode)
-        {
-            try
-            {
-                ExtraAttackPlugin.LogInfo("Config", $"GetAttackCost called: weaponType={weaponType}, attackMode={attackMode}");
-                ExtraAttackPlugin.LogInfo("Config", $"WeaponTypes count: {weaponTypeConfig?.WeaponTypes?.Count ?? 0}");
-                
-                if (weaponTypeConfig?.WeaponTypes?.Count > 0)
-                {
-                    ExtraAttackPlugin.LogInfo("Config", $"WeaponTypes keys: {string.Join(", ", weaponTypeConfig.WeaponTypes.Keys)}");
-                }
-                
-                if (weaponTypeConfig?.WeaponTypes?.TryGetValue(weaponType, out var weaponTypeDict) == true)
-                {
-                    ExtraAttackPlugin.LogInfo("Config", $"Found weaponType '{weaponType}', modes count: {weaponTypeDict?.Count ?? 0}");
-                    if (weaponTypeDict?.Count > 0)
-                    {
-                        ExtraAttackPlugin.LogInfo("Config", $"Available modes: {string.Join(", ", weaponTypeDict.Keys)}");
-                    }
-                    
-                    // Try unified key format: secondary_{Mode} (YAML format)
-                    string mode = ExtractModeFromAttackMode(attackMode);
-                    if (weaponTypeDict?.TryGetValue(mode, out AnimationTiming timing) == true)
-                    {
-                        ExtraAttackPlugin.LogInfo("Config", $"Found specific timing for {mode} (unified from {attackMode}): HitTiming={timing.HitTiming}, TrailOnTiming={timing.TrailOnTiming}");
-                        return timing;
-                    }
-                    
-                    // Try direct lookup as fallback
-                    if (weaponTypeDict?.TryGetValue(attackMode, out timing) == true)
-                    {
-                        ExtraAttackPlugin.LogInfo("Config", $"Found specific timing for {weaponType}_{attackMode}: HitTiming={timing.HitTiming}, TrailOnTiming={timing.TrailOnTiming}");
-                        return timing;
-                    }
-                    
-                    ExtraAttackPlugin.LogWarning("Config", $"No specific timing found for {mode} or {weaponType}_{attackMode}");
-                }
-                
-                // Fallback to default if no specific timing found
-                var defaultTiming = weaponTypeConfig?.Default;
-                ExtraAttackPlugin.LogWarning("Config", $"Using default timing for {weaponType}_{attackMode}: HitTiming={defaultTiming?.HitTiming ?? 0.45f}, TrailOnTiming={defaultTiming?.TrailOnTiming ?? 0.35f}");
-                return defaultTiming;
-            }
-            catch (Exception ex)
-            {
-                ExtraAttackPlugin.LogError("System", $"Error getting attack cost for {weaponType}_{attackMode}: {ex.Message}");
-                return null;
-            }
-        }
     }
 }

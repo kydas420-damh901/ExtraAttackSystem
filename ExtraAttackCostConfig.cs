@@ -9,25 +9,19 @@ namespace ExtraAttackSystem
 {
     public class ExtraAttackCostConfig
     {
-        public class AttackCost
-        {
-            // Base costs (affected by skill bonuses)
-            public float StaminaCost { get; set; } = 15.0f;
-            public float EitrCost { get; set; } = 8.0f;
-        }
-
-        public class AttackCooldown
-        {
-            // Fixed cooldown duration (not affected by skill bonuses)
-            public float CooldownSec { get; set; } = 2.0f;
-        }
+               public class AttackCost
+               {
+                   // Base costs (affected by skill bonuses)
+                   public float StaminaCost { get; set; }
+                   public float EitrCost { get; set; }
+                   // Fixed cooldown duration (not affected by skill bonuses)
+                   public float CooldownSec { get; set; }
+               }
 
         public class CostConfig
         {
             public AttackCost Default { get; set; } = new AttackCost();
-            public AttackCooldown DefaultCooldown { get; set; } = new AttackCooldown();
             public Dictionary<string, Dictionary<string, AttackCost>> WeaponTypes { get; set; } = new Dictionary<string, Dictionary<string, AttackCost>>();
-            public Dictionary<string, Dictionary<string, AttackCooldown>> Cooldowns { get; set; } = new Dictionary<string, Dictionary<string, AttackCooldown>>();
         }
 
         private static CostConfig? costConfig = null;
@@ -130,18 +124,13 @@ namespace ExtraAttackSystem
         {
             var config = new CostConfig();
             
-            // Default costs (affected by skill bonuses)
-            config.Default = new AttackCost
-            {
-                StaminaCost = 15.0f,
-                EitrCost = 8.0f
-            };
-
-            // Default cooldown (fixed, not affected by skill bonuses)
-            config.DefaultCooldown = new AttackCooldown
-            {
-                CooldownSec = 2.0f
-            };
+                   // Default costs (affected by skill bonuses)
+                   config.Default = new AttackCost
+                   {
+                       StaminaCost = 20.0f,  // バニラのセカンダリ攻撃と同じ値
+                       EitrCost = 0.0f,      // デフォルト0
+                       CooldownSec = 0.0f    // テスト中暫定でデフォルト0
+                   };
 
             // Weapon type specific costs and cooldowns
             var weaponTypes = new[] { "Swords", "Axes", "Clubs", "Spears", "GreatSwords", "BattleAxes", "Polearms", "Knives", "Fists" };
@@ -150,34 +139,21 @@ namespace ExtraAttackSystem
             foreach (var weaponType in weaponTypes)
             {
                 config.WeaponTypes[weaponType] = new Dictionary<string, AttackCost>();
-                config.Cooldowns[weaponType] = new Dictionary<string, AttackCooldown>();
                 
                 foreach (var mode in modes)
                 {
-                    // Different costs per weapon type (affected by skill bonuses)
-                    var cost = weaponType switch
-                    {
-                        "GreatSwords" => new AttackCost { StaminaCost = 25.0f, EitrCost = 12.0f },
-                        "BattleAxes" => new AttackCost { StaminaCost = 30.0f, EitrCost = 15.0f },
-                        "Polearms" => new AttackCost { StaminaCost = 20.0f, EitrCost = 10.0f },
-                        "Knives" => new AttackCost { StaminaCost = 8.0f, EitrCost = 5.0f },
-                        "Fists" => new AttackCost { StaminaCost = 5.0f, EitrCost = 3.0f },
-                        _ => new AttackCost { StaminaCost = 15.0f, EitrCost = 8.0f }
-                    };
-                    
-                    // Different cooldowns per weapon type (fixed values)
-                    var cooldown = weaponType switch
-                    {
-                        "GreatSwords" => new AttackCooldown { CooldownSec = 3.0f },
-                        "BattleAxes" => new AttackCooldown { CooldownSec = 3.5f },
-                        "Polearms" => new AttackCooldown { CooldownSec = 2.5f },
-                        "Knives" => new AttackCooldown { CooldownSec = 1.0f },
-                        "Fists" => new AttackCooldown { CooldownSec = 0.5f },
-                        _ => new AttackCooldown { CooldownSec = 2.0f }
-                    };
+                           // Different costs per weapon type (affected by skill bonuses)
+                           var cost = weaponType switch
+                           {
+                               "GreatSwords" => new AttackCost { StaminaCost = 20.0f, EitrCost = 0.0f, CooldownSec = 0.0f },  // バニラセカンダリと同じ、エイトル0、クールダウン0
+                               "BattleAxes" => new AttackCost { StaminaCost = 20.0f, EitrCost = 0.0f, CooldownSec = 0.0f },   // バニラセカンダリと同じ、エイトル0、クールダウン0
+                               "Polearms" => new AttackCost { StaminaCost = 20.0f, EitrCost = 0.0f, CooldownSec = 0.0f },     // バニラセカンダリと同じ、エイトル0、クールダウン0
+                               "Knives" => new AttackCost { StaminaCost = 20.0f, EitrCost = 0.0f, CooldownSec = 0.0f },       // バニラセカンダリと同じ、エイトル0、クールダウン0
+                               "Fists" => new AttackCost { StaminaCost = 20.0f, EitrCost = 0.0f, CooldownSec = 0.0f },        // バニラセカンダリと同じ、エイトル0、クールダウン0
+                               _ => new AttackCost { StaminaCost = 20.0f, EitrCost = 0.0f, CooldownSec = 0.0f }                // バニラセカンダリと同じ、エイトル0、クールダウン0
+                           };
                     
                     config.WeaponTypes[weaponType][mode] = cost;
-                    config.Cooldowns[weaponType][mode] = cooldown;
                 }
             }
 
@@ -213,7 +189,7 @@ namespace ExtraAttackSystem
                     
                     // Fallback to default if no specific cost found
                     var defaultCost = costConfig?.Default;
-                    ExtraAttackPlugin.LogWarning("Config", $"Using default cost for {weaponType}_{attackMode}: Stamina={defaultCost?.StaminaCost ?? 15.0f}, Eitr={defaultCost?.EitrCost ?? 8.0f}");
+                           ExtraAttackPlugin.LogWarning("Config", $"Using default cost for {weaponType}_{attackMode}: Stamina={defaultCost?.StaminaCost ?? 20.0f}, Eitr={defaultCost?.EitrCost ?? 0.0f}");
                     return defaultCost;
                 }
                 catch (Exception ex)
@@ -224,41 +200,42 @@ namespace ExtraAttackSystem
             }
         }
 
-        public static AttackCooldown? GetAttackCooldown(string weaponType, string attackMode)
+        public static float GetAttackCooldown(string weaponType, string attackMode)
         {
             lock (configLock)
             {
                 try
                 {
-                    if (costConfig?.Cooldowns?.TryGetValue(weaponType, out var weaponTypeDict) == true)
+                    if (costConfig?.WeaponTypes?.TryGetValue(weaponType, out var weaponTypeDict) == true)
                     {
                         // Try unified key format: secondary_{Mode}
                         string mode = ExtractModeFromAttackMode(attackMode);
-                        if (weaponTypeDict?.TryGetValue(mode, out AttackCooldown cooldown) == true)
+                        if (weaponTypeDict?.TryGetValue(mode, out AttackCost cost) == true)
                         {
-                            ExtraAttackPlugin.LogInfo("Config", $"Found specific cooldown for {mode} (unified from {attackMode}): Cooldown={cooldown.CooldownSec}");
-                            return cooldown;
+                            ExtraAttackPlugin.LogInfo("Config", $"Found specific cooldown for {mode} (unified from {attackMode}): Cooldown={cost.CooldownSec}");
+                            return cost.CooldownSec;
                         }
                         
                         // Try direct lookup as fallback
-                        if (weaponTypeDict?.TryGetValue(attackMode, out cooldown) == true)
+                        if (weaponTypeDict?.TryGetValue(attackMode, out cost) == true)
                         {
-                            ExtraAttackPlugin.LogInfo("Config", $"Found specific cooldown for {weaponType}_{attackMode}: Cooldown={cooldown.CooldownSec}");
-                            return cooldown;
+                            ExtraAttackPlugin.LogInfo("Config", $"Found specific cooldown for {weaponType}_{attackMode}: Cooldown={cost.CooldownSec}");
+                            return cost.CooldownSec;
                         }
                         
                         ExtraAttackPlugin.LogWarning("Config", $"No specific cooldown found for {mode} or {weaponType}_{attackMode}");
                     }
                     
                     // Fallback to default if no specific cooldown found
-                    var defaultCooldown = costConfig?.DefaultCooldown;
-                    ExtraAttackPlugin.LogWarning("Config", $"Using default cooldown for {weaponType}_{attackMode}: Cooldown={defaultCooldown?.CooldownSec ?? 2.0f}");
+                    var defaultCost = costConfig?.Default;
+                    float defaultCooldown = defaultCost?.CooldownSec ?? 0.0f;
+                    ExtraAttackPlugin.LogWarning("Config", $"Using default cooldown for {weaponType}_{attackMode}: Cooldown={defaultCooldown}");
                     return defaultCooldown;
                 }
                 catch (Exception ex)
                 {
                     ExtraAttackPlugin.LogError("System", $"Error getting attack cooldown for {weaponType}_{attackMode}: {ex.Message}");
-                    return costConfig?.DefaultCooldown;
+                    return costConfig?.Default?.CooldownSec ?? 0.0f;
                 }
             }
         }

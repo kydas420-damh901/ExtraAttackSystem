@@ -108,11 +108,11 @@ namespace ExtraAttackSystem
                     string weaponType = GetWeaponTypeFromSkill(player.GetCurrentWeapon().m_shared.m_skillType, player.GetCurrentWeapon());
                     string modeString = mode.ToString();
                     
-                    var attackCooldown = ExtraAttackCostConfig.GetAttackCooldown(weaponType, modeString);
-                    if (attackCooldown != null && attackCooldown.CooldownSec > 0f)
-                    {
-                        cooldownDuration = attackCooldown.CooldownSec;
-                    }
+               float attackCooldown = ExtraAttackCostConfig.GetAttackCooldown(weaponType, modeString);
+               if (attackCooldown > 0f)
+               {
+                   cooldownDuration = attackCooldown;
+               }
                 }
                 
                 // Fallback to config if CostConfig not available
@@ -206,16 +206,16 @@ namespace ExtraAttackSystem
                     }
                 }
                 
-                // Use default if CostConfig not available
+               // Use default if CostConfig not available
                 if (baseCost <= 0f)
                 {
-                    baseCost = 15f; // Default base stamina cost
+                   baseCost = 20f; // Default base stamina cost (バニラのセカンダリ攻撃と同じ値)
                 }
             }
             catch (System.Exception ex)
             {
                 ExtraAttackPlugin.LogError("System", $"Error getting CostConfig stamina cost, using default: {ex.Message}");
-                baseCost = 15f; // Default base stamina cost
+                baseCost = 20f; // Default base stamina cost (バニラのセカンダリ攻撃と同じ値)
             }
             
             return baseCost;
@@ -365,7 +365,7 @@ namespace ExtraAttackSystem
             }
             return false;
         }
-        
+
         public static bool ConsumeBlockNextSecondary(Player player)
         {
             // Secondary attacks are not blocked by default

@@ -15,12 +15,12 @@ namespace ExtraAttackSystem
 {
     [BepInPlugin(PluginGUID, PluginName, PluginVersion)]
     [BepInDependency(Jotunn.Main.ModGuid)]
-    [NetworkCompatibilityAttribute(CompatibilityLevel.EveryoneMustHaveMod, VersionStrictness.Minor)]
+    [NetworkCompatibilityAttribute(CompatibilityLevel.EveryoneMustHaveMod, VersionStrictness.Patch)]
     public class ExtraAttackPlugin : BaseUnityPlugin
     {
         internal const string PluginGUID = "Dyju420.ExtraAttackSystem";
         internal const string PluginName = "Extra Attack System";
-        internal const string PluginVersion = "0.7.6StaminaEitr";
+        internal const string PluginVersion = VersionInfo.FullVersion;
 
         internal static readonly ManualLogSource ExtraAttackLogger = BepInEx.Logging.Logger.CreateLogSource(PluginName);
         // NEW: Dual-wield mod detection flag
@@ -172,11 +172,11 @@ namespace ExtraAttackSystem
         private void InitializeDebugConfigs()
         {
             // ========================================================================
-            // CORE SYSTEM LOGGING (Master Control)
+            // MASTER CONTROL
             // ========================================================================
             
             // Essential system messages (master control for all debug messages)
-            DebugSystemMessages = Config.Bind("5 - Debug", "1. System Messages", false,
+            DebugSystemMessages = Config.Bind("1 - Master Control", "System Messages (Master Switch)", false,
                 "Master control: Enable/disable all debug messages at once");
             cachedDebugSystemMessages = DebugSystemMessages.Value;
             DebugSystemMessages.SettingChanged += (s, e) => {
@@ -185,11 +185,11 @@ namespace ExtraAttackSystem
             };
 
             // ========================================================================
-            // ATTACK SYSTEM LOGGING
+            // ATTACK SYSTEM DEBUG
             // ========================================================================
             
             // Attack trigger detection and processing
-            DebugAttackTriggers = Config.Bind("5 - Debug", "2. Attack Triggers", false,
+            DebugAttackTriggers = Config.Bind("2 - Attack System", "Attack Triggers", false,
                 "Log attack trigger detection and processing (requires System Messages enabled)");
             cachedDebugAttackTriggers = DebugAttackTriggers.Value;
             DebugAttackTriggers.SettingChanged += (s, e) => {
@@ -198,7 +198,7 @@ namespace ExtraAttackSystem
             };
 
             // Damage calculation and restoration
-            DebugDamageCalculation = Config.Bind("5 - Debug", "3. Damage Calculation", false,
+            DebugDamageCalculation = Config.Bind("2 - Attack System", "Damage Calculation", false,
                 "Log damage multiplier application and restoration (requires System Messages enabled)");
             cachedDebugDamageCalculation = DebugDamageCalculation.Value;
             DebugDamageCalculation.SettingChanged += (s, e) => {
@@ -207,11 +207,20 @@ namespace ExtraAttackSystem
             };
 
             // ========================================================================
-            // GET LIST DATA (Data Collection)
+            // ANIMATION SYSTEM DEBUG
             // ========================================================================
+
+            // AOC (Animator Override Controller) operations
+            DebugAOCOperations = Config.Bind("3 - Animation System", "AOC Operations", false,
+                "Log AOC creation, switching, and animation overrides (requires System Messages enabled)");
+            cachedDebugAOCOperations = DebugAOCOperations.Value;
+            DebugAOCOperations.SettingChanged += (s, e) => {
+                cachedDebugAOCOperations = DebugAOCOperations.Value;
+                if (cachedDebugSystemMessages) LogInfo("Config", $"DebugAOCOperations changed to: {cachedDebugAOCOperations}");
+            };
             
             // Animation clip information
-            DebugAnimationClips = Config.Bind("6 - Get List Data", "1. Animation Clips", false,
+            DebugAnimationClips = Config.Bind("3 - Animation System", "Animation Clips", false,
                 "Log AnimationClip information during AOC creation (requires System Messages enabled)");
             cachedDebugAnimationClips = DebugAnimationClips.Value;
             DebugAnimationClips.SettingChanged += (s, e) => {
@@ -220,7 +229,7 @@ namespace ExtraAttackSystem
             };
 
             // Animation events
-            DebugAnimationEvents = Config.Bind("6 - Get List Data", "2. Animation Events", false,
+            DebugAnimationEvents = Config.Bind("3 - Animation System", "Animation Events", false,
                 "Log AnimationEvent information during AOC creation (requires System Messages enabled)");
             cachedDebugAnimationEvents = DebugAnimationEvents.Value;
             DebugAnimationEvents.SettingChanged += (s, e) => {
@@ -229,7 +238,7 @@ namespace ExtraAttackSystem
             };
 
             // Animator parameters
-            DebugAnimationParameters = Config.Bind("6 - Get List Data", "3. Animation Parameters", false,
+            DebugAnimationParameters = Config.Bind("3 - Animation System", "Animation Parameters", false,
                 "Log Animator parameters during initialization (requires System Messages enabled)");
             cachedDebugAnimationParameters = DebugAnimationParameters.Value;
             DebugAnimationParameters.SettingChanged += (s, e) => {
@@ -237,40 +246,30 @@ namespace ExtraAttackSystem
                 if (cachedDebugSystemMessages) LogInfo("Config", $"DebugAnimationParameters changed to: {cachedDebugAnimationParameters}");
             };
 
-
-            // ========================================================================
-            // DEBUG (System Operations)
-            // ========================================================================
-
-            // AOC (Animator Override Controller) operations
-            DebugAOCOperations = Config.Bind("5 - Debug", "1. AOC Operations", false,
-                "Log AOC creation, switching, and animation overrides (requires System Messages enabled)");
-            cachedDebugAOCOperations = DebugAOCOperations.Value;
-            DebugAOCOperations.SettingChanged += (s, e) => {
-                cachedDebugAOCOperations = DebugAOCOperations.Value;
-                if (cachedDebugSystemMessages) LogInfo("Config", $"DebugAOCOperations changed to: {cachedDebugAOCOperations}");
-            };
-            
-            // Performance metrics
-            DebugPerformanceMetrics = Config.Bind("5 - Debug", "2. Performance Metrics", false,
-                "Log performance measurements (timings, allocations) (requires System Messages enabled)");
-            cachedDebugPerformanceMetrics = DebugPerformanceMetrics.Value;
-            DebugPerformanceMetrics.SettingChanged += (s, e) => {
-                cachedDebugPerformanceMetrics = DebugPerformanceMetrics.Value;
-                if (cachedDebugSystemMessages) LogInfo("Config", $"DebugPerformanceMetrics changed to: {cachedDebugPerformanceMetrics}");
-            };
-
             // Current playing animation names
-            DebugClipNames = Config.Bind("5 - Debug", "3. Current Playing Animations", false,
+            DebugClipNames = Config.Bind("3 - Animation System", "Current Playing Animations", false,
                 "Log which animation clips are currently playing when pressing Q/T/G keys (requires System Messages enabled)");
             cachedDebugClipNames = DebugClipNames.Value;
             DebugClipNames.SettingChanged += (s, e) => {
                 cachedDebugClipNames = DebugClipNames.Value;
                 if (cachedDebugSystemMessages) LogInfo("Config", $"DebugClipNames changed to: {cachedDebugClipNames}");
             };
+
+            // ========================================================================
+            // ADVANCED DEBUG
+            // ========================================================================
+            
+            // Performance metrics
+            DebugPerformanceMetrics = Config.Bind("4 - Advanced Debug", "Performance Metrics", false,
+                "Log performance measurements (timings, allocations) (requires System Messages enabled)");
+            cachedDebugPerformanceMetrics = DebugPerformanceMetrics.Value;
+            DebugPerformanceMetrics.SettingChanged += (s, e) => {
+                cachedDebugPerformanceMetrics = DebugPerformanceMetrics.Value;
+                if (cachedDebugSystemMessages) LogInfo("Config", $"DebugPerformanceMetrics changed to: {cachedDebugPerformanceMetrics}");
+            };
             
             // SetTrigger override debug
-            DebugDisableSetTriggerOverride = Config.Bind("5 - Debug", "4. Disable SetTrigger Override", false,
+            DebugDisableSetTriggerOverride = Config.Bind("4 - Advanced Debug", "Disable SetTrigger Override", false,
                 "Disable SetTrigger override for debugging (requires System Messages enabled)");
             DebugDisableSetTriggerOverride.SettingChanged += (s, e) => {
                 if (cachedDebugSystemMessages) LogInfo("Config", $"DebugDisableSetTriggerOverride changed to: {DebugDisableSetTriggerOverride.Value}");
@@ -292,7 +291,17 @@ namespace ExtraAttackSystem
                 
                 // 2. AnimationTimingConfig (4 files)
                 LogInfo("System", "Generating AnimationTimingConfig files...");
-                AnimationTimingConfig.Initialize();
+                LogInfo("System", "About to call AnimationTimingConfig.Initialize()");
+                try
+                {
+                    AnimationTimingConfig.Initialize();
+                    LogInfo("System", "AnimationTimingConfig.Initialize completed successfully");
+                }
+                catch (Exception ex)
+                {
+                    LogError("System", $"AnimationTimingConfig.Initialize failed: {ex.Message}");
+                    LogError("System", $"Stack trace: {ex.StackTrace}");
+                }
                 
                 // 3. ExtraAttackExclusionConfig (1 file)
                 LogInfo("System", "Generating ExtraAttackExclusionConfig file...");

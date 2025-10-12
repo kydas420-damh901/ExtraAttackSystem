@@ -71,20 +71,20 @@ animation clip もすべて指定
 yamlファイルで animation timing、判定やダメージなど設定可能
 animation clip は指定フォルダに入れて、yamlファイルで設定することで置き換え可能
 
-AC Category
+WeaponTypes yaml は アルファベッド順固定
 Axe             
 Clubs       
 Swords      
 Spears          左手装備できない
-Polearms     
 knifes      
-Fists           バニラモーションはUnarmed と共通
+Polearms     
 BattleAxes   
 GreatSwords 
-Unarmed         バニラモーションはFistと共通
 Dual Axes   
 Dual Knifes 
 Sledges         バニラは通常攻撃しかないがqtg割り当てる
+Fists           バニラモーションはUnarmed と共通
+Unarmed         バニラモーションはFistと共通
 Torch       
 
 Shileds + unarmed     
@@ -177,3 +177,12 @@ public static class Attack_GetAttackStamina_Prefix
 YAML設定: StaminaCost: 60（基準値）
 スキルレベル計算最終コスト060 × 1.0 × (1 - 0.33×0.0)605060 × 1.0 × (1 - 0.33×0.5)50.110060 × 1.0 × (1 - 0.33×1.0)40.2
 スキルレベルが高いほどスタミナ消費が減る = バニラと同じ仕様
+
+
+AnimationReplacement_IndividualWeapons.yaml このファイルだけ
+だけ空でも再生成しない
+他は全yaml 空なら再生成
+全yamlファイルがなければ再生成
+全yaml 中身があれば、何もしない＝ユーザー設定維持
+
+
