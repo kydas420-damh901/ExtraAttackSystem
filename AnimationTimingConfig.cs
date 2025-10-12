@@ -201,7 +201,7 @@ namespace ExtraAttackSystem
             return GetTiming(animationName) != null;
         }
 
-        // Extract mode from various attack mode formats
+        // Extract mode from various attack mode formats and convert to Secondary_{Mode}
         private static string ExtractModeFromAttackMode(string attackMode)
         {
             if (string.IsNullOrEmpty(attackMode))
@@ -212,17 +212,19 @@ namespace ExtraAttackSystem
             // Handle format: ea_secondary_{Mode}
             if (attackMode.StartsWith("ea_secondary_"))
             {
-                return attackMode.Replace("ea_secondary_", "");
+                string mode = attackMode.Replace("ea_secondary_", "");
+                return $"Secondary_{mode}";
             }
             // Handle format: secondary_{Mode}
             else if (attackMode.StartsWith("secondary_"))
             {
-                return attackMode.Replace("secondary_", "");
+                string mode = attackMode.Replace("secondary_", "");
+                return $"Secondary_{mode}";
             }
             // Handle format: {Mode} (Q/T/G only)
             else if (attackMode == "Q" || attackMode == "T" || attackMode == "G")
             {
-                return attackMode;
+                return $"Secondary_{attackMode}";
             }
 
             return attackMode; // Return original if can't parse
@@ -1252,7 +1254,7 @@ namespace ExtraAttackSystem
                     
                     // Try unified key format: {WeaponType}_Secondary_{Mode}
                     string mode = ExtractModeFromAttackMode(attackMode);
-                    string unifiedKey = $"{weaponType}_Secondary_{mode}";
+                    string unifiedKey = $"{weaponType}_{mode}";
                     if (weaponTypeDict?.TryGetValue(unifiedKey, out AnimationTiming timing) == true)
                     {
                         ExtraAttackPlugin.LogInfo("Config", $"Found specific timing for {unifiedKey} (unified from {attackMode}): StaminaCost={timing.StaminaCost}, EitrCost={timing.EitrCost}");
