@@ -201,43 +201,65 @@ namespace ExtraAttackSystem
             return GetTiming(animationName) != null;
         }
 
-        // Resolve style (_ea_secondary_Q/T/G) and legacy (_Q/_T/_G) keys to secondary (_secondary_Q/T/G) format
-        private static string ResolveToSecondaryKey(string animationName)
+        // Convert any key format to unified format: {WeaponType}_{AttackType}_{Mode}
+        private static string ResolveToUnifiedKey(string animationName)
         {
             if (string.IsNullOrEmpty(animationName))
             {
                 return animationName;
             }
 
-            // Handle style suffix resolution: _ea_secondary_Q -> _secondary_Q, etc.
-            if (animationName.EndsWith("_ea_secondary_Q"))
+            // Extract weapon type and mode from various formats
+            string weaponType = "";
+            string attackType = "Secondary"; // Default to Secondary
+            string mode = "";
+
+            // Handle format: {WeaponType}_ea_secondary_{Mode}
+            if (animationName.Contains("_ea_secondary_"))
             {
-                return animationName.Replace("_ea_secondary_Q", "_secondary_Q");
+                var parts = animationName.Split('_');
+                for (int i = 0; i < parts.Length; i++)
+                {
+                    if (parts[i] == "ea" && i + 2 < parts.Length && parts[i + 1] == "secondary")
+                    {
+                        weaponType = string.Join("_", parts.Take(i));
+                        mode = parts[i + 2];
+                        break;
+                    }
+                }
             }
-            if (animationName.EndsWith("_ea_secondary_T"))
+            // Handle format: {WeaponType}_secondary_{Mode}
+            else if (animationName.Contains("_secondary_"))
             {
-                return animationName.Replace("_ea_secondary_T", "_secondary_T");
+                var parts = animationName.Split('_');
+                for (int i = 0; i < parts.Length; i++)
+                {
+                    if (parts[i] == "secondary" && i + 1 < parts.Length)
+                    {
+                        weaponType = string.Join("_", parts.Take(i));
+                        mode = parts[i + 1];
+                        break;
+                    }
+                }
             }
-            if (animationName.EndsWith("_ea_secondary_G"))
+            // Handle format: {WeaponType}_{Mode} (Q/T/G only)
+            else if (animationName.EndsWith("_Q") || animationName.EndsWith("_T") || animationName.EndsWith("_G"))
             {
-                return animationName.Replace("_ea_secondary_G", "_secondary_G");
+                var parts = animationName.Split('_');
+                if (parts.Length >= 2)
+                {
+                    weaponType = string.Join("_", parts.Take(parts.Length - 1));
+                    mode = parts.Last();
+                }
             }
 
-            // Handle legacy suffix resolution: _Q -> _secondary_Q, etc.
-            if (animationName.EndsWith("_Q"))
+            // Return unified format: {WeaponType}_Secondary_{Mode}
+            if (!string.IsNullOrEmpty(weaponType) && !string.IsNullOrEmpty(mode))
             {
-                return animationName.Replace("_Q", "_secondary_Q");
-            }
-            if (animationName.EndsWith("_T"))
-            {
-                return animationName.Replace("_T", "_secondary_T");
-            }
-            if (animationName.EndsWith("_G"))
-            {
-                return animationName.Replace("_G", "_secondary_G");
+                return $"{weaponType}_Secondary_{mode}";
             }
 
-            return animationName; // No resolution needed
+            return animationName; // Return original if can't parse
         }
 
         // Append missing animation timing entries from current ReplacementMap and save
@@ -651,8 +673,8 @@ namespace ExtraAttackSystem
         {
             var timing = new AnimationTiming();
             
-            // Try to get actual animation clip length from ReplacementMap
-            string key = $"ea_secondary_{mode}";
+            // Try to get actual animation clip length from ReplacementMap using unified key format
+            string key = $"{weaponType}_Secondary_{mode}";
             float clipLength = GetAdjustedClipLength(key);
             
             if (clipLength > 0)
@@ -1135,42 +1157,36 @@ namespace ExtraAttackSystem
                     sb.AppendLine($"  # ========== {weaponType.Key} ==========");
                     sb.AppendLine($"  {weaponType.Key}:");
                     
-                    // Sort by Q, T, G order
+                    // Sort by Q, T, G order (unified format: {WeaponType}_Secondary_{Mode})
                     var sortedModes = weaponType.Value.OrderBy(kvp => 
-                        kvp.Key.Contains("_secondary_Q") ? 0 : 
-                        kvp.Key.Contains("_secondary_T") ? 1 : 
-                        kvp.Key.Contains("_secondary_G") ? 2 : 3);
+                        kvp.Key.Contains("_Secondary_Q") ? 0 : 
+                        kvp.Key.Contains("_Secondary_T") ? 1 : 
+                        kvp.Key.Contains("_Secondary_G") ? 2 : 3);
                     
                     foreach (var mode in sortedModes)
                     {
                         var timing = mode.Value;
                         
                         // Extract mode (Q/T/G) and get replacement animation name
-                        string modeKey = mode.Key.Replace($"{weaponType.Key}_secondary_", "");
+                        string modeKey = mode.Key.Replace($"{weaponType.Key}_Secondary_", "");
                         string replacementAnimation = GetReplacementAnimationName(weaponType.Key, modeKey);
                         
                         sb.AppendLine($"    # ea_secondary_{modeKey} - ExtraAttack 1 -> {replacementAnimation}");
                         sb.AppendLine($"    {mode.Key}:");
-                        sb.AppendLine($"      HitTiming: {timing.HitTiming:F2}");
-                        sb.AppendLine($"      TrailOnTiming: {timing.TrailOnTiming:F2}");
-                        sb.AppendLine($"      TrailOffTiming: {timing.TrailOffTiming:F2}");
-                        sb.AppendLine($"      ChainTiming: {timing.ChainTiming:F2}  # defaults = 0.00 (disabled)");
-                        sb.AppendLine($"      SpeedMultiplier: {timing.SpeedMultiplier:F2}");
-                        sb.AppendLine($"      AttackRange: {timing.AttackRange:F2}");
-                        sb.AppendLine($"      AttackHeight: {timing.AttackHeight:F2}");
-                        sb.AppendLine($"      AttackOffset: {timing.AttackOffset:F2}");
-                        sb.AppendLine($"      AttackAngle: {timing.AttackAngle:F2}");
-                        sb.AppendLine($"      AttackRayWidth: {timing.AttackRayWidth:F2}");
-                        sb.AppendLine($"      AttackRayWidthCharExtra: {timing.AttackRayWidthCharExtra:F2}");
-                        sb.AppendLine($"      AttackHeightChar1: {timing.AttackHeightChar1:F2}");
-                        sb.AppendLine($"      AttackHeightChar2: {timing.AttackHeightChar2:F2}");
-                        sb.AppendLine($"      MaxYAngle: {timing.MaxYAngle:F2}");
-                        sb.AppendLine($"      EnableHit: {(timing.EnableHit ? "true" : "false")}");
-                        sb.AppendLine($"      EnableSound: {(timing.EnableSound ? "true" : "false")}");
-                        sb.AppendLine($"      EnableVFX: {(timing.EnableVFX ? "true" : "false")}");
-                        sb.AppendLine($"      StaminaCost: {timing.StaminaCost:F2}");
-                        sb.AppendLine($"      EitrCost: {timing.EitrCost:F2}");
-                        sb.AppendLine($"      CooldownSec: {timing.CooldownSec:F2}");
+                        sb.AppendLine($"      HitTiming: {timing.HitTiming:F2}  # Hit event timing");
+                        sb.AppendLine($"      TrailOnTiming: {timing.TrailOnTiming:F2}  # TrailOn event timing");
+                        sb.AppendLine($"      TrailOffTiming: {timing.TrailOffTiming:F2}  # TrailOff event timing");
+                        sb.AppendLine($"      # Attack Parameters (from vanilla Attack class)");
+                        sb.AppendLine($"      AttackRange: {timing.AttackRange:F2}  # m_attackRange");
+                        sb.AppendLine($"      AttackHeight: {timing.AttackHeight:F2}  # m_attackHeight");
+                        sb.AppendLine($"      AttackOffset: {timing.AttackOffset:F2}  # m_attackOffset");
+                        sb.AppendLine($"      AttackAngle: {timing.AttackAngle:F2}  # m_attackAngle");
+                        sb.AppendLine($"      AttackHeightChar1: {timing.AttackHeightChar1:F2}  # m_attackHeightChar1");
+                        sb.AppendLine($"      AttackHeightChar2: {timing.AttackHeightChar2:F2}  # m_attackHeightChar2");
+                        sb.AppendLine($"      MaxYAngle: {timing.MaxYAngle:F2}  # m_maxYAngle");
+                        sb.AppendLine($"      # Attack Control Flags");
+                        sb.AppendLine($"      EnableHit: {(timing.EnableHit ? "true" : "false")}  # Enable hit detection");
+                        sb.AppendLine($"      EnableSound: {(timing.EnableSound ? "true" : "false")}  # Enable attack sound");
                     }
                     sb.AppendLine();
                 }
@@ -1196,12 +1212,13 @@ namespace ExtraAttackSystem
                     return individualTiming;
                 }
 
-                // Try weapon type specific
+                // Try weapon type specific using unified key format
                 if (weaponTypeConfig.WeaponTypes.TryGetValue(weaponType, out var weaponTypeSettings))
                 {
-                    if (weaponTypeSettings.TryGetValue($"{weaponType}_secondary_{attackMode}", out var typeTiming))
+                    string unifiedKey = $"{weaponType}_Secondary_{attackMode}";
+                    if (weaponTypeSettings.TryGetValue(unifiedKey, out var typeTiming))
                     {
-                        ExtraAttackPlugin.LogInfo("Config", $"Using weapon type setting: {weaponType}_secondary_{attackMode}");
+                        ExtraAttackPlugin.LogInfo("Config", $"Using weapon type setting: {unifiedKey}");
                         return typeTiming;
                     }
                 }
@@ -1267,22 +1284,22 @@ namespace ExtraAttackSystem
                         ExtraAttackPlugin.LogInfo("Config", $"Available modes: {string.Join(", ", weaponTypeDict.Keys)}");
                     }
                     
-                    // Try direct lookup first
-                    if (weaponTypeDict?.TryGetValue(attackMode, out AnimationTiming timing) == true)
+                    // Try unified key format: {WeaponType}_Secondary_{Mode}
+                    string unifiedKey = ResolveToUnifiedKey($"{weaponType}_{attackMode}");
+                    if (weaponTypeDict?.TryGetValue(unifiedKey, out AnimationTiming timing) == true)
+                    {
+                        ExtraAttackPlugin.LogInfo("Config", $"Found specific timing for {weaponType}_{unifiedKey} (unified from {attackMode}): StaminaCost={timing.StaminaCost}, EitrCost={timing.EitrCost}");
+                        return timing;
+                    }
+                    
+                    // Try direct lookup as fallback
+                    if (weaponTypeDict?.TryGetValue(attackMode, out timing) == true)
                     {
                         ExtraAttackPlugin.LogInfo("Config", $"Found specific timing for {weaponType}_{attackMode}: StaminaCost={timing.StaminaCost}, EitrCost={timing.EitrCost}");
                         return timing;
                     }
                     
-                    // Try with secondary key format
-                    string secondaryKey = ResolveToSecondaryKey(attackMode);
-                    if (secondaryKey != attackMode && weaponTypeDict?.TryGetValue(secondaryKey, out timing) == true)
-                    {
-                        ExtraAttackPlugin.LogInfo("Config", $"Found specific timing for {weaponType}_{secondaryKey} (resolved from {attackMode}): StaminaCost={timing.StaminaCost}, EitrCost={timing.EitrCost}");
-                        return timing;
-                    }
-                    
-                    ExtraAttackPlugin.LogWarning("Config", $"No specific timing found for {weaponType}_{attackMode} or {weaponType}_{secondaryKey}");
+                    ExtraAttackPlugin.LogWarning("Config", $"No specific timing found for {weaponType}_{unifiedKey} or {weaponType}_{attackMode}");
                 }
                 
                 // Fallback to default if no specific timing found
