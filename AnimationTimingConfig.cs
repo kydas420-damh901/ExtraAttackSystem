@@ -201,65 +201,31 @@ namespace ExtraAttackSystem
             return GetTiming(animationName) != null;
         }
 
-        // Convert any key format to unified format: {WeaponType}_{AttackType}_{Mode}
-        private static string ResolveToUnifiedKey(string animationName)
+        // Extract mode from various attack mode formats
+        private static string ExtractModeFromAttackMode(string attackMode)
         {
-            if (string.IsNullOrEmpty(animationName))
+            if (string.IsNullOrEmpty(attackMode))
             {
-                return animationName;
+                return attackMode;
             }
 
-            // Extract weapon type and mode from various formats
-            string weaponType = "";
-            string attackType = "Secondary"; // Default to Secondary
-            string mode = "";
-
-            // Handle format: {WeaponType}_ea_secondary_{Mode}
-            if (animationName.Contains("_ea_secondary_"))
+            // Handle format: ea_secondary_{Mode}
+            if (attackMode.StartsWith("ea_secondary_"))
             {
-                var parts = animationName.Split('_');
-                for (int i = 0; i < parts.Length; i++)
-                {
-                    if (parts[i] == "ea" && i + 2 < parts.Length && parts[i + 1] == "secondary")
-                    {
-                        weaponType = string.Join("_", parts.Take(i));
-                        mode = parts[i + 2];
-                        break;
-                    }
-                }
+                return attackMode.Replace("ea_secondary_", "");
             }
-            // Handle format: {WeaponType}_secondary_{Mode}
-            else if (animationName.Contains("_secondary_"))
+            // Handle format: secondary_{Mode}
+            else if (attackMode.StartsWith("secondary_"))
             {
-                var parts = animationName.Split('_');
-                for (int i = 0; i < parts.Length; i++)
-                {
-                    if (parts[i] == "secondary" && i + 1 < parts.Length)
-                    {
-                        weaponType = string.Join("_", parts.Take(i));
-                        mode = parts[i + 1];
-                        break;
-                    }
-                }
+                return attackMode.Replace("secondary_", "");
             }
-            // Handle format: {WeaponType}_{Mode} (Q/T/G only)
-            else if (animationName.EndsWith("_Q") || animationName.EndsWith("_T") || animationName.EndsWith("_G"))
+            // Handle format: {Mode} (Q/T/G only)
+            else if (attackMode == "Q" || attackMode == "T" || attackMode == "G")
             {
-                var parts = animationName.Split('_');
-                if (parts.Length >= 2)
-                {
-                    weaponType = string.Join("_", parts.Take(parts.Length - 1));
-                    mode = parts.Last();
-                }
+                return attackMode;
             }
 
-            // Return unified format: {WeaponType}_Secondary_{Mode}
-            if (!string.IsNullOrEmpty(weaponType) && !string.IsNullOrEmpty(mode))
-            {
-                return $"{weaponType}_Secondary_{mode}";
-            }
-
-            return animationName; // Return original if can't parse
+            return attackMode; // Return original if can't parse
         }
 
         // Append missing animation timing entries from current ReplacementMap and save
@@ -1285,10 +1251,11 @@ namespace ExtraAttackSystem
                     }
                     
                     // Try unified key format: {WeaponType}_Secondary_{Mode}
-                    string unifiedKey = ResolveToUnifiedKey($"{weaponType}_{attackMode}");
+                    string mode = ExtractModeFromAttackMode(attackMode);
+                    string unifiedKey = $"{weaponType}_Secondary_{mode}";
                     if (weaponTypeDict?.TryGetValue(unifiedKey, out AnimationTiming timing) == true)
                     {
-                        ExtraAttackPlugin.LogInfo("Config", $"Found specific timing for {weaponType}_{unifiedKey} (unified from {attackMode}): StaminaCost={timing.StaminaCost}, EitrCost={timing.EitrCost}");
+                        ExtraAttackPlugin.LogInfo("Config", $"Found specific timing for {unifiedKey} (unified from {attackMode}): StaminaCost={timing.StaminaCost}, EitrCost={timing.EitrCost}");
                         return timing;
                     }
                     
@@ -1299,7 +1266,7 @@ namespace ExtraAttackSystem
                         return timing;
                     }
                     
-                    ExtraAttackPlugin.LogWarning("Config", $"No specific timing found for {weaponType}_{unifiedKey} or {weaponType}_{attackMode}");
+                    ExtraAttackPlugin.LogWarning("Config", $"No specific timing found for {unifiedKey} or {weaponType}_{attackMode}");
                 }
                 
                 // Fallback to default if no specific timing found
