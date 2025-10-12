@@ -11,9 +11,9 @@ namespace ExtraAttackSystem
         public enum AttackMode
         {
             Normal,         // Left click (vanilla animation)
-            ea_secondary_Q, // Q key - ea_secondary_Q attack
-            ea_secondary_T, // T key - ea_secondary_T attack
-            ea_secondary_G, // G key - ea_secondary_G attack
+            secondary_Q, // Q key - secondary_Q attack
+            secondary_T, // T key - secondary_T attack
+            secondary_G, // G key - secondary_G attack
         }
 
         // Attack mode tracking
@@ -420,12 +420,6 @@ namespace ExtraAttackSystem
         }
 
         
-        // Stub methods for guard system (disabled)
-        public static void SetEmoteStopGuardWindow(Player player, float duration) { }
-        public static bool IsInEmoteStopGuardWindow(Player player) { return false; }
-        public static void SetWasCrouchingBeforeExtraAttack(Player player, bool wasCrouching) { }
-        public static bool WasCrouchingBeforeExtraAttack(Player player) { return false; }
-        public static void ClearWasCrouchingBeforeExtraAttack(Player player) { }
 
         // Attack bypass management
         private static Dictionary<Player, bool> bypassNextStartAttack = new Dictionary<Player, bool>();

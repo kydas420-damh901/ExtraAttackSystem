@@ -208,12 +208,12 @@ namespace ExtraAttackSystem
             foreach (var weaponType in weaponTypes)
             {
                 // Q/T/G maps for each weapon type
-                if (!ReplacementMap.ContainsKey($"ea_secondary_Q_{weaponType}")) 
-                    ReplacementMap[$"ea_secondary_Q_{weaponType}"] = new Dictionary<string, string>();
-                if (!ReplacementMap.ContainsKey($"ea_secondary_T_{weaponType}")) 
-                    ReplacementMap[$"ea_secondary_T_{weaponType}"] = new Dictionary<string, string>();
-                if (!ReplacementMap.ContainsKey($"ea_secondary_G_{weaponType}")) 
-                    ReplacementMap[$"ea_secondary_G_{weaponType}"] = new Dictionary<string, string>();
+                if (!ReplacementMap.ContainsKey($"{weaponType}_secondary_Q")) 
+                    ReplacementMap[$"{weaponType}_secondary_Q"] = new Dictionary<string, string>();
+                if (!ReplacementMap.ContainsKey($"{weaponType}_secondary_T")) 
+                    ReplacementMap[$"{weaponType}_secondary_T"] = new Dictionary<string, string>();
+                if (!ReplacementMap.ContainsKey($"{weaponType}_secondary_G")) 
+                    ReplacementMap[$"{weaponType}_secondary_G"] = new Dictionary<string, string>();
             }
 
             // Initialize base Q/T/G maps for fallback
@@ -242,16 +242,6 @@ namespace ExtraAttackSystem
 
                 // Load weapon type mappings from YAML files
                 ExtraAttackPlugin.LogInfo("System", "Loading weapon type mappings from YAML files...");
-                try
-                {
-                    AnimationReplacementConfig.LoadWeaponTypesConfig();
-                    ExtraAttackPlugin.LogInfo("System", "Weapon type mappings loaded from YAML files");
-                }
-                catch (Exception ex)
-                {
-                    ExtraAttackPlugin.LogError("System", $"Error loading weapon type mappings in ApplyWeaponTypeSettings: {ex.Message}");
-                    ExtraAttackPlugin.LogError("System", $"Stack trace: {ex.StackTrace}");
-                }
 
                 // Generate combo keys for all pairs of one-handed weapon skills (right x left) - DualWield compatibility
                 var oneHandSkills = new Skills.SkillType[]
@@ -269,38 +259,38 @@ namespace ExtraAttackSystem
                     string weaponType = right.ToString();
                     
                     // Check if weapon type has Q/T/G mappings
-                    bool hasQ = ReplacementMap.ContainsKey(weaponType) && ReplacementMap[weaponType].ContainsKey("ea_secondary_Q");
-                    bool hasT = ReplacementMap.ContainsKey(weaponType) && ReplacementMap[weaponType].ContainsKey("ea_secondary_T");
-                    bool hasG = ReplacementMap.ContainsKey(weaponType) && ReplacementMap[weaponType].ContainsKey("ea_secondary_G");
+                    bool hasQ = ReplacementMap.ContainsKey(weaponType) && ReplacementMap[weaponType].ContainsKey("secondary_Q");
+                    bool hasT = ReplacementMap.ContainsKey(weaponType) && ReplacementMap[weaponType].ContainsKey("secondary_T");
+                    bool hasG = ReplacementMap.ContainsKey(weaponType) && ReplacementMap[weaponType].ContainsKey("secondary_G");
 
                     foreach (var left in oneHandSkills)
                     {
                         // Q-mode combos: copy from weapon type if available
-                        string qComboKey = $"ea_secondary_Q_{right}_Left{left}";
+                        string qComboKey = $"secondary_Q_{right}_Left{left}";
                         if (!ReplacementMap.ContainsKey(qComboKey) && hasQ)
                         {
                             string vanillaClip = GetWeaponAnimationName(weaponType);
-                            string externalClip = ReplacementMap[weaponType]["ea_secondary_Q"];
+                            string externalClip = ReplacementMap[weaponType]["secondary_Q"];
                             ReplacementMap[qComboKey] = new Dictionary<string, string> { { vanillaClip, externalClip } };
                             combosCreated += 1;
                         }
 
                         // T-mode combos: copy from weapon type if available
-                        string tComboKey = $"ea_secondary_T_{right}_Left{left}";
+                        string tComboKey = $"secondary_T_{right}_Left{left}";
                         if (!ReplacementMap.ContainsKey(tComboKey) && hasT)
                         {
                             string vanillaClip = GetWeaponAnimationName(weaponType);
-                            string externalClip = ReplacementMap[weaponType]["ea_secondary_T"];
+                            string externalClip = ReplacementMap[weaponType]["secondary_T"];
                             ReplacementMap[tComboKey] = new Dictionary<string, string> { { vanillaClip, externalClip } };
                             combosCreated += 1;
                         }
 
                         // G-mode combos: copy from weapon type if available
-                        string gComboKey = $"ea_secondary_G_{right}_Left{left}";
+                        string gComboKey = $"secondary_G_{right}_Left{left}";
                         if (!ReplacementMap.ContainsKey(gComboKey) && hasG)
                         {
                             string vanillaClip = GetWeaponAnimationName(weaponType);
-                            string externalClip = ReplacementMap[weaponType]["ea_secondary_G"];
+                            string externalClip = ReplacementMap[weaponType]["secondary_G"];
                             ReplacementMap[gComboKey] = new Dictionary<string, string> { { vanillaClip, externalClip } };
                             combosCreated += 1;
                         }
@@ -319,9 +309,9 @@ namespace ExtraAttackSystem
                 {
                     if (ReplacementMap.ContainsKey(weaponType))
                     {
-                        var qCount = ReplacementMap[weaponType].ContainsKey("ea_secondary_Q") ? 1 : 0;
-                        var tCount = ReplacementMap[weaponType].ContainsKey("ea_secondary_T") ? 1 : 0;
-                        var gCount = ReplacementMap[weaponType].ContainsKey("ea_secondary_G") ? 1 : 0;
+                        var qCount = ReplacementMap[weaponType].ContainsKey("secondary_Q") ? 1 : 0;
+                        var tCount = ReplacementMap[weaponType].ContainsKey("secondary_T") ? 1 : 0;
+                        var gCount = ReplacementMap[weaponType].ContainsKey("secondary_G") ? 1 : 0;
                         
                         ExtraAttackPlugin.LogInfo("System", $"  {weaponType}: Q={qCount}, T={tCount}, G={gCount}");
                     }
@@ -472,8 +462,6 @@ namespace ExtraAttackSystem
         }
 
         // Soft UnityEngine.RuntimeAnimatorController replacement (no Rebind/Update)
-        // 何を: RAC を Rebind/Update せずに差し替え、座り/しゃがみを必要に応じて保持する
-        // なぜ: 差し替え時の立ち上がり等の不要遷移を抑制するため
         public static void SoftReplaceRAC(Animator animator, UnityEngine.RuntimeAnimatorController replace, bool preserveSitCrouch = false)
         {
             try
@@ -506,10 +494,10 @@ namespace ExtraAttackSystem
                     try { if (sitChairHash != -1) prevSitChair = animator.GetBool(sitChairHash); } catch { }
                 }
 
-                // 差し替え（Rebind/Update は行わない）
+                // Replace controller (no Rebind/Update)
                 animator.runtimeAnimatorController = replace;
 
-                // フラグ復元（必要な場合）
+                // Restore flags (if needed)
                 if (preserveSitCrouch)
                 {
                     try { if (crouchHash != -1) animator.SetBool(crouchHash, prevCrouch); } catch { }
@@ -964,7 +952,7 @@ namespace ExtraAttackSystem
                 // ✅ 追加: 空の場合はデフォルト値で初期化
                 if (weaponTypeConfig == null || weaponTypeConfig.WeaponTypes == null || weaponTypeConfig.WeaponTypes.Count == 0)
                 {
-                    ExtraAttackPlugin.LogWarning("System", "weaponTypeConfig is null or empty - creating default mappings");
+                    ExtraAttackPlugin.LogInfo("System", "weaponTypeConfig is null or empty - creating default mappings");
                     CreateDefaultWeaponTypeMappings();
                     return;
                 }
@@ -1041,9 +1029,9 @@ namespace ExtraAttackSystem
                 // Create sample entries for Wooden Greatsword (TwoHandedWeapon type)
                 var sampleWeapons = new[]
                 {
-                    "ea_secondary_Q_THSwordWood",
-                    "ea_secondary_T_THSwordWood", 
-                    "ea_secondary_G_THSwordWood"
+                    "secondary_Q_THSwordWood",
+                    "secondary_T_THSwordWood", 
+                    "secondary_G_THSwordWood"
                 };
 
                 foreach (var weaponKey in sampleWeapons)
@@ -1277,10 +1265,10 @@ namespace ExtraAttackSystem
                         ReplacementMap[weaponType] = new Dictionary<string, string>();
                     }
                     
-                    // Add Q, T, G mappings for each weapon type
-                    ReplacementMap[weaponType]["ea_secondary_Q"] = defaultAnimations[animationIndex++];
-                    ReplacementMap[weaponType]["ea_secondary_T"] = defaultAnimations[animationIndex++];
-                    ReplacementMap[weaponType]["ea_secondary_G"] = defaultAnimations[animationIndex++];
+                    // Add Q, T, G mappings for each weapon type using unified key format
+                    ReplacementMap[weaponType]["secondary_Q"] = defaultAnimations[animationIndex++];
+                    ReplacementMap[weaponType]["secondary_T"] = defaultAnimations[animationIndex++];
+                    ReplacementMap[weaponType]["secondary_G"] = defaultAnimations[animationIndex++];
                     
                     ExtraAttackPlugin.LogInfo("System", $"CreateDefaultWeaponTypeMappings: Added {weaponType} with Q/T/G mappings");
                 }

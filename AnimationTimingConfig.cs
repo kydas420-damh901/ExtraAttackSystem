@@ -201,7 +201,7 @@ namespace ExtraAttackSystem
             return GetTiming(animationName) != null;
         }
 
-        // Extract mode from various attack mode formats and convert to Secondary_{Mode}
+        // Extract mode from various attack mode formats and convert to secondary_{Mode}
         private static string ExtractModeFromAttackMode(string attackMode)
         {
             if (string.IsNullOrEmpty(attackMode))
@@ -209,7 +209,7 @@ namespace ExtraAttackSystem
                 return attackMode;
             }
 
-            // Normalize ea_secondary_ to secondary_ first
+            // Normalize attack mode to secondary_ format
             string normalizedMode = attackMode.Replace("ea_secondary_", "secondary_");
             
             // Handle format: secondary_{Mode}
@@ -267,13 +267,11 @@ namespace ExtraAttackSystem
                 string[] weaponTypes = { "Swords", "Axes", "Clubs", "Spears", "GreatSwords", "BattleAxes", "Polearms", "Knives", "Fists" };
                 foreach (var weaponType in weaponTypes)
                 {
-                    AppendFromWeaponType(weaponType, "Secondary_Q", "Secondary_Q");
-                    AppendFromWeaponType(weaponType, "Secondary_T", "Secondary_T");
-                    AppendFromWeaponType(weaponType, "Secondary_G", "Secondary_G");
+                    AppendFromWeaponType(weaponType, "secondary_Q", "secondary_Q");
+                    AppendFromWeaponType(weaponType, "secondary_T", "secondary_T");
+                    AppendFromWeaponType(weaponType, "secondary_G", "secondary_G");
                 }
 
-                // DEPRECATED: Persist with comments including replacement names
-                // SaveConfigWithComments(mappings); // Disabled - use weapon type config instead
             }
             catch (Exception ex)
             {
@@ -310,9 +308,6 @@ namespace ExtraAttackSystem
                 ExtraAttackPlugin.LogWarning("System", "F6: IndividualWeapons YAML file missing, skipping reload");
             }
             
-            // Apply the reloaded settings to the manager
-            ExtraAttackPlugin.LogInfo("System", "F6: Applying reloaded settings to manager...");
-            AnimationManager.ApplyWeaponTypeSettings();
             ExtraAttackPlugin.LogInfo("System", "F6: AnimationTimingConfig reload completed");
         }
 
@@ -435,10 +430,8 @@ namespace ExtraAttackSystem
                 var sb = new StringBuilder();
                 sb.AppendLine("# ============================================================================");
                 sb.AppendLine("# Extra Attack System - Individual Weapons Attack Config");
-                sb.AppendLine("# å€‹åˆ¥æ­¦å™¨æ”»æ’ƒè¨­å®šãƒ•ã‚¡ã‚¤ãƒ«");
                 sb.AppendLine("# ============================================================================");
                 sb.AppendLine("# Format: IndividualWeapon -> Q/T/G -> Timing Settings");
-                sb.AppendLine("# å½¢å¼: å€‹åˆ¥æ­¦å™¨ -> Q/T/G -> ã‚¿ã‚¤ãƒŸãƒ³ã‚°è¨­å®š");
                 sb.AppendLine("# ============================================================================");
                 sb.AppendLine();
 
@@ -639,7 +632,7 @@ namespace ExtraAttackSystem
             var timing = new AnimationTiming();
             
             // Try to get actual animation clip length from ReplacementMap using unified key format
-            string key = $"{weaponType}_Secondary_{mode}";
+            string key = $"{weaponType}_secondary_{mode}";
             float clipLength = GetAdjustedClipLength(key);
             
             if (clipLength > 0)
@@ -942,7 +935,7 @@ namespace ExtraAttackSystem
             woodenGreatswordQ.TrailOffTiming = 0.70f;
             woodenGreatswordQ.AttackRange = 2.20f;
             woodenGreatswordQ.AttackHeight = 0.90f;
-            individualWeapons["Secondary_Q_THSwordWood"] = woodenGreatswordQ;
+            individualWeapons["secondary_Q_THSwordWood"] = woodenGreatswordQ;
 
             var woodenGreatswordT = new AnimationTiming();
             woodenGreatswordT.HitTiming = 0.60f;
@@ -950,7 +943,7 @@ namespace ExtraAttackSystem
             woodenGreatswordT.TrailOffTiming = 0.70f;
             woodenGreatswordT.AttackRange = 1.90f;
             woodenGreatswordT.AttackHeight = 0.80f;
-            individualWeapons["Secondary_T_THSwordWood"] = woodenGreatswordT;
+            individualWeapons["secondary_T_THSwordWood"] = woodenGreatswordT;
 
             var woodenGreatswordG = new AnimationTiming();
             woodenGreatswordG.HitTiming = 0.65f;
@@ -958,7 +951,7 @@ namespace ExtraAttackSystem
             woodenGreatswordG.TrailOffTiming = 0.70f;
             woodenGreatswordG.AttackRange = 2.40f;
             woodenGreatswordG.AttackHeight = 0.80f;
-            individualWeapons["Secondary_G_THSwordWood"] = woodenGreatswordG;
+            individualWeapons["secondary_G_THSwordWood"] = woodenGreatswordG;
 
             config.IndividualWeapons = individualWeapons;
         }
@@ -1022,8 +1015,8 @@ namespace ExtraAttackSystem
             {
                 var weaponMap = AnimationManager.ReplacementMap[weaponType];
                 
-                // NEW: ãƒ¢ãƒ¼ãƒ‰ã‚­ãƒ¼ (ea_secondary_Q/T/G) ã§ç›´æŽ¥æ¤œç´¢
-                string modeKey = $"Secondary_{mode}";
+                // NEW: ãƒ¢ãƒ¼ãƒ‰ã‚­ãƒ¼ (secondary_Q/T/G) ã§ç›´æŽ¥æ¤œç´¢
+                string modeKey = $"secondary_{mode}";
                 if (weaponMap.ContainsKey(modeKey))
                 {
                     string actualAnimation = weaponMap[modeKey];
@@ -1122,21 +1115,21 @@ namespace ExtraAttackSystem
                     sb.AppendLine($"  # ========== {weaponType.Key} ==========");
                     sb.AppendLine($"  {weaponType.Key}:");
                     
-                    // Sort by Q, T, G order (unified format: {WeaponType}_Secondary_{Mode})
+                    // Sort by Q, T, G order (unified format: {WeaponType}_secondary_{Mode})
                     var sortedModes = weaponType.Value.OrderBy(kvp => 
-                        kvp.Key.Contains("_Secondary_Q") ? 0 : 
-                        kvp.Key.Contains("_Secondary_T") ? 1 : 
-                        kvp.Key.Contains("_Secondary_G") ? 2 : 3);
+                        kvp.Key.Contains("_secondary_Q") ? 0 : 
+                        kvp.Key.Contains("_secondary_T") ? 1 : 
+                        kvp.Key.Contains("_secondary_G") ? 2 : 3);
                     
                     foreach (var mode in sortedModes)
                     {
                         var timing = mode.Value;
                         
                         // Extract mode (Q/T/G) and get replacement animation name
-                        string modeKey = mode.Key.Replace($"{weaponType.Key}_Secondary_", "");
+                        string modeKey = mode.Key.Replace($"{weaponType.Key}_secondary_", "");
                         string replacementAnimation = GetReplacementAnimationName(weaponType.Key, modeKey);
                         
-                        sb.AppendLine($"    # ea_secondary_{modeKey} - ExtraAttack 1 -> {replacementAnimation}");
+                        sb.AppendLine($"    # secondary_{modeKey} - ExtraAttack 1 -> {replacementAnimation}");
                         sb.AppendLine($"    {mode.Key}:");
                         sb.AppendLine($"      HitTiming: {timing.HitTiming:F2}  # Hit event timing");
                         sb.AppendLine($"      TrailOnTiming: {timing.TrailOnTiming:F2}  # TrailOn event timing");
@@ -1180,7 +1173,7 @@ namespace ExtraAttackSystem
                 // Try weapon type specific using unified key format
                 if (weaponTypeConfig.WeaponTypes.TryGetValue(weaponType, out var weaponTypeSettings))
                 {
-                    string unifiedKey = $"{weaponType}_Secondary_{attackMode}";
+                    string unifiedKey = $"{weaponType}_secondary_{attackMode}";
                     if (weaponTypeSettings.TryGetValue(unifiedKey, out var typeTiming))
                     {
                         ExtraAttackPlugin.LogInfo("Config", $"Using weapon type setting: {unifiedKey}");
@@ -1249,7 +1242,7 @@ namespace ExtraAttackSystem
                         ExtraAttackPlugin.LogInfo("Config", $"Available modes: {string.Join(", ", weaponTypeDict.Keys)}");
                     }
                     
-                    // Try unified key format: {WeaponType}_Secondary_{Mode}
+                    // Try unified key format: {WeaponType}_secondary_{Mode}
                     string mode = ExtractModeFromAttackMode(attackMode);
                     string unifiedKey = $"{weaponType}_{mode}";
                     if (weaponTypeDict?.TryGetValue(unifiedKey, out AnimationTiming timing) == true)

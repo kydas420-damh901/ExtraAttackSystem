@@ -35,17 +35,17 @@ namespace ExtraAttackSystem
                 // Prefer style-based suffix, then fallback to legacy suffixes (_Q/_T/_G), then no suffix
                 string styleSuffix = attackMode switch
                 {
-                    ExtraAttackUtils.AttackMode.ea_secondary_Q => "_ea_secondary_Q",
-                    ExtraAttackUtils.AttackMode.ea_secondary_T => "_ea_secondary_T",
-                    ExtraAttackUtils.AttackMode.ea_secondary_G => "_ea_secondary_G",
+                    ExtraAttackUtils.AttackMode.secondary_Q => "_secondary_Q",
+                    ExtraAttackUtils.AttackMode.secondary_T => "_secondary_T",
+                    ExtraAttackUtils.AttackMode.secondary_G => "_secondary_G",
                     _ => string.Empty
                 };
 
                 string legacySuffix = attackMode switch
                 {
-                    ExtraAttackUtils.AttackMode.ea_secondary_Q => "_Q",
-                    ExtraAttackUtils.AttackMode.ea_secondary_T => "_T",
-                    ExtraAttackUtils.AttackMode.ea_secondary_G => "_G",
+                    ExtraAttackUtils.AttackMode.secondary_Q => "_Q",
+                    ExtraAttackUtils.AttackMode.secondary_T => "_T",
+                    ExtraAttackUtils.AttackMode.secondary_G => "_G",
                     _ => string.Empty
                 };
 
@@ -195,7 +195,6 @@ namespace ExtraAttackSystem
                             {
                                 parametersLogged = true;
                                 ExtraAttackPlugin.LogInfo("System", "=== DEBUG: ANIMATOR PARAMETERS ===");
-                                // Removed stray character causing compile error
                                 AnimatorControllerParameter[] parameters = ___m_animator.parameters;
                                 ExtraAttackPlugin.LogInfo("System", $"Total parameters: {parameters.Length}");
 

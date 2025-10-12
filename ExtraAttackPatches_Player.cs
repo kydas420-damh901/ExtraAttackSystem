@@ -96,7 +96,6 @@ namespace ExtraAttackSystem
                             var currentMode = ExtraAttackUtils.GetAttackMode(__instance);
                             if (currentMode != ExtraAttackUtils.AttackMode.Normal)
                             {
-                                // Apply Original AOC to revert style-specific controller
                                 if (ExtraAttackPatches_Core.TryGetPlayerAnimator(__instance, out Animator? animator) && animator != null)
                                 {
                                     if (AnimationManager.CustomRuntimeControllers.ContainsKey("Original"))
@@ -122,26 +121,23 @@ namespace ExtraAttackSystem
                                         // Wakeup pre-guard removed per user request (no wakeup force-false; no ZDO override)
                                         
                                         // Use centralized revert helper to avoid duplication and maintain guards
-                                        // AOC revert no longer needed - AOC is set at equipment change time
                                         
                                         // Detailed diagnostics on revert
                                         int crouchHash = ZSyncAnimation.GetHash("crouching");
                                         bool crouchBeforeReassert = false;
                                         try { crouchBeforeReassert = animator != null && animator.GetBool(crouchHash); } catch { }
-                                        // Removed wakeupTimer diagnostics per cleanup request
 
                                         // Extra diagnostics: current crouch toggle state before reassert
                                         var fiCT = HarmonyLib.AccessTools.Field(typeof(Player), "m_crouchToggled");
                                         bool crouchToggleState = false;
                                         try { if (fiCT != null) crouchToggleState = (bool)fiCT.GetValue(__instance); } catch { }
                                         // Reassert crouch after revert if player was crouching before Extra attack OR current toggle indicates crouch
-                                        if (ExtraAttackUtils.WasCrouchingBeforeExtraAttack(__instance) || crouchToggleState)
+                                        if (crouchToggleState)
                                         {
                                             // Ensure animator crouching bool is asserted immediately to avoid one-frame stand-up during controller revert
                                             int crouchHash2 = ZSyncAnimation.GetHash("crouching");
                                             try { animator?.SetBool(crouchHash2, true); } catch { }
                                             try { __instance.SetCrouch(true); } catch { }
-                                            ExtraAttackUtils.ClearWasCrouchingBeforeExtraAttack(__instance);
                                             ExtraAttackPlugin.LogInfo("AOC", $"Reasserted crouch after revert; crouchBefore={crouchBeforeReassert} (toggle={crouchToggleState})");
                                         }
                                         else
@@ -172,7 +168,7 @@ namespace ExtraAttackSystem
                     }
                     wasInAttack[__instance] = currentlyInAttack;
 
-                    // Q key: Extra Attack (secondary attack)
+                    // Q key: Extra Attack (secondary_Q)
                     if (ExtraAttackPlugin.IsExtraAttackKey_QPressed())
                     {
                         if (!extraAttackTriggered && CanPerformExtraAttack(__instance))
@@ -186,7 +182,7 @@ namespace ExtraAttackSystem
                         extraAttackTriggered = false;
                     }
 
-                    // T key: Custom Attack 1 (ea_secondary_T)
+                    // T key: Custom Attack 1 (secondary_T)
                     if (ExtraAttackPlugin.IsExtraAttackKey_TPressed() && !testButton2Pressed)
                     {
                         if (CanPerformExtraAttack(__instance))
@@ -200,7 +196,7 @@ namespace ExtraAttackSystem
                         testButton2Pressed = false;
                     }
 
-                    // G key: Custom Attack 2 (ea_secondary_G)
+                    // G key: Custom Attack 2 (secondary_G)
                     if (ExtraAttackPlugin.IsExtraAttackKey_GPressed() && !testButton1Pressed)
                     {
                         if (CanPerformExtraAttack(__instance))
@@ -287,9 +283,9 @@ namespace ExtraAttackSystem
                     return false;
                 }
 
-                if (ExtraAttackUtils.IsPlayerOnCooldown(player, ExtraAttackUtils.AttackMode.ea_secondary_Q))
+                if (ExtraAttackUtils.IsPlayerOnCooldown(player, ExtraAttackUtils.AttackMode.secondary_Q))
                 {
-                    float remaining = ExtraAttackUtils.GetPlayerCooldownRemaining(player, ExtraAttackUtils.AttackMode.ea_secondary_Q);
+                    float remaining = ExtraAttackUtils.GetPlayerCooldownRemaining(player, ExtraAttackUtils.AttackMode.secondary_Q);
                     ExtraAttackUtils.ShowMessage(player, "extra_attack_cooldown", remaining.ToString("F1"));
                     return false;
                 }
@@ -308,23 +304,10 @@ namespace ExtraAttackSystem
                 }
 
                 // NEW: per-style stamina check for Q using effective cost
-                float staminaCost1 = ExtraAttackUtils.GetEffectiveStaminaCost(player, weapon, ExtraAttackUtils.AttackMode.ea_secondary_Q);
+                float staminaCost1 = ExtraAttackUtils.GetEffectiveStaminaCost(player, weapon, ExtraAttackUtils.AttackMode.secondary_Q);
                 if (player.GetStamina() < staminaCost1)
                 {
                     ExtraAttackUtils.ShowMessage(player, "extra_attack_no_stamina");
-                    // Start emote_stop guard window to suppress stand-up when stamina is insufficient
-                    if (ExtraAttackPlugin.EnableInsufficientStaminaEmoteStopGuard.Value)
-                    {
-                        float guardSec = Math.Max(0f, ExtraAttackPlugin.InsufficientStaminaEmoteStopGuardSeconds.Value);
-                        if (guardSec > 0f)
-                        {
-                            ExtraAttackUtils.SetEmoteStopGuardWindow(player, guardSec);
-                            if (ExtraAttackPlugin.DebugAOCOperations.Value)
-                            {
-                                ExtraAttackPlugin.LogInfo("AOC", $"Insufficient stamina (Q): emote_stop guard started: {guardSec:F2}s");
-                            }
-                        }
-                    }
                     return false;
                 }
 
@@ -344,7 +327,7 @@ namespace ExtraAttackSystem
                     return false;
                 }
 
-                var mode = buttonName == "T" ? ExtraAttackUtils.AttackMode.ea_secondary_T : ExtraAttackUtils.AttackMode.ea_secondary_G;
+                var mode = buttonName == "T" ? ExtraAttackUtils.AttackMode.secondary_T : ExtraAttackUtils.AttackMode.secondary_G;
                 if (ExtraAttackUtils.IsPlayerOnCooldown(player, mode))
                 {
                     float remaining = ExtraAttackUtils.GetPlayerCooldownRemaining(player, mode);
@@ -371,19 +354,6 @@ namespace ExtraAttackSystem
                 if (player.GetStamina() < staminaCost2)
                 {
                     ExtraAttackUtils.ShowMessage(player, "extra_attack_no_stamina");
-                    // Start emote_stop guard window to suppress stand-up when stamina is insufficient
-                    if (ExtraAttackPlugin.EnableInsufficientStaminaEmoteStopGuard.Value)
-                    {
-                        float guardSec = Math.Max(0f, ExtraAttackPlugin.InsufficientStaminaEmoteStopGuardSeconds.Value);
-                        if (guardSec > 0f)
-                        {
-                            ExtraAttackUtils.SetEmoteStopGuardWindow(player, guardSec);
-                            if (ExtraAttackPlugin.DebugAOCOperations.Value)
-                            {
-                                ExtraAttackPlugin.LogInfo("AOC", $"Insufficient stamina ({buttonName}): emote_stop guard started: {guardSec:F2}s");
-                            }
-                        }
-                    }
                     return false;
                 }
 
@@ -433,7 +403,7 @@ namespace ExtraAttackSystem
                         ExtraAttackPatches_Animation.InitializeAOC(player, animator);
                     }
 
-                    var mode = buttonName == "T" ? ExtraAttackUtils.AttackMode.ea_secondary_T : ExtraAttackUtils.AttackMode.ea_secondary_G;
+                    var mode = buttonName == "T" ? ExtraAttackUtils.AttackMode.secondary_T : ExtraAttackUtils.AttackMode.secondary_G;
                     ExtraAttackUtils.SetAttackMode(player, mode);
 
                     // NOTE: Removed: Do not call Player.StopEmote() before attack to avoid emoteID change -> UpdateEmote emote_stop
@@ -449,7 +419,6 @@ namespace ExtraAttackSystem
                     {
                         try { crouchTogglePre = player.IsCrouching(); } catch { }
                     }
-                    ExtraAttackUtils.SetWasCrouchingBeforeExtraAttack(player, crouchTogglePre);
                     if (ExtraAttackPlugin.DebugAOCOperations.Value)
                     {
                         ExtraAttackPlugin.LogInfo("AOC", $"[{buttonName}] Pre-ApplyAOC: crouchToggle={crouchTogglePre} stamina={player.GetStamina():F1}");
@@ -457,26 +426,16 @@ namespace ExtraAttackSystem
                     
                     // AOC is already set at equipment change time - no need to switch during attack
 
-                    // Removed: Unnecessary HUD message about AC application
 
                     ExtraAttackUtils.SetPlayerCooldown(player, mode);
 
                     // Diagnostic: runtime animator controller state just before StartAttack
                     var rac = animator.runtimeAnimatorController;
 
-                    // Apply pre-generated AOC for the attack mode
-                    ExtraAttackPatches_Animation.ApplyStyleAOC(player, animator, mode);
-                    
-                    // Debug: Log current animator state after AOC application
-                    var racAfter = animator.runtimeAnimatorController;
-                    ExtraAttackPlugin.LogInfo("AOC", $"After ApplyStyleAOC: RACType={(racAfter != null ? racAfter.GetType().Name : "null")} RACName={(racAfter is AnimatorOverrideController ? "AnimatorOverrideController" : racAfter?.name ?? "null")}");
 
                     // Keep vanilla chain: do not clear queued timer or primary hold
 
                     // Keep vanilla chain: do not manually call ResetChain here; Attack.Start handles it in vanilla
-
-                    // âœ… å‰Šé™¤: é‡è¤‡AOCé©ç”¨ï¼ˆ468è¡Œç›®ã§æ—¢ã«é©ç”¨æ¸ˆã¿ï¼‰
-                    // ExtraAttackPatches_Animation.ApplyStyleAOC(player, animator, mode);
                     
                     // Mark bypass for our own StartAttack call
                     ExtraAttackUtils.MarkBypassNextStartAttack(player);
@@ -531,15 +490,15 @@ namespace ExtraAttackSystem
             // NEW: Separate methods for Q/T/G
             private static void TriggerExtraAttack_Q(Player player)
             {
-                TriggerExtraAttackWithMode(player, ExtraAttackUtils.AttackMode.ea_secondary_Q);
+                TriggerExtraAttackWithMode(player, ExtraAttackUtils.AttackMode.secondary_Q);
             }
             private static void TriggerExtraAttack_T(Player player)
             {
-                TriggerExtraAttackWithMode(player, ExtraAttackUtils.AttackMode.ea_secondary_T);
+                TriggerExtraAttackWithMode(player, ExtraAttackUtils.AttackMode.secondary_T);
             }
             private static void TriggerExtraAttack_G(Player player)
             {
-                TriggerExtraAttackWithMode(player, ExtraAttackUtils.AttackMode.ea_secondary_G);
+                TriggerExtraAttackWithMode(player, ExtraAttackUtils.AttackMode.secondary_G);
             }
 
             private static void TriggerExtraAttackWithMode(Player player, ExtraAttackUtils.AttackMode mode)
@@ -583,11 +542,9 @@ namespace ExtraAttackSystem
                         ExtraAttackPatches_Animation.InitializeAOC(player, animator);
                     }
 
-                    // Set the specified mode instead of always using ea_secondary_Q
+                    // Set the specified mode instead of always using secondary_Q
                     ExtraAttackUtils.SetAttackMode(player, mode);
                     
-                    // Removed per vanilla compliance: Do not stop emote before attack
-                    // Reason: Pre-attack StopEmote triggers emote_stop and forces 'Standing Up from sit'.
                     // The vanilla SetControls will handle emote state; we avoid explicit intervention here.
 
                     // Capture crouch toggle state (vanilla Player.m_crouchToggled) before applying style AOC to restore after attack
@@ -601,38 +558,18 @@ namespace ExtraAttackSystem
                     {
                         try { crouchTogglePre = player.IsCrouching(); } catch { }
                     }
-                    ExtraAttackUtils.SetWasCrouchingBeforeExtraAttack(player, crouchTogglePre);
                     if (ExtraAttackPlugin.DebugAOCOperations.Value)
                     {
                         ExtraAttackPlugin.LogInfo("AOC", $"[{mode}] Pre-ApplyAOC: crouchToggle={crouchTogglePre} stamina={player.GetStamina():F1}");
                     }
                     
-                    // NEW: Immediately assert crouching animator parameter before StartAttack when player was crouching before extra
-                    try
-                    {
-                        if (ExtraAttackUtils.WasCrouchingBeforeExtraAttack(player))
-                        {
-                            int crouchingHashPreAttack = ZSyncAnimation.GetHash("crouching");
-                            animator.SetBool(crouchingHashPreAttack, true);
-                        }
-                    }
-                    catch { }
 
-                    // Removed: Unnecessary HUD message about AC application
                     
                     ExtraAttackUtils.SetPlayerCooldown(player, mode);
 
                     // Mark bypass for our own StartAttack call
                     ExtraAttackUtils.MarkBypassNextStartAttack(player);
                     player.StartAttack(null, true);
-                    
-                    // âœ… ä¿®æ­£: StartAttackå¾Œã«AOCé©ç”¨ï¼ˆã‚¢ãƒ‹ãƒ¡ãƒ¼ã‚·ãƒ§ãƒ³é·ç§»ç«¶åˆã‚’å›žé¿ï¼‰
-                    ExtraAttackPatches_Animation.ApplyStyleAOC(player, animator, mode);
-                    
-                    // Debug: Log current animator state after AOC application
-                    var racDebug = animator.runtimeAnimatorController;
-                    string acNameDebug = (racDebug is AnimatorOverrideController) ? "AnimatorOverrideController" : (racDebug?.name ?? "null");
-                    ExtraAttackPlugin.LogInfo("AOC", $"After ApplyStyleAOC ({mode}): RACType={(racDebug != null ? racDebug.GetType().Name : "null")} RACName={acNameDebug}");
 
                     // Diagnostics: capture animator parameters immediately after StartAttack
                     ExtraAttackPatches_Core.LogAnimatorParameters(player, $"[{mode}] After StartAttack");
@@ -654,7 +591,6 @@ namespace ExtraAttackSystem
                 try
                 {
                     // Only adjust local player; prevent vanilla from forcing crouching=false during attack when extra mode is active
-                    // Crouch guard system disabled - run vanilla behavior
                     return true;
                 }
                 catch (System.Exception ex)
@@ -683,9 +619,7 @@ namespace ExtraAttackSystem
                         {
                             try { crouchToggle = (bool)fiCrouch.GetValue(__instance); } catch { }
                         }
-                        bool crouchRecorded = false;
-                        try { crouchRecorded = ExtraAttackUtils.WasCrouchingBeforeExtraAttack(__instance); } catch { }
-                        if (__instance.InAttack() && ExtraAttackUtils.IsPlayerInExtraAttack(__instance) && (crouchToggle || crouchRecorded))
+                        if (__instance.InAttack() && (crouchToggle))
                          {
                              // Force crouching animator bool to remain true during Extra attack to avoid stand-up motion
                              // Avoid accessing private Player.s_crouching; use ZSyncAnimation.GetHash("crouching")
@@ -712,7 +646,6 @@ namespace ExtraAttackSystem
                 {
                     if (__instance == null || __instance != Player.m_localPlayer)
                         return;
-                    // Crouch guard system disabled - no processing needed
                     return;
                 }
                 catch (System.Exception ex)
@@ -788,9 +721,9 @@ namespace ExtraAttackSystem
                     ExtraAttackPatches_Animation.InitializeAOC(player, animator);
                     
                     // Pre-generate Q/T/G AOCs for current equipment (generation only, no application)
-                    ExtraAttackPatches_Animation.BuildOrGetAOCFor(player, animator, ExtraAttackUtils.AttackMode.ea_secondary_Q);
-                    ExtraAttackPatches_Animation.BuildOrGetAOCFor(player, animator, ExtraAttackUtils.AttackMode.ea_secondary_T);
-                    ExtraAttackPatches_Animation.BuildOrGetAOCFor(player, animator, ExtraAttackUtils.AttackMode.ea_secondary_G);
+                    ExtraAttackPatches_Animation.BuildOrGetAOCFor(player, animator, ExtraAttackUtils.AttackMode.secondary_Q);
+                    ExtraAttackPatches_Animation.BuildOrGetAOCFor(player, animator, ExtraAttackUtils.AttackMode.secondary_T);
+                    ExtraAttackPatches_Animation.BuildOrGetAOCFor(player, animator, ExtraAttackUtils.AttackMode.secondary_G);
                     
                     if (ExtraAttackPlugin.DebugAOCOperations.Value)
                     {
@@ -811,8 +744,6 @@ namespace ExtraAttackSystem
             {
                 if (ExtraAttackPatches_Core.TryGetPlayerAnimator(player, out Animator? animator) && animator != null)
                 {
-                    // AOC is now set at equipment change time - no need to revert
-                    // ExtraAttackPatches_Animation.RevertStyleAOC(player, animator);
                     
                     if (ExtraAttackPlugin.DebugAOCOperations.Value)
                     {

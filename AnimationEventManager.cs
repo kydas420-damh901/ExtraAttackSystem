@@ -111,9 +111,9 @@ namespace ExtraAttackSystem
             {
                 string mapKey = entry.Key;
                 string? suffix = null;
-                if (mapKey.StartsWith("ea_secondary_Q", System.StringComparison.Ordinal)) suffix = "secondary_Q";
-                else if (mapKey.StartsWith("ea_secondary_T", System.StringComparison.Ordinal)) suffix = "secondary_T";
-                else if (mapKey.StartsWith("ea_secondary_G", System.StringComparison.Ordinal)) suffix = "secondary_G";
+                if (mapKey.StartsWith("secondary_Q", System.StringComparison.Ordinal)) suffix = "secondary_Q";
+                else if (mapKey.StartsWith("secondary_T", System.StringComparison.Ordinal)) suffix = "secondary_T";
+                else if (mapKey.StartsWith("secondary_G", System.StringComparison.Ordinal)) suffix = "secondary_G";
                 else continue; // ignore legacy style maps here
         
                 foreach (var kv in entry.Value)

@@ -43,8 +43,6 @@ namespace ExtraAttackSystem
                     }
                 }
         
-                // Style1/2/3 AOCs are no longer needed - using ea_secondary_Q/T/G directly
-        
                 // Prewarm AOCs for style maps to avoid first-press lag
                 if (!s_AOCPrewarmed && player != null)
                 {
@@ -70,16 +68,16 @@ namespace ExtraAttackSystem
             }
         }
 
-        // NEW: Prewarm AOCs for each style to reduce first-press lag and populate caches
+        // Prewarm AOCs for each style to reduce first-press lag and populate caches
         private static void PrewarmAOCForStyles(Player player, Animator animator)
         {
             // Pre-generate AOCs only for weapons that have YAML configuration
             try
             {
                 // Pre-generate base weapon type AOCs (these are always needed)
-                BuildOrGetAOCFor(player, animator, ExtraAttackUtils.AttackMode.ea_secondary_Q);
-                BuildOrGetAOCFor(player, animator, ExtraAttackUtils.AttackMode.ea_secondary_T);
-                BuildOrGetAOCFor(player, animator, ExtraAttackUtils.AttackMode.ea_secondary_G);
+                BuildOrGetAOCFor(player, animator, ExtraAttackUtils.AttackMode.secondary_Q);
+                BuildOrGetAOCFor(player, animator, ExtraAttackUtils.AttackMode.secondary_T);
+                BuildOrGetAOCFor(player, animator, ExtraAttackUtils.AttackMode.secondary_G);
                 
                 
                 // Individual weapon AOCs will be generated on-demand when equipment changes
@@ -103,9 +101,9 @@ namespace ExtraAttackSystem
                 // Map attack mode to unified secondary suffix
                 string secondarySuffix = mode switch
                 {
-                    ExtraAttackUtils.AttackMode.ea_secondary_Q => "_secondary_Q",
-                    ExtraAttackUtils.AttackMode.ea_secondary_T => "_secondary_T",
-                    ExtraAttackUtils.AttackMode.ea_secondary_G => "_secondary_G",
+                    ExtraAttackUtils.AttackMode.secondary_Q => "_secondary_Q",
+                    ExtraAttackUtils.AttackMode.secondary_T => "_secondary_T",
+                    ExtraAttackUtils.AttackMode.secondary_G => "_secondary_G",
                     _ => string.Empty
                 };
         
@@ -175,9 +173,9 @@ namespace ExtraAttackSystem
                 }
                 string expectedPrefix = mode switch
                 {
-                    ExtraAttackUtils.AttackMode.ea_secondary_Q => "ea_secondary_Q",
-                    ExtraAttackUtils.AttackMode.ea_secondary_T => "ea_secondary_T",
-                    ExtraAttackUtils.AttackMode.ea_secondary_G => "ea_secondary_G",
+                    ExtraAttackUtils.AttackMode.secondary_Q => "secondary_Q",
+                    ExtraAttackUtils.AttackMode.secondary_T => "secondary_T",
+                    ExtraAttackUtils.AttackMode.secondary_G => "secondary_G",
                     _ => string.Empty
                 };
 
@@ -205,9 +203,9 @@ namespace ExtraAttackSystem
                 foreach (var entry in AnimationManager.ReplacementMap)
                 {
                     string key = entry.Key;
-                    string suffix = key.StartsWith("ea_secondary_Q", StringComparison.Ordinal) ? "_ea_secondary_Q" :
-                                    key.StartsWith("ea_secondary_T", StringComparison.Ordinal) ? "_ea_secondary_T" :
-                                    key.StartsWith("ea_secondary_G", StringComparison.Ordinal) ? "_ea_secondary_G" :
+                    string suffix = key.StartsWith("secondary_Q", StringComparison.Ordinal) ? "_secondary_Q" :
+                                    key.StartsWith("secondary_T", StringComparison.Ordinal) ? "_secondary_T" :
+                                    key.StartsWith("secondary_G", StringComparison.Ordinal) ? "_secondary_G" :
                                     key.StartsWith("ea_secondary", StringComparison.Ordinal) ? "_ea_secondary" : string.Empty;
 
                     foreach (var kv in entry.Value)
@@ -247,7 +245,7 @@ namespace ExtraAttackSystem
                 // Check if individual weapon has YAML configuration before generating AOC
                 if (!string.IsNullOrEmpty(rightIdent))
                 {
-                    string modePrefix = mode == ExtraAttackUtils.AttackMode.ea_secondary_Q ? "ea_secondary_Q" : mode == ExtraAttackUtils.AttackMode.ea_secondary_T ? "ea_secondary_T" : "ea_secondary_G";
+                    string modePrefix = mode == ExtraAttackUtils.AttackMode.secondary_Q ? "secondary_Q" : mode == ExtraAttackUtils.AttackMode.secondary_T ? "secondary_T" : "secondary_G";
                     string individualWeaponKey = $"{modePrefix}_{rightIdent}";
                     
                     // Only generate individual weapon AOC if it exists in YAML
@@ -264,7 +262,7 @@ namespace ExtraAttackSystem
                 // Create item/type specific maps as needed based on current equipment
                 EnsureItemStyleMaps(rightSkill, leftSkill, leftIsShield, leftIsTorch, rightIdent);
                 // NEW: Ensure secondary maps exist (item/type/left variants) for current equipment
-                string secondaryPrefix = mode == ExtraAttackUtils.AttackMode.ea_secondary_Q ? "ea_secondary_Q" : mode == ExtraAttackUtils.AttackMode.ea_secondary_T ? "ea_secondary_T" : "ea_secondary_G";
+                string secondaryPrefix = mode == ExtraAttackUtils.AttackMode.secondary_Q ? "secondary_Q" : mode == ExtraAttackUtils.AttackMode.secondary_T ? "secondary_T" : "secondary_G";
                 EnsureItemSecondaryMaps(rightSkill, leftSkill, leftIsShield, leftIsTorch, rightIdent, secondaryPrefix);
 
                 // NEW: Prefer secondary_Q/T/G maps first, fallback to existing style maps
@@ -274,10 +272,10 @@ namespace ExtraAttackSystem
                 // Attempt secondary selection using weapon type structure
                 {
                     string currentWeaponType = GetWeaponTypeFromSkillType(rightSkill, right);
-                    string modeKey = secondaryPrefix; // ea_secondary_Q, ea_secondary_T, ea_secondary_G
+                    string modeKey = secondaryPrefix; // secondary_Q, secondary_T, secondary_G
                     
                     // Check if weapon type has the mode mapping
-                    // âœ… ä¿®æ­£: ç›´æŽ¥ãƒ¢ãƒ¼ãƒ‰ã‚­ãƒ¼ï¼ˆea_secondary_Q/T/Gï¼‰ã§æ¤œç´¢
+                    // âœ… ä¿®æ­£: ç›´æŽ¥ãƒ¢ãƒ¼ãƒ‰ã‚­ãƒ¼ï¼ˆsecondary_Q/T/Gï¼‰ã§æ¤œç´¢
                     bool hasWeaponTypeMapping = AnimationManager.ReplacementMap.ContainsKey(currentWeaponType) && 
                                               AnimationManager.ReplacementMap[currentWeaponType].ContainsKey(secondaryPrefix);
                     
@@ -333,29 +331,29 @@ namespace ExtraAttackSystem
                 {
                     switch (mode)
                     {
-                        case ExtraAttackUtils.AttackMode.ea_secondary_Q:
-                            // Prefer item-specific map; fallback to weapon-type map if available; else generic style1
-                            string typeKey1 = AnimationManager.ReplacementMap.ContainsKey($"ea_secondary_Q_{rightSkill}") ? $"ea_secondary_Q_{rightSkill}" : "ea_secondary_Q";
-                            baseKey = string.IsNullOrEmpty(rightIdent) ? typeKey1 : $"ea_secondary_Q_{rightIdent}";
+                        case ExtraAttackUtils.AttackMode.secondary_Q:
+                            // Prefer item-specific map; fallback to weapon-type map if available
+                            string typeKey1 = AnimationManager.ReplacementMap.ContainsKey($"secondary_Q_{rightSkill}") ? $"secondary_Q_{rightSkill}" : "secondary_Q";
+                            baseKey = string.IsNullOrEmpty(rightIdent) ? typeKey1 : $"secondary_Q_{rightIdent}";
                             if (!AnimationManager.ReplacementMap.ContainsKey(baseKey) || AnimationManager.ReplacementMap[baseKey].Count == 0)
                             {
                                 baseKey = typeKey1;
                             }
                             break;
-                        case ExtraAttackUtils.AttackMode.ea_secondary_T:
+                        case ExtraAttackUtils.AttackMode.secondary_T:
                             {
-                                string typeKey2 = AnimationManager.ReplacementMap.ContainsKey($"ea_secondary_T_{rightSkill}") ? $"ea_secondary_T_{rightSkill}" : "ea_secondary_T_Swords";
-                                baseKey = string.IsNullOrEmpty(rightIdent) ? typeKey2 : $"ea_secondary_T_{rightIdent}";
+                                string typeKey2 = AnimationManager.ReplacementMap.ContainsKey($"secondary_T_{rightSkill}") ? $"secondary_T_{rightSkill}" : "secondary_T_Swords";
+                                baseKey = string.IsNullOrEmpty(rightIdent) ? typeKey2 : $"secondary_T_{rightIdent}";
                                 if (!AnimationManager.ReplacementMap.ContainsKey(baseKey) || AnimationManager.ReplacementMap[baseKey].Count == 0)
                                 {
                                     baseKey = typeKey2;
                                 }
                             }
                             break;
-                        case ExtraAttackUtils.AttackMode.ea_secondary_G:
+                        case ExtraAttackUtils.AttackMode.secondary_G:
                             {
-                                string typeKey3 = AnimationManager.ReplacementMap.ContainsKey($"ea_secondary_G_{rightSkill}") ? $"ea_secondary_G_{rightSkill}" : "ea_secondary_G_Swords";
-                                baseKey = string.IsNullOrEmpty(rightIdent) ? typeKey3 : $"ea_secondary_G_{rightIdent}";
+                                string typeKey3 = AnimationManager.ReplacementMap.ContainsKey($"secondary_G_{rightSkill}") ? $"secondary_G_{rightSkill}" : "secondary_G_Swords";
+                                baseKey = string.IsNullOrEmpty(rightIdent) ? typeKey3 : $"secondary_G_{rightIdent}";
                                 if (!AnimationManager.ReplacementMap.ContainsKey(baseKey) || AnimationManager.ReplacementMap[baseKey].Count == 0)
                                 {
                                     baseKey = typeKey3;
@@ -363,7 +361,7 @@ namespace ExtraAttackSystem
                             }
                             break;
                         default:
-                            baseKey = "ea_secondary_Q";
+                            baseKey = "secondary_Q";
                             break;
                     }
 
@@ -403,12 +401,12 @@ namespace ExtraAttackSystem
                 {
                     var weaponTypeMap = AnimationManager.ReplacementMap[baseKey];
                     
-                    // NEW: ç›´æŽ¥ãƒ¢ãƒ¼ãƒ‰ã‚­ãƒ¼ï¼ˆea_secondary_Q/T/Gï¼‰ã§æ¤œç´¢
+                    // NEW: ç›´æŽ¥ãƒ¢ãƒ¼ãƒ‰ã‚­ãƒ¼ï¼ˆsecondary_Q/T/Gï¼‰ã§æ¤œç´¢
                     if (weaponTypeMap.ContainsKey(secondaryPrefix))
                     {
                         string externalClip = weaponTypeMap[secondaryPrefix];
                         // ãƒãƒ‹ãƒ©ã‚¯ãƒªãƒƒãƒ—åã‚’å–å¾—ã—ã¦ãƒžãƒƒãƒ”ãƒ³ã‚°ã‚’ä½œæˆ
-                        string modeKey = secondaryPrefix.Replace("ea_secondary_", "");
+                        string modeKey = secondaryPrefix.Replace("secondary_", "");
                         string vanillaClip = GetVanillaClipName(baseKey, modeKey);
                         map = new Dictionary<string, string> { { vanillaClip, externalClip } };
                     }
@@ -461,7 +459,7 @@ namespace ExtraAttackSystem
                 }
 
                 // Cache per mode + weapon type + resolved key (equipment-specific)
-                string styleKey = mode == ExtraAttackUtils.AttackMode.ea_secondary_Q ? "ea_secondary_Q" : mode == ExtraAttackUtils.AttackMode.ea_secondary_T ? "ea_secondary_T" : "ea_secondary_G";
+                string styleKey = mode == ExtraAttackUtils.AttackMode.secondary_Q ? "secondary_Q" : mode == ExtraAttackUtils.AttackMode.secondary_T ? "secondary_T" : "secondary_G";
                 // Include base controller identity and weapon type to avoid cache collisions across different weapon controllers
                 string baseId = original != null ? (original.name ?? "null") : "null";
                 string cacheWeaponType = GetWeaponTypeFromSkillType(rightSkill, right);
@@ -602,51 +600,51 @@ namespace ExtraAttackSystem
                     return AnimationManager.ReplacementMap[targetKey].Count > 0;
                 }
         
-                // Style1 base and combos
-                Ensure($"ea_secondary_Q_{rightIdent}", "ea_secondary_Q");
+                // Q mode base and combos
+                Ensure($"secondary_Q_{rightIdent}", "secondary_Q");
                 if (leftIsShield)
                 {
-                    Ensure($"ea_secondary_Q_{rightIdent}_LeftShield", $"ea_secondary_Q_{rightSkill}_LeftShield", "ea_secondary_Q");
+                    Ensure($"secondary_Q_{rightIdent}_LeftShield", $"secondary_Q_{rightSkill}_LeftShield", "secondary_Q");
                 }
                 else if (leftIsTorch)
                 {
-                    Ensure($"ea_secondary_Q_{rightIdent}_LeftTorch", $"ea_secondary_Q_{rightSkill}_LeftTorch", "ea_secondary_Q");
+                    Ensure($"secondary_Q_{rightIdent}_LeftTorch", $"secondary_Q_{rightSkill}_LeftTorch", "secondary_Q");
                 }
                 else
                 {
-                    Ensure($"ea_secondary_Q_{rightIdent}_Left{leftSkill}", $"ea_secondary_Q_{rightSkill}_Left{leftSkill}", "ea_secondary_Q");
+                    Ensure($"secondary_Q_{rightIdent}_Left{leftSkill}", $"secondary_Q_{rightSkill}_Left{leftSkill}", "secondary_Q");
                 }
         
-                // Style2 base and combos (fallback to per-type or swords)
-                string style2Type = rightSkill == Skills.SkillType.Swords || AnimationManager.ReplacementMap.ContainsKey($"ea_secondary_T_{rightSkill}") ? $"ea_secondary_T_{rightSkill}" : "ea_secondary_T_Swords";
-                Ensure($"ea_secondary_T_{rightIdent}", style2Type);
+                // T mode base and combos (fallback to per-type or swords)
+                string style2Type = rightSkill == Skills.SkillType.Swords || AnimationManager.ReplacementMap.ContainsKey($"secondary_T_{rightSkill}") ? $"secondary_T_{rightSkill}" : "secondary_T_Swords";
+                Ensure($"secondary_T_{rightIdent}", style2Type);
                 if (leftIsShield)
                 {
-                    Ensure($"ea_secondary_T_{rightIdent}_LeftShield", $"ea_secondary_T_{rightSkill}_LeftShield", style2Type);
+                    Ensure($"secondary_T_{rightIdent}_LeftShield", $"secondary_T_{rightSkill}_LeftShield", style2Type);
                 }
                 else if (leftIsTorch)
                 {
-                    Ensure($"ea_secondary_T_{rightIdent}_LeftTorch", $"ea_secondary_T_{rightSkill}_LeftTorch", style2Type);
+                    Ensure($"secondary_T_{rightIdent}_LeftTorch", $"secondary_T_{rightSkill}_LeftTorch", style2Type);
                 }
                 else
                 {
-                    Ensure($"ea_secondary_T_{rightIdent}_Left{leftSkill}", $"ea_secondary_T_{rightSkill}_Left{leftSkill}", style2Type);
+                    Ensure($"secondary_T_{rightIdent}_Left{leftSkill}", $"secondary_T_{rightSkill}_Left{leftSkill}", style2Type);
                 }
         
-                // Style3 base and combos (fallback to per-type or swords)
-                string style3Type = rightSkill == Skills.SkillType.Swords || AnimationManager.ReplacementMap.ContainsKey($"ea_secondary_G_{rightSkill}") ? $"ea_secondary_G_{rightSkill}" : "ea_secondary_G_Swords";
-                Ensure($"ea_secondary_G_{rightIdent}", style3Type);
+                // G mode base and combos (fallback to per-type or swords)
+                string style3Type = rightSkill == Skills.SkillType.Swords || AnimationManager.ReplacementMap.ContainsKey($"secondary_G_{rightSkill}") ? $"secondary_G_{rightSkill}" : "secondary_G_Swords";
+                Ensure($"secondary_G_{rightIdent}", style3Type);
                 if (leftIsShield)
                 {
-                    Ensure($"ea_secondary_G_{rightIdent}_LeftShield", $"ea_secondary_G_{rightSkill}_LeftShield", style3Type);
+                    Ensure($"secondary_G_{rightIdent}_LeftShield", $"secondary_G_{rightSkill}_LeftShield", style3Type);
                 }
                 else if (leftIsTorch)
                 {
-                    Ensure($"ea_secondary_G_{rightIdent}_LeftTorch", $"ea_secondary_G_{rightSkill}_LeftTorch", style3Type);
+                    Ensure($"secondary_G_{rightIdent}_LeftTorch", $"secondary_G_{rightSkill}_LeftTorch", style3Type);
                 }
                 else
                 {
-                    Ensure($"ea_secondary_G_{rightIdent}_Left{leftSkill}", $"ea_secondary_G_{rightSkill}_Left{leftSkill}", style3Type);
+                    Ensure($"secondary_G_{rightIdent}_Left{leftSkill}", $"secondary_G_{rightSkill}_Left{leftSkill}", style3Type);
                 }
         
                 return created;
@@ -744,141 +742,6 @@ namespace ExtraAttackSystem
             }
         }
         
-        /*
-        // Original implementation - disabled
-        public static void ApplyStyleAOC_Original(Player player, Animator animator, ExtraAttackUtils.AttackMode mode)
-        {
-            try
-            {
-                // Guard: animator is required
-                if (animator == null)
-                {
-                    return;
-                }
-                var rac0 = animator.runtimeAnimatorController;
-                // NEW Diagnostics: capture crouch/emote before swap
-                int crouchHash0 = ZSyncAnimation.GetHash("crouching");
-                int emoteSitHash0 = ZSyncAnimation.GetHash("emote_sit");
-                bool crouch0 = false, emoteSit0 = false, inEmote0 = false;
-                try { crouch0 = animator.GetBool(crouchHash0); } catch { }
-                try { emoteSit0 = animator.GetBool(emoteSitHash0); } catch { }
-                try { inEmote0 = player.InEmote(); } catch { }
-                var desired = BuildOrGetAOCFor(player, animator, mode);
-                if (desired == null)
-                {
-                    return;
-                }
-
-                // Fail-safe: if replacement clips lack motion curves compared to originals, revert those to vanilla to avoid visual warp
-                try
-                {
-                    ScrubMissingRootMotionOverrides(desired, animator, mode);
-                }
-                catch (Exception scrubEx)
-                {
-                    ExtraAttackPlugin.LogError("AOC", $"ScrubMissingRootMotionOverrides error: {scrubEx.Message}");
-                }
-
-                var before = animator.runtimeAnimatorController;
-                if (ExtraAttackPlugin.DebugAOCOperations.Value)
-                {
-                }
-                // Preserve emote flags across controller swap only if player is currently in emote to avoid unintended transitions
-                int emoteSitHash = ZSyncAnimation.GetHash("emote_sit");
-                bool wasInEmote = player.InEmote();
-                bool emoteSitBefore = false;
-                if (wasInEmote)
-                {
-                    try { emoteSitBefore = animator.GetBool(emoteSitHash); } catch { }
-                }
-
-                // Swap controller (soft): when in emote (sitting), do NOT preserve sit/crouch to allow vanilla stand-up on attack; when not in emote, preserve crouch/sit to avoid unintended transitions
-                if (wasInEmote)
-                {
-                    AnimationManager.SoftReplaceRAC(animator, desired, preserveSitCrouch: false);
-                }
-                else
-                {
-                    AnimationManager.SoftReplaceRAC(animator, desired, preserveSitCrouch: true);
-                }
-                // NEW Diagnostics: capture crouch/emote after swap
-                int crouchHash1 = ZSyncAnimation.GetHash("crouching");
-                int emoteSitHash1 = ZSyncAnimation.GetHash("emote_sit");
-                bool crouch1 = false, emoteSit1 = false, inEmote1 = false;
-                try { crouch1 = animator.GetBool(crouchHash1); } catch { }
-                try { emoteSit1 = animator.GetBool(emoteSitHash1); } catch { }
-                try { inEmote1 = player.InEmote(); } catch { }
-                var after = animator.runtimeAnimatorController;
-                // Restore emote flags only when originally in emote
-                // CHANGED: Do NOT restore sit flags when starting attack from emote; let vanilla stop emote
-                // if (wasInEmote)
-                // {
-                //     try { animator.SetBool(emoteSitHash, emoteSitBefore); } catch { }
-                // }
-                // NOTE: Do not reassert wakeup here; vanilla Player handles wakeup via m_wakeupTimer and ZDO flags.
-            }
-            catch (Exception ex)
-            {
-                ExtraAttackPlugin.LogError("System", $"Error in ApplyStyleAOC: {ex.Message}");
-            }
-        }
-
-        
-        /*
-        // Original implementation - disabled
-        public static void RevertStyleAOC_Original(Player player, Animator animator)
-        {
-            try
-            {
-                if (animator == null)
-                {
-                    return;
-                }
-
-                RuntimeAnimatorController? original = null;
-                if (AnimationManager.CustomRuntimeControllers.TryGetValue("Original", out var ctrl))
-                {
-                    original = ctrl;
-                }
-
-                if (original == null)
-                {
-                    return;
-                }
-
-                // Preserve emote flag if currently in emote
-                bool wasInEmote = false;
-                int emoteSitHash = ZSyncAnimation.GetHash("emote_sit");
-                bool emoteSitBefore = false;
-                try { wasInEmote = player?.InEmote() ?? false; } catch { }
-                if (wasInEmote)
-                {
-                    try { emoteSitBefore = animator.GetBool(emoteSitHash); } catch { }
-                }
-
-                var before = animator.runtimeAnimatorController;
-                if (ExtraAttackPlugin.DebugAOCOperations.Value)
-                {
-                }
-
-                AnimationManager.SoftReplaceRAC(animator, original, preserveSitCrouch: true);
-
-                var after = animator.runtimeAnimatorController;
-                if (ExtraAttackPlugin.DebugAOCOperations.Value)
-                {
-                }
-
-                if (wasInEmote)
-                {
-                    try { animator.SetBool(emoteSitHash, emoteSitBefore); } catch { }
-                }
-            }
-            catch (Exception ex)
-            {
-                ExtraAttackPlugin.LogError("System", $"Error in RevertStyleAOC: {ex.Message}");
-            }
-        }
-        */
 
         // NEW: Diagnostic helper. Currently no-op to avoid API guessing; keeps compile-safe.
         public static void ScrubMissingRootMotionOverrides(RuntimeAnimatorController desired, Animator animator, ExtraAttackUtils.AttackMode mode)
@@ -920,7 +783,7 @@ namespace ExtraAttackSystem
                     }
 
                     // Optional global disable for troubleshooting
-                    if (ExtraAttackPlugin.AreGuardsDisabled() || ExtraAttackPlugin.DebugDisableSetTriggerOverride.Value)
+                    if (ExtraAttackPlugin.DebugDisableSetTriggerOverride.Value)
                     {
                         return true; // run original
                     }
@@ -939,14 +802,6 @@ namespace ExtraAttackSystem
                         return true; // run original
                     }
 
-                    // Suppress only during active guard window
-                    if (ExtraAttackUtils.IsInEmoteStopGuardWindow(player))
-                    {
-                        if (ExtraAttackPlugin.DebugAOCOperations.Value)
-                        {
-                        }
-                        return false; // skip original
-                    }
 
                     // Outside guard window, allow vanilla behavior
                     return true;

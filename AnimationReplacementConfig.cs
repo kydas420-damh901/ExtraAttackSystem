@@ -713,7 +713,7 @@ namespace ExtraAttackSystem
             // Individual weapon keys: ea_secondary_Q/T/G_{å€‹åˆ¥æ­¦å™¨å}
             // Weapon type keys: ea_secondary_Q/T/G_{æ­¦å™¨ç¨®åˆ¥}
             
-            if (!key.StartsWith("ea_secondary_"))
+            if (!key.StartsWith("secondary_"))
                 return false;
                 
             // Known weapon types that should go to AocTypes
@@ -726,8 +726,8 @@ namespace ExtraAttackSystem
                     return false;
             }
             
-            // Check for base keys (ea_secondary_Q, ea_secondary_T, ea_secondary_G)
-            if (key == "ea_secondary_Q" || key == "ea_secondary_T" || key == "ea_secondary_G")
+            // Check for base keys (secondary_Q, secondary_T, secondary_G)
+            if (key == "secondary_Q" || key == "secondary_T" || key == "secondary_G")
                 return false;
                 
             // Everything else is considered individual weapon
@@ -765,10 +765,7 @@ namespace ExtraAttackSystem
             }
             else
             {
-                ExtraAttackPlugin.LogWarning("System", "ApplyToManager: current.AocTypes is null or empty - initializing with default values");
-                
-                // Initialize with default weapon type mappings if YAML is empty
-                AnimationManager.CreateDefaultWeaponTypeMappings();
+                ExtraAttackPlugin.LogInfo("System", "ApplyToManager: current.AocTypes is null or empty - will be handled by AnimationManager");
             }
             
             // Process Maps (legacy format) if available
@@ -841,7 +838,6 @@ namespace ExtraAttackSystem
                 var sb = new StringBuilder();
                 sb.AppendLine("# ============================================================================");
                 sb.AppendLine("# Extra Attack System - Weapon Types Animation Replacement");
-                sb.AppendLine("# ");
                 sb.AppendLine("# ============================================================================");
                 sb.AppendLine("# Format: WeaponType -> Q/T/G -> Vanilla -> External");
                 sb.AppendLine("# ");
@@ -871,7 +867,7 @@ namespace ExtraAttackSystem
                         {
                             var weaponMap = defaultConfig.AocTypes[weaponType];
                             var modes = new[] { "Q", "T", "G" };
-                            var modeKeys = new[] { $"{weaponType}_secondary_Q", $"{weaponType}_secondary_T", $"{weaponType}_secondary_G" };
+                            var modeKeys = new[] { "secondary_Q", "secondary_T", "secondary_G" };
                             
                             for (int i = 0; i < modes.Length; i++)
                             {
@@ -912,7 +908,7 @@ namespace ExtraAttackSystem
                             
                             // Check for Q/T/G modes using unified key format
                             var modes = new[] { "Q", "T", "G" };
-                            var modeKeys = new[] { $"{weaponType}_secondary_Q", $"{weaponType}_secondary_T", $"{weaponType}_secondary_G" };
+                            var modeKeys = new[] { "secondary_Q", "secondary_T", "secondary_G" };
                             
                             for (int i = 0; i < modes.Length; i++)
                             {
@@ -1087,8 +1083,8 @@ namespace ExtraAttackSystem
         // Helper methods for extracting weapon type, weapon name, and mode from keys
         private static string? ExtractWeaponTypeFromKey(string key)
         {
-            // ea_secondary_Q_Swords -> Swords
-            if (key.StartsWith("ea_secondary_"))
+            // secondary_Q_Swords -> Swords
+            if (key.StartsWith("secondary_"))
             {
                 var parts = key.Split('_');
                 if (parts.Length >= 4)
@@ -1101,8 +1097,8 @@ namespace ExtraAttackSystem
 
         private static string? ExtractWeaponNameFromKey(string key)
         {
-            // ea_secondary_Q_SwordBlackmetal -> SwordBlackmetal
-            if (key.StartsWith("ea_secondary_"))
+            // secondary_Q_SwordBlackmetal -> SwordBlackmetal
+            if (key.StartsWith("secondary_"))
             {
                 var parts = key.Split('_');
                 if (parts.Length >= 4)
@@ -1127,8 +1123,8 @@ namespace ExtraAttackSystem
 
         private static string? ExtractModeFromKey(string key)
         {
-            // ea_secondary_Q_Swords -> Q
-            if (key.StartsWith("ea_secondary_"))
+            // secondary_Q_Swords -> Q
+            if (key.StartsWith("secondary_"))
             {
                 var parts = key.Split('_');
                 if (parts.Length >= 3)

@@ -20,7 +20,7 @@ namespace ExtraAttackSystem
     {
         internal const string PluginGUID = "Dyju420.ExtraAttackSystem";
         internal const string PluginName = "Extra Attack System";
-        internal const string PluginVersion = "0.7.2";
+        internal const string PluginVersion = "0.7.5";
 
         internal static readonly ManualLogSource ExtraAttackLogger = BepInEx.Logging.Logger.CreateLogSource(PluginName);
         // NEW: Dual-wield mod detection flag
@@ -289,6 +289,8 @@ namespace ExtraAttackSystem
                 // 1. AnimationReplacementConfig (2 files)
                 LogInfo("System", "Generating AnimationReplacementConfig files...");
                 AnimationReplacementConfig.Initialize();
+                // Save YAML files after initialization to ensure ReplacementMap data is written
+                AnimationReplacementConfig.SaveFromManager();
                 
                 // 2. AnimationTimingConfig (4 files)
                 LogInfo("System", "Generating AnimationTimingConfig files...");
@@ -396,17 +398,5 @@ namespace ExtraAttackSystem
     {
         return ExtraAttackKey_G.Value.IsDown();
     }
-
-    // Stamina costs are now managed by YAML CostConfig via ExtraAttackUtils.GetEffectiveStaminaCost()
-
-    // Stub methods for guard system (disabled)
-    public static bool AreGuardsDisabled() { return true; }
-    public static ConfigEntry<bool> EnablePostAttackEmoteStopGuard => null!;
-    public static ConfigEntry<float> PostAttackEmoteStopGuardSeconds => null!;
-    public static ConfigEntry<bool> EnableCrouchGuard => null!;
-    public static ConfigEntry<bool> EnableInsufficientStaminaEmoteStopGuard => null!;
-    public static ConfigEntry<float> InsufficientStaminaEmoteStopGuardSeconds => null!;
-
-
 }
 }

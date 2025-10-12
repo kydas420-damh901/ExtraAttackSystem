@@ -112,8 +112,6 @@ namespace ExtraAttackSystem
                 {
                     if (__instance is Player player && player == Player.m_localPlayer)
                     {
-                        // Disabled: keep vanilla chain behavior; do not alter m_previousAttack
-                        ExtraAttackPlugin.LogInfo("COMBO", "[DISABLED] Humanoid.StartAttack Prefix: keep vanilla chain; no previousAttack nullification");
                     }
                 }
                 catch (Exception ex)
@@ -139,12 +137,6 @@ namespace ExtraAttackSystem
                         ExtraAttackPlugin.LogInfo("COMBO", "[DISABLED] Attack.Start Prefix: keep vanilla chain; no previousAttack/timeSinceLastAttack changes");
 
                         // Apply AOC just before vanilla SetTrigger executes inside Attack.Start
-                        // Guard: Only when in our extra attack modes and not globally disabled
-                        if (!ExtraAttackPlugin.AreGuardsDisabled() && ExtraAttackUtils.IsPlayerInExtraAttack(player))
-                        {
-                            // Skip when the StartAttack call is not ours (avoid interfering with other systems)
-                            // AOCé©ç”¨ã¯Player.StartAttackç›´å‰ã§å®Ÿè¡Œã•ã‚Œã‚‹ãŸã‚ã€ã“ã“ã§ã¯ä¸è¦
-                        }
                     }
                 }
                 catch (Exception ex)
@@ -294,7 +286,6 @@ namespace ExtraAttackSystem
                 {
                     // Do NOT clear continuous block here; Attack.Start calls ResetChain at the beginning
                     // Keep block until Player exits the next Normal attack (handled in Player.Update)
-                    // Removed DIAG log to reduce noise and unify logging categories
 
                 }
             }
