@@ -5,7 +5,7 @@ namespace ExtraAttackSystem
     public static class VersionInfo
     {
         // セマンティックバージョニング
-        public const string Version = "0.8.4";
+        public const string Version = "0.8.5";
         public const string Prerelease = "dev";  // リリース版は空、開発中は "dev" など
         public const string Build = "20250115";
         
