@@ -104,7 +104,7 @@ namespace ExtraAttackSystem
                 // Check and create weapon types config if needed, then load it
                 if (ShouldCreateOrRegenerateWeaponTypesConfig())
                 {
-                    CreateDefaultWeaponTypesConfig();
+                    SaveWeaponTypesConfig();
                 }
                 LoadWeaponTypesConfig();
 
@@ -242,7 +242,7 @@ namespace ExtraAttackSystem
                 AocTypes = new Dictionary<string, Dictionary<string, string>>()
             };
 
-            // Define default mappings with 2-layer structure
+            // Define default mappings with 2-layer structure - each weapon type gets unique animations
             var defaultMappings = new Dictionary<string, Dictionary<string, string>>
                 {
                     ["Swords"] = new Dictionary<string, string>
@@ -334,81 +334,6 @@ namespace ExtraAttackSystem
             return config;
         }
 
-        // Create default weapon types configuration
-        private static void CreateDefaultWeaponTypesConfig()
-        {
-            try
-            {
-                var defaultConfig = new ReplacementYaml
-                {
-                    AocTypes = new Dictionary<string, Dictionary<string, string>>
-                    {
-                        ["Swords"] = new Dictionary<string, string>
-                        {
-                            ["secondary_Q"] = "Sw-Ma-GS-Up_Attack_A_1External", // Q mode
-                            ["secondary_T"] = "Sw-Ma-GS-Up_Attack_A_2External", // T mode
-                            ["secondary_G"] = "Sw-Ma-GS-Up_Attack_A_3External" // G mode
-                        },
-                        ["Axes"] = new Dictionary<string, string>
-                        {
-                            ["secondary_Q"] = "OneHand_Up_Attack_B_1External", // Q mode
-                            ["secondary_T"] = "OneHand_Up_Attack_B_2External", // T mode
-                            ["secondary_G"] = "OneHand_Up_Attack_B_3External" // G mode
-                        },
-                        ["Clubs"] = new Dictionary<string, string>
-                        {
-                            ["secondary_Q"] = "0MWA_DualWield_Attack02External", // Q mode
-                            ["secondary_T"] = "MWA_RightHand_Attack03External", // T mode
-                            ["secondary_G"] = "Shield@ShieldAttack01External" // G mode
-                        },
-                        ["Spears"] = new Dictionary<string, string>
-                        {
-                            ["secondary_Q"] = "Shield@ShieldAttack02External", // Q mode
-                            ["secondary_T"] = "Attack04External", // T mode
-                            ["secondary_G"] = "0MGSA_Attack_Dash01External" // G mode
-                        },
-                        ["GreatSwords"] = new Dictionary<string, string>
-                        {
-                            ["secondary_Q"] = "2Hand-Sword-Attack8External", // Q mode
-                            ["secondary_T"] = "2Hand_Skill01_WhirlWindExternal", // T mode
-                            ["secondary_G"] = "Eas_GreatSword_Combo1External" // G mode
-                        },
-                        ["BattleAxes"] = new Dictionary<string, string>
-                        {
-                            ["secondary_Q"] = "0MGSA_Attack_Dash02External", // Q mode
-                            ["secondary_T"] = "0MGSA_Attack_Ground01External", // T mode
-                            ["secondary_G"] = "0MGSA_Attack_Ground02External" // G mode
-                        },
-                        ["Polearms"] = new Dictionary<string, string>
-                        {
-                            ["secondary_Q"] = "Pa_1handShiled_attack02External", // Q mode
-                            ["secondary_T"] = "Attack_ShieldExternal", // T mode
-                            ["secondary_G"] = "0DS_Attack_07External" // G mode
-                        },
-                        ["Knives"] = new Dictionary<string, string>
-                        {
-                            ["secondary_Q"] = "ChargeAttkExternal", // Q mode
-                            ["secondary_T"] = "HardAttkExternal", // T mode
-                            ["secondary_G"] = "StrongAttk3External" // G mode
-                        },
-                        ["Fists"] = new Dictionary<string, string>
-                        {
-                            ["secondary_Q"] = "Flying Knee Punch ComboExternal", // Q mode
-                            ["secondary_T"] = "Eas_GreatSword_SlideAttackExternal", // T mode
-                            ["secondary_G"] = "Eas_GreatSwordSlash_01External" // G mode
-                        }
-                    }
-                };
-
-                // Set the current config and save
-                current = defaultConfig;
-                SaveWeaponTypesConfig();
-            }
-            catch (Exception ex)
-            {
-                ExtraAttackPlugin.LogError("System", $"Error creating default weapon types config: {ex.Message}");
-            }
-        }
 
         // Create default individual weapons configuration
         private static void CreateDefaultIndividualWeaponsConfig()
@@ -612,7 +537,7 @@ namespace ExtraAttackSystem
                     if (!yamlExists)
                     {
                         ExtraAttackPlugin.LogInfo("System", "ApplyToManager: YAML file does not exist, creating default config");
-                        CreateDefaultWeaponTypesConfig();
+                        SaveWeaponTypesConfig();
                 }
                 else
                 {
@@ -773,29 +698,9 @@ namespace ExtraAttackSystem
                 if (!hasReplacementMapData)
                 {
                     ExtraAttackPlugin.LogInfo("System", "SaveWeaponTypesConfig: ReplacementMap is empty, using default mappings");
-                    // Use default mappings from CreateDefaultWeaponTypesConfig
+                    // Use default mappings directly from CreateDefaultWeaponTypesConfigForYaml
                     var defaultConfig = CreateDefaultWeaponTypesConfigForYaml();
-                    
-                    foreach (var weaponType in weaponTypes)
-                    {
-                        weaponTypeGroups[weaponType] = new Dictionary<string, string>();
-                        
-                        if (defaultConfig.AocTypes.ContainsKey(weaponType))
-                        {
-                            var weaponMap = defaultConfig.AocTypes[weaponType];
-                            
-                            // Use 2-layer structure: secondary_Q/T/G: external
-                            foreach (var kvp in weaponMap)
-                            {
-                                weaponTypeGroups[weaponType][kvp.Key] = kvp.Value;
-                            }
-                        }
-                        else
-                        {
-                            // Add empty entry if weapon type doesn't exist
-                            weaponTypeGroups[weaponType] = new Dictionary<string, string>();
-                        }
-                    }
+                    weaponTypeGroups = defaultConfig.AocTypes;
                 }
                 else
                 {
@@ -812,18 +717,9 @@ namespace ExtraAttackSystem
                         foreach (var kvp in weaponMap)
                         {
                             var externalClipName = kvp.Value;
-                            // Calculate ratio-based value using existing AnimationTimingConfig methods
-                            var mode = kvp.Key.Replace("secondary_", "");
-                            
-                            // Ensure AnimationTimingConfig is initialized
-                            ExtraAttackPlugin.LogInfo("System", $"SaveWeaponTypesConfig: Getting timing for {weaponType}.{mode}");
-                            AnimationTimingConfig.Initialize();
-                            
-                            var timing = AnimationTimingConfig.GetWeaponTypeTiming(weaponType, mode);
-                            ExtraAttackPlugin.LogInfo("System", $"SaveWeaponTypesConfig: Got timing for {weaponType}.{mode}: Hit={timing.HitTiming:F3}s, TrailOn={timing.TrailOnTiming:F3}s, TrailOff={timing.TrailOffTiming:F3}s");
-                            var ratioValue = $"{externalClipName}|Hit:{timing.HitTiming:F3}s|TrailOn:{timing.TrailOnTiming:F3}s|TrailOff:{timing.TrailOffTiming:F3}s";
-                            weaponTypeGroups[weaponType][kvp.Key] = ratioValue;
-                            ExtraAttackPlugin.LogInfo("System", $"SaveWeaponTypesConfig: Found {weaponType}.{kvp.Key} = {externalClipName} -> ratio calculated: {ratioValue}");
+                            // Use external clip name directly (no ratio calculation in replacement config)
+                            weaponTypeGroups[weaponType][kvp.Key] = externalClipName;
+                            ExtraAttackPlugin.LogInfo("System", $"SaveWeaponTypesConfig: Found {weaponType}.{kvp.Key} = {externalClipName}");
                             }
                         }
                         else
@@ -863,7 +759,7 @@ namespace ExtraAttackSystem
                     {
                             if (weaponMap.ContainsKey(mode))
                             {
-                                sb.AppendLine($"    {mode}: {weaponMap[mode]}  # Vanilla: {mode} | Replacement: {weaponMap[mode]}");
+                                sb.AppendLine($"    {mode}: {weaponMap[mode]}  # Replacement: {weaponMap[mode]}");
                             }
                         }
                         }

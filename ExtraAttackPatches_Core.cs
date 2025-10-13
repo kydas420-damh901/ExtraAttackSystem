@@ -16,7 +16,7 @@ namespace ExtraAttackSystem
         }
 
         // Utility functions for other patches
-        public static string BuildConfigKey(Player player, string clipName, int hitIndex)
+        public static string BuildConfigKey(Player player, string clipName)
         {
             try
             {
@@ -54,22 +54,17 @@ namespace ExtraAttackSystem
                 if (!string.IsNullOrEmpty(legacySuffix)) suffixCandidates.Add(legacySuffix);
                 suffixCandidates.Add(string.Empty);
 
-                // Try keys in order: clip + suffix + _hitN, clip + suffix, clip + _hitN, clip
+                // Try keys in order: clip + suffix, clip
                 foreach (var suffix in suffixCandidates)
                 {
-                    string keyHit = string.IsNullOrEmpty(suffix)
-                        ? $"{clipName}_hit{hitIndex}"
-                        : $"{clipName}{suffix}_hit{hitIndex}";
                     string keyBase = string.IsNullOrEmpty(suffix)
                         ? clipName
                         : $"{clipName}{suffix}";
 
-                    if (AnimationTimingConfig.HasConfig(keyHit)) return keyHit;
                     if (AnimationTimingConfig.HasConfig(keyBase)) return keyBase;
                 }
 
                 // Final fallback
-                if (AnimationTimingConfig.HasConfig($"{clipName}_hit{hitIndex}")) return $"{clipName}_hit{hitIndex}";
                 if (AnimationTimingConfig.HasConfig(clipName)) return clipName;
 
                 return clipName;
@@ -81,46 +76,12 @@ namespace ExtraAttackSystem
             }
         }
 
-        public static int GetCurrentHitIndex(Animator animator, AnimationClip clip)
-        {
-            try
-            {
-                var stateInfo = animator.GetCurrentAnimatorStateInfo(0);
-                float normalizedTime = stateInfo.normalizedTime % 1f;
-                float currentTime = normalizedTime * clip.length;
-
-                float closestTimeDiff = float.MaxValue;
-                int hitIndex = 0;
-
-                foreach (var evt in clip.events)
-                {
-                    if (evt.functionName == "OnAttackTrigger")
-                    {
-                        float timeDiff = Mathf.Abs(evt.time - currentTime);
-
-                        if (timeDiff < closestTimeDiff && timeDiff < 0.1f)
-                        {
-                            closestTimeDiff = timeDiff;
-                            hitIndex = evt.intParameter;
-                        }
-                    }
-                }
-
-                return hitIndex;
-            }
-            catch (Exception ex)
-            {
-                ExtraAttackPlugin.LogError("System", $"Error in GetCurrentHitIndex: {ex.Message}");
-                return 0;
-            }
-        }
 
         // Common utility for getting current animation clip info
-        public static bool TryGetCurrentClipInfo(Player player, out string clipName, out AnimationClip clip, out int hitIndex)
+        public static bool TryGetCurrentClipInfo(Player player, out string clipName, out AnimationClip clip)
         {
             clipName = string.Empty;
             clip = null!;
-            hitIndex = 0;
 
             try
             {
@@ -137,7 +98,6 @@ namespace ExtraAttackSystem
 
                 clip = clipInfos[0].clip;
                 clipName = clip.name;
-                hitIndex = GetCurrentHitIndex(animator, clip);
                 return true;
             }
             catch (Exception ex)
@@ -150,14 +110,12 @@ namespace ExtraAttackSystem
         // Common utility for debug animator parameters (using EAS_Debug.cs)
         public static void LogAnimatorParameters(Player player, string context)
         {
-            if (!EAS_Debug.IsDebugAnimationParametersEnabled)
-                return;
-
+            // Animation Parameters is now a list-type debug - use LogAllAnimationParameters instead
             try
             {
                 if (TryGetPlayerAnimator(player, out Animator? animator) && animator != null)
                 {
-                    EAS_Debug.LogAnimatorParameters(animator);
+                    EAS_Debug.LogAllAnimationParameters();
                 }
             }
             catch (Exception ex)
@@ -182,7 +140,7 @@ namespace ExtraAttackSystem
                             playerAnimators[player] = ___m_animator;
                             ExtraAttackPlugin.LogInfo("System", "Animator cached successfully");
 
-                            if (EAS_Debug.IsDebugAnimationParametersEnabled && !parametersLogged)
+                            if (!parametersLogged)
                             {
                                 parametersLogged = true;
                                 LogAnimatorParameters(player, "Animator cached");

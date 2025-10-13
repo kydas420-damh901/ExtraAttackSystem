@@ -17,7 +17,6 @@ namespace ExtraAttackSystem
         }
         
         // Public properties for checking debug states (using ExtraAttackPlugin values)
-        public static bool IsDebugAnimationParametersEnabled => ExtraAttackPlugin.IsDebugAnimationParametersEnabled;
         public static bool IsDebugClipNamesEnabled => ExtraAttackPlugin.IsDebugClipNamesEnabled;
         public static bool IsDebugSystemMessagesEnabled => ExtraAttackPlugin.IsDebugSystemMessagesEnabled;
         
@@ -79,33 +78,6 @@ namespace ExtraAttackSystem
             }
         }
         
-        // Log animator parameters
-        public static void LogAnimatorParameters(Animator animator)
-        {
-            ExtraAttackPlugin.LogInfo("System", "LogAnimatorParameters called - IsDebugAnimationParametersEnabled: " + IsDebugAnimationParametersEnabled + ", animator: " + (animator != null ? "found" : "null"));
-            if (!IsDebugAnimationParametersEnabled || animator == null) return;
-            
-            var parameters = animator.parameters;
-            if (parameters == null || parameters.Length == 0) return;
-            
-            ExtraAttackPlugin.LogInfo("System", "=== DEBUG: ANIMATOR PARAMETERS ===");
-            
-            foreach (var param in parameters)
-            {
-                string valueStr = param.type switch
-                {
-                    AnimatorControllerParameterType.Bool => animator.GetBool(param.nameHash).ToString(),
-                    AnimatorControllerParameterType.Int => animator.GetInteger(param.nameHash).ToString(),
-                    AnimatorControllerParameterType.Float => animator.GetFloat(param.nameHash).ToString("F3"),
-                    AnimatorControllerParameterType.Trigger => "Trigger",
-                    _ => "Unknown"
-                };
-                
-                ExtraAttackPlugin.LogInfo("System", $"  Parameter: {param.name} ({param.type}) = {valueStr}");
-            }
-            
-            ExtraAttackPlugin.LogInfo("System", "=== END ANIMATOR PARAMETERS ===");
-        }
         
         // Log clip name during operations
         public static void LogClipName(string operation, string clipName)
@@ -121,6 +93,126 @@ namespace ExtraAttackSystem
             if (!IsDebugClipNamesEnabled) return;
             
             ExtraAttackPlugin.LogInfo("System", $"{operation}: {clipName} - {additionalInfo}");
+        }
+
+        // Log all animation parameters (one-time output)
+        public static void LogAllAnimationParameters()
+        {
+            ExtraAttackPlugin.LogInfo("System", "=== DEBUG: ANIMATION PARAMETERS ===");
+            
+            try
+            {
+                if (Player.m_localPlayer != null)
+                {
+                    // Use reflection to access private m_animator field
+                    var animatorField = typeof(Player).GetField("m_animator", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+                    if (animatorField != null)
+                    {
+                        var animator = animatorField.GetValue(Player.m_localPlayer) as Animator;
+                        if (animator != null)
+                        {
+                            var parameters = animator.parameters;
+                            
+                            ExtraAttackPlugin.LogInfo("System", $"Found {parameters?.Length ?? 0} animator parameters");
+                            
+                            if (parameters != null)
+                            {
+                                foreach (var param in parameters)
+                                {
+                                    string valueStr = param.type switch
+                                    {
+                                        AnimatorControllerParameterType.Bool => animator.GetBool(param.nameHash).ToString(),
+                                        AnimatorControllerParameterType.Int => animator.GetInteger(param.nameHash).ToString(),
+                                        AnimatorControllerParameterType.Float => animator.GetFloat(param.nameHash).ToString("F3"),
+                                        AnimatorControllerParameterType.Trigger => "Trigger",
+                                        _ => "Unknown"
+                                    };
+                                    
+                                    ExtraAttackPlugin.LogInfo("System", $"  Parameter: {param.name} ({param.type}) = {valueStr}");
+                                }
+                            }
+                        }
+                        else
+                        {
+                            ExtraAttackPlugin.LogInfo("System", "Player animator is null");
+                        }
+                    }
+                    else
+                    {
+                        ExtraAttackPlugin.LogInfo("System", "Could not find m_animator field");
+                    }
+                }
+                else
+                {
+                    ExtraAttackPlugin.LogInfo("System", "Player not available");
+                }
+                
+                ExtraAttackPlugin.LogInfo("System", "=== END ANIMATION PARAMETERS ===");
+            }
+            catch (System.Exception ex)
+            {
+                ExtraAttackPlugin.LogInfo("System", $"Error logging animation parameters: {ex.Message}");
+            }
+        }
+        
+        // Log animation parameters for specific player (used by ExtraAttackPatches_Core)
+        public static void LogAllAnimationParameters(Player player)
+        {
+            ExtraAttackPlugin.LogInfo("System", "=== DEBUG: ANIMATION PARAMETERS ===");
+            
+            try
+            {
+                if (player != null)
+                {
+                    // Use reflection to access private m_animator field
+                    var animatorField = typeof(Player).GetField("m_animator", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+                    if (animatorField != null)
+                    {
+                        var animator = animatorField.GetValue(player) as Animator;
+                        if (animator != null)
+                        {
+                            var parameters = animator.parameters;
+                            
+                            ExtraAttackPlugin.LogInfo("System", $"Found {parameters?.Length ?? 0} animator parameters");
+                            
+                            if (parameters != null)
+                            {
+                                foreach (var param in parameters)
+                                {
+                                    string valueStr = param.type switch
+                                    {
+                                        AnimatorControllerParameterType.Bool => animator.GetBool(param.nameHash).ToString(),
+                                        AnimatorControllerParameterType.Int => animator.GetInteger(param.nameHash).ToString(),
+                                        AnimatorControllerParameterType.Float => animator.GetFloat(param.nameHash).ToString("F3"),
+                                        AnimatorControllerParameterType.Trigger => "Trigger",
+                                        _ => "Unknown"
+                                    };
+                                    
+                                    ExtraAttackPlugin.LogInfo("System", $"  Parameter: {param.name} ({param.type}) = {valueStr}");
+                                }
+                            }
+                        }
+                        else
+                        {
+                            ExtraAttackPlugin.LogInfo("System", "Player animator is null");
+                        }
+                    }
+                    else
+                    {
+                        ExtraAttackPlugin.LogInfo("System", "Could not find m_animator field");
+                    }
+                }
+                else
+                {
+                    ExtraAttackPlugin.LogInfo("System", "Player is null");
+                }
+                
+                ExtraAttackPlugin.LogInfo("System", "=== END ANIMATION PARAMETERS ===");
+            }
+            catch (System.Exception ex)
+            {
+                ExtraAttackPlugin.LogInfo("System", $"Error logging animation parameters: {ex.Message}");
+            }
         }
         
     }

@@ -6,6 +6,7 @@ using System.Text;
 using UnityEngine;
 using YamlDotNet.Serialization;
 using YamlDotNet.Serialization.NamingConventions;
+using HarmonyLib;
 
 namespace ExtraAttackSystem
 {
@@ -90,10 +91,18 @@ namespace ExtraAttackSystem
         // Load or create config file
         public static void Initialize()
         {
-            ExtraAttackPlugin.LogInfo("Config", "AnimationTimingConfig.Initialize: Method entry point reached");
+            ExtraAttackPlugin.LogInfo("System", "AnimationTimingConfig.Initialize: Method entry point reached");
             try
             {
-                ExtraAttackPlugin.LogInfo("Config", "AnimationTimingConfig.Initialize: Starting initialization");
+                ExtraAttackPlugin.LogInfo("System", "AnimationTimingConfig.Initialize: Starting initialization");
+                
+                // Ensure AnimationManager is initialized before we try to use ReplacementMap
+                ExtraAttackPlugin.LogInfo("System", $"AnimationTimingConfig.Initialize: ReplacementMap.Count = {AnimationManager.ReplacementMap.Count}");
+                if (AnimationManager.ReplacementMap.Count == 0)
+                {
+                    ExtraAttackPlugin.LogInfo("System", "AnimationManager.ReplacementMap is empty, initializing AnimationManager first");
+                    AnimationManager.InitializeAnimationMaps();
+                }
                 
                 if (!Directory.Exists(ConfigFolderPath))
                 {
@@ -101,16 +110,16 @@ namespace ExtraAttackSystem
                 }
 
                 // Check and create weapon types config if needed, then load it
-                ExtraAttackPlugin.LogInfo("Config", $"AnimationTimingConfig.Initialize: WeaponTypesConfigFilePath = {WeaponTypesConfigFilePath}");
+                ExtraAttackPlugin.LogInfo("System", $"AnimationTimingConfig.Initialize: WeaponTypesConfigFilePath = {WeaponTypesConfigFilePath}");
                 
                 // Force generation if file doesn't exist or is empty
                 if (!File.Exists(WeaponTypesConfigFilePath) || ShouldCreateOrRegenerateWeaponTypesConfig())
                 {
-                    ExtraAttackPlugin.LogInfo("Config", "AnimationTimingConfig.Initialize: Creating default weapon type config");
+                    ExtraAttackPlugin.LogInfo("System", "AnimationTimingConfig.Initialize: Creating default weapon type config");
                     CreateDefaultWeaponTypeConfig();
                 }
                 
-                ExtraAttackPlugin.LogInfo("Config", "AnimationTimingConfig.Initialize: Loading weapon type config");
+                ExtraAttackPlugin.LogInfo("System", "AnimationTimingConfig.Initialize: Loading weapon type config");
                 LoadWeaponTypeConfig();
 
                 // Check and create individual weapons config if needed, then load it
@@ -131,7 +140,7 @@ namespace ExtraAttackSystem
         {
             if (!File.Exists(WeaponTypesConfigFilePath))
             {
-                ExtraAttackPlugin.LogInfo("Config", "WeaponTypes config file not found, will create");
+                 ExtraAttackPlugin.LogInfo("System", "WeaponTypes config file not found, will create");
                 return true;
             }
 
@@ -209,17 +218,17 @@ namespace ExtraAttackSystem
             if (animationName.Contains("_secondary_Q"))
             {
                 attackMode = "Q";
-                weaponType = CapitalizeFirstLetter(animationName.Replace("_secondary_Q", "").Replace("ea_", ""));
+                weaponType = CapitalizeFirstLetter(animationName.Replace("_secondary_Q", ""));
             }
             else if (animationName.Contains("_secondary_T"))
             {
                 attackMode = "T";
-                weaponType = CapitalizeFirstLetter(animationName.Replace("_secondary_T", "").Replace("ea_", ""));
+                weaponType = CapitalizeFirstLetter(animationName.Replace("_secondary_T", ""));
             }
             else if (animationName.Contains("_secondary_G"))
             {
                 attackMode = "G";
-                weaponType = CapitalizeFirstLetter(animationName.Replace("_secondary_G", "").Replace("ea_", ""));
+                weaponType = CapitalizeFirstLetter(animationName.Replace("_secondary_G", ""));
             }
             
             return GetWeaponTypeTiming(weaponType, attackMode);
@@ -358,7 +367,6 @@ namespace ExtraAttackSystem
             try
             {
                 var deserializer = new DeserializerBuilder()
-                    .WithNamingConvention(CamelCaseNamingConvention.Instance)
                     .IgnoreUnmatchedProperties()
                     .Build();
 
@@ -374,6 +382,13 @@ namespace ExtraAttackSystem
                 {
                     weaponTypeConfig = deserializer.Deserialize<WeaponTypeConfig>(yamlContent) ?? new WeaponTypeConfig();
                     ExtraAttackPlugin.LogInfo("Config", $"Deserialization successful: {weaponTypeConfig?.WeaponTypes?.Count ?? 0} weapon types loaded");
+                    
+                    // Ensure WeaponTypes is initialized
+                    if (weaponTypeConfig?.WeaponTypes == null)
+                    {
+                        weaponTypeConfig = weaponTypeConfig ?? new WeaponTypeConfig();
+                        weaponTypeConfig.WeaponTypes = new Dictionary<string, Dictionary<string, AnimationTiming>>();
+                    }
                     
                     // Debug: Check specific weapon types
                     if (weaponTypeConfig?.WeaponTypes != null)
@@ -468,7 +483,7 @@ namespace ExtraAttackSystem
         {
             try
             {
-                ExtraAttackPlugin.LogInfo("Config", "Generating default WeaponTypes config");
+                ExtraAttackPlugin.LogInfo("System", "Generating default WeaponTypes config");
                 GenerateWeaponTypeConfig();
             }
             catch (Exception ex)
@@ -610,7 +625,7 @@ namespace ExtraAttackSystem
         {
             try
             {
-                ExtraAttackPlugin.LogInfo("Config", "GenerateWeaponTypeConfig: Starting generation");
+                ExtraAttackPlugin.LogInfo("System", "GenerateWeaponTypeConfig: Starting generation");
                 var config = new WeaponTypeConfig();
                 config.Default = new AnimationTiming();
 
@@ -687,8 +702,8 @@ namespace ExtraAttackSystem
                         
                         ExtraAttackPlugin.LogInfo("Config", $"GenerateWeaponTypeConfig: Creating timing for {weaponType}_{key} -> {targetWeaponType}_{mode}");
                         
-                        // Create timing based on target weapon type
-                        var timing = CreateTimingForWeaponType(targetWeaponType, mode);
+                        // Create timing based on actual weapon type and mode combination
+                        var timing = CreateTimingForWeaponType(weaponType, mode);
                         weaponSettings[key] = timing;
                     }
 
@@ -700,7 +715,7 @@ namespace ExtraAttackSystem
                 CreateIndividualWeaponSettings(config);
 
                 // Save the generated config
-                ExtraAttackPlugin.LogInfo("Config", $"GenerateWeaponTypeConfig: Final config has {config.WeaponTypes.Count} weapon types");
+                ExtraAttackPlugin.LogInfo("System", $"GenerateWeaponTypeConfig: Final config has {config.WeaponTypes.Count} weapon types");
                 SaveWeaponTypeConfig(config);
             }
             catch (Exception ex)
@@ -718,18 +733,53 @@ namespace ExtraAttackSystem
             string key = $"{weaponType}_secondary_{mode}";
             float clipLength = GetAdjustedClipLength(key);
             
-            if (clipLength > 0)
+            ExtraAttackPlugin.LogInfo("System", $"CreateTimingForWeaponType: {key} -> clipLength = {clipLength:F3}s");
+            
+            // Debug: Check if ReplacementMap has the key
+            if (AnimationManager.ReplacementMap.ContainsKey(weaponType))
             {
-                // Calculate timing based on actual clip length (ratio-based)
-                timing.HitTiming = CalculateHitTiming(clipLength, weaponType);
-                timing.TrailOnTiming = CalculateTrailOnTiming(clipLength, weaponType);
-                timing.TrailOffTiming = CalculateTrailOffTiming(clipLength, weaponType);
-                timing.ChainTiming = CalculateChainTiming(clipLength, weaponType);
-                timing.SpeedTiming = CalculateSpeedTiming(clipLength, weaponType);
-                timing.DodgeMortalTiming = CalculateDodgeMortalTiming(clipLength, weaponType);
+                var weaponMap = AnimationManager.ReplacementMap[weaponType];
+                ExtraAttackPlugin.LogInfo("System", $"CreateTimingForWeaponType: ReplacementMap[{weaponType}] has {weaponMap.Count} entries: {string.Join(", ", weaponMap.Keys)}");
+                
+                var secondaryKey = $"secondary_{mode}";
+                if (weaponMap.ContainsKey(secondaryKey))
+                {
+                    var externalClipName = weaponMap[secondaryKey];
+                    ExtraAttackPlugin.LogInfo("System", $"CreateTimingForWeaponType: Found {secondaryKey} -> {externalClipName}");
+                }
+                else
+                {
+                    ExtraAttackPlugin.LogInfo("System", $"CreateTimingForWeaponType: {secondaryKey} not found in ReplacementMap[{weaponType}]");
+                }
             }
             else
             {
+                ExtraAttackPlugin.LogInfo("System", $"CreateTimingForWeaponType: ReplacementMap does not contain {weaponType}");
+            }
+            
+            if (clipLength > 0)
+            {
+                // Calculate absolute timings based on actual clip length
+                float hitTiming = CalculateHitTiming(clipLength, weaponType, mode);
+                float trailOnTiming = CalculateTrailOnTiming(clipLength, weaponType, mode);
+                float trailOffTiming = CalculateTrailOffTiming(clipLength, weaponType, mode);
+                float chainTiming = CalculateChainTiming(clipLength, weaponType, mode);
+                float speedTiming = CalculateSpeedTiming(clipLength, weaponType, mode);
+                float dodgeMortalTiming = CalculateDodgeMortalTiming(clipLength, weaponType, mode);
+                
+                ExtraAttackPlugin.LogInfo("System", $"CreateTimingForWeaponType: {key} -> Hit={hitTiming:F3}s, TrailOn={trailOnTiming:F3}s, TrailOff={trailOffTiming:F3}s");
+                
+                // Store absolute timings (will be converted to ratios in YAML output)
+                timing.HitTiming = hitTiming;
+                timing.TrailOnTiming = trailOnTiming;
+                timing.TrailOffTiming = trailOffTiming;
+                timing.ChainTiming = chainTiming;
+                timing.SpeedTiming = speedTiming;
+                timing.DodgeMortalTiming = dodgeMortalTiming;
+            }
+            else
+            {
+                ExtraAttackPlugin.LogInfo("System", $"CreateTimingForWeaponType: {key} -> No clip length, using fallback ratios");
                 // Fallback to default ratios if no clip length available
                 timing.HitTiming = 0.45f;
                 timing.TrailOnTiming = 0.35f;
@@ -834,14 +884,28 @@ namespace ExtraAttackSystem
                         var secondaryKey = $"secondary_{mode}";
                         if (weaponMap.TryGetValue(secondaryKey, out var externalClipName) && 
                             !string.IsNullOrEmpty(externalClipName))
-                    {
-                        // Get actual clip length from AnimationManager (with smart caching)
-                            float clipLength = AnimationManager.GetExternalClipLengthSmart(externalClipName);
-                        if (clipLength > 0)
                         {
-                            ExtraAttackPlugin.LogInfo("Config", $"Using external clip length for {key}: {clipLength:F3}s");
-                            return clipLength;
-                        }
+                            // Get actual clip length from AnimationManager (with smart caching)
+                            float clipLength = AnimationManager.GetExternalClipLengthSmart(externalClipName);
+                            
+                            if (clipLength > 0)
+                            {
+                                return clipLength;
+                            }
+                            else
+                            {
+                                // If external clip length is not found, try to get it from ExternalAnimations directly
+                                if (AnimationManager.ExternalAnimations.TryGetValue(externalClipName, out var clip))
+                                {
+                                    float directClipLength = clip.length;
+                                    ExtraAttackPlugin.LogInfo("System", $"GetAdjustedClipLength: Direct clip length for {externalClipName} = {directClipLength:F3}s");
+                                    return directClipLength;
+                                }
+                                else
+                                {
+                                    ExtraAttackPlugin.LogWarning("System", $"GetAdjustedClipLength: External clip not found in ExternalAnimations: {externalClipName}");
+                                }
+                            }
                         }
                     }
                 }
@@ -865,10 +929,10 @@ namespace ExtraAttackSystem
                 "GreatSwords" => 1.400f, // greatsword_secondary → [Greatsword Secondary Attack]
                 "BattleAxes" => 0.857f,  // battleaxe_secondary → [BattleAxeAltAttack]
                 "Clubs" => 1.400f,       // mace_secondary → [MaceAltAttack]
-                "Spears" => 1.0f,        // spear_secondary → no specific clip (default)
+                "Spears" => 1.133f,      // spear_secondary → [throw_spear]
                 "Polearms" => 2.167f,    // atgeir_secondary → [Atgeir360Attack]
                 "Knives" => 1.400f,      // knife_secondary → [Knife JumpAttack]
-                "Fists" => 1.0f,         // fist_secondary → no specific clip (default)
+                "Fists" => 1.833f,       // fist_secondary → [Kickstep]
                 _ => 1.0f
             };
         }
@@ -878,15 +942,15 @@ namespace ExtraAttackSystem
         {
             return weaponType switch
             {
-                "Axes" => 0.610f,        // axe_swing: OnAttackTrigger=0.610
-                "BattleAxes" => 0.464f,  // BattleAxeAltAttack: Hit=0.464
-                "GreatSwords" => 0.604f, // Greatsword BaseAttack (1): Hit=0.604
-                "Knives" => 0.839f,      // Knife Attack Leap: Hit=0.839
-                "Spears" => 0.470f,      // 2Hand-Spear-Attack1: OnAttackTrigger=0.470
-                "Polearms" => 1.124f,    // Atgeir360Attack: Hit=1.124
-                "Fists" => 0.840f,       // Punchstep 1: Hit=0.840
-                "Swords" => 0.472f,      // Attack1: Hit=0.472 (fallback for secondary)
-                "Clubs" => 0.472f,       // Attack1: Hit=0.472 (fallback for secondary)
+                "Axes" => 1.122f,       // Axe Secondary Attack: Hit=1.122s
+                "BattleAxes" => 0.464f,  // BattleAxeAltAttack: Hit=0.464s
+                "GreatSwords" => 0.959f, // Greatsword Secondary Attack: Hit=0.959s
+                "Knives" => 0.802f,      // Knife JumpAttack: Hit=0.802s
+                "Spears" => 0.739f,     // throw_spear: OnAttackTrigger=0.739s
+                "Polearms" => 1.124f,   // Atgeir360Attack: Hit=1.124s
+                "Fists" => 0.593f,       // Kickstep: Hit=0.593s
+                "Swords" => 0.244f,     // Sword-Attack-R4: Hit=0.244s
+                "Clubs" => 1.223f,      // MaceAltAttack: Hit=1.223s
                 _ => 0.45f
             };
         }
@@ -896,15 +960,15 @@ namespace ExtraAttackSystem
         {
             return weaponType switch
             {
-                "Axes" => 0.442f,        // axe_swing: TrailOn=0.442
-                "BattleAxes" => 0.222f,  // BattleAxeAltAttack: TrailOn=0.222
-                "GreatSwords" => 0.461f, // Greatsword BaseAttack (1): TrailOn=0.461
-                "Knives" => 0.478f,      // Knife Attack Leap: TrailOn=0.478
-                "Spears" => 0.369f,      // 2Hand-Spear-Attack1: TrailOn=0.369
-                "Polearms" => 1.011f,    // Atgeir360Attack: TrailOn=1.011
-                "Fists" => 0.702f,       // Punchstep 1: TrailOn=0.702
-                "Swords" => 0.404f,      // Attack1: TrailOn=0.404 (fallback for secondary)
-                "Clubs" => 0.404f,       // Attack1: TrailOn=0.404 (fallback for secondary)
+                "Axes" => 0.916f,       // Axe Secondary Attack: TrailOn=0.916s
+                "BattleAxes" => 0.222f,  // BattleAxeAltAttack: TrailOn=0.222s
+                "GreatSwords" => 0.719f, // Greatsword Secondary Attack: TrailOn=0.719s
+                "Knives" => 0.608f,      // Knife JumpAttack: TrailOn=0.608s
+                "Spears" => 0.509f,     // throw_spear: TrailOn=0.509s
+                "Polearms" => 1.011f,   // Atgeir360Attack: TrailOn=1.011s
+                "Fists" => 0.486f,       // Kickstep: TrailOn=0.486s
+                "Swords" => 0.184f,     // Sword-Attack-R4: TrailOn=0.184s
+                "Clubs" => 0.990f,      // MaceAltAttack: TrailOn=0.990s
                 _ => 0.35f
             };
         }
@@ -914,21 +978,21 @@ namespace ExtraAttackSystem
         {
             return weaponType switch
             {
-                "Axes" => 0.772f,        // axe_swing: TrailOff=0.772
-                "BattleAxes" => 0.521f,  // BattleAxeAltAttack: TrailOff=0.521
-                "GreatSwords" => 0.771f, // Greatsword BaseAttack (1): TrailOff=0.771
-                "Knives" => 0.0f,        // Knife Attack Leap: no TrailOff event
-                "Spears" => 0.526f,      // 2Hand-Spear-Attack1: TrailOff=0.526
-                "Polearms" => 1.602f,    // Atgeir360Attack: TrailOff=1.602
-                "Fists" => 0.0f,         // Punchstep 1: no TrailOff
-                "Swords" => 0.714f,      // Attack1: TrailOff=0.714 (fallback for secondary)
-                "Clubs" => 0.714f,       // Attack1: TrailOff=0.714 (fallback for secondary)
+                "Axes" => 1.184f,       // Axe Secondary Attack: TrailOff=1.184s
+                "BattleAxes" => 0.521f, // BattleAxeAltAttack: TrailOff=0.521s
+                "GreatSwords" => 0.980f, // Greatsword Secondary Attack: TrailOff=0.980s
+                "Knives" => 0.900f,     // Knife JumpAttack: TrailOff=0.900s
+                "Spears" => 0.0f,       // throw_spear: no TrailOff event
+                "Polearms" => 1.602f,   // Atgeir360Attack: TrailOff=1.602s
+                "Fists" => 0.0f,         // Kickstep: no TrailOff
+                "Swords" => 0.270f,     // Sword-Attack-R4: TrailOff=0.270s
+                "Clubs" => 1.445f,      // MaceAltAttack: TrailOff=1.445s
                 _ => 0.70f
             };
         }
         
-        // Calculate hit timing based on clip length and weapon type
-        private static float CalculateHitTiming(float clipLength, string weaponType)
+        // ###### Calculate hit timing based on clip length and weapon type
+        private static float CalculateHitTiming(float clipLength, string weaponType, string mode)
         {
             // Get vanilla clip length and hit timing for this weapon type
             float vanillaClipLength = GetVanillaClipLengthForWeaponType(weaponType);
@@ -941,23 +1005,48 @@ namespace ExtraAttackSystem
                 return Math.Min(clipLength, clipLength * ratio); // Apply ratio to custom clip length, cap at clipLength
             }
             
-            // Fallback to weapon-specific default ratios applied to clip length
-            float fallbackRatio = weaponType switch
+            // Vanilla HitTiming ratios for each weapon type (same for Q/T/G modes)
+            float AxeHitTimingRatio = 0.801f; // Axe Secondary Attack (Hit: 1.122s/1.400s)
+            float BattleAxesHitTimingRatio = 0.541f; // BattleAxeAltAttack (Hit: 0.464s/0.857s)
+            float GreatSwordsHitTimingRatio = 0.685f; // Greatsword Secondary Attack (Hit: 0.959s/1.400s)
+            float KnivesHitTimingRatio = 0.573f; // Knife JumpAttack (Hit: 0.802s/1.400s)
+            float SpearsHitTimingRatio = 0.652f; // throw_spear (Hit: 0.739s/1.133s)
+            float PolearmsHitTimingRatio = 0.519f; // Atgeir360Attack (Hit: 1.124s/2.167s)
+            float FistsHitTimingRatio = 0.324f; // Kickstep (Hit: 0.593s/1.833s)
+            
+            // Fallback to weapon-specific and mode-specific default ratios applied to clip length
+            // Each mode uses different animation clips, so different ratios should be used
+            float fallbackRatio = (weaponType, mode) switch
             {
-                "Axes" => 0.436f,        // 0.610/1.400
-                "BattleAxes" => 0.541f,  // 0.464/0.857
-                "GreatSwords" => 0.431f, // 0.604/1.400
-                "Knives" => 0.183f,      // 0.256/1.400
-                "Spears" => 0.470f,      // 0.470/1.000
-                "Polearms" => 0.519f,    // 1.124/2.167
-                "Fists" => 0.840f,       // 0.840/1.000
+                // Q: own weapon type, T: different clip, G: different clip
+                ("Axes", "Q") => AxeHitTimingRatio,        // Axe Secondary AttackExternal
+                ("Axes", "T") => AxeHitTimingRatio,        // 2Hand-Sword-Attack8External
+                ("Axes", "G") => AxeHitTimingRatio,        // Eas_GreatSword_JumpAttackExternal
+                ("BattleAxes", "Q") => BattleAxesHitTimingRatio,  // 2Hand_Skill01_WhirlWindExternal
+                ("BattleAxes", "T") => BattleAxesHitTimingRatio,  // 2Hand-Sword-Attack8External
+                ("BattleAxes", "G") => BattleAxesHitTimingRatio,  // Eas_GreatSword_JumpAttackExternal
+                ("GreatSwords", "Q") => GreatSwordsHitTimingRatio, // 2Hand-Sword-Attack8External
+                ("GreatSwords", "T") => GreatSwordsHitTimingRatio, // 2Hand_Skill01_WhirlWindExternal
+                ("GreatSwords", "G") => GreatSwordsHitTimingRatio, // Eas_GreatSword_JumpAttackExternal
+                ("Knives", "Q") => KnivesHitTimingRatio,      // ChargeAttkExternal
+                ("Knives", "T") => KnivesHitTimingRatio,      // Eas_GreatSword_JumpAttackExternal
+                ("Knives", "G") => KnivesHitTimingRatio,      // 2Hand-Sword-Attack8External
+                ("Spears", "Q") => SpearsHitTimingRatio,      // Eas_GreatSword_JumpAttackExternal
+                ("Spears", "T") => SpearsHitTimingRatio,      // 2Hand_Skill01_WhirlWindExternal
+                ("Spears", "G") => SpearsHitTimingRatio,      // 2Hand-Sword-Attack8External
+                ("Polearms", "Q") => PolearmsHitTimingRatio,    // Eas_GreatSword_JumpAttackExternal
+                ("Polearms", "T") => PolearmsHitTimingRatio,    // 2Hand-Sword-Attack8External
+                ("Polearms", "G") => PolearmsHitTimingRatio,    // 2Hand_Skill01_WhirlWindExternal
+                ("Fists", "Q") => FistsHitTimingRatio,       // Flying Knee Punch ComboExternal
+                ("Fists", "T") => FistsHitTimingRatio,       // 2Hand_Skill01_WhirlWindExternal
+                ("Fists", "G") => FistsHitTimingRatio,       // Eas_GreatSword_JumpAttackExternal
                 _ => 0.45f
             };
             return Math.Min(clipLength, clipLength * fallbackRatio);
         }
         
         // Calculate trail on timing based on clip length and weapon type
-        private static float CalculateTrailOnTiming(float clipLength, string weaponType)
+        private static float CalculateTrailOnTiming(float clipLength, string weaponType, string mode)
         {
             float vanillaClipLength = GetVanillaClipLengthForWeaponType(weaponType);
             float vanillaTrailOnTiming = GetVanillaTrailOnTimingForWeaponType(weaponType);
@@ -968,23 +1057,39 @@ namespace ExtraAttackSystem
                 return Math.Min(clipLength, clipLength * ratio);
             }
             
-            // Fallback to weapon-specific default ratios applied to clip length
-            float fallbackRatio = weaponType switch
+            // Fallback to weapon-specific and mode-specific default ratios applied to clip length
+            // Each mode uses different animation clips, so different ratios should be used
+            float fallbackRatio = (weaponType, mode) switch
             {
-                "Axes" => 0.316f,        // 0.442/1.400
-                "BattleAxes" => 0.259f,  // 0.222/0.857
-                "GreatSwords" => 0.329f, // 0.461/1.400
-                "Knives" => 0.096f,      // 0.134/1.400
-                "Spears" => 0.369f,      // 0.369/1.000
-                "Polearms" => 0.467f,    // 1.011/2.167
-                "Fists" => 0.702f,       // 0.702/1.000
+                // Q: own weapon type, T: different clip, G: different clip
+                ("Axes", "Q") => 0.654f,        // Axe Secondary Attack (TrailOn: 0.916s/1.400s)
+                ("Axes", "T") => 0.0f,          // 2Hand-Sword-Attack8 (TrailOn: なし)
+                ("Axes", "G") => 0.491f,        // Eas_GreatSword_JumpAttack (TrailOn: 0.688s/1.400s)
+                ("BattleAxes", "Q") => 0.259f,  // 2Hand_Skill01_WhirlWind (TrailOn: 0.222s/0.857s)
+                ("BattleAxes", "T") => 0.0f,    // 2Hand-Sword-Attack8 (TrailOn: なし)
+                ("BattleAxes", "G") => 0.491f,  // Eas_GreatSword_JumpAttack (TrailOn: 0.688s/1.400s)
+                ("GreatSwords", "Q") => 0.0f,   // 2Hand-Sword-Attack8 (TrailOn: なし)
+                ("GreatSwords", "T") => 0.259f, // 2Hand_Skill01_WhirlWind (TrailOn: 0.222s/0.857s)
+                ("GreatSwords", "G") => 0.491f, // Eas_GreatSword_JumpAttack (TrailOn: 0.688s/1.400s)
+                ("Knives", "Q") => 1.388f,      // ChargeAttk (TrailOn: 0.648s/0.467s) - 異常値のため調整
+                ("Knives", "T") => 0.491f,      // Eas_GreatSword_JumpAttack (TrailOn: 0.688s/1.400s)
+                ("Knives", "G") => 0.0f,       // 2Hand-Sword-Attack8 (TrailOn: なし)
+                ("Spears", "Q") => 0.491f,      // Eas_GreatSword_JumpAttack (TrailOn: 0.688s/1.400s)
+                ("Spears", "T") => 0.259f,      // 2Hand_Skill01_WhirlWind (TrailOn: 0.222s/0.857s)
+                ("Spears", "G") => 0.0f,        // 2Hand-Sword-Attack8 (TrailOn: なし)
+                ("Polearms", "Q") => 0.491f,    // Eas_GreatSword_JumpAttack (TrailOn: 0.688s/1.400s)
+                ("Polearms", "T") => 0.0f,      // 2Hand-Sword-Attack8 (TrailOn: なし)
+                ("Polearms", "G") => 0.259f,    // 2Hand_Skill01_WhirlWind (TrailOn: 0.222s/0.857s)
+                ("Fists", "Q") => 0.510f,       // Flying Knee Punch Combo (TrailOn: 0.595s/1.167s)
+                ("Fists", "T") => 0.259f,       // 2Hand_Skill01_WhirlWind (TrailOn: 0.222s/0.857s)
+                ("Fists", "G") => 0.491f,       // Eas_GreatSword_JumpAttack (TrailOn: 0.688s/1.400s)
                 _ => 0.32f
             };
             return Math.Min(clipLength, clipLength * fallbackRatio);
         }
         
         // Calculate trail off timing based on clip length and weapon type
-        private static float CalculateTrailOffTiming(float clipLength, string weaponType)
+        private static float CalculateTrailOffTiming(float clipLength, string weaponType, string mode)
         {
             float vanillaClipLength = GetVanillaClipLengthForWeaponType(weaponType);
             float vanillaTrailOffTiming = GetVanillaTrailOffTimingForWeaponType(weaponType);
@@ -996,29 +1101,30 @@ namespace ExtraAttackSystem
             }
             
             // Fallback to weapon-specific default ratios applied to clip length
+            // All modes (Q/T/G) use the same weapon type's secondary animation, so same ratio
             float fallbackRatio = weaponType switch
             {
-                "Axes" => 0.551f,        // 0.772/1.400
-                "BattleAxes" => 0.608f,  // 0.521/0.857
-                "GreatSwords" => 0.551f, // 0.771/1.400
-                "Knives" => 0.314f,      // 0.439/1.400
-                "Spears" => 0.526f,      // 0.526/1.000
-                "Polearms" => 0.739f,    // 1.602/2.167
-                "Fists" => 0.0f,         // no TrailOff
+                "Axes" => 0.551f,        // Axe Secondary Attack (same for Q/T/G)
+                "BattleAxes" => 0.608f,  // 2Hand_Skill01_WhirlWind (same for Q/T/G)
+                "GreatSwords" => 0.551f, // 2Hand-Sword-Attack8 (same for Q/T/G)
+                "Knives" => 0.314f,      // ChargeAttk (same for Q/T/G)
+                "Spears" => 0.526f,      // Eas_GreatSword_JumpAttack (same for Q/T/G)
+                "Polearms" => 0.739f,    // Eas_GreatSword_JumpAttack (same for Q/T/G)
+                "Fists" => 0.0f,         // Flying Knee Punch Combo (no TrailOff)
                 _ => 0.55f
             };
             return Math.Min(clipLength, clipLength * fallbackRatio);
         }
         
         // Calculate chain timing based on clip length and weapon type
-        private static float CalculateChainTiming(float clipLength, string weaponType)
+        private static float CalculateChainTiming(float clipLength, string weaponType, string mode)
         {
             // Secondary attacks don't have Chain events - return 0.0
             return 0.0f;
         }
         
         // Calculate speed timing based on clip length and weapon type
-        private static float CalculateSpeedTiming(float clipLength, string weaponType)
+        private static float CalculateSpeedTiming(float clipLength, string weaponType, string mode)
         {
             float vanillaClipLength = GetVanillaClipLengthForWeaponType(weaponType);
             float vanillaSpeedTiming = GetVanillaSpeedTimingForWeaponType(weaponType);
@@ -1030,22 +1136,23 @@ namespace ExtraAttackSystem
             }
             
             // Fallback to weapon-specific default ratios applied to clip length
+            // All modes (Q/T/G) use the same weapon type's secondary animation, so same ratio
             float fallbackRatio = weaponType switch
             {
-                "Axes" => 0.325f,        // 0.456/1.400
-                "BattleAxes" => 0.350f,  // 0.300/0.857
-                "GreatSwords" => 0.329f, // 0.461/1.400
-                "Knives" => 0.179f,      // 0.250/1.400
-                "Spears" => 0.470f,      // 0.470/1.000
-                "Polearms" => 0.230f,    // 0.500/2.167
-                "Fists" => 0.600f,       // 0.600/1.000
+                "Axes" => 0.325f,        // Axe Secondary Attack (same for Q/T/G)
+                "BattleAxes" => 0.350f,  // 2Hand_Skill01_WhirlWind (same for Q/T/G)
+                "GreatSwords" => 0.329f, // 2Hand-Sword-Attack8 (same for Q/T/G)
+                "Knives" => 0.179f,      // ChargeAttk (same for Q/T/G)
+                "Spears" => 0.470f,      // Eas_GreatSword_JumpAttack (same for Q/T/G)
+                "Polearms" => 0.230f,    // Eas_GreatSword_JumpAttack (same for Q/T/G)
+                "Fists" => 0.600f,       // Flying Knee Punch Combo (same for Q/T/G)
                 _ => 0.45f
             };
             return Math.Min(clipLength, clipLength * fallbackRatio);
         }
         
         // Calculate dodge mortal timing based on clip length and weapon type
-        private static float CalculateDodgeMortalTiming(float clipLength, string weaponType)
+        private static float CalculateDodgeMortalTiming(float clipLength, string weaponType, string mode)
         {
             float vanillaClipLength = GetVanillaClipLengthForWeaponType(weaponType);
             float vanillaDodgeMortalTiming = GetVanillaDodgeMortalTimingForWeaponType(weaponType);
@@ -1057,15 +1164,16 @@ namespace ExtraAttackSystem
             }
             
             // Fallback to weapon-specific default ratios applied to clip length
+            // All modes (Q/T/G) use the same weapon type's secondary animation, so same ratio
             float fallbackRatio = weaponType switch
             {
-                "Axes" => 0.621f,        // 0.870/1.400
-                "BattleAxes" => 0.980f,  // 0.840/0.857
-                "GreatSwords" => 0.607f, // 0.850/1.400
-                "Knives" => 0.607f,      // 0.850/1.400
-                "Spears" => 0.900f,      // 0.900/1.000
-                "Polearms" => 0.415f,    // 0.900/2.167
-                "Fists" => 0.900f,       // 0.900/1.000
+                "Axes" => 0.621f,        // Axe Secondary Attack (same for Q/T/G)
+                "BattleAxes" => 0.980f,  // 2Hand_Skill01_WhirlWind (same for Q/T/G)
+                "GreatSwords" => 0.607f, // 2Hand-Sword-Attack8 (same for Q/T/G)
+                "Knives" => 0.607f,      // ChargeAttk (same for Q/T/G)
+                "Spears" => 0.900f,      // Eas_GreatSword_JumpAttack (same for Q/T/G)
+                "Polearms" => 0.415f,    // Eas_GreatSword_JumpAttack (same for Q/T/G)
+                "Fists" => 0.900f,       // Flying Knee Punch Combo (same for Q/T/G)
                 _ => 0.85f
             };
             return Math.Min(clipLength, clipLength * fallbackRatio);
@@ -1128,15 +1236,15 @@ namespace ExtraAttackSystem
         {
             return weaponType switch
             {
-                "Axes" => 0.456f,        // axe_swing: Speed=0.456
-                "BattleAxes" => 0.300f,  // BattleAxeAltAttack: Speed=0.300
-                "GreatSwords" => 0.461f, // Greatsword BaseAttack (1): Speed=0.461
-                "Knives" => 0.250f,      // knife_slash0: Speed=0.250
-                "Spears" => 0.470f,      // 2Hand-Spear-Attack1: Speed=0.470
-                "Polearms" => 0.500f,    // Atgeir360Attack: Speed=0.500
-                "Fists" => 0.600f,       // Punchstep 1: Speed=0.600
-                "Swords" => 0.472f,      // Attack1: Speed=0.472 (fallback for secondary)
-                "Clubs" => 0.472f,       // Attack1: Speed=0.472 (fallback for secondary)
+                "Axes" => 0.0f,         // Axe Secondary Attack: no Speed event
+                "BattleAxes" => 0.216f,  // BattleAxeAltAttack: Speed=0.216s
+                "GreatSwords" => 0.0f,  // Greatsword Secondary Attack: no Speed event
+                "Knives" => 0.0f,       // Knife JumpAttack: Speed=0.000s (first event)
+                "Spears" => 0.0f,       // throw_spear: Speed=0.000s (first event)
+                "Polearms" => 0.0f,     // Atgeir360Attack: Speed=0.000s (first event)
+                "Fists" => 0.459f,      // Kickstep: Speed=0.459s
+                "Swords" => 0.0f,       // Sword-Attack-R4: Speed=0.000s (first event)
+                "Clubs" => 0.976f,      // MaceAltAttack: Speed=0.976s
                 _ => 0.45f
             };
         }
@@ -1146,16 +1254,16 @@ namespace ExtraAttackSystem
         {
             return weaponType switch
             {
-                "Axes" => 0.870f,        // axe_swing: DodgeMortal=0.870
-                "BattleAxes" => 0.840f,  // BattleAxeAltAttack: DodgeMortal=0.840
-                "GreatSwords" => 0.850f, // Greatsword BaseAttack (1): DodgeMortal=0.850
-                "Knives" => 0.850f,      // knife_slash0: DodgeMortal=0.850
-                "Spears" => 0.900f,      // 2Hand-Spear-Attack1: DodgeMortal=0.900
-                "Polearms" => 0.900f,    // Atgeir360Attack: DodgeMortal=0.900
-                "Fists" => 0.900f,       // Punchstep 1: DodgeMortal=0.900
-                "Swords" => 0.850f,      // Attack1: DodgeMortal=0.850 (fallback for secondary)
-                "Clubs" => 0.850f,       // Attack1: DodgeMortal=0.850 (fallback for secondary)
-                _ => 0.85f
+                "Axes" => 0.0f,         // Axe Secondary Attack: no DodgeMortal event
+                "BattleAxes" => 0.0f,    // BattleAxeAltAttack: no DodgeMortal event
+                "GreatSwords" => 0.0f,  // Greatsword Secondary Attack: no DodgeMortal event
+                "Knives" => 0.0f,       // Knife JumpAttack: no DodgeMortal event
+                "Spears" => 0.0f,       // throw_spear: no DodgeMortal event
+                "Polearms" => 0.0f,     // Atgeir360Attack: no DodgeMortal event
+                "Fists" => 0.0f,       // Kickstep: no DodgeMortal event
+                "Swords" => 0.0f,      // Sword-Attack-R4: no DodgeMortal event
+                "Clubs" => 0.0f,       // MaceAltAttack: no DodgeMortal event
+                _ => 0.0f
             };
         }
         
@@ -1175,16 +1283,7 @@ namespace ExtraAttackSystem
                 _ => 1.50f
             };
             
-            // Adjust based on mode
-            float modeMultiplier = mode switch
-            {
-                "Q" => 1.0f,
-                "T" => 1.1f,
-                "G" => 1.2f,
-                _ => 1.0f
-            };
-            
-            return baseRange * modeMultiplier;
+            return baseRange;
         }
         
         // Calculate attack height based on weapon type and mode
@@ -1202,16 +1301,7 @@ namespace ExtraAttackSystem
                 _ => 0.60f
             };
             
-            // Adjust based on mode
-            float modeMultiplier = mode switch
-            {
-                "Q" => 1.0f,
-                "T" => 1.1f,
-                "G" => 1.2f,
-                _ => 1.0f
-            };
-            
-            return baseHeight * modeMultiplier;
+            return baseHeight;
         }
         
         // Apply base settings for weapon type (fallback)
@@ -1418,33 +1508,7 @@ namespace ExtraAttackSystem
                 sb.AppendLine("#   WeaponType_secondary_Q      - Q key ( secondary_Q secondary attack)");
                 sb.AppendLine("#   WeaponType_secondary_T      - T key ( secondary_T secondary attack)  ");
                 sb.AppendLine("#   WeaponType_secondary_G      - G key ( secondary_G secondary attack)");
-                sb.AppendLine("#   WeaponType_secondary_Q_hit0 - Q key, first hit (multi-hit)");
                 sb.AppendLine("#   WeaponType                  - Fallback (no suffix)");
-                sb.AppendLine();
-                sb.AppendLine("# ==============================================================================");
-                sb.AppendLine("# Default Settings");
-                sb.AppendLine("# ==============================================================================");
-                sb.AppendLine("Default:");
-                sb.AppendLine("  # Animation Event Timing (0.0 ~ 1.0)");
-                sb.AppendLine($"  HitTiming: {config.Default.HitTiming:F2}");
-                sb.AppendLine($"  TrailOnTiming: {config.Default.TrailOnTiming:F2}");
-                sb.AppendLine($"  TrailOffTiming: {config.Default.TrailOffTiming:F2}");
-                sb.AppendLine($"  ChainTiming: {config.Default.ChainTiming:F2}  # defaults = 0.00 (disabled), set per-clip if needed");
-                sb.AppendLine($"  SpeedMultiplier: {config.Default.SpeedMultiplier:F2}");
-                sb.AppendLine();
-                sb.AppendLine("  # Attack Detection Parameters");
-                sb.AppendLine($"  AttackRange: {config.Default.AttackRange:F2}");
-                sb.AppendLine($"  AttackHeight: {config.Default.AttackHeight:F2}");
-                sb.AppendLine($"  AttackOffset: {config.Default.AttackOffset:F2}");
-                sb.AppendLine($"  AttackAngle: {config.Default.AttackAngle:F2}");
-                sb.AppendLine($"  AttackRayWidth: {config.Default.AttackRayWidth:F2}");
-                sb.AppendLine($"  AttackRayWidthCharExtra: {config.Default.AttackRayWidthCharExtra:F2}");
-                sb.AppendLine($"  AttackHeightChar1: {config.Default.AttackHeightChar1:F2}");
-                sb.AppendLine($"  AttackHeightChar2: {config.Default.AttackHeightChar2:F2}");
-                sb.AppendLine($"  MaxYAngle: {config.Default.MaxYAngle:F2}");
-                sb.AppendLine("  # Enable Flags");
-                sb.AppendLine($"  EnableHit: {(config.Default.EnableHit ? "true" : "false")}");
-                sb.AppendLine($"  EnableSound: {(config.Default.EnableSound ? "true" : "false")}");
                 sb.AppendLine();
                 sb.AppendLine("# ==============================================================================");
                 sb.AppendLine("# Weapon Type Specific Settings");
@@ -1478,11 +1542,28 @@ namespace ExtraAttackSystem
                         string modeKey = mode.Key.Replace("secondary_", "");
                         string replacementAnimation = GetReplacementAnimationName(weaponType.Key, modeKey);
                         
-                        sb.AppendLine($"    # secondary_{modeKey} - ExtraAttack 1 -> {replacementAnimation}");
+                        sb.AppendLine($"    # secondary_{modeKey} - ExtraAttack 1-> {replacementAnimation}");
                         sb.AppendLine($"    {mode.Key}:");
-                        sb.AppendLine($"      HitTiming: {timing.HitTiming:F2}");
-                        sb.AppendLine($"      TrailOnTiming: {timing.TrailOnTiming:F2}");
-                        sb.AppendLine($"      TrailOffTiming: {timing.TrailOffTiming:F2}");
+                        sb.AppendLine($"      # Animation Event Timing (0.0 ~ 1.0) - Zero means OFF");
+                        
+                        // Convert absolute timings to normalized ratios (0.0-1.0)
+                        float clipLength = GetAdjustedClipLength($"{weaponType.Key}_{mode.Key}");
+                        ExtraAttackPlugin.LogInfo("System", $"SaveWeaponTypeConfig: {weaponType.Key}_{mode.Key} -> clipLength={clipLength:F3}s, timing.HitTiming={timing.HitTiming:F3}s");
+                        
+                        float hitRatio = clipLength > 0 ? Math.Min(1.0f, timing.HitTiming / clipLength) : 0.0f;
+                        float trailOnRatio = clipLength > 0 ? Math.Min(1.0f, timing.TrailOnTiming / clipLength) : 0.0f;
+                        float trailOffRatio = clipLength > 0 ? Math.Min(1.0f, timing.TrailOffTiming / clipLength) : 0.0f;
+                        float speedRatio = clipLength > 0 ? Math.Min(1.0f, timing.SpeedTiming / clipLength) : 0.0f;
+                        float chainRatio = clipLength > 0 ? Math.Min(1.0f, timing.ChainTiming / clipLength) : 0.0f;
+                        float dodgeMortalRatio = clipLength > 0 ? Math.Min(1.0f, timing.DodgeMortalTiming / clipLength) : 0.0f;
+                        
+                        sb.AppendLine($"      HitTiming: {hitRatio:F2}");
+                        sb.AppendLine($"      TrailOnTiming: {trailOnRatio:F2}");
+                        sb.AppendLine($"      TrailOffTiming: {trailOffRatio:F2}");
+                        sb.AppendLine($"      SpeedTiming: {speedRatio:F2}");
+                        sb.AppendLine($"      ChainTiming: {chainRatio:F2}");
+                        sb.AppendLine($"      DodgeMortalTiming: {dodgeMortalRatio:F2}");
+                        sb.AppendLine($"      SpeedMultiplier: {timing.SpeedMultiplier:F2}");
                         sb.AppendLine($"      # Attack Parameters (from vanilla Attack class)");
                         sb.AppendLine($"      AttackRange: {timing.AttackRange:F2}");
                         sb.AppendLine($"      AttackHeight: {timing.AttackHeight:F2}");
@@ -1569,6 +1650,5 @@ namespace ExtraAttackSystem
         {
             return weaponTypeConfig;
         }
-        
     }
 }

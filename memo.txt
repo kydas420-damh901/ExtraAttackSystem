@@ -115,8 +115,8 @@ knife_secondary			[Knife JumpAttack] - Length: 1.400s, FrameRate: 30, Legacy: Fa
 dual_knives_secondary	[Knife Attack Leap] - Length: 1.500s, FrameRate: 30, Legacy: False, Events: 2
 greatsword_secondary	[Greatsword Secondary Attack] - Length: 1.400s, FrameRate: 30, Legacy: False, Events: 0
 dualaxes_secondary		[DualAxes Attack Cleave] - Length: 1.900s, FrameRate: 30, Legacy: False, Events: 3
-
-
+ [Kickstep] - Length: 1.833s, FrameRate: 30, Legacy: False, Events: 4
+[throw_spear] - Length: 1.133s, FrameRate: 30, Legacy: False, Events: 5
 
 
 

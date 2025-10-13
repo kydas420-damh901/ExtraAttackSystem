@@ -37,9 +37,9 @@ namespace ExtraAttackSystem
 
                         if (attackMode != ExtraAttackUtils.AttackMode.Normal)
                         {
-                            if (ExtraAttackPatches_Core.TryGetCurrentClipInfo(player, out string clipName, out AnimationClip clip, out int hitIndex))
+                            if (ExtraAttackPatches_Core.TryGetCurrentClipInfo(player, out string clipName, out AnimationClip clip))
                             {
-                                string configKey = ExtraAttackPatches_Core.BuildConfigKey(player, clipName, hitIndex);
+                                string configKey = ExtraAttackPatches_Core.BuildConfigKey(player, clipName);
                                 var timing = AnimationTimingConfig.GetTiming(configKey);
 
                                 if (!timing.EnableHit)
@@ -72,8 +72,11 @@ namespace ExtraAttackSystem
                                 __instance.m_attackHeightChar2 = timing.AttackHeightChar2;
                                 __instance.m_maxYAngle = timing.MaxYAngle;
 
-                                ExtraAttackPlugin.LogInfo("AOC",
-                                    $"Applied attack params from YAML: [{configKey}] Range={timing.AttackRange:F2}, Height={timing.AttackHeight:F2}, Angle={timing.AttackAngle:F1}");
+                                if (ExtraAttackPlugin.IsDebugAOCOperationsEnabled)
+                                {
+                                    ExtraAttackPlugin.LogInfo("AOC",
+                                        $"Applied attack params from YAML: [{configKey}] Range={timing.AttackRange:F2}, Height={timing.AttackHeight:F2}, Angle={timing.AttackAngle:F1}");
+                                }
                             }
                         }
                     }
@@ -104,7 +107,10 @@ namespace ExtraAttackSystem
 
                         originalParams.Remove(__instance);
 
-                        ExtraAttackPlugin.LogInfo("AOC", "Restored original attack params");
+                        if (ExtraAttackPlugin.IsDebugAOCOperationsEnabled)
+                        {
+                            ExtraAttackPlugin.LogInfo("AOC", "Restored original attack params");
+                        }
                     }
                 }
                 catch (Exception ex)

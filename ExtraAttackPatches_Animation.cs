@@ -149,12 +149,12 @@ namespace ExtraAttackSystem
                 }
 
                 // Final fallback
-                return ExtraAttackPatches_Core.BuildConfigKey(player, clipName, hitIndex);
+                return ExtraAttackPatches_Core.BuildConfigKey(player, clipName);
             }
             catch (Exception ex)
             {
                 ExtraAttackPlugin.LogError("System", $"Error in BuildConfigKeyByClip: {ex.Message}");
-                return ExtraAttackPatches_Core.BuildConfigKey(player, clipName, hitIndex);
+                return ExtraAttackPatches_Core.BuildConfigKey(player, clipName);
             }
         }
 

@@ -36,8 +36,8 @@ namespace ExtraAttackSystem
         private static bool cachedDebugDamageCalculation;
         private static bool cachedDebugPerformanceMetrics;
         private static bool cachedDebugAOCOperations;
-        private static bool cachedDebugAnimationParameters;
         private static bool cachedDebugClipNames;
+        private static bool cachedDebugCombo;
 
         // General config - keys & cooldowns
         // Q/T/G keys for extra attacks
@@ -51,9 +51,11 @@ namespace ExtraAttackSystem
         public static ConfigEntry<bool> DebugDamageCalculation = null!;
         public static ConfigEntry<bool> DebugPerformanceMetrics = null!;
         public static ConfigEntry<bool> DebugAOCOperations = null!;
+        public static ConfigEntry<bool> DebugCombo = null!;
         public static ConfigEntry<bool> DebugAnimationEventsList = null!;
         public static ConfigEntry<bool> DebugAnimationClipsList = null!;
-        public static ConfigEntry<bool> DebugAnimationParameters = null!;
+        public static ConfigEntry<bool> DebugAnimationTriggersList = null!;
+        public static ConfigEntry<bool> DebugAnimationParametersList = null!;
         public static ConfigEntry<bool> DebugClipNames = null!;
         
         // Cached debug flags for performance (all categories)
@@ -62,7 +64,7 @@ namespace ExtraAttackSystem
         public static bool IsDebugDamageCalculationEnabled => cachedDebugDamageCalculation;
         public static bool IsDebugPerformanceMetricsEnabled => cachedDebugPerformanceMetrics;
         public static bool IsDebugAOCOperationsEnabled => cachedDebugAOCOperations;
-        public static bool IsDebugAnimationParametersEnabled => cachedDebugAnimationParameters;
+        public static bool IsDebugComboEnabled => cachedDebugCombo;
         public static bool IsDebugClipNamesEnabled => cachedDebugClipNames;
         
         // ========================================================================
@@ -184,14 +186,15 @@ namespace ExtraAttackSystem
             cachedDebugSystemMessages = DebugSystemMessages.Value;
             DebugSystemMessages.SettingChanged += (s, e) => {
                 cachedDebugSystemMessages = DebugSystemMessages.Value;
-                LogInfo("System", $"DebugSystemMessages changed to: {cachedDebugSystemMessages}");
                 if (cachedDebugSystemMessages)
                 {
+                    LogInfo("System", $"DebugSystemMessages changed to: {cachedDebugSystemMessages}");
                     LogInfo("System", "System Messages debug enabled - will log system messages during gameplay");
                 }
                 else
                 {
-                    LogInfo("System", "System Messages debug disabled - no more system message logs will be output");
+                    // Simple log for OFF to prevent freeze
+                    UnityEngine.Debug.Log("[Extra Attack System] System Messages debug disabled");
                 }
             };
 
@@ -205,14 +208,15 @@ namespace ExtraAttackSystem
             cachedDebugAttackTriggers = DebugAttackTriggers.Value;
             DebugAttackTriggers.SettingChanged += (s, e) => {
                 cachedDebugAttackTriggers = DebugAttackTriggers.Value;
-                LogInfo("System", $"DebugAttackTriggers changed to: {cachedDebugAttackTriggers}");
                 if (cachedDebugAttackTriggers)
                 {
+                    LogInfo("System", $"DebugAttackTriggers changed to: {cachedDebugAttackTriggers}");
                     LogInfo("System", "Attack Triggers debug enabled - will log attack triggers during gameplay");
                 }
                 else
                 {
-                    LogInfo("System", "Attack Triggers debug disabled - no more attack trigger logs will be output");
+                    // Simple log for OFF to prevent freeze
+                    UnityEngine.Debug.Log("[Extra Attack System] Attack Triggers debug disabled");
                 }
             };
 
@@ -222,14 +226,15 @@ namespace ExtraAttackSystem
             cachedDebugDamageCalculation = DebugDamageCalculation.Value;
             DebugDamageCalculation.SettingChanged += (s, e) => {
                 cachedDebugDamageCalculation = DebugDamageCalculation.Value;
-                LogInfo("System", $"DebugDamageCalculation changed to: {cachedDebugDamageCalculation}");
                 if (cachedDebugDamageCalculation)
                 {
+                    LogInfo("System", $"DebugDamageCalculation changed to: {cachedDebugDamageCalculation}");
                     LogInfo("System", "Damage Calculation debug enabled - will log damage calculations during attacks");
                 }
                 else
                 {
-                    LogInfo("System", "Damage Calculation debug disabled - no more damage calculation logs will be output");
+                    // Simple log for OFF to prevent freeze
+                    UnityEngine.Debug.Log("[Extra Attack System] Damage Calculation debug disabled");
                 }
             };
 
@@ -243,14 +248,33 @@ namespace ExtraAttackSystem
             cachedDebugAOCOperations = DebugAOCOperations.Value;
             DebugAOCOperations.SettingChanged += (s, e) => {
                 cachedDebugAOCOperations = DebugAOCOperations.Value;
-                LogInfo("System", $"DebugAOCOperations changed to: {cachedDebugAOCOperations}");
                 if (cachedDebugAOCOperations)
                 {
+                    LogInfo("System", $"DebugAOCOperations changed to: {cachedDebugAOCOperations}");
                     LogInfo("System", "AOC Operations debug enabled - will log AOC operations during gameplay");
                 }
                 else
                 {
-                    LogInfo("System", "AOC Operations debug disabled - no more AOC operation logs will be output");
+                    // Simple log for OFF to prevent freeze
+                    UnityEngine.Debug.Log("[Extra Attack System] AOC Operations debug disabled");
+                }
+            };
+
+            // Combo System
+            DebugCombo = Config.Bind("3 - Animation System", "Combo System", false,
+                "Output combo prevention and m_previousAttack nullification to debug console");
+            cachedDebugCombo = DebugCombo.Value;
+            DebugCombo.SettingChanged += (s, e) => {
+                cachedDebugCombo = DebugCombo.Value;
+                if (cachedDebugCombo)
+                {
+                    LogInfo("System", $"DebugCombo changed to: {cachedDebugCombo}");
+                    LogInfo("System", "Combo System debug enabled - will log combo prevention during gameplay");
+                }
+                else
+                {
+                    // Simple log for OFF to prevent freeze
+                    UnityEngine.Debug.Log("[Extra Attack System] Combo System debug disabled");
                 }
             };
 
@@ -291,20 +315,21 @@ namespace ExtraAttackSystem
             };
 
 
-            // Animation Parameters Debug
-            DebugAnimationParameters = Config.Bind("3 - Animation System", "Animation Parameters", false,
-                "Output animator parameters and their current values during operations");
-            cachedDebugAnimationParameters = DebugAnimationParameters.Value;
-            DebugAnimationParameters.SettingChanged += (s, e) => {
-                cachedDebugAnimationParameters = DebugAnimationParameters.Value;
-                LogInfo("System", $"DebugAnimationParameters changed to: {cachedDebugAnimationParameters}");
-                if (cachedDebugAnimationParameters)
+            // Animation Parameters List (one-time output)
+            DebugAnimationParametersList = Config.Bind("4 - Debug Lists", "Animation Parameters List", false,
+                "Output all animator parameters and their current values to debug console");
+            DebugAnimationParametersList.SettingChanged += (s, e) => {
+                LogInfo("System", $"DebugAnimationParametersList changed to: {DebugAnimationParametersList.Value}");
+                if (DebugAnimationParametersList.Value)
                 {
-                    LogInfo("System", "Animation Parameters debug enabled - will log animator parameters during operations");
+                    LogInfo("System", "Animation Parameters list output requested");
+                    EAS_Debug.LogAllAnimationParameters();
+                    LogInfo("System", "Animation Parameters list output completed");
                 }
                 else
                 {
-                    LogInfo("System", "Animation Parameters debug disabled - no more animator parameter logs will be output");
+                    // Simple log for OFF to prevent freeze
+                    UnityEngine.Debug.Log("[Extra Attack System] Animation Parameters list output disabled");
                 }
             };
 
@@ -369,6 +394,13 @@ namespace ExtraAttackSystem
                     LogInfo("System", "GenerateAllYamlConfigs: Starting unified YAML generation for all 6 config files");
                 }
                 
+                // 0. Initialize AnimationManager first to populate ReplacementMap
+                if (IsDebugSystemMessagesEnabled)
+                {
+                    LogInfo("System", "Initializing AnimationManager...");
+                }
+                AnimationManager.InitializeAnimationMaps();
+                
                 // 1. AnimationReplacementConfig (2 files)
                 if (IsDebugSystemMessagesEnabled)
                 {
@@ -377,21 +409,12 @@ namespace ExtraAttackSystem
                 AnimationReplacementConfig.Initialize();
                 
                 // 2. AnimationTimingConfig (4 files)
-                if (IsDebugSystemMessagesEnabled)
-                {
-                    LogInfo("System", "Generating AnimationTimingConfig files...");
-                }
-                if (IsDebugSystemMessagesEnabled)
-                {
-                    LogInfo("System", "About to call AnimationTimingConfig.Initialize()");
-                }
+                LogInfo("System", "Generating AnimationTimingConfig files...");
+                LogInfo("System", "About to call AnimationTimingConfig.Initialize()");
                 try
                 {
                     AnimationTimingConfig.Initialize();
-                    if (IsDebugSystemMessagesEnabled)
-                    {
-                        LogInfo("System", "AnimationTimingConfig.Initialize completed successfully");
-                    }
+                    LogInfo("System", "AnimationTimingConfig.Initialize completed successfully");
                 }
                 catch (Exception ex)
                 {
@@ -443,11 +466,11 @@ namespace ExtraAttackSystem
                 // Load external animation assets first to populate ReplacementMap
                 AnimationManager.LoadAssets();
                 
-                // Apply weapon type settings to populate ReplacementMap before generating YAML
-                AnimationManager.ApplyWeaponTypeSettings();
-                
-                // Generate all 6 YAML configs in one unified process
+                // Generate all 6 YAML configs in one unified process (includes AnimationTimingConfig.Initialize)
                 GenerateAllYamlConfigs();
+                
+                // Apply weapon type settings to populate ReplacementMap after generating YAML
+                AnimationManager.ApplyWeaponTypeSettings();
                 
                 // Generate cost config file
                 ExtraAttackCostConfig.GenerateCostConfig();

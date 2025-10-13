@@ -145,7 +145,10 @@ namespace ExtraAttackSystem
                                         }
                                         else
                                         {
-                                            ExtraAttackPlugin.LogInfo("AOC", $"No crouch reassert needed; crouchBefore={crouchBeforeReassert} (toggle={crouchToggleState})");
+                                            if (ExtraAttackPlugin.IsDebugAOCOperationsEnabled)
+                                            {
+                                                ExtraAttackPlugin.LogInfo("AOC", $"No crouch reassert needed; crouchBefore={crouchBeforeReassert} (toggle={crouchToggleState})");
+                                            }
                                         }
 
                                         if (ExtraAttackPlugin.DebugAOCOperations.Value)

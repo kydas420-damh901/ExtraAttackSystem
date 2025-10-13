@@ -211,13 +211,32 @@ namespace ExtraAttackSystem
             // Initialize weapon type specific maps for Q/T/G
             var weaponTypes = new[] { "Swords", "Axes", "Clubs", "Spears", "GreatSwords", "BattleAxes", "Polearms", "Knives", "Fists", "Unarmed" };
             
-            // Weapon type dictionaries are now initialized in CreateDefaultWeaponTypeMappings or ApplyWeaponTypeSettings
-
-            // Weapon type dictionaries will be initialized by ApplyWeaponTypeSettings or CreateDefaultWeaponTypeMappings
-
-            // If external animations are available, populate example entries for secondary maps (mirrors Q defaults)
-
-            // Legacy maps are now handled by weapon type specific initialization above
+            // Create basic weapon type mappings for secondary_Q, secondary_T, secondary_G
+            foreach (var weaponType in weaponTypes)
+            {
+                if (!ReplacementMap.ContainsKey(weaponType))
+                {
+                    ReplacementMap[weaponType] = new Dictionary<string, string>();
+                }
+                
+                // Create Q/T/G mappings for each weapon type
+                string qExternalClip = GetExternalClipForWeaponType(weaponType, "Q");
+                string tExternalClip = GetExternalClipForWeaponType(weaponType, "T");
+                string gExternalClip = GetExternalClipForWeaponType(weaponType, "G");
+                
+                if (!string.IsNullOrEmpty(qExternalClip))
+                {
+                    ReplacementMap[weaponType]["secondary_Q"] = qExternalClip;
+                }
+                if (!string.IsNullOrEmpty(tExternalClip))
+                {
+                    ReplacementMap[weaponType]["secondary_T"] = tExternalClip;
+                }
+                if (!string.IsNullOrEmpty(gExternalClip))
+                {
+                    ReplacementMap[weaponType]["secondary_G"] = gExternalClip;
+                }
+            }
 
             if (ExternalAnimations.Count > 0)
             {
@@ -295,8 +314,7 @@ namespace ExtraAttackSystem
                 ExtraAttackPlugin.LogInfo("System", "Animation replacement maps initialized:");
                 
                 // Log weapon type specific mappings
-                var weaponTypesForLog = new[] { "Swords", "Axes", "Clubs", "Spears", "GreatSwords", "BattleAxes", "Polearms", "Knives", "Fists" };
-                foreach (var weaponType in weaponTypesForLog)
+                foreach (var weaponType in weaponTypes)
                 {
                     if (ReplacementMap.ContainsKey(weaponType))
                     {
@@ -917,30 +935,15 @@ namespace ExtraAttackSystem
             ExtraAttackPlugin.LogInfo("System", "ApplyWeaponTypeSettings: START");
             try
             {
-                // Log stack trace to find where this is being called from
-                var stackTrace = new System.Diagnostics.StackTrace(1, true);
-                var callerMethod = stackTrace.GetFrame(0)?.GetMethod()?.Name ?? "Unknown";
-                ExtraAttackPlugin.LogInfo("System", $"ApplyWeaponTypeSettings called from: {callerMethod}");
-                ExtraAttackPlugin.LogInfo("System", $"ApplyWeaponTypeSettings full stack trace: {stackTrace}");
                 
                 // Get weapon type config
                 var weaponTypeConfig = AnimationTimingConfig.GetWeaponTypeConfig();
                 
                 ExtraAttackPlugin.LogInfo("System", $"ApplyWeaponTypeSettings: weaponTypeConfig is null: {weaponTypeConfig == null}");
-                if (weaponTypeConfig != null)
-                {
-                    ExtraAttackPlugin.LogInfo("System", $"ApplyWeaponTypeSettings: WeaponTypes is null: {weaponTypeConfig.WeaponTypes == null}");
-                    if (weaponTypeConfig.WeaponTypes != null)
-                    {
-                        ExtraAttackPlugin.LogInfo("System", $"ApplyWeaponTypeSettings: WeaponTypes.Count: {weaponTypeConfig.WeaponTypes.Count}");
-                        if (weaponTypeConfig.WeaponTypes.Count > 0)
-                        {
-                            ExtraAttackPlugin.LogInfo("System", $"ApplyWeaponTypeSettings: WeaponTypes keys: {string.Join(", ", weaponTypeConfig.WeaponTypes.Keys)}");
-                        }
-                    }
-                }
+                ExtraAttackPlugin.LogInfo("System", $"ApplyWeaponTypeSettings: WeaponTypes is null: {weaponTypeConfig?.WeaponTypes == null}");
+                ExtraAttackPlugin.LogInfo("System", $"ApplyWeaponTypeSettings: WeaponTypes.Count: {weaponTypeConfig?.WeaponTypes?.Count ?? -1}");
                 
-                // ✅ 追加: 空の場合はデフォルト値で初期化
+                // If weaponTypeConfig is null or empty, create default mappings
                 if (weaponTypeConfig == null || weaponTypeConfig.WeaponTypes == null || weaponTypeConfig.WeaponTypes.Count == 0)
                 {
                     ExtraAttackPlugin.LogInfo("System", "weaponTypeConfig is null or empty - creating default mappings");
@@ -1118,49 +1121,48 @@ namespace ExtraAttackSystem
         // Get external clip for weapon type and mode
         private static string GetExternalClipForWeaponType(string weaponType, string mode)
         {
-            // Return appropriate external clip based on weapon type and mode
-            // Q: own weapon type, T: Great Sword, G: Battle Axe style
+            // Q/T/G modes use completely different animation clips
             switch (weaponType)
             {
                 case "Swords":
-                    return mode == "Q" ? "2Hand-Sword-Attack8External" :  // Q: own weapon type
-                           mode == "T" ? "2Hand_Skill01_WhirlWindExternal" : // T: Great Sword style
-                           "Eas_GreatSword_JumpAttackExternal"; // G: Battle Axe style
+                    return mode == "Q" ? "2Hand-Sword-Attack8External" :
+                           mode == "T" ? "2Hand_Skill01_WhirlWindExternal" :
+                           "Eas_GreatSword_JumpAttackExternal";
                 case "Axes":
-                    return mode == "Q" ? "Axe Secondary AttackExternal" :
+                    return mode == "Q" ? "OneHand_Up_Attack_B_1External" :
                            mode == "T" ? "2Hand-Sword-Attack8External" :
                            "Eas_GreatSword_JumpAttackExternal";
                 case "Clubs":
-                    return mode == "Q" ? "Eas_GreatSword_CastingExternal" : 
-                           mode == "T" ? "2Hand_Skill01_WhirlWindExternal" : 
+                    return mode == "Q" ? "Eas_GreatSword_CastingExternal" :
+                           mode == "T" ? "2Hand_Skill01_WhirlWindExternal" :
                            "2Hand-Sword-Attack8External";
                 case "Spears":
-                    return mode == "Q" ? "Eas_GreatSword_JumpAttackExternal" : 
-                           mode == "T" ? "2Hand_Skill01_WhirlWindExternal" : 
+                    return mode == "Q" ? "Eas_GreatSword_JumpAttackExternal" :
+                           mode == "T" ? "2Hand_Skill01_WhirlWindExternal" :
                            "2Hand-Sword-Attack8External";
                 case "GreatSwords":
-                    return mode == "Q" ? "2Hand-Sword-Attack8External" : 
-                           mode == "T" ? "2Hand_Skill01_WhirlWindExternal" : 
+                    return mode == "Q" ? "2Hand-Sword-Attack8External" :
+                           mode == "T" ? "2Hand_Skill01_WhirlWindExternal" :
                            "Eas_GreatSword_JumpAttackExternal";
                 case "BattleAxes":
-                    return mode == "Q" ? "2Hand_Skill01_WhirlWindExternal" : 
-                           mode == "T" ? "2Hand-Sword-Attack8External" : 
+                    return mode == "Q" ? "2Hand_Skill01_WhirlWindExternal" :
+                           mode == "T" ? "2Hand-Sword-Attack8External" :
                            "Eas_GreatSword_JumpAttackExternal";
                 case "Polearms":
-                    return mode == "Q" ? "Eas_GreatSword_JumpAttackExternal" : 
-                           mode == "T" ? "2Hand-Sword-Attack8External" : 
+                    return mode == "Q" ? "Eas_GreatSword_JumpAttackExternal" :
+                           mode == "T" ? "2Hand-Sword-Attack8External" :
                            "2Hand_Skill01_WhirlWindExternal";
                 case "Knives":
-                    return mode == "Q" ? "ChargeAttkExternal" : 
-                           mode == "T" ? "Eas_GreatSword_JumpAttackExternal" : 
+                    return mode == "Q" ? "ChargeAttkExternal" :
+                           mode == "T" ? "Eas_GreatSword_JumpAttackExternal" :
                            "2Hand-Sword-Attack8External";
                 case "Fists":
-                    return mode == "Q" ? "Flying Knee Punch ComboExternal" : 
-                           mode == "T" ? "2Hand_Skill01_WhirlWindExternal" : 
+                    return mode == "Q" ? "Flying Knee Punch ComboExternal" :
+                           mode == "T" ? "2Hand_Skill01_WhirlWindExternal" :
                            "Eas_GreatSword_JumpAttackExternal";
                 default:
-                    return mode == "Q" ? "2Hand-Sword-Attack8External" : 
-                           mode == "T" ? "2Hand-Sword-Attack8External" : 
+                    return mode == "Q" ? "2Hand-Sword-Attack8External" :
+                           mode == "T" ? "2Hand-Sword-Attack8External" :
                            "BattleAxeAltAttackExternal";
             }
         }

@@ -35,22 +35,34 @@ namespace ExtraAttackSystem
                             string prevInfo = m_previousAttack != null ? $"EXISTS ({m_previousAttack.m_attackAnimation})" : "NULL";
                             string currInfo = m_currentAttack != null ? $"EXISTS ({m_currentAttack.m_attackAnimation})" : "NULL";
 
-                            ExtraAttackPlugin.LogInfo("COMBO",
-                                $"[POSTFIX] Humanoid.StartAttack: mode={attackMode}, prev={prevInfo}, curr={currInfo}");
+                            if (ExtraAttackPlugin.IsDebugComboEnabled)
+                            {
+                                ExtraAttackPlugin.LogInfo("COMBO",
+                                    $"[POSTFIX] Humanoid.StartAttack: mode={attackMode}, prev={prevInfo}, curr={currInfo}");
+                            }
 
                             if (m_previousAttack != null)
                             {
-                                ExtraAttackPlugin.LogInfo("COMBO",
-                                    $"!!! FORCE NULLIFYING m_previousAttack: {m_previousAttack.m_attackAnimation} !!!");
+                                if (ExtraAttackPlugin.IsDebugComboEnabled)
+                                {
+                                    ExtraAttackPlugin.LogInfo("COMBO",
+                                        $"!!! FORCE NULLIFYING m_previousAttack: {m_previousAttack.m_attackAnimation} !!!");
+                                }
 
                                 // CRITICAL: Set the actual field, not the parameter
                                 traverse.Field("m_previousAttack").SetValue(null);
 
-                                ExtraAttackPlugin.LogInfo("COMBO", "!!! m_previousAttack NOW NULL !!!");
+                                if (ExtraAttackPlugin.IsDebugComboEnabled)
+                                {
+                                    ExtraAttackPlugin.LogInfo("COMBO", "!!! m_previousAttack NOW NULL !!!");
+                                }
                             }
                             else
                             {
-                                ExtraAttackPlugin.LogInfo("COMBO", "m_previousAttack was already NULL");
+                                if (ExtraAttackPlugin.IsDebugComboEnabled)
+                                {
+                                    ExtraAttackPlugin.LogInfo("COMBO", "m_previousAttack was already NULL");
+                                }
                             }
                         }
                     }
@@ -85,9 +97,12 @@ namespace ExtraAttackSystem
                         string prevInfo = m_previousAttack != null ? $"EXISTS ({m_previousAttack.m_attackAnimation})" : "NULL";
                         string currInfo = m_currentAttack != null ? $"EXISTS ({m_currentAttack.m_attackAnimation})" : "NULL";
 
-                        ExtraAttackPlugin.LogInfo("COMBO",
-                            $"[PREFIX] Humanoid.StartAttack: mode={currentMode}, sec={secondaryAttack}, " +
-                            $"prev={prevInfo}, curr={currInfo}");
+                        if (ExtraAttackPlugin.IsDebugComboEnabled)
+                        {
+                            ExtraAttackPlugin.LogInfo("COMBO",
+                                $"[PREFIX] Humanoid.StartAttack: mode={currentMode}, sec={secondaryAttack}, " +
+                                $"prev={prevInfo}, curr={currInfo}");
+                        }
                     }
                 }
                 catch (Exception ex)
@@ -134,7 +149,10 @@ namespace ExtraAttackSystem
                     if (character is Player player && player == Player.m_localPlayer)
                     {
                         // Disabled: keep vanilla chain behavior; do not modify previousAttack or timeSinceLastAttack
-                        ExtraAttackPlugin.LogInfo("COMBO", "[DISABLED] Attack.Start Prefix: keep vanilla chain; no previousAttack/timeSinceLastAttack changes");
+                        if (ExtraAttackPlugin.IsDebugComboEnabled)
+                        {
+                            ExtraAttackPlugin.LogInfo("COMBO", "[DISABLED] Attack.Start Prefix: keep vanilla chain; no previousAttack/timeSinceLastAttack changes");
+                        }
 
                         // Apply AOC just before vanilla SetTrigger executes inside Attack.Start
                     }
@@ -174,14 +192,16 @@ namespace ExtraAttackSystem
                                     string clipName = clipInfos[0].clip.name;
                                     AnimationClip clip = clipInfos[0].clip;
 
-                                    int hitIndex = ExtraAttackPatches_Core.GetCurrentHitIndex(animator, clip);
-                                    string configKey = ExtraAttackPatches_Core.BuildConfigKey(player, clipName, hitIndex);
+                                    string configKey = ExtraAttackPatches_Core.BuildConfigKey(player, clipName);
                                     var timing = AnimationTimingConfig.GetTiming(configKey);
 
                                     if (!timing.EnableHit)
                                     {
-                                        ExtraAttackPlugin.LogInfo("SOUND",
-                                            $"[SKIP] Attack.OnAttackTrigger: [{configKey}] EnableHit=false - Sound & Damage DISABLED");
+                                        if (ExtraAttackPlugin.IsDebugAOCOperationsEnabled)
+                                        {
+                                            ExtraAttackPlugin.LogInfo("SOUND",
+                                                $"[SKIP] Attack.OnAttackTrigger: [{configKey}] EnableHit=false - Sound & Damage DISABLED");
+                                        }
                                         return false; // Skip entire OnAttackTrigger
                                     }
                                 }
