@@ -204,7 +204,7 @@ namespace ExtraAttackSystem
         public static void InitializeAnimationMaps()
         {
             // Initialize weapon type specific maps for Q/T/G
-            var weaponTypes = new[] { "Swords", "Axes", "Clubs", "Spears", "GreatSwords", "BattleAxes", "Polearms", "Knives", "Fists", "Unarmed" };
+            var weaponTypes = new[] { "Sword", "Axe", "Club", "Spear", "Greatsword", "Battleaxe", "Polearm", "Knife", "Fist", "Unarmed" };
             
             // Create basic weapon type mappings for secondary_Q, secondary_T, secondary_G
             foreach (var weaponType in weaponTypes)
@@ -354,28 +354,28 @@ namespace ExtraAttackSystem
                 
                 string weaponType = skillType switch
                 {
-                    Skills.SkillType.Axes => is2H ? "BattleAxes" : "Axes",
-                    Skills.SkillType.Swords => is2H ? "GreatSwords" : "Swords",
-                    Skills.SkillType.Clubs => "Clubs",
-                    Skills.SkillType.Spears => "Spears",
-                    Skills.SkillType.Polearms => "Polearms",
-                    Skills.SkillType.Knives => "Knives",
-                    Skills.SkillType.Unarmed => "Fists",
-                    _ => "Swords" // Default to Swords if unknown
+                    Skills.SkillType.Axes => is2H ? "Battleaxe" : "Axe",
+                    Skills.SkillType.Swords => is2H ? "Greatsword" : "Sword",
+                    Skills.SkillType.Clubs => "Club",
+                    Skills.SkillType.Spears => "Spear",
+                    Skills.SkillType.Polearms => "Polearm",
+                    Skills.SkillType.Knives => "Knife",
+                    Skills.SkillType.Unarmed => "Fist",
+                    _ => "Sword" // Default to Sword if unknown
                 };
 
                 // Map weapon type to idle animation state name
                 string idleState = weaponType switch
                 {
-                    "Swords" => "Idle_Sword",
-                    "Axes" => "Idle_Axe", 
-                    "Clubs" => "Idle_Club",
-                    "Spears" => "Idle_Spear",
-                    "GreatSwords" => "Idle_Greatsword",
-                    "BattleAxes" => "Idle_Battleaxe",
-                    "Polearms" => "Idle_Atgeir",
-                    "Knives" => "Idle_Knife",
-                    "Fists" => "Idle",
+                    "Sword" => "Idle_Sword",
+                    "Axe" => "Idle_Axe", 
+                    "Club" => "Idle_Club",
+                    "Spear" => "Idle_Spear",
+                    "Greatsword" => "Idle_Greatsword",
+                    "Battleaxe" => "Idle_Battleaxe",
+                    "Polearm" => "Idle_Atgeir",
+                    "Knife" => "Idle_Knife",
+                    "Fist" => "Idle",
                     _ => "Idle" // Default fallback
                 };
 
@@ -1068,15 +1068,15 @@ namespace ExtraAttackSystem
         {
             return weaponType switch
             {
-                "Swords" => "Sword-Attack-R4",
-                "Axes" => "Axe Secondary Attack",
-                "Clubs" => "MaceAltAttack",
-                "Spears" => "Atgeir360Attack",
-                "GreatSwords" => "Greatsword Secondary Attack",
-                "BattleAxes" => "BattleAxeAltAttack",
-                "Polearms" => "Atgeir360Attack",
-                "Knives" => "Knife JumpAttack",
-                "Fists" => "Kickstep",
+                "Sword" => "Sword-Attack-R4",
+                "Axe" => "Axe Secondary Attack",
+                "Club" => "MaceAltAttack",
+                "Spear" => "Atgeir360Attack",
+                "Greatsword" => "Greatsword Secondary Attack",
+                "Battleaxe" => "BattleAxeAltAttack",
+                "Polearm" => "Atgeir360Attack",
+                "Knife" => "Knife JumpAttack",
+                "Fist" => "Kickstep",
                 _ => "Sword-Attack-R4"
             };
         }
@@ -1086,14 +1086,14 @@ namespace ExtraAttackSystem
         {
             return weaponType switch
             {
-                "Swords" => "Sword-Attack-R4",
-                "GreatSwords" => "Greatsword Secondary Attack",
-                "Axes" => "Axe Secondary Attack",
-                "Clubs" => "MaceAltAttack",
-                "Spears" => "throw_spear",
-                "BattleAxes" => "BattleAxeAltAttack",
-                "Polearms" => "Atgeir360Attack",
-                "Knives" => "Knife JumpAttack",
+                "Sword" => "Sword-Attack-R4",
+                "Greatsword" => "Greatsword Secondary Attack",
+                "Axe" => "Axe Secondary Attack",
+                "Club" => "MaceAltAttack",
+                "Spear" => "throw_spear",
+                "Battleaxe" => "BattleAxeAltAttack",
+                "Polearm" => "Atgeir360Attack",
+                "Knife" => "Knife JumpAttack",
                 _ => "Sword-Attack-R4"
             };
         }
@@ -1108,8 +1108,8 @@ namespace ExtraAttackSystem
                 // Define weapon types and their default external animations
                 var weaponTypes = new[]
                 {
-                    "Swords", "Axes", "Clubs", "Spears", "GreatSwords", 
-                    "BattleAxes", "Polearms", "Knives", "Fists"
+                    "Sword", "Axe", "Club", "Spear", "Greatsword", 
+                    "Battleaxe", "Polearm", "Knife", "Fist"
                 };
                 
                 var defaultAnimations = new[]

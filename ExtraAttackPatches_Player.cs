@@ -80,6 +80,10 @@ namespace ExtraAttackSystem
                         
                         ExtraAttackPlugin.LogInfo("System", "F6: YAML reload process completed");
                         
+                        // Debug: Show current config status
+                        ExtraAttackPlugin.LogInfo("System", $"F6: Current AnimationReplacementMap count: {AnimationManager.AnimationReplacementMap.Count}");
+                        ExtraAttackPlugin.LogInfo("System", $"F6: Current CustomAnimationClips count: {AnimationManager.CustomAnimationClips.Count}");
+                        
                         // Show notification in game
                         if (MessageHud.instance != null)
                         {

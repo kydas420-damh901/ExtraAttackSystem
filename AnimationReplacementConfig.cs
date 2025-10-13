@@ -216,6 +216,16 @@ namespace ExtraAttackSystem
                     current.AocTypes = weaponTypesConfig.AocTypes;
                     ExtraAttackPlugin.LogInfo("System", $"LoadWeaponTypesConfig: Successfully loaded {current.AocTypes.Count} weapon types from YAML");
                     
+                    // Debug: Show loaded weapon types
+                    foreach (var weaponType in current.AocTypes)
+                    {
+                        ExtraAttackPlugin.LogInfo("System", $"LoadWeaponTypesConfig: Loaded weapon type: {weaponType.Key} with {weaponType.Value.Count} mappings");
+                        foreach (var mapping in weaponType.Value)
+                        {
+                            ExtraAttackPlugin.LogInfo("System", $"LoadWeaponTypesConfig:   {mapping.Key} -> {mapping.Value}");
+                        }
+                    }
+                    
                     ExtraAttackPlugin.LogInfo("System", "LoadWeaponTypesConfig: Successfully loaded weapon types config");
                 }
                 else
@@ -243,55 +253,55 @@ namespace ExtraAttackSystem
             // Define default mappings with 2-layer structure - each weapon type gets unique animations
             var defaultMappings = new Dictionary<string, Dictionary<string, string>>
                 {
-                    ["Swords"] = new Dictionary<string, string>
+                    ["Sword"] = new Dictionary<string, string>
                     {
                     ["secondary_Q"] = "Sw-Ma-GS-Up_Attack_A_1External",
                     ["secondary_T"] = "Sw-Ma-GS-Up_Attack_A_2External",
                     ["secondary_G"] = "Sw-Ma-GS-Up_Attack_A_3External"
                     },
-                    ["Axes"] = new Dictionary<string, string>
+                    ["Axe"] = new Dictionary<string, string>
                     {
                     ["secondary_Q"] = "OneHand_Up_Attack_B_1External",
                     ["secondary_T"] = "OneHand_Up_Attack_B_2External",
                     ["secondary_G"] = "OneHand_Up_Attack_B_3External"
                     },
-                    ["Clubs"] = new Dictionary<string, string>
+                    ["Club"] = new Dictionary<string, string>
                     {
                     ["secondary_Q"] = "0MWA_DualWield_Attack02External",
                     ["secondary_T"] = "MWA_RightHand_Attack03External",
                     ["secondary_G"] = "Shield@ShieldAttack01External"
                     },
-                    ["Spears"] = new Dictionary<string, string>
+                    ["Spear"] = new Dictionary<string, string>
                     {
                     ["secondary_Q"] = "Shield@ShieldAttack02External",
                     ["secondary_T"] = "Attack04External",
                     ["secondary_G"] = "0MGSA_Attack_Dash01External"
                     },
-                    ["GreatSwords"] = new Dictionary<string, string>
+                    ["Greatsword"] = new Dictionary<string, string>
                     {
                     ["secondary_Q"] = "2Hand-Sword-Attack8External",
                     ["secondary_T"] = "2Hand_Skill01_WhirlWindExternal",
                     ["secondary_G"] = "Eas_GreatSword_Combo1External"
                     },
-                    ["BattleAxes"] = new Dictionary<string, string>
+                    ["Battleaxe"] = new Dictionary<string, string>
                     {
                     ["secondary_Q"] = "0MGSA_Attack_Dash02External",
                     ["secondary_T"] = "0MGSA_Attack_Ground01External",
                     ["secondary_G"] = "0MGSA_Attack_Ground02External"
                     },
-                    ["Polearms"] = new Dictionary<string, string>
+                    ["Polearm"] = new Dictionary<string, string>
                     {
                     ["secondary_Q"] = "Pa_1handShiled_attack02External",
                     ["secondary_T"] = "Attack_ShieldExternal",
                     ["secondary_G"] = "0DS_Attack_07External"
                     },
-                    ["Knives"] = new Dictionary<string, string>
+                    ["Knife"] = new Dictionary<string, string>
                     {
                     ["secondary_Q"] = "ChargeAttkExternal",
                     ["secondary_T"] = "HardAttkExternal",
                     ["secondary_G"] = "StrongAttk3External"
                     },
-                    ["Fists"] = new Dictionary<string, string>
+                    ["Fist"] = new Dictionary<string, string>
                     {
                     ["secondary_Q"] = "Flying Knee Punch ComboExternal",
                     ["secondary_T"] = "Eas_GreatSword_SlideAttackExternal",
@@ -479,7 +489,7 @@ namespace ExtraAttackSystem
                 return false;
                 
             // Known weapon types that should go to AocTypes
-            var weaponTypes = new[] { "Swords", "Axes", "Clubs", "Spears", "GreatSwords", "BattleAxes", "Polearms", "Knives", "Fists", "Unarmed" };
+            var weaponTypes = new[] { "Sword", "Axe", "Club", "Spear", "Greatsword", "Battleaxe", "Polearm", "Knife", "Fist", "Unarmed" };
             
             // Check if it's a weapon type key
             foreach (var weaponType in weaponTypes)
@@ -509,6 +519,9 @@ namespace ExtraAttackSystem
             
             try
         {
+            // Debug: Check current state before processing
+            ExtraAttackPlugin.LogInfo("System", $"ApplyToManager: current.AocTypes is null: {current.AocTypes == null}, count: {current.AocTypes?.Count ?? 0}");
+            
             // If AocTypes is empty, only use default mappings if no YAML file exists or is empty
             if (current.AocTypes == null || current.AocTypes.Count == 0)
             {
@@ -521,7 +534,7 @@ namespace ExtraAttackSystem
                     try
                     {
                         string content = File.ReadAllText(WeaponTypesConfigFilePath, Encoding.UTF8).Trim();
-                        yamlHasContent = !string.IsNullOrEmpty(content) && (content.Contains("AocTypes:") || content.Contains("Swords:") || content.Contains("Axes:") || content.Contains("GreatSwords:"));
+                        yamlHasContent = !string.IsNullOrEmpty(content) && content.Contains("AocTypes:");
                         ExtraAttackPlugin.LogInfo("System", $"ApplyToManager: YAML content check - isEmpty: {string.IsNullOrEmpty(content)}, containsAocTypes: {content.Contains("AocTypes:")}, containsSwords: {content.Contains("Swords:")}, yamlHasContent: {yamlHasContent}");
                     }
                     catch (Exception ex)
@@ -598,6 +611,13 @@ namespace ExtraAttackSystem
             else
             {
                 ExtraAttackPlugin.LogInfo("System", "ApplyToManager: current.AocTypes is null or empty - will be handled by AnimationManager");
+            }
+            
+            // Debug: Show final state
+            ExtraAttackPlugin.LogInfo("System", $"ApplyToManager: Final AnimationReplacementMap count: {AnimationManager.AnimationReplacementMap.Count}");
+            foreach (var weaponType in AnimationManager.AnimationReplacementMap)
+            {
+                ExtraAttackPlugin.LogInfo("System", $"ApplyToManager: WeaponType[{weaponType.Key}] has {weaponType.Value.Count} mappings");
             }
             
             // Process Maps (legacy format) if available
@@ -683,7 +703,7 @@ namespace ExtraAttackSystem
                 var weaponTypeGroups = new Dictionary<string, Dictionary<string, string>>();
                 
                 // Ensure the weapon types used in validation conditions are always included (alphabetical order)
-                string[] weaponTypes = { "Axes", "BattleAxes", "Clubs", "Fists", "GreatSwords", "Knives", "Polearms", "Spears", "Swords" };
+                string[] weaponTypes = { "Axe", "Battleaxe", "Club", "Fist", "Greatsword", "Knife", "Polearm", "Spear", "Sword" };
                 
                 // Check if ReplacementMap has data, if not use default mappings
                 bool hasReplacementMapData = AnimationManager.AnimationReplacementMap.Count > 0;
@@ -859,15 +879,15 @@ namespace ExtraAttackSystem
         {
             return weaponType switch
             {
-                "Swords" => "sword_secondary",
-                "Axes" => "axe_secondary",
-                "Clubs" => "mace_secondary",
-                "Spears" => "spear_secondary",
-                "GreatSwords" => "greatsword_secondary",
-                "BattleAxes" => "battleaxe_secondary",
-                "Polearms" => "atgeir_secondary",
-                "Knives" => "knife_secondary",
-                "Fists" => "fist_secondary",
+                "Sword" => "sword_secondary",
+                "Axe" => "axe_secondary",
+                "Club" => "mace_secondary",
+                "Spear" => "spear_secondary",
+                "Greatsword" => "greatsword_secondary",
+                "Battleaxe" => "battleaxe_secondary",
+                "Polearm" => "atgeir_secondary",
+                "Knife" => "knife_secondary",
+                "Fist" => "fist_secondary",
                 _ => "sword_secondary"
             };
         }
@@ -899,7 +919,7 @@ namespace ExtraAttackSystem
                     
                     // Check if this is an individual weapon (contains specific weapon name)
                     // vs weapon type (generic names like Swords, Axes, etc.)
-                    string[] weaponTypes = { "Swords", "Axes", "Clubs", "Spears", "Polearms", "Knives", "Fists", "BattleAxes", "GreatSwords", "Unarmed", "DualAxes", "DualKnives", "Sledges", "Torch" };
+                    string[] weaponTypes = { "Sword", "Axe", "Club", "Spear", "Polearm", "Knife", "Fist", "Battleaxe", "Greatsword", "Unarmed", "DualAxes", "DualKnives", "Sledges", "Torch" };
                     
                     if (weaponTypes.Contains(weaponName))
                     {

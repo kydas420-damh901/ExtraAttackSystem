@@ -299,3 +299,27 @@ Trigger前に Play("Idle") を挟む
 AnimatorControllerは永続AOC方式にする
 
 この2つを併用すれば、ほとんどのケースで「座りが一瞬表示される」問題は解消されます。
+
+
+
+
+## Prompt 常駐ワード
+指示に忠実にコーディングする
+推論禁止
+
+## Ver 0.8.5
+
+## Issue
+Atatck Parameter のバニラ値の取得ログ debug.cs
+
+AOC切り替え時の1F表示
+
+AOC適用中のidle 納刀、sit emote 対応箇所
+
+## yaml設定
+カスタムアニメーションのtiming設定
+
+
+## Configuration Manager
+List animation parameter 不完全
+

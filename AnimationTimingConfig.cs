@@ -344,7 +344,7 @@ namespace ExtraAttackSystem
                 }
 
                 // Weapon type maps: Q/T/G for each weapon type
-                string[] weaponTypes = { "Swords", "Axes", "Clubs", "Spears", "GreatSwords", "BattleAxes", "Polearms", "Knives", "Fists" };
+                string[] weaponTypes = { "Sword", "Axe", "Club", "Spear", "Greatsword", "Battleaxe", "Polearm", "Knife", "Fist" };
                 foreach (var weaponType in weaponTypes)
                 {
                     AppendFromWeaponType(weaponType, "secondary_Q", "secondary_Q");
@@ -447,10 +447,10 @@ namespace ExtraAttackSystem
                 ExtraAttackPlugin.LogInfo("Config", $"WeaponTypes is null: {weaponTypeConfig?.WeaponTypes == null}");
                 
                 // Debug: Check if Swords exists and what modes it has
-                if (weaponTypeConfig?.WeaponTypes != null && weaponTypeConfig.WeaponTypes.ContainsKey("Swords"))
+                if (weaponTypeConfig?.WeaponTypes != null && weaponTypeConfig.WeaponTypes.ContainsKey("Sword"))
                 {
-                    var swordsModes = weaponTypeConfig.WeaponTypes["Swords"];
-                    ExtraAttackPlugin.LogInfo("Config", $"Swords modes found: {string.Join(", ", swordsModes.Keys)}");
+                    var swordsModes = weaponTypeConfig.WeaponTypes["Sword"];
+                    ExtraAttackPlugin.LogInfo("Config", $"Sword modes found: {string.Join(", ", swordsModes.Keys)}");
                 }
                 else
                 {
@@ -585,7 +585,7 @@ namespace ExtraAttackSystem
                         }
                         
                         // Skip weapon types (only process individual weapons)
-                        string[] weaponTypes = { "Swords", "Axes", "Clubs", "Spears", "Polearms", "Knives", "Fists", "BattleAxes", "GreatSwords", "Unarmed", "DualAxes", "DualKnives", "Sledges", "Torch" };
+                        string[] weaponTypes = { "Sword", "Axe", "Club", "Spear", "Polearm", "Knife", "Fist", "Battleaxe", "Greatsword", "Unarmed", "DualAxes", "DualKnives", "Sledges", "Torch" };
                         if (weaponTypes.Contains(weaponName))
                         {
                             continue; // Skip weapon types
@@ -651,6 +651,68 @@ namespace ExtraAttackSystem
             return key;
         }
 
+        // Get shared weapon type mappings
+        private static Dictionary<string, Dictionary<string, string>> GetWeaponTypeMappings()
+        {
+            return new Dictionary<string, Dictionary<string, string>>
+            {
+                ["Sword"] = new Dictionary<string, string>
+                {
+                    ["Q"] = "Sword",       // Sword secondary
+                    ["T"] = "Sword",       // Sword secondary (same weapon type)
+                    ["G"] = "Sword"        // Sword secondary (same weapon type)
+                },
+                ["Axe"] = new Dictionary<string, string>
+                {
+                    ["Q"] = "Axe",         // Axe secondary
+                    ["T"] = "Axe",         // Axe secondary (same weapon type)
+                    ["G"] = "Axe"          // Axe secondary (same weapon type)
+                },
+                ["Club"] = new Dictionary<string, string>
+                {
+                    ["Q"] = "Club",        // Club secondary
+                    ["T"] = "Club",        // Club secondary (same weapon type)
+                    ["G"] = "Club"         // Club secondary (same weapon type)
+                },
+                ["Spear"] = new Dictionary<string, string>
+                {
+                    ["Q"] = "Spear",       // Spear secondary
+                    ["T"] = "Spear",       // Spear secondary (same weapon type)
+                    ["G"] = "Spear"        // Spear secondary (same weapon type)
+                },
+                ["Greatsword"] = new Dictionary<string, string>
+                {
+                    ["Q"] = "Greatsword",  // Great Sword secondary
+                    ["T"] = "Greatsword",  // Great Sword secondary (same weapon type)
+                    ["G"] = "Greatsword"   // Great Sword secondary (same weapon type)
+                },
+                ["Battleaxe"] = new Dictionary<string, string>
+                {
+                    ["Q"] = "Battleaxe",   // Battle Axe secondary
+                    ["T"] = "Battleaxe",   // Battle Axe secondary (same weapon type)
+                    ["G"] = "Battleaxe"    // Battle Axe secondary (same weapon type)
+                },
+                ["Polearm"] = new Dictionary<string, string>
+                {
+                    ["Q"] = "Polearm",     // Polearm secondary
+                    ["T"] = "Polearm",     // Polearm secondary (same weapon type)
+                    ["G"] = "Polearm"      // Polearm secondary (same weapon type)
+                },
+                ["Knife"] = new Dictionary<string, string>
+                {
+                    ["Q"] = "Knife",       // Knife secondary
+                    ["T"] = "Knife",       // Knife secondary (same weapon type)
+                    ["G"] = "Knife"        // Knife secondary (same weapon type)
+                },
+                ["Fist"] = new Dictionary<string, string>
+                {
+                    ["Q"] = "Fist",        // Fist secondary
+                    ["T"] = "Fist",        // Fist secondary (same weapon type)
+                    ["G"] = "Fist"         // Fist secondary (same weapon type)
+                }
+            };
+        }
+
         // Generate weapon type config programmatically
         private static void GenerateWeaponTypeConfig()
         {
@@ -660,64 +722,9 @@ namespace ExtraAttackSystem
                 var config = new WeaponTypeConfig();
                 config.Default = new AnimationTiming();
 
-                // Define weapon types and their Q/T/G mappings
-                var weaponTypeMappings = new Dictionary<string, Dictionary<string, string>>
-                {
-                    ["Swords"] = new Dictionary<string, string>
-                    {
-                        ["Q"] = "Swords",      // Sword secondary
-                        ["T"] = "Swords",      // Sword secondary (same weapon type)
-                        ["G"] = "Swords"       // Sword secondary (same weapon type)
-                    },
-                    ["Axes"] = new Dictionary<string, string>
-                    {
-                        ["Q"] = "Axes",        // Axe secondary
-                        ["T"] = "Axes",        // Axe secondary (same weapon type)
-                        ["G"] = "Axes"         // Axe secondary (same weapon type)
-                    },
-                    ["Clubs"] = new Dictionary<string, string>
-                    {
-                        ["Q"] = "Clubs",       // Club secondary
-                        ["T"] = "Clubs",       // Club secondary (same weapon type)
-                        ["G"] = "Clubs"        // Club secondary (same weapon type)
-                    },
-                    ["Spears"] = new Dictionary<string, string>
-                    {
-                        ["Q"] = "Spears",      // Spear secondary
-                        ["T"] = "Spears",      // Spear secondary (same weapon type)
-                        ["G"] = "Spears"       // Spear secondary (same weapon type)
-                    },
-                    ["GreatSwords"] = new Dictionary<string, string>
-                    {
-                        ["Q"] = "GreatSwords", // Great Sword secondary
-                        ["T"] = "GreatSwords", // Great Sword secondary (same weapon type)
-                        ["G"] = "GreatSwords"  // Great Sword secondary (same weapon type)
-                    },
-                    ["BattleAxes"] = new Dictionary<string, string>
-                    {
-                        ["Q"] = "BattleAxes",  // Battle Axe secondary
-                        ["T"] = "BattleAxes",  // Battle Axe secondary (same weapon type)
-                        ["G"] = "BattleAxes"   // Battle Axe secondary (same weapon type)
-                    },
-                    ["Polearms"] = new Dictionary<string, string>
-                    {
-                        ["Q"] = "Polearms",    // Polearm secondary
-                        ["T"] = "Polearms",    // Polearm secondary (same weapon type)
-                        ["G"] = "Polearms"     // Polearm secondary (same weapon type)
-                    },
-                    ["Knives"] = new Dictionary<string, string>
-                    {
-                        ["Q"] = "Knives",      // Knife secondary
-                        ["T"] = "Knives",      // Knife secondary (same weapon type)
-                        ["G"] = "Knives"       // Knife secondary (same weapon type)
-                    },
-                    ["Fists"] = new Dictionary<string, string>
-                    {
-                        ["Q"] = "Fists",       // Fist secondary
-                        ["T"] = "Fists",       // Fist secondary (same weapon type)
-                        ["G"] = "Fists"        // Fist secondary (same weapon type)
-                    }
-                };
+                // Use shared weapon type mappings
+                var weaponTypeMappings = GetWeaponTypeMappings();
+                ExtraAttackPlugin.LogInfo("System", $"GenerateWeaponTypeConfig: weaponTypeMappings has {weaponTypeMappings.Count} entries");
 
                 // Generate settings for each weapon type
                 foreach (var weaponType in weaponTypeMappings.Keys)
@@ -731,7 +738,6 @@ namespace ExtraAttackSystem
                         var targetWeaponType = mappings[mode];
                         var key = $"secondary_{mode}";
                         
-                        ExtraAttackPlugin.LogInfo("Config", $"GenerateWeaponTypeConfig: Creating timing for {weaponType}_{key} -> {targetWeaponType}_{mode}");
                         
                         // Create timing based on actual weapon type and mode combination
                         var timing = CreateTimingForWeaponType(targetWeaponType, mode);
@@ -747,6 +753,10 @@ namespace ExtraAttackSystem
 
                 // Save the generated config
                 ExtraAttackPlugin.LogInfo("System", $"GenerateWeaponTypeConfig: Final config has {config.WeaponTypes.Count} weapon types");
+                if (config.WeaponTypes.Count == 0)
+                {
+                    ExtraAttackPlugin.LogWarning("System", "GenerateWeaponTypeConfig: No weapon types generated! Check weaponTypeMappings.");
+                }
                 SaveWeaponTypeConfig(config);
             }
             catch (Exception ex)
@@ -784,7 +794,6 @@ namespace ExtraAttackSystem
             }
             else
             {
-                ExtraAttackPlugin.LogInfo("System", $"CreateTimingForWeaponType: {key} -> No clip length, using fallback ratios");
                 // Fallback to default ratios if no clip length available
                 timing.HitTiming = 0.45f;
                 timing.TrailOnTiming = 0.35f;
@@ -814,52 +823,8 @@ namespace ExtraAttackSystem
         // Get target weapon type for the given mode
         private static string GetTargetWeaponTypeForMode(string weaponType, string mode)
         {
-            // Define weapon type mappings for Q/T/G modes
-            var weaponTypeMappings = new Dictionary<string, Dictionary<string, string>>
-            {
-                ["Swords"] = new Dictionary<string, string>
-                {
-                    ["Q"] = "Swords",
-                    ["T"] = "Swords",
-                    ["G"] = "Swords"
-                },
-                ["Axes"] = new Dictionary<string, string>
-                {
-                    ["Q"] = "Axes",
-                    ["T"] = "Axes",
-                    ["G"] = "Axes"
-                },
-                ["Clubs"] = new Dictionary<string, string>
-                {
-                    ["Q"] = "Clubs",
-                    ["T"] = "Clubs",
-                    ["G"] = "Clubs"
-                },
-                ["Spears"] = new Dictionary<string, string>
-                {
-                    ["Q"] = "Spears",
-                    ["T"] = "Spears",
-                    ["G"] = "Spears"
-                },
-                ["GreatSwords"] = new Dictionary<string, string>
-                {
-                    ["Q"] = "GreatSwords",
-                    ["T"] = "GreatSwords",
-                    ["G"] = "GreatSwords"
-                },
-                ["BattleAxes"] = new Dictionary<string, string>
-                {
-                    ["Q"] = "BattleAxes",
-                    ["T"] = "BattleAxes",
-                    ["G"] = "BattleAxes"
-                },
-                ["Polearms"] = new Dictionary<string, string>
-                {
-                    ["Q"] = "Polearms",
-                    ["T"] = "Polearms",
-                    ["G"] = "Polearms"
-                }
-            };
+            // Use shared weapon type mappings
+            var weaponTypeMappings = GetWeaponTypeMappings();
             
             if (weaponTypeMappings.TryGetValue(weaponType, out var mappings) && 
                 mappings.TryGetValue(mode, out var targetType))
@@ -883,6 +848,7 @@ namespace ExtraAttackSystem
                     var weaponType = parts[0]; // Swords, Axes, etc.
                     var mode = parts[2]; // Q, T, G
                     
+                    
                     // Use AnimationManager's working GetExternalClipForWeaponType method
                     string externalClipName = GetExternalClipForWeaponType(weaponType, mode);
                     
@@ -893,7 +859,6 @@ namespace ExtraAttackSystem
                         
                         if (clipLength > 0)
                         {
-                            ExtraAttackPlugin.LogInfo("System", $"GetAdjustedClipLength: {key} -> {externalClipName} = {clipLength:F3}s");
                             return clipLength;
                         }
                         else
@@ -902,7 +867,6 @@ namespace ExtraAttackSystem
                             if (AnimationManager.CustomAnimationClips.TryGetValue(externalClipName, out var clip))
                             {
                                 float directClipLength = clip.length;
-                                ExtraAttackPlugin.LogInfo("System", $"GetAdjustedClipLength: Direct clip length for {externalClipName} = {directClipLength:F3}s");
                                 return directClipLength;
                             }
                             else
@@ -921,48 +885,92 @@ namespace ExtraAttackSystem
             return -1f; // Indicate no valid clip found
         }
         
-        // Get external clip for weapon type and mode (integrated from AnimationManager)
+        // Get external clip for weapon type and mode from YAML configuration
         public static string GetExternalClipForWeaponType(string weaponType, string mode)
+        {
+            try
+            {
+                // Try to get from AnimationManager.AnimationReplacementMap (YAML loaded values)
+                if (AnimationManager.AnimationReplacementMap.TryGetValue(weaponType, out var weaponMappings))
+                {
+                    string clipKey = $"secondary_{mode}";
+                    if (weaponMappings.TryGetValue(clipKey, out var externalClip))
+                    {
+                        ExtraAttackPlugin.LogInfo("System", $"GetExternalClipForWeaponType: Found YAML mapping for {weaponType}.{mode} = {externalClip}");
+                        return externalClip;
+                    }
+                    else
+                    {
+                        ExtraAttackPlugin.LogInfo("System", $"GetExternalClipForWeaponType: No YAML mapping found for {weaponType}.{clipKey}, using fallback");
+                    }
+                }
+                else
+                {
+                    ExtraAttackPlugin.LogInfo("System", $"GetExternalClipForWeaponType: No YAML mappings found for weaponType {weaponType}, using fallback");
+                }
+                
+                // Fallback to hardcoded values if YAML mapping not found
+                string fallbackClip = GetFallbackExternalClipForWeaponType(weaponType, mode);
+                ExtraAttackPlugin.LogInfo("System", $"GetExternalClipForWeaponType: Fallback for {weaponType}.{mode} = {fallbackClip}");
+                return fallbackClip;
+            }
+            catch (Exception ex)
+            {
+                ExtraAttackPlugin.LogError("System", $"Error in GetExternalClipForWeaponType: {ex.Message}");
+                return GetFallbackExternalClipForWeaponType(weaponType, mode);
+            }
+        }
+        
+        // Fallback method with hardcoded values (used when YAML mapping is not available)
+        private static string GetFallbackExternalClipForWeaponType(string weaponType, string mode)
         {
             // Q/T/G modes use completely different animation clips
             switch (weaponType)
             {
-                case "Swords":
+                case "Sword":
                     return mode == "Q" ? "2Hand-Sword-Attack8External" :
                            mode == "T" ? "2Hand_Skill01_WhirlWindExternal" :
                            "Eas_GreatSword_JumpAttackExternal";
-                case "Axes":
+                case "Axe":
                     return mode == "Q" ? "OneHand_Up_Attack_B_1External" :
                            mode == "T" ? "2Hand-Sword-Attack8External" :
                            "Eas_GreatSword_JumpAttackExternal";
-                case "Clubs":
+                case "Club":
                     return mode == "Q" ? "Eas_GreatSword_CastingExternal" :
                            mode == "T" ? "2Hand_Skill01_WhirlWindExternal" :
                            "2Hand-Sword-Attack8External";
-                case "Spears":
+                case "Spear":
                     return mode == "Q" ? "Eas_GreatSword_JumpAttackExternal" :
                            mode == "T" ? "2Hand_Skill01_WhirlWindExternal" :
                            "2Hand-Sword-Attack8External";
-                case "GreatSwords":
+                case "Greatsword":
                     return mode == "Q" ? "2Hand-Sword-Attack8External" :
                            mode == "T" ? "2Hand_Skill01_WhirlWindExternal" :
                            "Eas_GreatSword_JumpAttackExternal";
-                case "BattleAxes":
+                case "Battleaxe":
                     return mode == "Q" ? "2Hand_Skill01_WhirlWindExternal" :
                            mode == "T" ? "2Hand-Sword-Attack8External" :
                            "Eas_GreatSword_JumpAttackExternal";
-                case "Polearms":
+                case "Polearm":
                     return mode == "Q" ? "Eas_GreatSword_JumpAttackExternal" :
                            mode == "T" ? "2Hand-Sword-Attack8External" :
                            "2Hand_Skill01_WhirlWindExternal";
-                case "Knives":
+                case "Knife":
                     return mode == "Q" ? "ChargeAttkExternal" :
                            mode == "T" ? "Eas_GreatSword_JumpAttackExternal" :
                            "2Hand-Sword-Attack8External";
-                case "Fists":
+                case "Fist":
                     return mode == "Q" ? "Flying Knee Punch ComboExternal" :
                            mode == "T" ? "2Hand_Skill01_WhirlWindExternal" :
                            "Eas_GreatSword_JumpAttackExternal";
+                case "DualAxes":
+                    return mode == "Q" ? "ChargeAttkExternal" :
+                           mode == "T" ? "HardAttkExternal" :
+                           "StrongAttk3External";
+                case "DualKnives":
+                    return mode == "Q" ? "ChargeAttkExternal" :
+                           mode == "T" ? "HardAttkExternal" :
+                           "StrongAttk3External";
                 default:
                     return mode == "Q" ? "2Hand-Sword-Attack8External" :
                            mode == "T" ? "2Hand-Sword-Attack8External" :
@@ -976,15 +984,15 @@ namespace ExtraAttackSystem
             // Actual vanilla secondary attack clip lengths
             return weaponType switch
             {
-                "Swords" => 1.400f,      // sword_secondary → [Sword-Attack-R4]
-                "Axes" => 1.400f,        // axe_secondary → [Axe Secondary Attack]
-                "GreatSwords" => 1.400f, // greatsword_secondary → [Greatsword Secondary Attack]
-                "BattleAxes" => 0.857f,  // battleaxe_secondary → [BattleAxeAltAttack]
-                "Clubs" => 1.400f,       // mace_secondary → [MaceAltAttack]
-                "Spears" => 1.133f,      // spear_secondary → [throw_spear]
-                "Polearms" => 2.167f,    // atgeir_secondary → [Atgeir360Attack]
-                "Knives" => 1.400f,      // knife_secondary → [Knife JumpAttack]
-                "Fists" => 1.833f,       // fist_secondary → [Kickstep]
+                "Sword" => 1.400f,      // sword_secondary → [Sword-Attack-R4]
+                "Axe" => 1.400f,        // axe_secondary → [Axe Secondary Attack]
+                "Greatsword" => 1.400f, // greatsword_secondary → [Greatsword Secondary Attack]
+                "Battleaxe" => 0.857f,  // battleaxe_secondary → [BattleAxeAltAttack]
+                "Club" => 1.400f,       // mace_secondary → [MaceAltAttack]
+                "Spear" => 1.133f,      // spear_secondary → [throw_spear]
+                "Polearm" => 2.167f,    // atgeir_secondary → [Atgeir360Attack]
+                "Knife" => 1.400f,      // knife_secondary → [Knife JumpAttack]
+                "Fist" => 1.833f,       // fist_secondary → [Kickstep]
                 _ => 1.0f
             };
         }
@@ -994,15 +1002,15 @@ namespace ExtraAttackSystem
         {
             return weaponType switch
             {
-                "Axes" => 1.122f,       // Axe Secondary Attack: Hit=1.122s
-                "BattleAxes" => 0.464f,  // BattleAxeAltAttack: Hit=0.464s
-                "GreatSwords" => 0.959f, // Greatsword Secondary Attack: Hit=0.959s
-                "Knives" => 0.802f,      // Knife JumpAttack: Hit=0.802s
-                "Spears" => 0.739f,     // throw_spear: OnAttackTrigger=0.739s
-                "Polearms" => 1.124f,   // Atgeir360Attack: Hit=1.124s
-                "Fists" => 0.593f,       // Kickstep: Hit=0.593s
-                "Swords" => 0.244f,     // Sword-Attack-R4: Hit=0.244s
-                "Clubs" => 1.223f,      // MaceAltAttack: Hit=1.223s
+                "Axe" => 1.122f,       // Axe Secondary Attack: Hit=1.122s
+                "Battleaxe" => 0.464f,  // BattleAxeAltAttack: Hit=0.464s
+                "Greatsword" => 0.959f, // Greatsword Secondary Attack: Hit=0.959s
+                "Knife" => 0.802f,      // Knife JumpAttack: Hit=0.802s
+                "Spear" => 0.739f,     // throw_spear: OnAttackTrigger=0.739s
+                "Polearm" => 1.124f,   // Atgeir360Attack: Hit=1.124s
+                "Fist" => 0.593f,       // Kickstep: Hit=0.593s
+                "Sword" => 0.244f,     // Sword-Attack-R4: Hit=0.244s
+                "Club" => 1.223f,      // MaceAltAttack: Hit=1.223s
                 _ => 0.45f
             };
         }
@@ -1012,15 +1020,15 @@ namespace ExtraAttackSystem
         {
             return weaponType switch
             {
-                "Axes" => 0.916f,       // Axe Secondary Attack: TrailOn=0.916s
-                "BattleAxes" => 0.222f,  // BattleAxeAltAttack: TrailOn=0.222s
-                "GreatSwords" => 0.719f, // Greatsword Secondary Attack: TrailOn=0.719s
-                "Knives" => 0.608f,      // Knife JumpAttack: TrailOn=0.608s
-                "Spears" => 0.509f,     // throw_spear: TrailOn=0.509s
-                "Polearms" => 1.011f,   // Atgeir360Attack: TrailOn=1.011s
-                "Fists" => 0.486f,       // Kickstep: TrailOn=0.486s
-                "Swords" => 0.184f,     // Sword-Attack-R4: TrailOn=0.184s
-                "Clubs" => 0.990f,      // MaceAltAttack: TrailOn=0.990s
+                "Axe" => 0.916f,       // Axe Secondary Attack: TrailOn=0.916s
+                "Battleaxe" => 0.222f,  // BattleAxeAltAttack: TrailOn=0.222s
+                "Greatsword" => 0.719f, // Greatsword Secondary Attack: TrailOn=0.719s
+                "Knife" => 0.608f,      // Knife JumpAttack: TrailOn=0.608s
+                "Spear" => 0.509f,     // throw_spear: TrailOn=0.509s
+                "Polearm" => 1.011f,   // Atgeir360Attack: TrailOn=1.011s
+                "Fist" => 0.486f,       // Kickstep: TrailOn=0.486s
+                "Sword" => 0.184f,     // Sword-Attack-R4: TrailOn=0.184s
+                "Club" => 0.990f,      // MaceAltAttack: TrailOn=0.990s
                 _ => 0.35f
             };
         }
@@ -1030,15 +1038,15 @@ namespace ExtraAttackSystem
         {
             return weaponType switch
             {
-                "Axes" => 1.184f,       // Axe Secondary Attack: TrailOff=1.184s
-                "BattleAxes" => 0.521f, // BattleAxeAltAttack: TrailOff=0.521s
-                "GreatSwords" => 0.980f, // Greatsword Secondary Attack: TrailOff=0.980s
-                "Knives" => 0.900f,     // Knife JumpAttack: TrailOff=0.900s
-                "Spears" => 0.0f,       // throw_spear: no TrailOff event
-                "Polearms" => 1.602f,   // Atgeir360Attack: TrailOff=1.602s
-                "Fists" => 0.0f,         // Kickstep: no TrailOff
-                "Swords" => 0.270f,     // Sword-Attack-R4: TrailOff=0.270s
-                "Clubs" => 1.445f,      // MaceAltAttack: TrailOff=1.445s
+                "Axe" => 1.184f,       // Axe Secondary Attack: TrailOff=1.184s
+                "Battleaxe" => 0.521f, // BattleAxeAltAttack: TrailOff=0.521s
+                "Greatsword" => 0.980f, // Greatsword Secondary Attack: TrailOff=0.980s
+                "Knife" => 0.900f,     // Knife JumpAttack: TrailOff=0.900s
+                "Spear" => 0.0f,       // throw_spear: no TrailOff event
+                "Polearm" => 1.602f,   // Atgeir360Attack: TrailOff=1.602s
+                "Fist" => 0.0f,         // Kickstep: no TrailOff
+                "Sword" => 0.270f,     // Sword-Attack-R4: TrailOff=0.270s
+                "Club" => 1.445f,      // MaceAltAttack: TrailOff=1.445s
                 _ => 0.70f
             };
         }
@@ -1059,39 +1067,39 @@ namespace ExtraAttackSystem
             
             // Vanilla HitTiming ratios for each weapon type (same for Q/T/G modes)
             float AxeHitTimingRatio = 0.801f; // Axe Secondary Attack (Hit: 1.122s/1.400s)
-            float BattleAxesHitTimingRatio = 0.541f; // BattleAxeAltAttack (Hit: 0.464s/0.857s)
-            float GreatSwordsHitTimingRatio = 0.685f; // Greatsword Secondary Attack (Hit: 0.959s/1.400s)
-            float KnivesHitTimingRatio = 0.573f; // Knife JumpAttack (Hit: 0.802s/1.400s)
-            float SpearsHitTimingRatio = 0.652f; // throw_spear (Hit: 0.739s/1.133s)
-            float PolearmsHitTimingRatio = 0.519f; // Atgeir360Attack (Hit: 1.124s/2.167s)
-            float FistsHitTimingRatio = 0.324f; // Kickstep (Hit: 0.593s/1.833s)
+            float BattleAxeHitTimingRatio = 0.541f; // BattleAxeAltAttack (Hit: 0.464s/0.857s)
+            float GreatSwordHitTimingRatio = 0.685f; // Greatsword Secondary Attack (Hit: 0.959s/1.400s)
+            float KnifeHitTimingRatio = 0.573f; // Knife JumpAttack (Hit: 0.802s/1.400s)
+            float SpearHitTimingRatio = 0.652f; // throw_spear (Hit: 0.739s/1.133s)
+            float PolearmHitTimingRatio = 0.519f; // Atgeir360Attack (Hit: 1.124s/2.167s)
+            float FistHitTimingRatio = 0.324f; // Kickstep (Hit: 0.593s/1.833s)
             
             // Fallback to weapon-specific and mode-specific default ratios applied to clip length
             // Each mode uses different animation clips, so different ratios should be used
             float fallbackRatio = (weaponType, mode) switch
             {
                 // Q: own weapon type, T: different clip, G: different clip
-                ("Axes", "Q") => AxeHitTimingRatio,        // Axe Secondary AttackExternal
-                ("Axes", "T") => AxeHitTimingRatio,        // 2Hand-Sword-Attack8External
-                ("Axes", "G") => AxeHitTimingRatio,        // Eas_GreatSword_JumpAttackExternal
-                ("BattleAxes", "Q") => BattleAxesHitTimingRatio,  // 2Hand_Skill01_WhirlWindExternal
-                ("BattleAxes", "T") => BattleAxesHitTimingRatio,  // 2Hand-Sword-Attack8External
-                ("BattleAxes", "G") => BattleAxesHitTimingRatio,  // Eas_GreatSword_JumpAttackExternal
-                ("GreatSwords", "Q") => GreatSwordsHitTimingRatio, // 2Hand-Sword-Attack8External
-                ("GreatSwords", "T") => GreatSwordsHitTimingRatio, // 2Hand_Skill01_WhirlWindExternal
-                ("GreatSwords", "G") => GreatSwordsHitTimingRatio, // Eas_GreatSword_JumpAttackExternal
-                ("Knives", "Q") => KnivesHitTimingRatio,      // ChargeAttkExternal
-                ("Knives", "T") => KnivesHitTimingRatio,      // Eas_GreatSword_JumpAttackExternal
-                ("Knives", "G") => KnivesHitTimingRatio,      // 2Hand-Sword-Attack8External
-                ("Spears", "Q") => SpearsHitTimingRatio,      // Eas_GreatSword_JumpAttackExternal
-                ("Spears", "T") => SpearsHitTimingRatio,      // 2Hand_Skill01_WhirlWindExternal
-                ("Spears", "G") => SpearsHitTimingRatio,      // 2Hand-Sword-Attack8External
-                ("Polearms", "Q") => PolearmsHitTimingRatio,    // Eas_GreatSword_JumpAttackExternal
-                ("Polearms", "T") => PolearmsHitTimingRatio,    // 2Hand-Sword-Attack8External
-                ("Polearms", "G") => PolearmsHitTimingRatio,    // 2Hand_Skill01_WhirlWindExternal
-                ("Fists", "Q") => FistsHitTimingRatio,       // Flying Knee Punch ComboExternal
-                ("Fists", "T") => FistsHitTimingRatio,       // 2Hand_Skill01_WhirlWindExternal
-                ("Fists", "G") => FistsHitTimingRatio,       // Eas_GreatSword_JumpAttackExternal
+                ("Axe", "Q") => AxeHitTimingRatio,        // Axe Secondary AttackExternal
+                ("Axe", "T") => AxeHitTimingRatio,        // 2Hand-Sword-Attack8External
+                ("Axe", "G") => AxeHitTimingRatio,        // Eas_GreatSword_JumpAttackExternal
+                ("Battleaxe", "Q") => BattleAxeHitTimingRatio,  // 2Hand_Skill01_WhirlWindExternal
+                ("Battleaxe", "T") => BattleAxeHitTimingRatio,  // 2Hand-Sword-Attack8External
+                ("Battleaxe", "G") => BattleAxeHitTimingRatio,  // Eas_GreatSword_JumpAttackExternal
+                ("Greatsword", "Q") => GreatSwordHitTimingRatio, // 2Hand-Sword-Attack8External
+                ("Greatsword", "T") => GreatSwordHitTimingRatio, // 2Hand_Skill01_WhirlWindExternal
+                ("Greatsword", "G") => GreatSwordHitTimingRatio, // Eas_GreatSword_JumpAttackExternal
+                ("Knife", "Q") => KnifeHitTimingRatio,      // ChargeAttkExternal
+                ("Knife", "T") => KnifeHitTimingRatio,      // Eas_GreatSword_JumpAttackExternal
+                ("Knife", "G") => KnifeHitTimingRatio,      // 2Hand-Sword-Attack8External
+                ("Spear", "Q") => SpearHitTimingRatio,      // Eas_GreatSword_JumpAttackExternal
+                ("Spear", "T") => SpearHitTimingRatio,      // 2Hand_Skill01_WhirlWindExternal
+                ("Spear", "G") => SpearHitTimingRatio,      // 2Hand-Sword-Attack8External
+                ("Polearm", "Q") => PolearmHitTimingRatio,    // Eas_GreatSword_JumpAttackExternal
+                ("Polearm", "T") => PolearmHitTimingRatio,    // 2Hand-Sword-Attack8External
+                ("Polearm", "G") => PolearmHitTimingRatio,    // 2Hand_Skill01_WhirlWindExternal
+                ("Fist", "Q") => FistHitTimingRatio,       // Flying Knee Punch ComboExternal
+                ("Fist", "T") => FistHitTimingRatio,       // 2Hand_Skill01_WhirlWindExternal
+                ("Fist", "G") => FistHitTimingRatio,       // Eas_GreatSword_JumpAttackExternal
                 _ => 0.45f
             };
             return Math.Min(clipLength, clipLength * fallbackRatio);
@@ -1114,27 +1122,27 @@ namespace ExtraAttackSystem
             float fallbackRatio = (weaponType, mode) switch
             {
                 // Q: own weapon type, T: different clip, G: different clip
-                ("Axes", "Q") => 0.654f,        // Axe Secondary Attack (TrailOn: 0.916s/1.400s)
-                ("Axes", "T") => 0.0f,          // 2Hand-Sword-Attack8 (TrailOn: なし)
-                ("Axes", "G") => 0.491f,        // Eas_GreatSword_JumpAttack (TrailOn: 0.688s/1.400s)
-                ("BattleAxes", "Q") => 0.259f,  // 2Hand_Skill01_WhirlWind (TrailOn: 0.222s/0.857s)
-                ("BattleAxes", "T") => 0.0f,    // 2Hand-Sword-Attack8 (TrailOn: なし)
-                ("BattleAxes", "G") => 0.491f,  // Eas_GreatSword_JumpAttack (TrailOn: 0.688s/1.400s)
-                ("GreatSwords", "Q") => 0.0f,   // 2Hand-Sword-Attack8 (TrailOn: なし)
-                ("GreatSwords", "T") => 0.259f, // 2Hand_Skill01_WhirlWind (TrailOn: 0.222s/0.857s)
-                ("GreatSwords", "G") => 0.491f, // Eas_GreatSword_JumpAttack (TrailOn: 0.688s/1.400s)
-                ("Knives", "Q") => 1.388f,      // ChargeAttk (TrailOn: 0.648s/0.467s) - 異常値のため調整
-                ("Knives", "T") => 0.491f,      // Eas_GreatSword_JumpAttack (TrailOn: 0.688s/1.400s)
-                ("Knives", "G") => 0.0f,       // 2Hand-Sword-Attack8 (TrailOn: なし)
-                ("Spears", "Q") => 0.491f,      // Eas_GreatSword_JumpAttack (TrailOn: 0.688s/1.400s)
-                ("Spears", "T") => 0.259f,      // 2Hand_Skill01_WhirlWind (TrailOn: 0.222s/0.857s)
-                ("Spears", "G") => 0.0f,        // 2Hand-Sword-Attack8 (TrailOn: なし)
-                ("Polearms", "Q") => 0.491f,    // Eas_GreatSword_JumpAttack (TrailOn: 0.688s/1.400s)
-                ("Polearms", "T") => 0.0f,      // 2Hand-Sword-Attack8 (TrailOn: なし)
-                ("Polearms", "G") => 0.259f,    // 2Hand_Skill01_WhirlWind (TrailOn: 0.222s/0.857s)
-                ("Fists", "Q") => 0.510f,       // Flying Knee Punch Combo (TrailOn: 0.595s/1.167s)
-                ("Fists", "T") => 0.259f,       // 2Hand_Skill01_WhirlWind (TrailOn: 0.222s/0.857s)
-                ("Fists", "G") => 0.491f,       // Eas_GreatSword_JumpAttack (TrailOn: 0.688s/1.400s)
+                ("Axe", "Q") => 0.654f,        // Axe Secondary Attack (TrailOn: 0.916s/1.400s)
+                ("Axe", "T") => 0.0f,          // 2Hand-Sword-Attack8 (TrailOn: なし)
+                ("Axe", "G") => 0.491f,        // Eas_GreatSword_JumpAttack (TrailOn: 0.688s/1.400s)
+                ("Battleaxe", "Q") => 0.259f,  // 2Hand_Skill01_WhirlWind (TrailOn: 0.222s/0.857s)
+                ("Battleaxe", "T") => 0.0f,    // 2Hand-Sword-Attack8 (TrailOn: なし)
+                ("Battleaxe", "G") => 0.491f,  // Eas_GreatSword_JumpAttack (TrailOn: 0.688s/1.400s)
+                ("Greatsword", "Q") => 0.0f,   // 2Hand-Sword-Attack8 (TrailOn: なし)
+                ("Greatsword", "T") => 0.259f, // 2Hand_Skill01_WhirlWind (TrailOn: 0.222s/0.857s)
+                ("Greatsword", "G") => 0.491f, // Eas_GreatSword_JumpAttack (TrailOn: 0.688s/1.400s)
+                ("Knife", "Q") => 1.388f,      // ChargeAttk (TrailOn: 0.648s/0.467s) - 異常値のため調整
+                ("Knife", "T") => 0.491f,      // Eas_GreatSword_JumpAttack (TrailOn: 0.688s/1.400s)
+                ("Knife", "G") => 0.0f,       // 2Hand-Sword-Attack8 (TrailOn: なし)
+                ("Spear", "Q") => 0.491f,      // Eas_GreatSword_JumpAttack (TrailOn: 0.688s/1.400s)
+                ("Spear", "T") => 0.259f,      // 2Hand_Skill01_WhirlWind (TrailOn: 0.222s/0.857s)
+                ("Spear", "G") => 0.0f,        // 2Hand-Sword-Attack8 (TrailOn: なし)
+                ("Polearm", "Q") => 0.491f,    // Eas_GreatSword_JumpAttack (TrailOn: 0.688s/1.400s)
+                ("Polearm", "T") => 0.0f,      // 2Hand-Sword-Attack8 (TrailOn: なし)
+                ("Polearm", "G") => 0.259f,    // 2Hand_Skill01_WhirlWind (TrailOn: 0.222s/0.857s)
+                ("Fist", "Q") => 0.510f,       // Flying Knee Punch Combo (TrailOn: 0.595s/1.167s)
+                ("Fist", "T") => 0.259f,       // 2Hand_Skill01_WhirlWind (TrailOn: 0.222s/0.857s)
+                ("Fist", "G") => 0.491f,       // Eas_GreatSword_JumpAttack (TrailOn: 0.688s/1.400s)
                 _ => 0.32f
             };
             return Math.Min(clipLength, clipLength * fallbackRatio);
@@ -1156,13 +1164,13 @@ namespace ExtraAttackSystem
             // All modes (Q/T/G) use the same weapon type's secondary animation, so same ratio
             float fallbackRatio = weaponType switch
             {
-                "Axes" => 0.551f,        // Axe Secondary Attack (same for Q/T/G)
-                "BattleAxes" => 0.608f,  // 2Hand_Skill01_WhirlWind (same for Q/T/G)
-                "GreatSwords" => 0.551f, // 2Hand-Sword-Attack8 (same for Q/T/G)
-                "Knives" => 0.314f,      // ChargeAttk (same for Q/T/G)
-                "Spears" => 0.526f,      // Eas_GreatSword_JumpAttack (same for Q/T/G)
-                "Polearms" => 0.739f,    // Eas_GreatSword_JumpAttack (same for Q/T/G)
-                "Fists" => 0.0f,         // Flying Knee Punch Combo (no TrailOff)
+                "Axe" => 0.551f,        // Axe Secondary Attack (same for Q/T/G)
+                "Battleaxe" => 0.608f,  // 2Hand_Skill01_WhirlWind (same for Q/T/G)
+                "Greatsword" => 0.551f, // 2Hand-Sword-Attack8 (same for Q/T/G)
+                "Knife" => 0.314f,      // ChargeAttk (same for Q/T/G)
+                "Spear" => 0.526f,      // Eas_GreatSword_JumpAttack (same for Q/T/G)
+                "Polearm" => 0.739f,    // Eas_GreatSword_JumpAttack (same for Q/T/G)
+                "Fist" => 0.0f,         // Flying Knee Punch Combo (no TrailOff)
                 _ => 0.55f
             };
             return Math.Min(clipLength, clipLength * fallbackRatio);
@@ -1191,13 +1199,13 @@ namespace ExtraAttackSystem
             // All modes (Q/T/G) use the same weapon type's secondary animation, so same ratio
             float fallbackRatio = weaponType switch
             {
-                "Axes" => 0.0f,        // Axe Secondary Attack (same for Q/T/G)
-                "BattleAxes" => 0.0f,  // 2Hand_Skill01_WhirlWind (same for Q/T/G)
-                "GreatSwords" => 0.0f, // 2Hand-Sword-Attack8 (same for Q/T/G)
-                "Knives" => 0.0f,      // ChargeAttk (same for Q/T/G)
-                "Spears" => 0.0f,      // Eas_GreatSword_JumpAttack (same for Q/T/G)
-                "Polearms" => 0.0f,    // Eas_GreatSword_JumpAttack (same for Q/T/G)
-                "Fists" => 0.0f,       // Flying Knee Punch Combo (same for Q/T/G)
+                "Axe" => 0.0f,        // Axe Secondary Attack (same for Q/T/G)
+                "Battleaxe" => 0.0f,  // 2Hand_Skill01_WhirlWind (same for Q/T/G)
+                "Greatsword" => 0.0f, // 2Hand-Sword-Attack8 (same for Q/T/G)
+                "Knife" => 0.0f,      // ChargeAttk (same for Q/T/G)
+                "Spear" => 0.0f,      // Eas_GreatSword_JumpAttack (same for Q/T/G)
+                "Polearm" => 0.0f,    // Eas_GreatSword_JumpAttack (same for Q/T/G)
+                "Fist" => 0.0f,       // Flying Knee Punch Combo (same for Q/T/G)
                 _ => 0.00f
             };
             return Math.Min(clipLength, clipLength * fallbackRatio);
@@ -1219,13 +1227,13 @@ namespace ExtraAttackSystem
             // All modes (Q/T/G) use the same weapon type's secondary animation, so same ratio
             float fallbackRatio = weaponType switch
             {
-                "Axes" => 0.621f,        // Axe Secondary Attack (same for Q/T/G)
-                "BattleAxes" => 0.980f,  // 2Hand_Skill01_WhirlWind (same for Q/T/G)
-                "GreatSwords" => 0.607f, // 2Hand-Sword-Attack8 (same for Q/T/G)
-                "Knives" => 0.607f,      // ChargeAttk (same for Q/T/G)
-                "Spears" => 0.900f,      // Eas_GreatSword_JumpAttack (same for Q/T/G)
-                "Polearms" => 0.415f,    // Eas_GreatSword_JumpAttack (same for Q/T/G)
-                "Fists" => 0.900f,       // Flying Knee Punch Combo (same for Q/T/G)
+                "Axe" => 0.621f,        // Axe Secondary Attack (same for Q/T/G)
+                "Battleaxe" => 0.980f,  // 2Hand_Skill01_WhirlWind (same for Q/T/G)
+                "Greatsword" => 0.607f, // 2Hand-Sword-Attack8 (same for Q/T/G)
+                "Knife" => 0.607f,      // ChargeAttk (same for Q/T/G)
+                "Spear" => 0.900f,      // Eas_GreatSword_JumpAttack (same for Q/T/G)
+                "Polearm" => 0.415f,    // Eas_GreatSword_JumpAttack (same for Q/T/G)
+                "Fist" => 0.900f,       // Flying Knee Punch Combo (same for Q/T/G)
                 _ => 0.85f
             };
             return Math.Min(clipLength, clipLength * fallbackRatio);
@@ -1236,15 +1244,15 @@ namespace ExtraAttackSystem
         {
             return weaponType switch
             {
-                "Swords" => 2.0f,
-                "Axes" => 2.0f,
-                "GreatSwords" => 2.5f,
-                "BattleAxes" => 2.0f,
-                "Clubs" => 2.0f,
-                "Spears" => 3.0f,
-                "Polearms" => 2.5f,
-                "Knives" => 1.5f,
-                "Fists" => 1.5f,
+                "Sword" => 2.0f,
+                "Axe" => 2.0f,
+                "Greatsword" => 2.5f,
+                "Battleaxe" => 2.0f,
+                "Club" => 2.0f,
+                "Spear" => 3.0f,
+                "Polearm" => 2.5f,
+                "Knife" => 1.5f,
+                "Fist" => 1.5f,
                 _ => 2.0f
             };
         }
@@ -1253,15 +1261,15 @@ namespace ExtraAttackSystem
         {
             return weaponType switch
             {
-                "Swords" => 0.6f,
-                "Axes" => 0.6f,
-                "GreatSwords" => 0.7f,
-                "BattleAxes" => 0.6f,
-                "Clubs" => 0.6f,
-                "Spears" => 0.8f,
-                "Polearms" => 0.7f,
-                "Knives" => 0.5f,
-                "Fists" => 0.5f,
+                "Sword" => 0.6f,
+                "Axe" => 0.6f,
+                "Greatsword" => 0.7f,
+                "Battleaxe" => 0.6f,
+                "Club" => 0.6f,
+                "Spear" => 0.8f,
+                "Polearm" => 0.7f,
+                "Knife" => 0.5f,
+                "Fist" => 0.5f,
                 _ => 0.6f
             };
         }
@@ -1270,15 +1278,15 @@ namespace ExtraAttackSystem
         {
             return weaponType switch
             {
-                "Swords" => 90.0f,
-                "Axes" => 90.0f,
-                "GreatSwords" => 120.0f,
-                "BattleAxes" => 90.0f,
-                "Clubs" => 90.0f,
-                "Spears" => 45.0f,
-                "Polearms" => 360.0f,
-                "Knives" => 90.0f,
-                "Fists" => 90.0f,
+                "Sword" => 90.0f,
+                "Axe" => 90.0f,
+                "Greatsword" => 120.0f,
+                "Battleaxe" => 90.0f,
+                "Club" => 90.0f,
+                "Spear" => 45.0f,
+                "Polearm" => 360.0f,
+                "Knife" => 90.0f,
+                "Fist" => 90.0f,
                 _ => 90.0f
             };
         }
@@ -1288,15 +1296,15 @@ namespace ExtraAttackSystem
         {
             return weaponType switch
             {
-                "Axes" => 0.0f,         // Axe Secondary Attack: no Speed event
-                "BattleAxes" => 0.216f,  // BattleAxeAltAttack: Speed=0.216s
-                "GreatSwords" => 0.0f,  // Greatsword Secondary Attack: no Speed event
-                "Knives" => 0.0f,       // Knife JumpAttack: Speed=0.000s (first event)
-                "Spears" => 0.0f,       // throw_spear: Speed=0.000s (first event)
-                "Polearms" => 0.0f,     // Atgeir360Attack: Speed=0.000s (first event)
-                "Fists" => 0.459f,      // Kickstep: Speed=0.459s
-                "Swords" => 0.0f,       // Sword-Attack-R4: Speed=0.000s (first event)
-                "Clubs" => 0.976f,      // MaceAltAttack: Speed=0.976s
+                "Axe" => 0.0f,         // Axe Secondary Attack: no Speed event
+                "Battleaxe" => 0.216f,  // BattleAxeAltAttack: Speed=0.216s
+                "Greatsword" => 0.0f,  // Greatsword Secondary Attack: no Speed event
+                "Knife" => 0.0f,       // Knife JumpAttack: Speed=0.000s (first event)
+                "Spear" => 0.0f,       // throw_spear: Speed=0.000s (first event)
+                "Polearm" => 0.0f,     // Atgeir360Attack: Speed=0.000s (first event)
+                "Fist" => 0.459f,      // Kickstep: Speed=0.459s
+                "Sword" => 0.0f,       // Sword-Attack-R4: Speed=0.000s (first event)
+                "Club" => 0.976f,      // MaceAltAttack: Speed=0.976s
                 _ => 0.0f
             };
         }
@@ -1306,15 +1314,15 @@ namespace ExtraAttackSystem
         {
             return weaponType switch
             {
-                "Axes" => 0.0f,         // Axe Secondary Attack: no DodgeMortal event
-                "BattleAxes" => 0.0f,    // BattleAxeAltAttack: no DodgeMortal event
-                "GreatSwords" => 0.0f,  // Greatsword Secondary Attack: no DodgeMortal event
-                "Knives" => 0.0f,       // Knife JumpAttack: no DodgeMortal event
-                "Spears" => 0.0f,       // throw_spear: no DodgeMortal event
-                "Polearms" => 0.0f,     // Atgeir360Attack: no DodgeMortal event
-                "Fists" => 0.0f,       // Kickstep: no DodgeMortal event
-                "Swords" => 0.0f,      // Sword-Attack-R4: no DodgeMortal event
-                "Clubs" => 0.0f,       // MaceAltAttack: no DodgeMortal event
+                "Axe" => 0.0f,         // Axe Secondary Attack: no DodgeMortal event
+                "Battleaxe" => 0.0f,    // BattleAxeAltAttack: no DodgeMortal event
+                "Greatsword" => 0.0f,  // Greatsword Secondary Attack: no DodgeMortal event
+                "Knife" => 0.0f,       // Knife JumpAttack: no DodgeMortal event
+                "Spear" => 0.0f,       // throw_spear: no DodgeMortal event
+                "Polearm" => 0.0f,     // Atgeir360Attack: no DodgeMortal event
+                "Fist" => 0.0f,       // Kickstep: no DodgeMortal event
+                "Sword" => 0.0f,      // Sword-Attack-R4: no DodgeMortal event
+                "Club" => 0.0f,       // MaceAltAttack: no DodgeMortal event
                 _ => 0.0f
             };
         }
@@ -1325,13 +1333,13 @@ namespace ExtraAttackSystem
         {
             float baseRange = weaponType switch
             {
-                "Swords" => 1.50f,
-                "Axes" => 1.50f,
-                "Clubs" => 1.50f,
-                "Spears" => 1.50f,
-                "GreatSwords" => 2.00f,
-                "BattleAxes" => 1.80f,
-                "Polearms" => 2.20f,
+                "Sword" => 1.50f,
+                "Axe" => 1.50f,
+                "Club" => 1.50f,
+                "Spear" => 1.50f,
+                "Greatsword" => 2.00f,
+                "Battleaxe" => 1.80f,
+                "Polearm" => 2.20f,
                 _ => 1.50f
             };
             
@@ -1343,13 +1351,13 @@ namespace ExtraAttackSystem
         {
             float baseHeight = weaponType switch
             {
-                "Swords" => 0.60f,
-                "Axes" => 0.60f,
-                "Clubs" => 0.60f,
-                "Spears" => 0.60f,
-                "GreatSwords" => 0.80f,
-                "BattleAxes" => 0.70f,
-                "Polearms" => 0.70f,
+                "Sword" => 0.60f,
+                "Axe" => 0.60f,
+                "Club" => 0.60f,
+                "Spear" => 0.60f,
+                "Greatsword" => 0.80f,
+                "Battleaxe" => 0.70f,
+                "Polearm" => 0.70f,
                 _ => 0.60f
             };
             
@@ -1361,49 +1369,49 @@ namespace ExtraAttackSystem
         {
             switch (weaponType)
             {
-                case "Swords":
+                case "Sword":
                     timing.HitTiming = 0.45f;
                     timing.TrailOnTiming = 0.35f;
                     timing.TrailOffTiming = 0.70f;
                     timing.AttackRange = 1.50f;
                     timing.AttackHeight = 0.60f;
                     break;
-                case "Axes":
+                case "Axe":
                     timing.HitTiming = 0.45f;
                     timing.TrailOnTiming = 0.35f;
                     timing.TrailOffTiming = 0.70f;
                     timing.AttackRange = 1.50f;
                     timing.AttackHeight = 0.60f;
                     break;
-                case "Clubs":
+                case "Club":
                     timing.HitTiming = 0.45f;
                     timing.TrailOnTiming = 0.35f;
                     timing.TrailOffTiming = 0.70f;
                     timing.AttackRange = 1.50f;
                     timing.AttackHeight = 0.60f;
                     break;
-                case "Spears":
+                case "Spear":
                     timing.HitTiming = 0.45f;
                     timing.TrailOnTiming = 0.35f;
                     timing.TrailOffTiming = 0.70f;
                     timing.AttackRange = 1.50f;
                     timing.AttackHeight = 0.60f;
                     break;
-                case "GreatSwords":
+                case "Greatsword":
                     timing.HitTiming = 0.50f;
                     timing.TrailOnTiming = 0.40f;
                     timing.TrailOffTiming = 0.75f;
                     timing.AttackRange = 2.00f;
                     timing.AttackHeight = 0.80f;
                     break;
-                case "BattleAxes":
+                case "Battleaxe":
                     timing.HitTiming = 0.55f;
                     timing.TrailOnTiming = 0.45f;
                     timing.TrailOffTiming = 0.80f;
                     timing.AttackRange = 1.80f;
                     timing.AttackHeight = 0.70f;
                     break;
-                case "Polearms":
+                case "Polearm":
                     timing.HitTiming = 0.60f;
                     timing.TrailOnTiming = 0.50f;
                     timing.TrailOffTiming = 0.85f;
@@ -1466,37 +1474,36 @@ namespace ExtraAttackSystem
             if (skillType == Skills.SkillType.Axes)
             {
                 if (is2H)
-                    return "BattleAxes";
+                    return "Battleaxe";
                 else
-                    return "Axes";
+                    return "Axe";
             }
             else if (skillType == Skills.SkillType.Swords)
             {
                 if (is2H)
-                    return "GreatSwords";
+                    return "Greatsword";
                 else
-                    return "Swords";
+                    return "Sword";
             }
             
             return skillType.ToString();
         }
 
         // Get vanilla clip name for weapon type and mode
-        // è£…å‚™ã—ã¦ã„ã‚‹æ­¦å™¨ã®å®Ÿéš›ã®ã‚»ã‚«ãƒ³ãƒ€ãƒªã‚¢ãƒ‹ãƒ¡ãƒ¼ã‚·ãƒ§ãƒ³ã‚¯ãƒªãƒƒãƒ—åã‚’è¿”ã™
         private static string GetVanillaClipName(string weaponType, string mode)
         {
             // Always return the equipped weapon's secondary trigger name
             return weaponType switch
             {
-                "Swords" => "Sword-Attack-R4", // sword_secondary trigger
-                "GreatSwords" => "Greatsword Secondary Attack", // greatsword_secondary trigger
-                "Axes" => "Axe Secondary Attack", // axe_secondary trigger
-                "Clubs" => "MaceAltAttack", // club_secondary trigger
-                "Spears" => "throw_spear", // spear_throw trigger
-                "BattleAxes" => "BattleAxeAltAttack", // battleaxe_secondary trigger
-                "Polearms" => "Atgeir360Attack", // polearm_secondary trigger
-                "Knives" => "Knife JumpAttack", // knife_secondary trigger
-                "Fists" => "Kickstep", // fist_secondary trigger
+                "Sword" => "Sword-Attack-R4", // sword_secondary trigger
+                "Greatsword" => "Greatsword Secondary Attack", // greatsword_secondary trigger
+                "Axe" => "Axe Secondary Attack", // axe_secondary trigger
+                "Club" => "MaceAltAttack", // club_secondary trigger
+                "Spear" => "throw_spear", // spear_throw trigger
+                "Battleaxe" => "BattleAxeAltAttack", // battleaxe_secondary trigger
+                "Polearm" => "Atgeir360Attack", // polearm_secondary trigger
+                "Knife" => "Knife JumpAttack", // knife_secondary trigger
+                "Fist" => "Kickstep", // fist_secondary trigger
                 _ => "Sword-Attack-R4"
             };
         }
@@ -1527,15 +1534,15 @@ namespace ExtraAttackSystem
             // Fallback to default names (matching AnimationManager.cs assignments)
             string fallbackAnimation = weaponType switch
             {
-                "Swords" => mode == "Q" ? "2Hand-Sword-Attack8External" : mode == "T" ? "2Hand_Skill01_WhirlWindExternal" : "Eas_GreatSword_JumpAttackExternal",
-                "Axes" => mode == "Q" ? "Axe Secondary AttackExternal" : mode == "T" ? "2Hand-Sword-Attack8External" : "Eas_GreatSword_JumpAttackExternal",
-                "Clubs" => mode == "Q" ? "Eas_GreatSword_CastingExternal" : mode == "T" ? "2Hand_Skill01_WhirlWindExternal" : "2Hand-Sword-Attack8External",
-                "Spears" => mode == "Q" ? "Eas_GreatSword_JumpAttackExternal" : mode == "T" ? "2Hand_Skill01_WhirlWindExternal" : "2Hand-Sword-Attack8External",
-                "GreatSwords" => mode == "Q" ? "2Hand-Sword-Attack8External" : mode == "T" ? "2Hand_Skill01_WhirlWindExternal" : "Eas_GreatSword_JumpAttackExternal",
-                "BattleAxes" => mode == "Q" ? "2Hand_Skill01_WhirlWindExternal" : mode == "T" ? "2Hand-Sword-Attack8External" : "Eas_GreatSword_JumpAttackExternal",
-                "Polearms" => mode == "Q" ? "Eas_GreatSword_JumpAttackExternal" : mode == "T" ? "2Hand-Sword-Attack8External" : "2Hand_Skill01_WhirlWindExternal",
-                "Knives" => mode == "Q" ? "ChargeAttkExternal" : mode == "T" ? "Eas_GreatSword_JumpAttackExternal" : "2Hand-Sword-Attack8External",
-                "Fists" => mode == "Q" ? "Flying Knee Punch ComboExternal" : mode == "T" ? "2Hand_Skill01_WhirlWindExternal" : "Eas_GreatSword_JumpAttackExternal",
+                "Sword" => mode == "Q" ? "2Hand-Sword-Attack8External" : mode == "T" ? "2Hand_Skill01_WhirlWindExternal" : "Eas_GreatSword_JumpAttackExternal",
+                "Axe" => mode == "Q" ? "Axe Secondary AttackExternal" : mode == "T" ? "2Hand-Sword-Attack8External" : "Eas_GreatSword_JumpAttackExternal",
+                "Club" => mode == "Q" ? "Eas_GreatSword_CastingExternal" : mode == "T" ? "2Hand_Skill01_WhirlWindExternal" : "2Hand-Sword-Attack8External",
+                "Spear" => mode == "Q" ? "Eas_GreatSword_JumpAttackExternal" : mode == "T" ? "2Hand_Skill01_WhirlWindExternal" : "2Hand-Sword-Attack8External",
+                "Greatsword" => mode == "Q" ? "2Hand-Sword-Attack8External" : mode == "T" ? "2Hand_Skill01_WhirlWindExternal" : "Eas_GreatSword_JumpAttackExternal",
+                "Battleaxe" => mode == "Q" ? "2Hand_Skill01_WhirlWindExternal" : mode == "T" ? "2Hand-Sword-Attack8External" : "Eas_GreatSword_JumpAttackExternal",
+                "Polearm" => mode == "Q" ? "Eas_GreatSword_JumpAttackExternal" : mode == "T" ? "2Hand-Sword-Attack8External" : "2Hand_Skill01_WhirlWindExternal",
+                "Knife" => mode == "Q" ? "ChargeAttkExternal" : mode == "T" ? "Eas_GreatSword_JumpAttackExternal" : "2Hand-Sword-Attack8External",
+                "Fist" => mode == "Q" ? "Flying Knee Punch ComboExternal" : mode == "T" ? "2Hand_Skill01_WhirlWindExternal" : "Eas_GreatSword_JumpAttackExternal",
                 _ => "Unknown"
             };
             
@@ -1569,7 +1576,7 @@ namespace ExtraAttackSystem
                 sb.AppendLine("WeaponTypes:");
                 
                 // Filter only weapon types (not individual weapons)
-                string[] validWeaponTypes = { "Axes", "BattleAxes", "Clubs", "DualAxes", "DualKnives", "Fists", "GreatSwords", "Knives", "Polearms", "Sledges", "Spears", "Swords", "Torch", "Unarmed" };
+                string[] validWeaponTypes = { "Axe", "Battleaxe", "Club", "DualAxes", "DualKnives", "Fist", "Greatsword", "Knife", "Polearm", "Sledges", "Spear", "Sword", "Torch", "Unarmed" };
                 
                 var filteredWeaponTypes = config.WeaponTypes
                     .Where(kvp => validWeaponTypes.Contains(kvp.Key))
@@ -1594,7 +1601,7 @@ namespace ExtraAttackSystem
                         string modeKey = mode.Key.Replace("secondary_", "");
                         string replacementAnimation = GetReplacementAnimationName(weaponType.Key, modeKey);
                         
-                        sb.AppendLine($"    # secondary_{modeKey} - ExtraAttack 1-> {replacementAnimation}");
+                        sb.AppendLine($"    # secondary_{modeKey} - {replacementAnimation}");
                         sb.AppendLine($"    {mode.Key}:");
                         sb.AppendLine($"      # Animation Event Timing (0.0 ~ 1.0) - Zero means OFF");
                         
@@ -1609,7 +1616,6 @@ namespace ExtraAttackSystem
                         float chainRatio = clipLength > 0 ? Math.Min(1.0f, timing.ChainTiming / clipLength) : 0.0f;
                         float dodgeMortalRatio = clipLength > 0 ? Math.Min(1.0f, timing.DodgeMortalTiming / clipLength) : 0.0f;
                         
-                        sb.AppendLine($"      # Animation Event Timing (0.0 ~ 1.0 ratio based on clip length) - Zero means OFF");
                         sb.AppendLine($"      HitTiming: {hitRatio:F2}");
                         sb.AppendLine($"      TrailOnTiming: {trailOnRatio:F2}");
                         sb.AppendLine($"      TrailOffTiming: {trailOffRatio:F2}");
