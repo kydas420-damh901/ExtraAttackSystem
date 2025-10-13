@@ -1,263 +1,1483 @@
-[Info   :Extra Attack System] === DEBUG: ANIMATION EVENTS (ON DEMAND) ===
-[Info   :Extra Attack System] --- [swing_pickaxe] has 4 event(s) ---
-[Info   :Extra Attack System]   Event: time=0.800, function=TrailOn, int=0, float=0.000, string=
-[Info   :Extra Attack System]   Event: time=0.825, function=Speed, int=0, float=1.800, string=
-[Info   :Extra Attack System]   Event: time=1.019, function=OnAttackTrigger, int=0, float=0.000, string=
-[Info   :Extra Attack System]   Event: time=1.055, function=Speed, int=0, float=1.100, string=
-[Info   :Extra Attack System] --- [Bow Aim Recoil] has 1 event(s) ---
-[Info   :Extra Attack System]   Event: time=0.167, function=OnAttackTrigger, int=0, float=0.000, string=
-[Info   :Extra Attack System] --- [throw_spear] has 5 event(s) ---
-[Info   :Extra Attack System]   Event: time=0.000, function=Speed, int=0, float=1.000, string=
-[Info   :Extra Attack System]   Event: time=0.499, function=Speed, int=0, float=1.500, string=
-[Info   :Extra Attack System]   Event: time=0.509, function=TrailOn, int=0, float=1.000, string=
-[Info   :Extra Attack System]   Event: time=0.739, function=OnAttackTrigger, int=0, float=0.000, string=
-[Info   :Extra Attack System]   Event: time=0.797, function=Speed, int=0, float=1.000, string=
-[Info   :Extra Attack System] --- [Punchstep 1] has 6 event(s) ---
-[Info   :Extra Attack System]   Event: time=0.000, function=Speed, int=0, float=2.000, string=
-[Info   :Extra Attack System]   Event: time=0.697, function=Speed, int=0, float=2.000, string=
-[Info   :Extra Attack System]   Event: time=0.702, function=TrailOn, int=0, float=0.000, string=
-[Info   :Extra Attack System]   Event: time=0.840, function=Hit, int=0, float=0.000, string=
-[Info   :Extra Attack System]   Event: time=0.916, function=Speed, int=0, float=1.000, string=
-[Info   :Extra Attack System]   Event: time=1.167, function=Chain, int=0, float=0.000, string=
-[Info   :Extra Attack System] --- [Dive] has 1 event(s) ---
-[Info   :Extra Attack System]   Event: time=0.700, function=DodgeMortal, int=0, float=0.000, string=
-[Info   :Extra Attack System] --- [knife_slash0] has 6 event(s) ---
-[Info   :Extra Attack System]   Event: time=0.134, function=TrailOn, int=0, float=0.000, string=
-[Info   :Extra Attack System]   Event: time=0.157, function=Speed, int=0, float=1.500, string=
-[Info   :Extra Attack System]   Event: time=0.256, function=OnAttackTrigger, int=0, float=0.000, string=
-[Info   :Extra Attack System]   Event: time=0.340, function=Speed, int=0, float=0.500, string=
-[Info   :Extra Attack System]   Event: time=0.365, function=Chain, int=0, float=0.000, string=
-[Info   :Extra Attack System]   Event: time=0.439, function=TrailOff, int=0, float=0.000, string=
-[Info   :Extra Attack System] --- [knife_slash1] has 6 event(s) ---
-[Info   :Extra Attack System]   Event: time=0.122, function=TrailOn, int=0, float=0.000, string=
-[Info   :Extra Attack System]   Event: time=0.153, function=Speed, int=0, float=2.000, string=
-[Info   :Extra Attack System]   Event: time=0.216, function=OnAttackTrigger, int=0, float=0.000, string=
-[Info   :Extra Attack System]   Event: time=0.405, function=Speed, int=0, float=1.000, string=
-[Info   :Extra Attack System]   Event: time=0.455, function=TrailOff, int=0, float=0.000, string=
-[Info   :Extra Attack System]   Event: time=0.485, function=Chain, int=0, float=0.000, string=
-[Info   :Extra Attack System] --- [knife_slash2] has 5 event(s) ---
-[Info   :Extra Attack System]   Event: time=0.208, function=Speed, int=0, float=2.500, string=
-[Info   :Extra Attack System]   Event: time=0.278, function=TrailOn, int=0, float=0.000, string=
-[Info   :Extra Attack System]   Event: time=0.516, function=OnAttackTrigger, int=0, float=0.000, string=
-[Info   :Extra Attack System]   Event: time=0.568, function=Speed, int=0, float=1.000, string=
-[Info   :Extra Attack System]   Event: time=0.656, function=TrailOff, int=0, float=0.000, string=
-[Info   :Extra Attack System] --- [Attack1] has 6 event(s) ---
-[Info   :Extra Attack System]   Event: time=0.372, function=Speed, int=0, float=1.200, string=
-[Info   :Extra Attack System]   Event: time=0.404, function=TrailOn, int=0, float=0.000, string=
-[Info   :Extra Attack System]   Event: time=0.472, function=Hit, int=0, float=0.000, string=
-[Info   :Extra Attack System]   Event: time=0.601, function=Speed, int=0, float=1.000, string=
-[Info   :Extra Attack System]   Event: time=0.714, function=TrailOff, int=0, float=0.000, string=
-[Info   :Extra Attack System]   Event: time=0.730, function=Chain, int=0, float=0.000, string=
-[Info   :Extra Attack System] --- [Attack2] has 6 event(s) ---
-[Info   :Extra Attack System]   Event: time=0.202, function=TrailOn, int=0, float=0.000, string=
-[Info   :Extra Attack System]   Event: time=0.214, function=Speed, int=0, float=1.100, string=
-[Info   :Extra Attack System]   Event: time=0.259, function=Hit, int=0, float=0.000, string=
-[Info   :Extra Attack System]   Event: time=0.390, function=TrailOff, int=0, float=0.000, string=
-[Info   :Extra Attack System]   Event: time=0.442, function=Speed, int=0, float=1.000, string=
-[Info   :Extra Attack System]   Event: time=0.557, function=Chain, int=0, float=0.000, string=
-[Info   :Extra Attack System] --- [Attack3] has 6 event(s) ---
-[Info   :Extra Attack System]   Event: time=0.024, function=Speed, int=0, float=0.500, string=
-[Info   :Extra Attack System]   Event: time=0.140, function=Speed, int=0, float=1.500, string=
-[Info   :Extra Attack System]   Event: time=0.150, function=TrailOn, int=0, float=0.000, string=
-[Info   :Extra Attack System]   Event: time=0.278, function=OnAttackTrigger, int=0, float=0.000, string=
-[Info   :Extra Attack System]   Event: time=0.356, function=TrailOff, int=0, float=0.000, string=
-[Info   :Extra Attack System]   Event: time=0.549, function=Speed, int=0, float=1.000, string=
-[Info   :Extra Attack System] --- [BombThrow] has 3 event(s) ---
-[Info   :Extra Attack System]   Event: time=0.507, function=TrailOn, int=0, float=0.000, string=
-[Info   :Extra Attack System]   Event: time=0.513, function=Speed, int=0, float=1.500, string=
-[Info   :Extra Attack System]   Event: time=0.760, function=OnAttackTrigger, int=0, float=0.000, string=
-[Info   :Extra Attack System] --- [Sledge-Attack1] has 5 event(s) ---
-[Info   :Extra Attack System]   Event: time=0.844, function=Speed, int=0, float=1.500, string=
-[Info   :Extra Attack System]   Event: time=0.872, function=TrailOn, int=0, float=0.000, string=
-[Info   :Extra Attack System]   Event: time=1.265, function=Speed, int=0, float=1.000, string=
-[Info   :Extra Attack System]   Event: time=1.296, function=OnAttackTrigger, int=0, float=0.000, string=
-[Info   :Extra Attack System]   Event: time=1.324, function=TrailOff, int=0, float=0.000, string=
-[Info   :Extra Attack System] --- [2Hand-Spear-Attack1] has 3 event(s) ---
-[Info   :Extra Attack System]   Event: time=0.369, function=TrailOn, int=0, float=0.000, string=
-[Info   :Extra Attack System]   Event: time=0.470, function=OnAttackTrigger, int=0, float=0.000, string=
-[Info   :Extra Attack System]   Event: time=0.526, function=TrailOff, int=0, float=0.000, string=
-[Info   :Extra Attack System] --- [2Hand-Spear-Attack9] has 3 event(s) ---
-[Info   :Extra Attack System]   Event: time=0.277, function=TrailOn, int=0, float=0.000, string=
-[Info   :Extra Attack System]   Event: time=0.554, function=OnAttackTrigger, int=0, float=0.000, string=
-[Info   :Extra Attack System]   Event: time=0.588, function=TrailOff, int=0, float=0.000, string=
-[Info   :Extra Attack System] --- [2Hand-Spear-Attack3] has 4 event(s) ---
-[Info   :Extra Attack System]   Event: time=0.507, function=TrailOn, int=0, float=0.200, string=
-[Info   :Extra Attack System]   Event: time=0.609, function=OnAttackTrigger, int=0, float=0.000, string=
-[Info   :Extra Attack System]   Event: time=0.630, function=Speed, int=0, float=0.200, string=
-[Info   :Extra Attack System]   Event: time=0.648, function=TrailOff, int=0, float=0.200, string=
-[Info   :Extra Attack System] --- [BattleAxe1] has 6 event(s) ---
-[Info   :Extra Attack System]   Event: time=0.079, function=Speed, int=0, float=1.300, string=
-[Info   :Extra Attack System]   Event: time=1.118, function=Speed, int=0, float=2.000, string=
-[Info   :Extra Attack System]   Event: time=1.131, function=TrailOn, int=0, float=0.000, string=
-[Info   :Extra Attack System]   Event: time=1.393, function=OnAttackTrigger, int=0, float=0.000, string=
-[Info   :Extra Attack System]   Event: time=1.632, function=Speed, int=0, float=1.000, string=
-[Info   :Extra Attack System]   Event: time=1.646, function=TrailOff, int=0, float=0.000, string=
-[Info   :Extra Attack System] --- [BattleAxe2] has 4 event(s) ---
-[Info   :Extra Attack System]   Event: time=0.212, function=Speed, int=0, float=1.500, string=
-[Info   :Extra Attack System]   Event: time=0.216, function=TrailOn, int=0, float=0.000, string=
-[Info   :Extra Attack System]   Event: time=0.364, function=OnAttackTrigger, int=0, float=0.000, string=
-[Info   :Extra Attack System]   Event: time=0.485, function=TrailOff, int=0, float=0.000, string=
-[Info   :Extra Attack System] --- [BattleAxe_Combo3] has 6 event(s) ---
-[Info   :Extra Attack System]   Event: time=0.155, function=Speed, int=0, float=0.500, string=
-[Info   :Extra Attack System]   Event: time=0.213, function=Speed, int=0, float=2.000, string=
-[Info   :Extra Attack System]   Event: time=0.232, function=TrailOn, int=0, float=0.000, string=
-[Info   :Extra Attack System]   Event: time=0.515, function=TrailOff, int=0, float=0.000, string=
-[Info   :Extra Attack System]   Event: time=0.529, function=OnAttackTrigger, int=0, float=0.000, string=
-[Info   :Extra Attack System]   Event: time=0.534, function=Speed, int=0, float=0.400, string=
-[Info   :Extra Attack System] --- [axe_swing] has 6 event(s) ---
-[Info   :Extra Attack System]   Event: time=0.442, function=TrailOn, int=0, float=0.000, string=
-[Info   :Extra Attack System]   Event: time=0.456, function=Speed, int=0, float=1.500, string=
-[Info   :Extra Attack System]   Event: time=0.610, function=OnAttackTrigger, int=0, float=0.000, string=
-[Info   :Extra Attack System]   Event: time=0.752, function=Speed, int=0, float=0.800, string=
-[Info   :Extra Attack System]   Event: time=0.772, function=TrailOff, int=0, float=0.000, string=
-[Info   :Extra Attack System]   Event: time=0.870, function=Chain, int=0, float=0.000, string=
-[Info   :Extra Attack System] --- [Axe combo 2] has 6 event(s) ---
-[Info   :Extra Attack System]   Event: time=0.480, function=TrailOn, int=0, float=1.000, string=
-[Info   :Extra Attack System]   Event: time=0.485, function=Speed, int=0, float=1.700, string=
-[Info   :Extra Attack System]   Event: time=0.726, function=Hit, int=0, float=0.000, string=
-[Info   :Extra Attack System]   Event: time=0.824, function=Speed, int=0, float=0.800, string=
-[Info   :Extra Attack System]   Event: time=0.855, function=TrailOff, int=0, float=1.000, string=
-[Info   :Extra Attack System]   Event: time=0.900, function=Chain, int=0, float=1.000, string=
-[Info   :Extra Attack System] --- [Axe combo 3] has 5 event(s) ---
-[Info   :Extra Attack System]   Event: time=0.594, function=Speed, int=0, float=2.000, string=
-[Info   :Extra Attack System]   Event: time=0.609, function=TrailOn, int=0, float=0.500, string=
-[Info   :Extra Attack System]   Event: time=0.796, function=Hit, int=0, float=0.000, string=
-[Info   :Extra Attack System]   Event: time=0.840, function=Speed, int=0, float=0.400, string=
-[Info   :Extra Attack System]   Event: time=0.850, function=TrailOff, int=0, float=0.500, string=
-[Info   :Extra Attack System] --- [Punchstep 2] has 5 event(s) ---
-[Info   :Extra Attack System]   Event: time=0.000, function=Speed, int=0, float=2.000, string=
-[Info   :Extra Attack System]   Event: time=0.673, function=Speed, int=0, float=2.000, string=
-[Info   :Extra Attack System]   Event: time=0.686, function=TrailOn, int=0, float=0.000, string=
-[Info   :Extra Attack System]   Event: time=0.903, function=Hit, int=0, float=0.000, string=
-[Info   :Extra Attack System]   Event: time=0.993, function=Chain, int=0, float=0.000, string=
-[Info   :Extra Attack System] --- [Kickstep] has 4 event(s) ---
-[Info   :Extra Attack System]   Event: time=0.459, function=Speed, int=0, float=2.000, string=
-[Info   :Extra Attack System]   Event: time=0.486, function=TrailOn, int=0, float=0.000, string=
-[Info   :Extra Attack System]   Event: time=0.581, function=Speed, int=0, float=1.000, string=
-[Info   :Extra Attack System]   Event: time=0.593, function=Hit, int=0, float=0.000, string=
-[Info   :Extra Attack System] --- [Forge] has 2 event(s) ---
-[Info   :Extra Attack System]   Event: time=0.000, function=Attach, int=0, float=0.000, string=RightHand_Attach
-[Info   :Extra Attack System]   Event: time=0.260, function=Effect, int=0, float=0.000, string=RightHand_Attach
-[Info   :Extra Attack System] --- [Javelin Stab] has 5 event(s) ---
-[Info   :Extra Attack System]   Event: time=0.000, function=Speed, int=0, float=0.800, string=
-[Info   :Extra Attack System]   Event: time=0.139, function=Speed, int=0, float=1.000, string=
-[Info   :Extra Attack System]   Event: time=0.152, function=TrailOn, int=0, float=0.000, string=
-[Info   :Extra Attack System]   Event: time=0.309, function=Hit, int=0, float=0.000, string=
-[Info   :Extra Attack System]   Event: time=0.324, function=TrailOff, int=0, float=0.000, string=
-[Info   :Extra Attack System] --- [Atgeir360Attack] has 6 event(s) ---
-[Info   :Extra Attack System]   Event: time=0.000, function=Speed, int=0, float=2.000, string=
-[Info   :Extra Attack System]   Event: time=0.875, function=Speed, int=0, float=2.000, string=
-[Info   :Extra Attack System]   Event: time=1.011, function=TrailOn, int=0, float=0.000, string=
-[Info   :Extra Attack System]   Event: time=1.124, function=Hit, int=0, float=0.000, string=
-[Info   :Extra Attack System]   Event: time=1.581, function=Speed, int=0, float=1.000, string=
-[Info   :Extra Attack System]   Event: time=1.602, function=TrailOff, int=0, float=0.000, string=
-[Info   :Extra Attack System] --- [Hard Landing] has 1 event(s) ---
-[Info   :Extra Attack System]   Event: time=0.060, function=Effect, int=0, float=0.000, string=
-[Info   :Extra Attack System] --- [GuardianPower] has 1 event(s) ---
-[Info   :Extra Attack System]   Event: time=0.538, function=GPower, int=0, float=0.000, string=
-[Info   :Extra Attack System] --- [Throw] has 1 event(s) ---
-[Info   :Extra Attack System]   Event: time=0.340, function=Hit, int=0, float=0.000, string=
-[Info   :Extra Attack System] --- [BattleAxeAltAttack] has 5 event(s) ---
-[Info   :Extra Attack System]   Event: time=0.216, function=Speed, int=0, float=1.500, string=
-[Info   :Extra Attack System]   Event: time=0.222, function=TrailOn, int=0, float=0.000, string=
-[Info   :Extra Attack System]   Event: time=0.464, function=Hit, int=0, float=0.000, string=
-[Info   :Extra Attack System]   Event: time=0.521, function=TrailOff, int=0, float=0.000, string=
-[Info   :Extra Attack System]   Event: time=0.526, function=Speed, int=0, float=1.000, string=
-[Info   :Extra Attack System] --- [Fire Crossbow] has 1 event(s) ---
-[Info   :Extra Attack System]   Event: time=0.006, function=Hit, int=0, float=0.000, string=
-[Info   :Extra Attack System] --- [Knife Attack Leap] has 2 event(s) ---
-[Info   :Extra Attack System]   Event: time=0.478, function=TrailOn, int=0, float=0.000, string=
-[Info   :Extra Attack System]   Event: time=0.839, function=Hit, int=0, float=0.000, string=
-[Info   :Extra Attack System] --- [Knife Attack Combo (3)] has 5 event(s) ---
-[Info   :Extra Attack System]   Event: time=0.136, function=TrailOn, int=0, float=0.000, string=
-[Info   :Extra Attack System]   Event: time=0.176, function=OnAttackTrigger, int=0, float=0.000, string=
-[Info   :Extra Attack System]   Event: time=0.192, function=Speed, int=0, float=0.500, string=
-[Info   :Extra Attack System]   Event: time=0.259, function=TrailOff, int=0, float=0.000, string=
-[Info   :Extra Attack System]   Event: time=0.307, function=Speed, int=0, float=1.000, string=
-[Info   :Extra Attack System] --- [Knife Attack Combo (2)] has 4 event(s) ---
-[Info   :Extra Attack System]   Event: time=0.047, function=TrailOn, int=0, float=0.000, string=
-[Info   :Extra Attack System]   Event: time=0.177, function=OnAttackTrigger, int=0, float=0.000, string=
-[Info   :Extra Attack System]   Event: time=0.305, function=TrailOff, int=0, float=0.000, string=
-[Info   :Extra Attack System]   Event: time=0.370, function=Chain, int=0, float=0.000, string=
-[Info   :Extra Attack System] --- [Knife Attack Combo (1)] has 4 event(s) ---
-[Info   :Extra Attack System]   Event: time=0.057, function=TrailOn, int=0, float=0.000, string=
-[Info   :Extra Attack System]   Event: time=0.182, function=OnAttackTrigger, int=0, float=0.000, string=
-[Info   :Extra Attack System]   Event: time=0.333, function=TrailOff, int=0, float=0.000, string=
-[Info   :Extra Attack System]   Event: time=0.364, function=Chain, int=0, float=0.000, string=
-[Info   :Extra Attack System] --- [Fireball Staff Attacks (1)] has 1 event(s) ---
-[Info   :Extra Attack System]   Event: time=0.507, function=Hit, int=0, float=0.000, string=
-[Info   :Extra Attack System] --- [Fireball Staff Attacks (2)] has 2 event(s) ---
-[Info   :Extra Attack System]   Event: time=0.000, function=Effect, int=0, float=0.000, string=
-[Info   :Extra Attack System]   Event: time=0.499, function=Hit, int=0, float=0.000, string=
-[Info   :Extra Attack System] --- [Beam Staff Attack] has 1 event(s) ---
-[Info   :Extra Attack System]   Event: time=0.352, function=Hit, int=0, float=0.000, string=
-[Info   :Extra Attack System] --- [Greatsword BaseAttack (3)] has 4 event(s) ---
-[Info   :Extra Attack System]   Event: time=0.529, function=TrailOn, int=0, float=0.000, string=
-[Info   :Extra Attack System]   Event: time=0.639, function=Hit, int=0, float=0.000, string=
-[Info   :Extra Attack System]   Event: time=0.721, function=TrailOff, int=0, float=0.000, string=
-[Info   :Extra Attack System]   Event: time=0.833, function=Chain, int=0, float=0.000, string=
-[Info   :Extra Attack System] --- [Greatsword BaseAttack (1)] has 4 event(s) ---
-[Info   :Extra Attack System]   Event: time=0.461, function=TrailOn, int=0, float=0.000, string=
-[Info   :Extra Attack System]   Event: time=0.604, function=Hit, int=0, float=0.000, string=
-[Info   :Extra Attack System]   Event: time=0.771, function=TrailOff, int=0, float=0.000, string=
-[Info   :Extra Attack System]   Event: time=0.783, function=Chain, int=0, float=0.000, string=
-[Info   :Extra Attack System] --- [Greatsword BaseAttack (2)] has 4 event(s) ---
-[Info   :Extra Attack System]   Event: time=0.371, function=TrailOn, int=0, float=0.000, string=
-[Info   :Extra Attack System]   Event: time=0.492, function=Hit, int=0, float=0.000, string=
-[Info   :Extra Attack System]   Event: time=0.630, function=TrailOff, int=0, float=0.000, string=
-[Info   :Extra Attack System]   Event: time=0.641, function=Chain, int=0, float=0.000, string=
-[Info   :Extra Attack System] --- [Ground Staff Attack] has 3 event(s) ---
-[Info   :Extra Attack System]   Event: time=0.613, function=Speed, int=0, float=0.200, string=
-[Info   :Extra Attack System]   Event: time=0.732, function=Speed, int=0, float=1.000, string=
-[Info   :Extra Attack System]   Event: time=1.078, function=Hit, int=0, float=0.000, string=
-[Info   :Extra Attack System] --- [Skeleton Summon] has 1 event(s) ---
-[Info   :Extra Attack System]   Event: time=0.169, function=Hit, int=0, float=0.000, string=
-[Info   :Extra Attack System] --- [DualAxes Attack 1] has 4 event(s) ---
-[Info   :Extra Attack System]   Event: time=0.125, function=TrailOn, int=0, float=0.000, string=
-[Info   :Extra Attack System]   Event: time=0.211, function=Hit, int=0, float=0.000, string=
-[Info   :Extra Attack System]   Event: time=0.257, function=Chain, int=0, float=0.000, string=
-[Info   :Extra Attack System]   Event: time=0.353, function=TrailOff, int=0, float=0.000, string=
-[Info   :Extra Attack System] --- [DualAxes Attack 2 2] has 4 event(s) ---
-[Info   :Extra Attack System]   Event: time=0.287, function=TrailOn, int=0, float=0.000, string=
-[Info   :Extra Attack System]   Event: time=0.372, function=Hit, int=0, float=0.000, string=
-[Info   :Extra Attack System]   Event: time=0.533, function=Chain, int=0, float=0.000, string=
-[Info   :Extra Attack System]   Event: time=0.563, function=TrailOff, int=0, float=0.000, string=
-[Info   :Extra Attack System] --- [DualAxes Attack 3 2] has 5 event(s) ---
-[Info   :Extra Attack System]   Event: time=0.262, function=TrailOn, int=0, float=0.000, string=
-[Info   :Extra Attack System]   Event: time=0.335, function=Hit, int=0, float=0.000, string=
-[Info   :Extra Attack System]   Event: time=0.553, function=Hit, int=0, float=0.000, string=
-[Info   :Extra Attack System]   Event: time=0.674, function=TrailOff, int=0, float=0.000, string=
-[Info   :Extra Attack System]   Event: time=0.706, function=Chain, int=0, float=0.000, string=
-[Info   :Extra Attack System] --- [DualAxes Attack Cleave] has 3 event(s) ---
-[Info   :Extra Attack System]   Event: time=0.817, function=TrailOn, int=0, float=0.000, string=
-[Info   :Extra Attack System]   Event: time=0.915, function=Hit, int=0, float=0.000, string=
-[Info   :Extra Attack System]   Event: time=1.083, function=TrailOff, int=0, float=0.000, string=
-[Info   :Extra Attack System] --- [Lightning Staff Attack] has 1 event(s) ---
-[Info   :Extra Attack System]   Event: time=0.520, function=Hit, int=0, float=0.000, string=
-[Info   :Extra Attack System] --- [DualAxes Attack 4] has 4 event(s) ---
-[Info   :Extra Attack System]   Event: time=0.240, function=TrailOn, int=0, float=0.000, string=
-[Info   :Extra Attack System]   Event: time=0.367, function=Hit, int=0, float=0.000, string=
-[Info   :Extra Attack System]   Event: time=0.540, function=Hit, int=0, float=0.000, string=
-[Info   :Extra Attack System]   Event: time=0.630, function=TrailOff, int=0, float=0.000, string=
-[Info   :Extra Attack System] --- [Troll Summon] has 1 event(s) ---
-[Info   :Extra Attack System]   Event: time=1.280, function=Hit, int=0, float=0.000, string=
-[Info   :Extra Attack System] --- [Scything] has 3 event(s) ---
-[Info   :Extra Attack System]   Event: time=0.013, function=TrailOn, int=0, float=0.000, string=
-[Info   :Extra Attack System]   Event: time=0.160, function=Hit, int=0, float=0.000, string=
-[Info   :Extra Attack System]   Event: time=0.284, function=TrailOff, int=0, float=0.000, string=
-[Info   :Extra Attack System] --- [drink] has 1 event(s) ---
-[Info   :Extra Attack System]   Event: time=1.328, function=OnAttackTrigger, int=0, float=0.000, string=
-[Info   :Extra Attack System] --- [Reload Crossbow] has 1 event(s) ---
-[Info   :Extra Attack System]   Event: time=0.000, function=Effect, int=0, float=0.000, string=
-[Info   :Extra Attack System] --- [Reload done] has 1 event(s) ---
-[Info   :Extra Attack System]   Event: time=0.000, function=Effect, int=0, float=0.000, string=
-[Info   :Extra Attack System] --- [Beam Staff Attack] has 1 event(s) ---
-[Info   :Extra Attack System]   Event: time=0.352, function=Hit, int=0, float=0.000, string=
-[Info   :Extra Attack System] --- [Charge Staff Attack 2] has 1 event(s) ---
-[Info   :Extra Attack System]   Event: time=0.301, function=Hit, int=0, float=0.000, string=
-[Info   :Extra Attack System] --- [Lightning Staff Recharge] has 2 event(s) ---
-[Info   :Extra Attack System]   Event: time=0.000, function=Attach, int=-1, float=0.000, string=LeftHand
-[Info   :Extra Attack System]   Event: time=0.182, function=Effect, int=0, float=0.000, string=
-[Info   :Extra Attack System] --- [Lightning Staff Recharge Done] has 1 event(s) ---
-[Info   :Extra Attack System]   Event: time=0.000, function=Effect, int=0, float=0.000, string=
-[Info   :Extra Attack System] === END ANIMATION EVENTS ===
+[Info   :Extra Attack System] [System] === END ANIMATION CLIPS ===
+[Info   :Extra Attack System] [System] Animation Clips list output completed
+[Info   :Extra Attack System] [System] DebugAnimationEventsList changed to: True
+[Info   :Extra Attack System] [System] Animation Events list output requested
+[Info   :Extra Attack System] [System] === DEBUG: ANIMATION EVENTS ===
+[Info   :Extra Attack System] [System] Found 1052 animation clips
+[Info   :Extra Attack System] [System] Clip: OneHand_Up_Attack_B_3 - 3 events
+[Info   :Extra Attack System] [System]   Event: TrailOn at 0.758s
+[Info   :Extra Attack System] [System]   Event: OnAttackTrigger at 0.975s
+[Info   :Extra Attack System] [System]   Event: TrailOff at 1.517s
+[Info   :Extra Attack System] [System] Clip: Eas_SwordAndShield_PowerUp - 3 events
+[Info   :Extra Attack System] [System]   Event: TrailOn at 0.828s
+[Info   :Extra Attack System] [System]   Event: OnAttackTrigger at 1.065s
+[Info   :Extra Attack System] [System]   Event: TrailOff at 1.657s
+[Info   :Extra Attack System] [System] Clip: StrongAttk4 - 3 events
+[Info   :Extra Attack System] [System]   Event: TrailOn at 0.665s
+[Info   :Extra Attack System] [System]   Event: OnAttackTrigger at 0.855s
+[Info   :Extra Attack System] [System]   Event: TrailOff at 1.330s
+[Info   :Extra Attack System] [System] Clip: StrongAttk1 - 3 events
+[Info   :Extra Attack System] [System]   Event: TrailOn at 0.379s
+[Info   :Extra Attack System] [System]   Event: OnAttackTrigger at 0.488s
+[Info   :Extra Attack System] [System]   Event: TrailOff at 0.758s
+[Info   :Extra Attack System] [System] Clip: Shield@ShieldAttack01 - 3 events
+[Info   :Extra Attack System] [System]   Event: TrailOn at 0.315s
+[Info   :Extra Attack System] [System]   Event: OnAttackTrigger at 0.405s
+[Info   :Extra Attack System] [System]   Event: TrailOff at 0.630s
+[Info   :Extra Attack System] [System] Clip: 2Hand_ComboAlt2all - 3 events
+[Info   :Extra Attack System] [System]   Event: TrailOn at 1.167s
+[Info   :Extra Attack System] [System]   Event: OnAttackTrigger at 1.500s
+[Info   :Extra Attack System] [System]   Event: TrailOff at 2.333s
+[Info   :Extra Attack System] [System] Clip: Standing Melee Combo Attack - 3 events
+[Info   :Extra Attack System] [System]   Event: TrailOn at 1.359s
+[Info   :Extra Attack System] [System]   Event: OnAttackTrigger at 1.748s
+[Info   :Extra Attack System] [System]   Event: TrailOff at 2.718s
+[Info   :Extra Attack System] [System] Clip: Eas_GreatSword_Combo1 - 3 events
+[Info   :Extra Attack System] [System]   Event: TrailOn at 1.167s
+[Info   :Extra Attack System] [System]   Event: OnAttackTrigger at 1.500s
+[Info   :Extra Attack System] [System]   Event: TrailOff at 2.333s
+[Info   :Extra Attack System] [System] Clip: Eas_GreatSword_Casting - 3 events
+[Info   :Extra Attack System] [System]   Event: TrailOn at 1.278s
+[Info   :Extra Attack System] [System]   Event: OnAttackTrigger at 1.643s
+[Info   :Extra Attack System] [System]   Event: TrailOff at 2.555s
+[Info   :Extra Attack System] [System] Clip: 2Hand-Sword-Attack8 - 1 events
+[Info   :Extra Attack System] [System]   Event: Hit at 0.492s
+[Info   :Extra Attack System] [System] Clip: Standing Taunt Chest Thump - 3 events
+[Info   :Extra Attack System] [System]   Event: TrailOn at 0.834s
+[Info   :Extra Attack System] [System]   Event: OnAttackTrigger at 1.073s
+[Info   :Extra Attack System] [System]   Event: TrailOff at 1.668s
+[Info   :Extra Attack System] [System] Clip: Sw-Ma-GS-Up_Attack_A_2 - 3 events
+[Info   :Extra Attack System] [System]   Event: TrailOn at 0.933s
+[Info   :Extra Attack System] [System]   Event: OnAttackTrigger at 1.200s
+[Info   :Extra Attack System] [System]   Event: TrailOff at 1.867s
+[Info   :Extra Attack System] [System] Clip: 0MGSA_Attack_Dash02 - 3 events
+[Info   :Extra Attack System] [System]   Event: TrailOn at 1.423s
+[Info   :Extra Attack System] [System]   Event: OnAttackTrigger at 1.830s
+[Info   :Extra Attack System] [System]   Event: TrailOff at 2.847s
+[Info   :Extra Attack System] [System] Clip: 0DS_Attack_07 - 3 events
+[Info   :Extra Attack System] [System]   Event: TrailOn at 0.583s
+[Info   :Extra Attack System] [System]   Event: OnAttackTrigger at 0.750s
+[Info   :Extra Attack System] [System]   Event: TrailOff at 1.167s
+[Info   :Extra Attack System] [System] Clip: 0MGSA_Attack_Ground02 - 3 events
+[Info   :Extra Attack System] [System]   Event: TrailOn at 1.272s
+[Info   :Extra Attack System] [System]   Event: OnAttackTrigger at 1.635s
+[Info   :Extra Attack System] [System]   Event: TrailOff at 2.543s
+[Info   :Extra Attack System] [System] Clip: HardAttk - 3 events
+[Info   :Extra Attack System] [System]   Event: TrailOn at 0.414s
+[Info   :Extra Attack System] [System]   Event: OnAttackTrigger at 0.533s
+[Info   :Extra Attack System] [System]   Event: TrailOff at 0.828s
+[Info   :Extra Attack System] [System] Clip: Standing Melee Run Jump Attack - 3 events
+[Info   :Extra Attack System] [System]   Event: TrailOn at 1.068s
+[Info   :Extra Attack System] [System]   Event: OnAttackTrigger at 1.373s
+[Info   :Extra Attack System] [System]   Event: TrailOff at 2.135s
+[Info   :Extra Attack System] [System] Clip: Eas_GreatSword_SlideAttack - 3 events
+[Info   :Extra Attack System] [System]   Event: TrailOn at 0.578s
+[Info   :Extra Attack System] [System]   Event: OnAttackTrigger at 0.743s
+[Info   :Extra Attack System] [System]   Event: TrailOff at 1.155s
+[Info   :Extra Attack System] [System] Clip: 2Hand_Combo02 - 3 events
+[Info   :Extra Attack System] [System]   Event: TrailOn at 0.554s
+[Info   :Extra Attack System] [System]   Event: OnAttackTrigger at 0.713s
+[Info   :Extra Attack System] [System]   Event: TrailOff at 1.108s
+[Info   :Extra Attack System] [System] Clip: 2Hand_ComboAlt04-4 - 3 events
+[Info   :Extra Attack System] [System]   Event: TrailOn at 0.630s
+[Info   :Extra Attack System] [System]   Event: OnAttackTrigger at 0.810s
+[Info   :Extra Attack System] [System]   Event: TrailOff at 1.260s
+[Info   :Extra Attack System] [System] Clip: 2Hand_ComboAlt02 - 3 events
+[Info   :Extra Attack System] [System]   Event: TrailOn at 0.945s
+[Info   :Extra Attack System] [System]   Event: OnAttackTrigger at 1.215s
+[Info   :Extra Attack System] [System]   Event: TrailOff at 1.890s
+[Info   :Extra Attack System] [System] Clip: Eas_GreatSwordSlash_01 - 3 events
+[Info   :Extra Attack System] [System]   Event: TrailOn at 0.490s
+[Info   :Extra Attack System] [System]   Event: OnAttackTrigger at 0.630s
+[Info   :Extra Attack System] [System]   Event: TrailOff at 0.980s
+[Info   :Extra Attack System] [System] Clip: 2Hand_Combo03 - 3 events
+[Info   :Extra Attack System] [System]   Event: TrailOn at 0.583s
+[Info   :Extra Attack System] [System]   Event: OnAttackTrigger at 0.750s
+[Info   :Extra Attack System] [System]   Event: TrailOff at 1.167s
+[Info   :Extra Attack System] [System] Clip: OneHand_Up_Attack_B_2 - 3 events
+[Info   :Extra Attack System] [System]   Event: TrailOn at 0.700s
+[Info   :Extra Attack System] [System]   Event: OnAttackTrigger at 0.900s
+[Info   :Extra Attack System] [System]   Event: TrailOff at 1.400s
+[Info   :Extra Attack System] [System] Clip: ChargeAttk - 3 events
+[Info   :Extra Attack System] [System]   Event: TrailOn at 0.648s
+[Info   :Extra Attack System] [System]   Event: OnAttackTrigger at 0.833s
+[Info   :Extra Attack System] [System]   Event: TrailOff at 1.295s
+[Info   :Extra Attack System] [System] Clip: Eas_GreatSword_JumpAttack - 3 events
+[Info   :Extra Attack System] [System]   Event: TrailOn at 0.688s
+[Info   :Extra Attack System] [System]   Event: OnAttackTrigger at 0.885s
+[Info   :Extra Attack System] [System]   Event: TrailOff at 1.377s
+[Info   :Extra Attack System] [System] Clip: Flying Knee Punch Combo - 3 events
+[Info   :Extra Attack System] [System]   Event: TrailOn at 0.595s
+[Info   :Extra Attack System] [System]   Event: OnAttackTrigger at 0.765s
+[Info   :Extra Attack System] [System]   Event: TrailOff at 1.190s
+[Info   :Extra Attack System] [System] Clip: MWA_RightHand_Attack03 - 3 events
+[Info   :Extra Attack System] [System]   Event: TrailOn at 0.455s
+[Info   :Extra Attack System] [System]   Event: OnAttackTrigger at 0.585s
+[Info   :Extra Attack System] [System]   Event: TrailOff at 0.910s
+[Info   :Extra Attack System] [System] Clip: 0MGSA_Attack_Dash01 - 3 events
+[Info   :Extra Attack System] [System]   Event: TrailOn at 1.540s
+[Info   :Extra Attack System] [System]   Event: OnAttackTrigger at 1.980s
+[Info   :Extra Attack System] [System]   Event: TrailOff at 3.080s
+[Info   :Extra Attack System] [System] Clip: 0MWA_DualWield_Attack02 - 3 events
+[Info   :Extra Attack System] [System]   Event: TrailOn at 0.408s
+[Info   :Extra Attack System] [System]   Event: OnAttackTrigger at 0.525s
+[Info   :Extra Attack System] [System]   Event: TrailOff at 0.817s
+[Info   :Extra Attack System] [System] Clip: Pa_1handShiled_attack02 - 3 events
+[Info   :Extra Attack System] [System]   Event: TrailOn at 0.723s
+[Info   :Extra Attack System] [System]   Event: OnAttackTrigger at 0.930s
+[Info   :Extra Attack System] [System]   Event: TrailOff at 1.447s
+[Info   :Extra Attack System] [System] Clip: Sw-Ma-GS-Up_Attack_A_3 - 3 events
+[Info   :Extra Attack System] [System]   Event: TrailOn at 0.700s
+[Info   :Extra Attack System] [System]   Event: OnAttackTrigger at 0.900s
+[Info   :Extra Attack System] [System]   Event: TrailOff at 1.400s
+[Info   :Extra Attack System] [System] Clip: Attack_Shield - 3 events
+[Info   :Extra Attack System] [System]   Event: TrailOn at 0.700s
+[Info   :Extra Attack System] [System]   Event: OnAttackTrigger at 0.900s
+[Info   :Extra Attack System] [System]   Event: TrailOff at 1.400s
+[Info   :Extra Attack System] [System] Clip: Sw-Ma-GS-Up_Attack_A_1 - 3 events
+[Info   :Extra Attack System] [System]   Event: TrailOn at 0.875s
+[Info   :Extra Attack System] [System]   Event: OnAttackTrigger at 1.125s
+[Info   :Extra Attack System] [System]   Event: TrailOff at 1.750s
+[Info   :Extra Attack System] [System] Clip: Eas_SwordAndShield_JumpSlash - 3 events
+[Info   :Extra Attack System] [System]   Event: TrailOn at 0.583s
+[Info   :Extra Attack System] [System]   Event: OnAttackTrigger at 0.750s
+[Info   :Extra Attack System] [System]   Event: TrailOff at 1.167s
+[Info   :Extra Attack System] [System] Clip: 2Hand_Combo04 - 3 events
+[Info   :Extra Attack System] [System]   Event: TrailOn at 0.782s
+[Info   :Extra Attack System] [System]   Event: OnAttackTrigger at 1.005s
+[Info   :Extra Attack System] [System]   Event: TrailOff at 1.563s
+[Info   :Extra Attack System] [System] Clip: Eas_Swshield_JumpAttack - 3 events
+[Info   :Extra Attack System] [System]   Event: TrailOn at 0.811s
+[Info   :Extra Attack System] [System]   Event: OnAttackTrigger at 1.043s
+[Info   :Extra Attack System] [System]   Event: TrailOff at 1.622s
+[Info   :Extra Attack System] [System] Clip: Standing Melee Attack 360 Low - 3 events
+[Info   :Extra Attack System] [System]   Event: TrailOn at 0.729s
+[Info   :Extra Attack System] [System]   Event: OnAttackTrigger at 0.938s
+[Info   :Extra Attack System] [System]   Event: TrailOff at 1.458s
+[Info   :Extra Attack System] [System] Clip: 2Hand_Combo05 - 3 events
+[Info   :Extra Attack System] [System]   Event: TrailOn at 0.741s
+[Info   :Extra Attack System] [System]   Event: OnAttackTrigger at 0.953s
+[Info   :Extra Attack System] [System]   Event: TrailOff at 1.482s
+[Info   :Extra Attack System] [System] Clip: 2Hand_Skill01_WhirlWind - 3 events
+[Info   :Extra Attack System] [System]   Event: TrailOn at 1.033s
+[Info   :Extra Attack System] [System]   Event: OnAttackTrigger at 1.328s
+[Info   :Extra Attack System] [System]   Event: TrailOff at 2.065s
+[Info   :Extra Attack System] [System] Clip: Attack04 - 3 events
+[Info   :Extra Attack System] [System]   Event: TrailOn at 0.490s
+[Info   :Extra Attack System] [System]   Event: OnAttackTrigger at 0.630s
+[Info   :Extra Attack System] [System]   Event: TrailOff at 0.980s
+[Info   :Extra Attack System] [System] Clip: OneHand_Up_Attack_B_1 - 3 events
+[Info   :Extra Attack System] [System]   Event: TrailOn at 1.050s
+[Info   :Extra Attack System] [System]   Event: OnAttackTrigger at 1.350s
+[Info   :Extra Attack System] [System]   Event: TrailOff at 2.100s
+[Info   :Extra Attack System] [System] Clip: 0MGSA_Attack_Ground01 - 3 events
+[Info   :Extra Attack System] [System]   Event: TrailOn at 1.132s
+[Info   :Extra Attack System] [System]   Event: OnAttackTrigger at 1.455s
+[Info   :Extra Attack System] [System]   Event: TrailOff at 2.263s
+[Info   :Extra Attack System] [System] Clip: 2Hand_Combo01 - 3 events
+[Info   :Extra Attack System] [System]   Event: TrailOn at 0.467s
+[Info   :Extra Attack System] [System]   Event: OnAttackTrigger at 0.600s
+[Info   :Extra Attack System] [System]   Event: TrailOff at 0.933s
+[Info   :Extra Attack System] [System] Clip: StrongAttk3 - 3 events
+[Info   :Extra Attack System] [System]   Event: TrailOn at 0.467s
+[Info   :Extra Attack System] [System]   Event: OnAttackTrigger at 0.600s
+[Info   :Extra Attack System] [System]   Event: TrailOff at 0.933s
+[Info   :Extra Attack System] [System] Clip: Shield@ShieldAttack02 - 3 events
+[Info   :Extra Attack System] [System]   Event: TrailOn at 0.385s
+[Info   :Extra Attack System] [System]   Event: OnAttackTrigger at 0.495s
+[Info   :Extra Attack System] [System]   Event: TrailOff at 0.770s
+[Info   :Extra Attack System] [System] Clip: 2Hand_ComboAlt03-1 - 3 events
+[Info   :Extra Attack System] [System]   Event: TrailOn at 0.636s
+[Info   :Extra Attack System] [System]   Event: OnAttackTrigger at 0.818s
+[Info   :Extra Attack System] [System]   Event: TrailOff at 1.272s
+[Info   :Extra Attack System] [System] Clip: Attack Fire AoE - 2 events
+[Info   :Extra Attack System] [System]   Event: Effect at 0.062s
+[Info   :Extra Attack System] [System]   Event: Hit at 2.009s
+[Info   :Extra Attack System] [System] Clip: Shoot Bow - 1 events
+[Info   :Extra Attack System] [System]   Event: OnAttackTrigger at 0.252s
+[Info   :Extra Attack System] [System] Clip: Attack Scratch L - 1 events
+[Info   :Extra Attack System] [System]   Event: Hit at 0.695s
+[Info   :Extra Attack System] [System] Clip: Attack Scratch R - 1 events
+[Info   :Extra Attack System] [System]   Event: Hit at 0.695s
+[Info   :Extra Attack System] [System] Clip: Idle Bow Alerted - 1 events
+[Info   :Extra Attack System] [System]   Event: Speed at 0.076s
+[Info   :Extra Attack System] [System] Clip: Idle Bow Volley Alerted - 1 events
+[Info   :Extra Attack System] [System]   Event: Speed at 0.070s
+[Info   :Extra Attack System] [System] Clip: Attack Throw - 1 events
+[Info   :Extra Attack System] [System]   Event: Hit at 1.059s
+[Info   :Extra Attack System] [System] Clip: Attack Magic Beam Start - 1 events
+[Info   :Extra Attack System] [System]   Event: Hit at 2.804s
+[Info   :Extra Attack System] [System] Clip: Shoot Bow Volley - 1 events
+[Info   :Extra Attack System] [System]   Event: OnAttackTrigger at 0.252s
+[Info   :Extra Attack System] [System] Clip: Attack Thrust Feint Greatsword - 4 events
+[Info   :Extra Attack System] [System]   Event: Effect at 0.968s
+[Info   :Extra Attack System] [System]   Event: TrailOn at 1.235s
+[Info   :Extra Attack System] [System]   Event: Hit at 1.310s
+[Info   :Extra Attack System] [System]   Event: TrailOff at 1.587s
+[Info   :Extra Attack System] [System] Clip: Attack Swing Feint Greatsword - 4 events
+[Info   :Extra Attack System] [System]   Event: TrailOn at 0.805s
+[Info   :Extra Attack System] [System]   Event: Effect at 0.974s
+[Info   :Extra Attack System] [System]   Event: Hit at 1.469s
+[Info   :Extra Attack System] [System]   Event: TrailOff at 1.651s
+[Info   :Extra Attack System] [System] Clip: Attack Thrust Greatsword - 3 events
+[Info   :Extra Attack System] [System]   Event: TrailOn at 0.496s
+[Info   :Extra Attack System] [System]   Event: Hit at 0.679s
+[Info   :Extra Attack System] [System]   Event: TrailOff at 0.696s
+[Info   :Extra Attack System] [System] Clip: Attack Swing Greatsword - 3 events
+[Info   :Extra Attack System] [System]   Event: TrailOn at 0.693s
+[Info   :Extra Attack System] [System]   Event: Hit at 0.899s
+[Info   :Extra Attack System] [System]   Event: TrailOff at 0.962s
+[Info   :Extra Attack System] [System] Clip: Attack Magic Bolt - 1 events
+[Info   :Extra Attack System] [System]   Event: Hit at 2.354s
+[Info   :Extra Attack System] [System] Clip: Attack Pincers - 1 events
+[Info   :Extra Attack System] [System]   Event: Hit at 0.926s
+[Info   :Extra Attack System] [System] Clip: Stagger - 2 events
+[Info   :Extra Attack System] [System]   Event: Speed at 0.000s
+[Info   :Extra Attack System] [System]   Event: Speed at 0.396s
+[Info   :Extra Attack System] [System] Clip: Takeoff - 2 events
+[Info   :Extra Attack System] [System]   Event: Effect at 0.002s
+[Info   :Extra Attack System] [System]   Event: Hit at 0.028s
+[Info   :Extra Attack System] [System] Clip: Landing - 2 events
+[Info   :Extra Attack System] [System]   Event: Effect at 0.005s
+[Info   :Extra Attack System] [System]   Event: Hit at 0.397s
+[Info   :Extra Attack System] [System] Clip: Attack Pierce Left - 2 events
+[Info   :Extra Attack System] [System]   Event: Effect at 0.000s
+[Info   :Extra Attack System] [System]   Event: Hit at 0.702s
+[Info   :Extra Attack System] [System] Clip: Attack Pierce Right - 2 events
+[Info   :Extra Attack System] [System]   Event: Effect at 0.000s
+[Info   :Extra Attack System] [System]   Event: Hit at 0.702s
+[Info   :Extra Attack System] [System] Clip: Jump - 1 events
+[Info   :Extra Attack System] [System]   Event: Effect at 0.000s
+[Info   :Extra Attack System] [System] Clip: Attack Claws Land - 3 events
+[Info   :Extra Attack System] [System]   Event: Land at 0.000s
+[Info   :Extra Attack System] [System]   Event: Effect at 0.000s
+[Info   :Extra Attack System] [System]   Event: Hit at 0.636s
+[Info   :Extra Attack System] [System] Clip: Attack Claws 2 - 2 events
+[Info   :Extra Attack System] [System]   Event: Effect at 0.000s
+[Info   :Extra Attack System] [System]   Event: Hit at 1.058s
+[Info   :Extra Attack System] [System] Clip: Attack Spit - 1 events
+[Info   :Extra Attack System] [System]   Event: Hit at 0.970s
+[Info   :Extra Attack System] [System] Clip: Zombie Attack - 5 events
+[Info   :Extra Attack System] [System]   Event: Speed at 0.000s
+[Info   :Extra Attack System] [System]   Event: Stop at 0.468s
+[Info   :Extra Attack System] [System]   Event: Speed at 0.529s
+[Info   :Extra Attack System] [System]   Event: OnAttackTrigger at 0.897s
+[Info   :Extra Attack System] [System]   Event: Speed at 1.149s
+[Info   :Extra Attack System] [System] Clip: Attack - 1 events
+[Info   :Extra Attack System] [System]   Event: Hit at 0.267s
+[Info   :Extra Attack System] [System] Clip: Dive - 1 events
+[Info   :Extra Attack System] [System]   Event: DodgeMortal at 0.700s
+[Info   :Extra Attack System] [System] Clip: HuginSwoopIn - 5 events
+[Info   :Extra Attack System] [System]   Event: Effect at 0.023s
+[Info   :Extra Attack System] [System]   Event: Effect at 1.479s
+[Info   :Extra Attack System] [System]   Event: Effect at 1.497s
+[Info   :Extra Attack System] [System]   Event: Effect at 2.372s
+[Info   :Extra Attack System] [System]   Event: Effect at 2.835s
+[Info   :Extra Attack System] [System] Clip: HuginTalk - 4 events
+[Info   :Extra Attack System] [System]   Event: Effect at 0.162s
+[Info   :Extra Attack System] [System]   Event: Effect at 0.770s
+[Info   :Extra Attack System] [System]   Event: Effect at 2.178s
+[Info   :Extra Attack System] [System]   Event: Effect at 2.888s
+[Info   :Extra Attack System] [System] Clip: HuginFlyAway - 10 events
+[Info   :Extra Attack System] [System]   Event: Effect at 1.674s
+[Info   :Extra Attack System] [System]   Event: Effect at 1.948s
+[Info   :Extra Attack System] [System]   Event: Effect at 2.728s
+[Info   :Extra Attack System] [System]   Event: Effect at 3.390s
+[Info   :Extra Attack System] [System]   Event: Effect at 3.775s
+[Info   :Extra Attack System] [System]   Event: Effect at 3.830s
+[Info   :Extra Attack System] [System]   Event: Effect at 4.160s
+[Info   :Extra Attack System] [System]   Event: Effect at 4.638s
+[Info   :Extra Attack System] [System]   Event: Effect at 4.970s
+[Info   :Extra Attack System] [System]   Event: Effect at 5.441s
+[Info   :Extra Attack System] [System] Clip: BattleAxeAltAttack - 5 events
+[Info   :Extra Attack System] [System]   Event: Speed at 0.216s
+[Info   :Extra Attack System] [System]   Event: TrailOn at 0.222s
+[Info   :Extra Attack System] [System]   Event: Hit at 0.464s
+[Info   :Extra Attack System] [System]   Event: TrailOff at 0.521s
+[Info   :Extra Attack System] [System]   Event: Speed at 0.526s
+[Info   :Extra Attack System] [System] Clip: AirAttack2 - 1 events
+[Info   :Extra Attack System] [System]   Event: Hit at 0.890s
+[Info   :Extra Attack System] [System] Clip: ClawAttackLeft - 6 events
+[Info   :Extra Attack System] [System]   Event: Stop at 1.608s
+[Info   :Extra Attack System] [System]   Event: Speed at 1.637s
+[Info   :Extra Attack System] [System]   Event: TrailOn at 1.690s
+[Info   :Extra Attack System] [System]   Event: Hit at 2.005s
+[Info   :Extra Attack System] [System]   Event: TrailOff at 2.430s
+[Info   :Extra Attack System] [System]   Event: Speed at 2.456s
+[Info   :Extra Attack System] [System] Clip: Bite - 6 events
+[Info   :Extra Attack System] [System]   Event: Speed at 0.000s
+[Info   :Extra Attack System] [System]   Event: TrailOn at 0.387s
+[Info   :Extra Attack System] [System]   Event: Speed at 0.387s
+[Info   :Extra Attack System] [System]   Event: Stop at 0.391s
+[Info   :Extra Attack System] [System]   Event: Hit at 0.602s
+[Info   :Extra Attack System] [System]   Event: TrailOff at 0.638s
+[Info   :Extra Attack System] [System] Clip: Taunt - 1 events
+[Info   :Extra Attack System] [System]   Event: Hit at 1.960s
+[Info   :Extra Attack System] [System] Clip: Hover - 1 events
+[Info   :Extra Attack System] [System]   Event: Effect at 1.351s
+[Info   :Extra Attack System] [System] Clip: Glide - 1 events
+[Info   :Extra Attack System] [System]   Event: Effect at 2.833s
+[Info   :Extra Attack System] [System] Clip: TakeOff - 1 events
+[Info   :Extra Attack System] [System]   Event: Effect at 1.910s
+[Info   :Extra Attack System] [System] Clip: ClawAttackRight - 6 events
+[Info   :Extra Attack System] [System]   Event: Stop at 1.679s
+[Info   :Extra Attack System] [System]   Event: TrailOn at 1.730s
+[Info   :Extra Attack System] [System]   Event: Speed at 1.730s
+[Info   :Extra Attack System] [System]   Event: Hit at 2.017s
+[Info   :Extra Attack System] [System]   Event: Speed at 2.271s
+[Info   :Extra Attack System] [System]   Event: TrailOff at 2.271s
+[Info   :Extra Attack System] [System] Clip: Breath - 5 events
+[Info   :Extra Attack System] [System]   Event: Stop at 1.077s
+[Info   :Extra Attack System] [System]   Event: Speed at 1.572s
+[Info   :Extra Attack System] [System]   Event: TrailOn at 1.643s
+[Info   :Extra Attack System] [System]   Event: Hit at 1.811s
+[Info   :Extra Attack System] [System]   Event: TrailOff at 2.484s
+[Info   :Extra Attack System] [System] Clip: GuardianPower - 1 events
+[Info   :Extra Attack System] [System]   Event: GPower at 0.538s
+[Info   :Extra Attack System] [System] Clip: Attack Bite - 3 events
+[Info   :Extra Attack System] [System]   Event: TrailOn at 0.795s
+[Info   :Extra Attack System] [System]   Event: Hit at 1.061s
+[Info   :Extra Attack System] [System]   Event: TrailOff at 1.359s
+[Info   :Extra Attack System] [System] Clip: Run - 2 events
+[Info   :Extra Attack System] [System]   Event: FootStep at 0.354s
+[Info   :Extra Attack System] [System]   Event: FootStep at 0.458s
+[Info   :Extra Attack System] [System] Clip: Attack Slash - 4 events
+[Info   :Extra Attack System] [System]   Event: Speed at 0.858s
+[Info   :Extra Attack System] [System]   Event: TrailOn at 0.899s
+[Info   :Extra Attack System] [System]   Event: Hit at 0.995s
+[Info   :Extra Attack System] [System]   Event: TrailOff at 1.226s
+[Info   :Extra Attack System] [System] Clip: DAttack Horns 2 - 4 events
+[Info   :Extra Attack System] [System]   Event: Speed at 0.000s
+[Info   :Extra Attack System] [System]   Event: Speed at 0.933s
+[Info   :Extra Attack System] [System]   Event: Stop at 1.010s
+[Info   :Extra Attack System] [System]   Event: OnAttackTrigger at 1.368s
+[Info   :Extra Attack System] [System] Clip: DAttack Horns 1 - 5 events
+[Info   :Extra Attack System] [System]   Event: Speed at 0.129s
+[Info   :Extra Attack System] [System]   Event: Stop at 0.225s
+[Info   :Extra Attack System] [System]   Event: Speed at 0.284s
+[Info   :Extra Attack System] [System]   Event: OnAttackTrigger at 0.376s
+[Info   :Extra Attack System] [System]   Event: Speed at 0.558s
+[Info   :Extra Attack System] [System] Clip: DAttackFrontLegs - 1 events
+[Info   :Extra Attack System] [System]   Event: Hit at 0.917s
+[Info   :Extra Attack System] [System] Clip: Greatsword Secondary Attack - 3 events
+[Info   :Extra Attack System] [System]   Event: TrailOn at 0.719s
+[Info   :Extra Attack System] [System]   Event: Hit at 0.959s
+[Info   :Extra Attack System] [System]   Event: TrailOff at 0.980s
+[Info   :Extra Attack System] [System] Clip: Greatsword BaseAttack (3) - 4 events
+[Info   :Extra Attack System] [System]   Event: TrailOn at 0.529s
+[Info   :Extra Attack System] [System]   Event: Hit at 0.639s
+[Info   :Extra Attack System] [System]   Event: TrailOff at 0.721s
+[Info   :Extra Attack System] [System]   Event: Chain at 0.833s
+[Info   :Extra Attack System] [System] Clip: Greatsword BaseAttack (1) - 4 events
+[Info   :Extra Attack System] [System]   Event: TrailOn at 0.461s
+[Info   :Extra Attack System] [System]   Event: Hit at 0.604s
+[Info   :Extra Attack System] [System]   Event: TrailOff at 0.771s
+[Info   :Extra Attack System] [System]   Event: Chain at 0.783s
+[Info   :Extra Attack System] [System] Clip: Greatsword BaseAttack (2) - 4 events
+[Info   :Extra Attack System] [System]   Event: TrailOn at 0.371s
+[Info   :Extra Attack System] [System]   Event: Hit at 0.492s
+[Info   :Extra Attack System] [System]   Event: TrailOff at 0.630s
+[Info   :Extra Attack System] [System]   Event: Chain at 0.641s
+[Info   :Extra Attack System] [System] Clip: Zombie Attack2 - 5 events
+[Info   :Extra Attack System] [System]   Event: Speed at 0.000s
+[Info   :Extra Attack System] [System]   Event: Stop at 0.728s
+[Info   :Extra Attack System] [System]   Event: Speed at 0.742s
+[Info   :Extra Attack System] [System]   Event: OnAttackTrigger at 1.051s
+[Info   :Extra Attack System] [System]   Event: Speed at 1.186s
+[Info   :Extra Attack System] [System] Clip: Frost AoE Spell Attack 3 Burst - 1 events
+[Info   :Extra Attack System] [System]   Event: Hit at 1.310s
+[Info   :Extra Attack System] [System] Clip: ClawAttackCultist - 3 events
+[Info   :Extra Attack System] [System]   Event: TrailOn at 0.499s
+[Info   :Extra Attack System] [System]   Event: Hit at 0.642s
+[Info   :Extra Attack System] [System]   Event: TrailOff at 0.887s
+[Info   :Extra Attack System] [System] Clip: Flame Spell Attack - 4 events
+[Info   :Extra Attack System] [System]   Event: Stop at 0.776s
+[Info   :Extra Attack System] [System]   Event: TrailOn at 1.094s
+[Info   :Extra Attack System] [System]   Event: Hit at 1.245s
+[Info   :Extra Attack System] [System]   Event: RemoveAttachments at 3.193s
+[Info   :Extra Attack System] [System] Clip: TauntCultist - 2 events
+[Info   :Extra Attack System] [System]   Event: Hit at 1.871s
+[Info   :Extra Attack System] [System]   Event: RemoveAttachments at 5.296s
+[Info   :Extra Attack System] [System] Clip: DoubleClawAttackCultist - 4 events
+[Info   :Extra Attack System] [System]   Event: TrailOn at 0.468s
+[Info   :Extra Attack System] [System]   Event: Hit at 0.639s
+[Info   :Extra Attack System] [System]   Event: Hit at 1.213s
+[Info   :Extra Attack System] [System]   Event: TrailOff at 1.351s
+[Info   :Extra Attack System] [System] Clip: 2Hand-Spear-Attack3 - 4 events
+[Info   :Extra Attack System] [System]   Event: TrailOn at 0.507s
+[Info   :Extra Attack System] [System]   Event: OnAttackTrigger at 0.609s
+[Info   :Extra Attack System] [System]   Event: Speed at 0.630s
+[Info   :Extra Attack System] [System]   Event: TrailOff at 0.648s
+[Info   :Extra Attack System] [System] Clip: Throw - 2 events
+[Info   :Extra Attack System] [System]   Event: Stop at 0.820s
+[Info   :Extra Attack System] [System]   Event: OnAttackTrigger at 0.831s
+[Info   :Extra Attack System] [System] Clip: Mace-Attack-R2 - 4 events
+[Info   :Extra Attack System] [System]   Event: Stop at 0.271s
+[Info   :Extra Attack System] [System]   Event: TrailOn at 0.281s
+[Info   :Extra Attack System] [System]   Event: Hit at 0.370s
+[Info   :Extra Attack System] [System]   Event: TrailOff at 0.394s
+[Info   :Extra Attack System] [System] Clip: Sword-Attack-R2 - 4 events
+[Info   :Extra Attack System] [System]   Event: TrailOn at 0.229s
+[Info   :Extra Attack System] [System]   Event: Stop at 0.248s
+[Info   :Extra Attack System] [System]   Event: Hit at 0.316s
+[Info   :Extra Attack System] [System]   Event: TrailOff at 0.450s
+[Info   :Extra Attack System] [System] Clip: Idle Eat - 1 events
+[Info   :Extra Attack System] [System]   Event: Effect at 1.668s
+[Info   :Extra Attack System] [System] Clip: Idle Eating - 1 events
+[Info   :Extra Attack System] [System]   Event: Effect at 0.000s
+[Info   :Extra Attack System] [System] Clip: Standing Melee Attack Horizontal - 2 events
+[Info   :Extra Attack System] [System]   Event: TrailOn at 0.652s
+[Info   :Extra Attack System] [System]   Event: OnAttackTrigger at 0.947s
+[Info   :Extra Attack System] [System] Clip: 2Hand-Spear-Attack1 - 3 events
+[Info   :Extra Attack System] [System]   Event: TrailOn at 0.369s
+[Info   :Extra Attack System] [System]   Event: OnAttackTrigger at 0.470s
+[Info   :Extra Attack System] [System]   Event: TrailOff at 0.526s
+[Info   :Extra Attack System] [System] Clip: Wraith attack 2 - 4 events
+[Info   :Extra Attack System] [System]   Event: Speed at 0.408s
+[Info   :Extra Attack System] [System]   Event: Stop at 0.453s
+[Info   :Extra Attack System] [System]   Event: OnAttackTrigger at 0.822s
+[Info   :Extra Attack System] [System]   Event: Speed at 0.988s
+[Info   :Extra Attack System] [System] Clip: attack02 - 1 events
+[Info   :Extra Attack System] [System]   Event: OnAttackTrigger at 0.732s
+[Info   :Extra Attack System] [System] Clip: Puke - 1 events
+[Info   :Extra Attack System] [System]   Event: Hit at 3.300s
+[Info   :Extra Attack System] [System] Clip: Throw_blob - 1 events
+[Info   :Extra Attack System] [System]   Event: Hit at 3.107s
+[Info   :Extra Attack System] [System] Clip: Attack Right Hand - 2 events
+[Info   :Extra Attack System] [System]   Event: Stop at 0.805s
+[Info   :Extra Attack System] [System]   Event: Hit at 1.137s
+[Info   :Extra Attack System] [System] Clip: Attack Left Hand - 2 events
+[Info   :Extra Attack System] [System]   Event: Stop at 0.868s
+[Info   :Extra Attack System] [System]   Event: Hit at 1.126s
+[Info   :Extra Attack System] [System] Clip: Pumping - 1 events
+[Info   :Extra Attack System] [System]   Event: Effect at 0.704s
+[Info   :Extra Attack System] [System] Clip: Skeleton Fire Attack - 3 events
+[Info   :Extra Attack System] [System]   Event: TrailOn at 1.388s
+[Info   :Extra Attack System] [System]   Event: Hit at 1.501s
+[Info   :Extra Attack System] [System]   Event: TrailOff at 1.530s
+[Info   :Extra Attack System] [System] Clip: Bite - 1 events
+[Info   :Extra Attack System] [System]   Event: OnAttackTrigger at 1.662s
+[Info   :Extra Attack System] [System] Clip: Armature|ArmatureAction - 1 events
+[Info   :Extra Attack System] [System]   Event: Effect at 2.931s
+[Info   :Extra Attack System] [System] Clip: IdleHover - 1 events
+[Info   :Extra Attack System] [System]   Event: Effect at 1.185s
+[Info   :Extra Attack System] [System] Clip: Attack - 1 events
+[Info   :Extra Attack System] [System]   Event: Hit at 1.103s
+[Info   :Extra Attack System] [System] Clip: SoarForward - 1 events
+[Info   :Extra Attack System] [System]   Event: Effect at 4.131s
+[Info   :Extra Attack System] [System] Clip: FlyForward - 1 events
+[Info   :Extra Attack System] [System]   Event: Effect at 1.293s
+[Info   :Extra Attack System] [System] Clip: attack - 4 events
+[Info   :Extra Attack System] [System]   Event: Speed at 0.000s
+[Info   :Extra Attack System] [System]   Event: Speed at 0.950s
+[Info   :Extra Attack System] [System]   Event: Hit at 0.977s
+[Info   :Extra Attack System] [System]   Event: Speed at 1.231s
+[Info   :Extra Attack System] [System] Clip: fart - 1 events
+[Info   :Extra Attack System] [System]   Event: OnAttackTrigger at 2.595s
+[Info   :Extra Attack System] [System] Clip: DoubleSmash - 6 events
+[Info   :Extra Attack System] [System]   Event: Stop at 1.172s
+[Info   :Extra Attack System] [System]   Event: TrailOn at 1.379s
+[Info   :Extra Attack System] [System]   Event: Speed at 1.542s
+[Info   :Extra Attack System] [System]   Event: OnAttackTrigger at 1.839s
+[Info   :Extra Attack System] [System]   Event: Speed at 2.001s
+[Info   :Extra Attack System] [System]   Event: TrailOff at 2.688s
+[Info   :Extra Attack System] [System] Clip: attack1 - 6 events
+[Info   :Extra Attack System] [System]   Event: Stop at 0.885s
+[Info   :Extra Attack System] [System]   Event: TrailOn at 0.937s
+[Info   :Extra Attack System] [System]   Event: OnAttackTrigger at 1.216s
+[Info   :Extra Attack System] [System]   Event: Speed at 1.280s
+[Info   :Extra Attack System] [System]   Event: TrailOff at 1.340s
+[Info   :Extra Attack System] [System]   Event: Speed at 1.391s
+[Info   :Extra Attack System] [System] Clip: attack2 - 8 events
+[Info   :Extra Attack System] [System]   Event: Speed at 0.351s
+[Info   :Extra Attack System] [System]   Event: Stop at 0.602s
+[Info   :Extra Attack System] [System]   Event: Speed at 0.605s
+[Info   :Extra Attack System] [System]   Event: TrailOn at 0.622s
+[Info   :Extra Attack System] [System]   Event: OnAttackTrigger at 0.808s
+[Info   :Extra Attack System] [System]   Event: Speed at 0.879s
+[Info   :Extra Attack System] [System]   Event: TrailOff at 0.918s
+[Info   :Extra Attack System] [System]   Event: Speed at 1.162s
+[Info   :Extra Attack System] [System] Clip: attack3 - 3 events
+[Info   :Extra Attack System] [System]   Event: TrailOn at 1.345s
+[Info   :Extra Attack System] [System]   Event: OnAttackTrigger at 1.568s
+[Info   :Extra Attack System] [System]   Event: TrailOff at 1.709s
+[Info   :Extra Attack System] [System] Clip: SonicBoom - 1 events
+[Info   :Extra Attack System] [System]   Event: OnAttackTrigger at 2.274s
+[Info   :Extra Attack System] [System] Clip: Opening - 11 events
+[Info   :Extra Attack System] [System]   Event: Effect at 2.037s
+[Info   :Extra Attack System] [System]   Event: Effect at 3.694s
+[Info   :Extra Attack System] [System]   Event: Effect at 3.962s
+[Info   :Extra Attack System] [System]   Event: Effect at 4.126s
+[Info   :Extra Attack System] [System]   Event: Effect at 4.302s
+[Info   :Extra Attack System] [System]   Event: Effect at 7.193s
+[Info   :Extra Attack System] [System]   Event: Effect at 7.475s
+[Info   :Extra Attack System] [System]   Event: Effect at 10.508s
+[Info   :Extra Attack System] [System]   Event: Effect at 10.755s
+[Info   :Extra Attack System] [System]   Event: Effect at 13.763s
+[Info   :Extra Attack System] [System]   Event: Effect at 17.733s
+[Info   :Extra Attack System] [System] Clip: SpearThrow - 4 events
+[Info   :Extra Attack System] [System]   Event: Speed at 0.000s
+[Info   :Extra Attack System] [System]   Event: Speed at 0.513s
+[Info   :Extra Attack System] [System]   Event: OnAttackTrigger at 0.760s
+[Info   :Extra Attack System] [System]   Event: Speed at 0.821s
+[Info   :Extra Attack System] [System] Clip: Attack Flamebreath - 4 events
+[Info   :Extra Attack System] [System]   Event: Effect at 0.417s
+[Info   :Extra Attack System] [System]   Event: Effect at 2.052s
+[Info   :Extra Attack System] [System]   Event: Attach at 2.198s
+[Info   :Extra Attack System] [System]   Event: Hit at 2.341s
+[Info   :Extra Attack System] [System] Clip: Attack Claw L - 7 events
+[Info   :Extra Attack System] [System]   Event: Attach at 0.091s
+[Info   :Extra Attack System] [System]   Event: Effect at 0.563s
+[Info   :Extra Attack System] [System]   Event: Attach at 0.583s
+[Info   :Extra Attack System] [System]   Event: Effect at 1.063s
+[Info   :Extra Attack System] [System]   Event: Hit at 1.236s
+[Info   :Extra Attack System] [System]   Event: Effect at 3.753s
+[Info   :Extra Attack System] [System]   Event: Effect at 4.579s
+[Info   :Extra Attack System] [System] Clip: Attack Bite - 5 events
+[Info   :Extra Attack System] [System]   Event: Attach at 0.103s
+[Info   :Extra Attack System] [System]   Event: Effect at 0.157s
+[Info   :Extra Attack System] [System]   Event: Effect at 0.990s
+[Info   :Extra Attack System] [System]   Event: Attach at 1.053s
+[Info   :Extra Attack System] [System]   Event: Hit at 1.270s
+[Info   :Extra Attack System] [System] Clip: Jump Right - 1 events
+[Info   :Extra Attack System] [System]   Event: Hit at 1.055s
+[Info   :Extra Attack System] [System] Clip: Attack Spin - 3 events
+[Info   :Extra Attack System] [System]   Event: Effect at 0.088s
+[Info   :Extra Attack System] [System]   Event: Attach at 0.440s
+[Info   :Extra Attack System] [System]   Event: Hit at 1.300s
+[Info   :Extra Attack System] [System] Clip: Attack Claw R - 7 events
+[Info   :Extra Attack System] [System]   Event: Attach at 0.100s
+[Info   :Extra Attack System] [System]   Event: Effect at 0.380s
+[Info   :Extra Attack System] [System]   Event: Attach at 0.547s
+[Info   :Extra Attack System] [System]   Event: Effect at 0.951s
+[Info   :Extra Attack System] [System]   Event: Hit at 1.236s
+[Info   :Extra Attack System] [System]   Event: Effect at 3.745s
+[Info   :Extra Attack System] [System]   Event: Effect at 4.544s
+[Info   :Extra Attack System] [System] Clip: Attack Roar - 2 events
+[Info   :Extra Attack System] [System]   Event: Effect at 0.109s
+[Info   :Extra Attack System] [System]   Event: Hit at 1.528s
+[Info   :Extra Attack System] [System] Clip: Jump Left - 1 events
+[Info   :Extra Attack System] [System]   Event: Hit at 1.082s
+[Info   :Extra Attack System] [System] Clip: Taunt - 2 events
+[Info   :Extra Attack System] [System]   Event: Effect at 0.034s
+[Info   :Extra Attack System] [System]   Event: Hit at 1.165s
+[Info   :Extra Attack System] [System] Clip: Attack Wall of Fire - 3 events
+[Info   :Extra Attack System] [System]   Event: Attach at 0.902s
+[Info   :Extra Attack System] [System]   Event: Effect at 1.084s
+[Info   :Extra Attack System] [System]   Event: Hit at 1.425s
+[Info   :Extra Attack System] [System] Clip: Attack Fissure - 4 events
+[Info   :Extra Attack System] [System]   Event: Attach at 1.062s
+[Info   :Extra Attack System] [System]   Event: Effect at 1.198s
+[Info   :Extra Attack System] [System]   Event: Hit at 2.879s
+[Info   :Extra Attack System] [System]   Event: Effect at 2.936s
+[Info   :Extra Attack System] [System] Clip: BombThrow - 3 events
+[Info   :Extra Attack System] [System]   Event: TrailOn at 0.507s
+[Info   :Extra Attack System] [System]   Event: Speed at 0.513s
+[Info   :Extra Attack System] [System]   Event: OnAttackTrigger at 0.760s
+[Info   :Extra Attack System] [System] Clip: Bite - 1 events
+[Info   :Extra Attack System] [System]   Event: Hit at 1.118s
+[Info   :Extra Attack System] [System] Clip: Rawr - 1 events
+[Info   :Extra Attack System] [System]   Event: Hit at 2.545s
+[Info   :Extra Attack System] [System] Clip: Mutant Swiping 2 - 1 events
+[Info   :Extra Attack System] [System]   Event: OnAttackTrigger at 1.712s
+[Info   :Extra Attack System] [System] Clip: Bite Attack - 1 events
+[Info   :Extra Attack System] [System]   Event: Hit at 0.223s
+[Info   :Extra Attack System] [System] Clip: Throw - 1 events
+[Info   :Extra Attack System] [System]   Event: Hit at 0.340s
+[Info   :Extra Attack System] [System] Clip: HeadBut - 2 events
+[Info   :Extra Attack System] [System]   Event: Hit at 1.564s
+[Info   :Extra Attack System] [System]   Event: Speed at 1.616s
+[Info   :Extra Attack System] [System] Clip: Thunderclap - 2 events
+[Info   :Extra Attack System] [System]   Event: Hit at 2.889s
+[Info   :Extra Attack System] [System]   Event: Speed at 3.017s
+[Info   :Extra Attack System] [System] Clip: Spawn - 1 events
+[Info   :Extra Attack System] [System]   Event: Effect at 0.050s
+[Info   :Extra Attack System] [System] Clip: AntlerAttack1 - 1 events
+[Info   :Extra Attack System] [System]   Event: Hit at 0.599s
+[Info   :Extra Attack System] [System] Clip: Attack Swipe - 1 events
+[Info   :Extra Attack System] [System]   Event: Hit at 1.178s
+[Info   :Extra Attack System] [System] Clip: Sword-Attack-R4 - 6 events
+[Info   :Extra Attack System] [System]   Event: Speed at 0.000s
+[Info   :Extra Attack System] [System]   Event: TrailOn at 0.184s
+[Info   :Extra Attack System] [System]   Event: Speed at 0.184s
+[Info   :Extra Attack System] [System]   Event: Hit at 0.244s
+[Info   :Extra Attack System] [System]   Event: Speed at 0.254s
+[Info   :Extra Attack System] [System]   Event: TrailOff at 0.270s
+[Info   :Extra Attack System] [System] Clip: Standing 2H Magic Attack 04 - 3 events
+[Info   :Extra Attack System] [System]   Event: Stop at 0.858s
+[Info   :Extra Attack System] [System]   Event: TrailOn at 0.996s
+[Info   :Extra Attack System] [System]   Event: OnAttackTrigger at 1.264s
+[Info   :Extra Attack System] [System] Clip: Knife Attack Combo (2) - 4 events
+[Info   :Extra Attack System] [System]   Event: TrailOn at 0.047s
+[Info   :Extra Attack System] [System]   Event: OnAttackTrigger at 0.177s
+[Info   :Extra Attack System] [System]   Event: TrailOff at 0.305s
+[Info   :Extra Attack System] [System]   Event: Chain at 0.370s
+[Info   :Extra Attack System] [System] Clip: Knife Attack Combo (3) - 5 events
+[Info   :Extra Attack System] [System]   Event: TrailOn at 0.136s
+[Info   :Extra Attack System] [System]   Event: OnAttackTrigger at 0.176s
+[Info   :Extra Attack System] [System]   Event: Speed at 0.192s
+[Info   :Extra Attack System] [System]   Event: TrailOff at 0.259s
+[Info   :Extra Attack System] [System]   Event: Speed at 0.307s
+[Info   :Extra Attack System] [System] Clip: Knife Attack Combo (1) - 4 events
+[Info   :Extra Attack System] [System]   Event: TrailOn at 0.057s
+[Info   :Extra Attack System] [System]   Event: OnAttackTrigger at 0.182s
+[Info   :Extra Attack System] [System]   Event: TrailOff at 0.333s
+[Info   :Extra Attack System] [System]   Event: Chain at 0.364s
+[Info   :Extra Attack System] [System] Clip: Knife Attack Leap - 2 events
+[Info   :Extra Attack System] [System]   Event: TrailOn at 0.478s
+[Info   :Extra Attack System] [System]   Event: Hit at 0.839s
+[Info   :Extra Attack System] [System] Clip: Sword And Shield Slash - 1 events
+[Info   :Extra Attack System] [System]   Event: OnAttackTrigger at 0.639s
+[Info   :Extra Attack System] [System] Clip: knife_slash2 - 5 events
+[Info   :Extra Attack System] [System]   Event: Speed at 0.208s
+[Info   :Extra Attack System] [System]   Event: TrailOn at 0.278s
+[Info   :Extra Attack System] [System]   Event: OnAttackTrigger at 0.516s
+[Info   :Extra Attack System] [System]   Event: Speed at 0.568s
+[Info   :Extra Attack System] [System]   Event: TrailOff at 0.656s
+[Info   :Extra Attack System] [System] Clip: Bow Aim Recoil - 1 events
+[Info   :Extra Attack System] [System]   Event: OnAttackTrigger at 0.167s
+[Info   :Extra Attack System] [System] Clip: Skeleton_mace - 6 events
+[Info   :Extra Attack System] [System]   Event: Speed at 0.000s
+[Info   :Extra Attack System] [System]   Event: Speed at 0.603s
+[Info   :Extra Attack System] [System]   Event: TrailOn at 0.616s
+[Info   :Extra Attack System] [System]   Event: Hit at 0.859s
+[Info   :Extra Attack System] [System]   Event: Speed at 0.965s
+[Info   :Extra Attack System] [System]   Event: TrailOff at 0.965s
+[Info   :Extra Attack System] [System] Clip: AttackBlowUp - 1 events
+[Info   :Extra Attack System] [System]   Event: OnAttackTrigger at 2.500s
+[Info   :Extra Attack System] [System] Clip: Standing 1H Magic Attack 01 - 3 events
+[Info   :Extra Attack System] [System]   Event: OnAttackTrigger at 0.909s
+[Info   :Extra Attack System] [System]   Event: Speed at 1.051s
+[Info   :Extra Attack System] [System]   Event: Speed at 1.398s
+[Info   :Extra Attack System] [System] Clip: StompLeft - 4 events
+[Info   :Extra Attack System] [System]   Event: Speed at 0.000s
+[Info   :Extra Attack System] [System]   Event: Stop at 0.521s
+[Info   :Extra Attack System] [System]   Event: Speed at 0.533s
+[Info   :Extra Attack System] [System]   Event: Hit at 0.689s
+[Info   :Extra Attack System] [System] Clip: Standing 1H Magic Attack 03 - 1 events
+[Info   :Extra Attack System] [System]   Event: Hit at 0.731s
+[Info   :Extra Attack System] [System] Clip: Yelling Out - 1 events
+[Info   :Extra Attack System] [System]   Event: OnAttackTrigger at 0.591s
+[Info   :Extra Attack System] [System] Clip: StompRight - 4 events
+[Info   :Extra Attack System] [System]   Event: Speed at 0.000s
+[Info   :Extra Attack System] [System]   Event: Speed at 0.507s
+[Info   :Extra Attack System] [System]   Event: Stop at 0.512s
+[Info   :Extra Attack System] [System]   Event: OnAttackTrigger at 0.659s
+[Info   :Extra Attack System] [System] Clip: Taunt - 1 events
+[Info   :Extra Attack System] [System]   Event: Hit at 1.729s
+[Info   :Extra Attack System] [System] Clip: LazerBreath - 3 events
+[Info   :Extra Attack System] [System]   Event: Effect at 1.126s
+[Info   :Extra Attack System] [System]   Event: TrailOn at 1.987s
+[Info   :Extra Attack System] [System]   Event: Hit at 2.021s
+[Info   :Extra Attack System] [System] Clip: Let it Rain - 3 events
+[Info   :Extra Attack System] [System]   Event: Effect at 0.591s
+[Info   :Extra Attack System] [System]   Event: Hit at 1.909s
+[Info   :Extra Attack System] [System]   Event: Effect at 2.977s
+[Info   :Extra Attack System] [System] Clip: Awaken - 3 events
+[Info   :Extra Attack System] [System]   Event: Effect at 0.880s
+[Info   :Extra Attack System] [System]   Event: Effect at 1.981s
+[Info   :Extra Attack System] [System]   Event: Effect at 3.216s
+[Info   :Extra Attack System] [System] Clip: MagicNova - 4 events
+[Info   :Extra Attack System] [System]   Event: Effect at 0.665s
+[Info   :Extra Attack System] [System]   Event: Attach at 0.783s
+[Info   :Extra Attack System] [System]   Event: RemoveAttachments at 2.788s
+[Info   :Extra Attack System] [System]   Event: Hit at 2.811s
+[Info   :Extra Attack System] [System] Clip: C_Hawl - 1 events
+[Info   :Extra Attack System] [System]   Event: Effect at 0.392s
+[Info   :Extra Attack System] [System] Clip: Attack Spit - 1 events
+[Info   :Extra Attack System] [System]   Event: Hit at 2.513s
+[Info   :Extra Attack System] [System] Clip: Attack Bite - 1 events
+[Info   :Extra Attack System] [System]   Event: Hit at 0.901s
+[Info   :Extra Attack System] [System] Clip: Dive - 1 events
+[Info   :Extra Attack System] [System]   Event: Hit at 0.168s
+[Info   :Extra Attack System] [System] Clip: Attack Ram - 1 events
+[Info   :Extra Attack System] [System]   Event: Hit at 2.683s
+[Info   :Extra Attack System] [System] Clip: Attack Underwater - 1 events
+[Info   :Extra Attack System] [System]   Event: Hit at 0.184s
+[Info   :Extra Attack System] [System] Clip: Idle2 - 1 events
+[Info   :Extra Attack System] [System]   Event: Effect at 1.221s
+[Info   :Extra Attack System] [System] Clip: Taunt - 1 events
+[Info   :Extra Attack System] [System]   Event: Effect at 0.419s
+[Info   :Extra Attack System] [System] Clip: Attack2 - 4 events
+[Info   :Extra Attack System] [System]   Event: TrailOn at 0.970s
+[Info   :Extra Attack System] [System]   Event: Stop at 0.986s
+[Info   :Extra Attack System] [System]   Event: Hit at 1.168s
+[Info   :Extra Attack System] [System]   Event: TrailOff at 1.453s
+[Info   :Extra Attack System] [System] Clip: Attack1 - 6 events
+[Info   :Extra Attack System] [System]   Event: Speed at 0.000s
+[Info   :Extra Attack System] [System]   Event: Speed at 0.613s
+[Info   :Extra Attack System] [System]   Event: Stop at 0.683s
+[Info   :Extra Attack System] [System]   Event: TrailOn at 0.760s
+[Info   :Extra Attack System] [System]   Event: Hit at 0.891s
+[Info   :Extra Attack System] [System]   Event: TrailOff at 1.068s
+[Info   :Extra Attack System] [System] Clip: Stagger - 3 events
+[Info   :Extra Attack System] [System]   Event: Speed at 0.000s
+[Info   :Extra Attack System] [System]   Event: Speed at 0.327s
+[Info   :Extra Attack System] [System]   Event: Speed at 0.868s
+[Info   :Extra Attack System] [System] Clip: AttackRage - 12 events
+[Info   :Extra Attack System] [System]   Event: Speed at 0.019s
+[Info   :Extra Attack System] [System]   Event: Effect at 0.526s
+[Info   :Extra Attack System] [System]   Event: TrailOn at 2.172s
+[Info   :Extra Attack System] [System]   Event: Hit at 2.499s
+[Info   :Extra Attack System] [System]   Event: TrailOff at 2.617s
+[Info   :Extra Attack System] [System]   Event: TrailOn at 3.481s
+[Info   :Extra Attack System] [System]   Event: Hit at 3.726s
+[Info   :Extra Attack System] [System]   Event: TrailOff at 3.884s
+[Info   :Extra Attack System] [System]   Event: TrailOn at 5.109s
+[Info   :Extra Attack System] [System]   Event: Hit at 5.410s
+[Info   :Extra Attack System] [System]   Event: TrailOff at 5.541s
+[Info   :Extra Attack System] [System]   Event: Speed at 5.618s
+[Info   :Extra Attack System] [System] Clip: 2Hand-Spear-Attack9 - 3 events
+[Info   :Extra Attack System] [System]   Event: TrailOn at 0.277s
+[Info   :Extra Attack System] [System]   Event: OnAttackTrigger at 0.554s
+[Info   :Extra Attack System] [System]   Event: TrailOff at 0.588s
+[Info   :Extra Attack System] [System] Clip: Attack2 - 6 events
+[Info   :Extra Attack System] [System]   Event: TrailOn at 0.202s
+[Info   :Extra Attack System] [System]   Event: Speed at 0.214s
+[Info   :Extra Attack System] [System]   Event: Hit at 0.259s
+[Info   :Extra Attack System] [System]   Event: TrailOff at 0.390s
+[Info   :Extra Attack System] [System]   Event: Speed at 0.442s
+[Info   :Extra Attack System] [System]   Event: Chain at 0.557s
+[Info   :Extra Attack System] [System] Clip: Attack3 - 6 events
+[Info   :Extra Attack System] [System]   Event: Speed at 0.024s
+[Info   :Extra Attack System] [System]   Event: Speed at 0.140s
+[Info   :Extra Attack System] [System]   Event: TrailOn at 0.150s
+[Info   :Extra Attack System] [System]   Event: OnAttackTrigger at 0.278s
+[Info   :Extra Attack System] [System]   Event: TrailOff at 0.356s
+[Info   :Extra Attack System] [System]   Event: Speed at 0.549s
+[Info   :Extra Attack System] [System] Clip: Attack1 - 6 events
+[Info   :Extra Attack System] [System]   Event: Speed at 0.372s
+[Info   :Extra Attack System] [System]   Event: TrailOn at 0.404s
+[Info   :Extra Attack System] [System]   Event: Hit at 0.472s
+[Info   :Extra Attack System] [System]   Event: Speed at 0.601s
+[Info   :Extra Attack System] [System]   Event: TrailOff at 0.714s
+[Info   :Extra Attack System] [System]   Event: Chain at 0.730s
+[Info   :Extra Attack System] [System] Clip: axe_swing - 6 events
+[Info   :Extra Attack System] [System]   Event: TrailOn at 0.442s
+[Info   :Extra Attack System] [System]   Event: Speed at 0.456s
+[Info   :Extra Attack System] [System]   Event: OnAttackTrigger at 0.610s
+[Info   :Extra Attack System] [System]   Event: Speed at 0.752s
+[Info   :Extra Attack System] [System]   Event: TrailOff at 0.772s
+[Info   :Extra Attack System] [System]   Event: Chain at 0.870s
+[Info   :Extra Attack System] [System] Clip: Turn R - 2 events
+[Info   :Extra Attack System] [System]   Event: Effect at 0.156s
+[Info   :Extra Attack System] [System]   Event: Effect at 0.461s
+[Info   :Extra Attack System] [System] Clip: Attack Swipe L - 3 events
+[Info   :Extra Attack System] [System]   Event: Effect at 0.481s
+[Info   :Extra Attack System] [System]   Event: Effect at 1.032s
+[Info   :Extra Attack System] [System]   Event: Hit at 1.049s
+[Info   :Extra Attack System] [System] Clip: Idle Eating - 3 events
+[Info   :Extra Attack System] [System]   Event: ShowObject at 3.205s
+[Info   :Extra Attack System] [System]   Event: HideObject at 4.864s
+[Info   :Extra Attack System] [System]   Event: HideObject at 8.167s
+[Info   :Extra Attack System] [System] Clip: Attack Bite - 1 events
+[Info   :Extra Attack System] [System]   Event: Hit at 0.996s
+[Info   :Extra Attack System] [System] Clip: Turn L - 2 events
+[Info   :Extra Attack System] [System]   Event: Effect at 0.453s
+[Info   :Extra Attack System] [System]   Event: Effect at 0.858s
+[Info   :Extra Attack System] [System] Clip: Run - 2 events
+[Info   :Extra Attack System] [System]   Event: Effect at 0.459s
+[Info   :Extra Attack System] [System]   Event: Effect at 0.681s
+[Info   :Extra Attack System] [System] Clip: Roll R - 7 events
+[Info   :Extra Attack System] [System]   Event: Effect at 0.037s
+[Info   :Extra Attack System] [System]   Event: Hit at 0.686s
+[Info   :Extra Attack System] [System]   Event: Hit at 1.010s
+[Info   :Extra Attack System] [System]   Event: Hit at 1.201s
+[Info   :Extra Attack System] [System]   Event: Effect at 1.398s
+[Info   :Extra Attack System] [System]   Event: Effect at 1.610s
+[Info   :Extra Attack System] [System]   Event: Effect at 1.759s
+[Info   :Extra Attack System] [System] Clip: Attack Swipe R - 3 events
+[Info   :Extra Attack System] [System]   Event: Effect at 0.440s
+[Info   :Extra Attack System] [System]   Event: Effect at 1.037s
+[Info   :Extra Attack System] [System]   Event: Hit at 1.051s
+[Info   :Extra Attack System] [System] Clip: Roll L - 7 events
+[Info   :Extra Attack System] [System]   Event: Effect at 0.044s
+[Info   :Extra Attack System] [System]   Event: Hit at 0.668s
+[Info   :Extra Attack System] [System]   Event: Hit at 1.010s
+[Info   :Extra Attack System] [System]   Event: Hit at 1.225s
+[Info   :Extra Attack System] [System]   Event: Effect at 1.434s
+[Info   :Extra Attack System] [System]   Event: Effect at 1.584s
+[Info   :Extra Attack System] [System]   Event: Effect at 1.758s
+[Info   :Extra Attack System] [System] Clip: Attack BodySlam - 1 events
+[Info   :Extra Attack System] [System]   Event: Hit at 2.247s
+[Info   :Extra Attack System] [System] Clip: Rise from ground - 1 events
+[Info   :Extra Attack System] [System]   Event: Effect at 0.000s
+[Info   :Extra Attack System] [System] Clip: Walk - 2 events
+[Info   :Extra Attack System] [System]   Event: Effect at 0.153s
+[Info   :Extra Attack System] [System]   Event: Effect at 0.810s
+[Info   :Extra Attack System] [System] Clip: Attack Bash - 1 events
+[Info   :Extra Attack System] [System]   Event: Hit at 1.191s
+[Info   :Extra Attack System] [System] Clip: Stomp - 2 events
+[Info   :Extra Attack System] [System]   Event: Stop at 0.817s
+[Info   :Extra Attack System] [System]   Event: Hit at 1.369s
+[Info   :Extra Attack System] [System] Clip: Walk - 2 events
+[Info   :Extra Attack System] [System]   Event: FootStep at 0.233s
+[Info   :Extra Attack System] [System]   Event: FootStep at 1.215s
+[Info   :Extra Attack System] [System] Clip: TurnRight - 2 events
+[Info   :Extra Attack System] [System]   Event: FootStep at 0.563s
+[Info   :Extra Attack System] [System]   Event: FootStep at 0.765s
+[Info   :Extra Attack System] [System] Clip: TurnLeft - 2 events
+[Info   :Extra Attack System] [System]   Event: FootStep at 0.347s
+[Info   :Extra Attack System] [System]   Event: FootStep at 0.779s
+[Info   :Extra Attack System] [System] Clip: Shoutout - 1 events
+[Info   :Extra Attack System] [System]   Event: Effect at 4.500s
+[Info   :Extra Attack System] [System] Clip: Canter - 2 events
+[Info   :Extra Attack System] [System]   Event: FootStep at 0.655s
+[Info   :Extra Attack System] [System]   Event: FootStep at 0.991s
+[Info   :Extra Attack System] [System] Clip: Attack - 2 events
+[Info   :Extra Attack System] [System]   Event: Stop at 0.336s
+[Info   :Extra Attack System] [System]   Event: Hit at 0.727s
+[Info   :Extra Attack System] [System] Clip: Hard Landing - 1 events
+[Info   :Extra Attack System] [System]   Event: Effect at 0.060s
+[Info   :Extra Attack System] [System] Clip: Run Right - 2 events
+[Info   :Extra Attack System] [System]   Event: Effect at 0.139s
+[Info   :Extra Attack System] [System]   Event: Effect at 0.515s
+[Info   :Extra Attack System] [System] Clip: Walk Left - 2 events
+[Info   :Extra Attack System] [System]   Event: Effect at 0.216s
+[Info   :Extra Attack System] [System]   Event: Effect at 0.751s
+[Info   :Extra Attack System] [System] Clip: Turn R - 2 events
+[Info   :Extra Attack System] [System]   Event: Effect at 0.211s
+[Info   :Extra Attack System] [System]   Event: Effect at 0.831s
+[Info   :Extra Attack System] [System] Clip: Attack Headbutt - 1 events
+[Info   :Extra Attack System] [System]   Event: Hit at 1.040s
+[Info   :Extra Attack System] [System] Clip: Attack Bite - 2 events
+[Info   :Extra Attack System] [System]   Event: Effect at 0.329s
+[Info   :Extra Attack System] [System]   Event: Hit at 0.775s
+[Info   :Extra Attack System] [System] Clip: Run Left - 2 events
+[Info   :Extra Attack System] [System]   Event: Effect at 0.108s
+[Info   :Extra Attack System] [System]   Event: Effect at 0.526s
+[Info   :Extra Attack System] [System] Clip: Run - 2 events
+[Info   :Extra Attack System] [System]   Event: Effect at 0.102s
+[Info   :Extra Attack System] [System]   Event: Effect at 0.523s
+[Info   :Extra Attack System] [System] Clip: Canter Right - 2 events
+[Info   :Extra Attack System] [System]   Event: Effect at 0.414s
+[Info   :Extra Attack System] [System]   Event: Effect at 0.639s
+[Info   :Extra Attack System] [System] Clip: Walk Right - 2 events
+[Info   :Extra Attack System] [System]   Event: Effect at 0.215s
+[Info   :Extra Attack System] [System]   Event: Effect at 0.724s
+[Info   :Extra Attack System] [System] Clip: Attack Pounce - 2 events
+[Info   :Extra Attack System] [System]   Event: Effect at 0.814s
+[Info   :Extra Attack System] [System]   Event: Hit at 1.614s
+[Info   :Extra Attack System] [System] Clip: Canter Left - 2 events
+[Info   :Extra Attack System] [System]   Event: Effect at 0.028s
+[Info   :Extra Attack System] [System]   Event: Effect at 0.619s
+[Info   :Extra Attack System] [System] Clip: Turn L - 2 events
+[Info   :Extra Attack System] [System]   Event: Effect at 0.489s
+[Info   :Extra Attack System] [System]   Event: Effect at 0.690s
+[Info   :Extra Attack System] [System] Clip: Walk - 2 events
+[Info   :Extra Attack System] [System]   Event: Effect at 0.214s
+[Info   :Extra Attack System] [System]   Event: Effect at 0.738s
+[Info   :Extra Attack System] [System] Clip: Turnaround 180 L - 2 events
+[Info   :Extra Attack System] [System]   Event: Effect at 0.570s
+[Info   :Extra Attack System] [System]   Event: Effect at 0.982s
+[Info   :Extra Attack System] [System] Clip: Staff Magic Ice Nova Attack - 3 events
+[Info   :Extra Attack System] [System]   Event: Effect at 0.016s
+[Info   :Extra Attack System] [System]   Event: Attach at 0.405s
+[Info   :Extra Attack System] [System]   Event: Hit at 1.200s
+[Info   :Extra Attack System] [System] Clip: Staff Magic Heal - 3 events
+[Info   :Extra Attack System] [System]   Event: Effect at 0.032s
+[Info   :Extra Attack System] [System]   Event: Effect at 2.270s
+[Info   :Extra Attack System] [System]   Event: Hit at 2.503s
+[Info   :Extra Attack System] [System] Clip: Staff Magic Support - 2 events
+[Info   :Extra Attack System] [System]   Event: Effect at 0.048s
+[Info   :Extra Attack System] [System]   Event: Hit at 2.010s
+[Info   :Extra Attack System] [System] Clip: Staff Magic Base Attack - 2 events
+[Info   :Extra Attack System] [System]   Event: Effect at 0.000s
+[Info   :Extra Attack System] [System]   Event: Hit at 0.697s
+[Info   :Extra Attack System] [System] Clip: Staff Poke - 2 events
+[Info   :Extra Attack System] [System]   Event: Effect at 0.000s
+[Info   :Extra Attack System] [System]   Event: Hit at 0.810s
+[Info   :Extra Attack System] [System] Clip: Staff Magic Ice Attacks - 4 events
+[Info   :Extra Attack System] [System]   Event: Effect at 0.000s
+[Info   :Extra Attack System] [System]   Event: Hit at 0.878s
+[Info   :Extra Attack System] [System]   Event: Hit at 1.343s
+[Info   :Extra Attack System] [System]   Event: Hit at 1.779s
+[Info   :Extra Attack System] [System] Clip: Staff Magic Fireball Shower - 4 events
+[Info   :Extra Attack System] [System]   Event: Effect at 0.000s
+[Info   :Extra Attack System] [System]   Event: Attach at 0.377s
+[Info   :Extra Attack System] [System]   Event: Effect at 1.663s
+[Info   :Extra Attack System] [System]   Event: Hit at 1.718s
+[Info   :Extra Attack System] [System] Clip: Staff Magic Heavy Attack - 3 events
+[Info   :Extra Attack System] [System]   Event: Attach at 0.462s
+[Info   :Extra Attack System] [System]   Event: Effect at 2.520s
+[Info   :Extra Attack System] [System]   Event: Hit at 2.709s
+[Info   :Extra Attack System] [System] Clip: BAttack Fangs Front - 1 events
+[Info   :Extra Attack System] [System]   Event: OnAttackTrigger at 0.284s
+[Info   :Extra Attack System] [System] Clip: BAttack Fangs 2 - 1 events
+[Info   :Extra Attack System] [System]   Event: OnAttackTrigger at 0.345s
+[Info   :Extra Attack System] [System] Clip: BAttack Fangs 1 - 1 events
+[Info   :Extra Attack System] [System]   Event: OnAttackTrigger at 0.352s
+[Info   :Extra Attack System] [System] Clip: BAttack Bite - 1 events
+[Info   :Extra Attack System] [System]   Event: OnAttackTrigger at 0.503s
+[Info   :Extra Attack System] [System] Clip: Punchstep 1 - 6 events
+[Info   :Extra Attack System] [System]   Event: Speed at 0.000s
+[Info   :Extra Attack System] [System]   Event: Speed at 0.697s
+[Info   :Extra Attack System] [System]   Event: TrailOn at 0.702s
+[Info   :Extra Attack System] [System]   Event: Hit at 0.840s
+[Info   :Extra Attack System] [System]   Event: Speed at 0.916s
+[Info   :Extra Attack System] [System]   Event: Chain at 1.167s
+[Info   :Extra Attack System] [System] Clip: Kickstep - 4 events
+[Info   :Extra Attack System] [System]   Event: Speed at 0.459s
+[Info   :Extra Attack System] [System]   Event: TrailOn at 0.486s
+[Info   :Extra Attack System] [System]   Event: Speed at 0.581s
+[Info   :Extra Attack System] [System]   Event: Hit at 0.593s
+[Info   :Extra Attack System] [System] Clip: Punchstep 2 - 5 events
+[Info   :Extra Attack System] [System]   Event: Speed at 0.000s
+[Info   :Extra Attack System] [System]   Event: Speed at 0.673s
+[Info   :Extra Attack System] [System]   Event: TrailOn at 0.686s
+[Info   :Extra Attack System] [System]   Event: Hit at 0.903s
+[Info   :Extra Attack System] [System]   Event: Chain at 0.993s
+[Info   :Extra Attack System] [System] Clip: Throw - 1 events
+[Info   :Extra Attack System] [System]   Event: OnAttackTrigger at 0.847s
+[Info   :Extra Attack System] [System] Clip: Zombie Attack - 2 events
+[Info   :Extra Attack System] [System]   Event: Stop at 0.653s
+[Info   :Extra Attack System] [System]   Event: Hit at 1.074s
+[Info   :Extra Attack System] [System] Clip: throw_spear - 5 events
+[Info   :Extra Attack System] [System]   Event: Speed at 0.000s
+[Info   :Extra Attack System] [System]   Event: Speed at 0.499s
+[Info   :Extra Attack System] [System]   Event: TrailOn at 0.509s
+[Info   :Extra Attack System] [System]   Event: OnAttackTrigger at 0.739s
+[Info   :Extra Attack System] [System]   Event: Speed at 0.797s
+[Info   :Extra Attack System] [System] Clip: Javelin Stab - 5 events
+[Info   :Extra Attack System] [System]   Event: Speed at 0.000s
+[Info   :Extra Attack System] [System]   Event: Speed at 0.139s
+[Info   :Extra Attack System] [System]   Event: TrailOn at 0.152s
+[Info   :Extra Attack System] [System]   Event: Hit at 0.309s
+[Info   :Extra Attack System] [System]   Event: TrailOff at 0.324s
+[Info   :Extra Attack System] [System] Clip: Fly - 1 events
+[Info   :Extra Attack System] [System]   Event: Effect at 0.846s
+[Info   :Extra Attack System] [System] Clip: Sledge-Attack1 - 5 events
+[Info   :Extra Attack System] [System]   Event: Speed at 0.844s
+[Info   :Extra Attack System] [System]   Event: TrailOn at 0.872s
+[Info   :Extra Attack System] [System]   Event: Speed at 1.265s
+[Info   :Extra Attack System] [System]   Event: OnAttackTrigger at 1.296s
+[Info   :Extra Attack System] [System]   Event: TrailOff at 1.324s
+[Info   :Extra Attack System] [System] Clip: swing_pickaxe - 4 events
+[Info   :Extra Attack System] [System]   Event: TrailOn at 0.800s
+[Info   :Extra Attack System] [System]   Event: Speed at 0.825s
+[Info   :Extra Attack System] [System]   Event: OnAttackTrigger at 1.019s
+[Info   :Extra Attack System] [System]   Event: Speed at 1.055s
+[Info   :Extra Attack System] [System] Clip: C_Attack_Bite_Right - 1 events
+[Info   :Extra Attack System] [System]   Event: OnAttackTrigger at 0.493s
+[Info   :Extra Attack System] [System] Clip: C_Attack_Bite_Left - 1 events
+[Info   :Extra Attack System] [System]   Event: OnAttackTrigger at 0.419s
+[Info   :Extra Attack System] [System] Clip: C_Attack_Claws - 1 events
+[Info   :Extra Attack System] [System]   Event: OnAttackTrigger at 0.503s
+[Info   :Extra Attack System] [System] Clip: Attack Bite - 1 events
+[Info   :Extra Attack System] [System]   Event: Hit at 0.759s
+[Info   :Extra Attack System] [System] Clip: Attack Claws - 1 events
+[Info   :Extra Attack System] [System]   Event: Hit at 1.010s
+[Info   :Extra Attack System] [System] Clip: Attack Slam - 1 events
+[Info   :Extra Attack System] [System]   Event: Hit at 1.259s
+[Info   :Extra Attack System] [System] Clip: Attack Swipe R - 1 events
+[Info   :Extra Attack System] [System]   Event: Hit at 0.779s
+[Info   :Extra Attack System] [System] Clip: Attack Swipe L - 1 events
+[Info   :Extra Attack System] [System]   Event: Hit at 0.779s
+[Info   :Extra Attack System] [System] Clip: RunRun - 2 events
+[Info   :Extra Attack System] [System]   Event: FootStep at 0.361s
+[Info   :Extra Attack System] [System]   Event: FootStep at 1.309s
+[Info   :Extra Attack System] [System] Clip: Standing 1H Cast Spell 01 - 1 events
+[Info   :Extra Attack System] [System]   Event: OnAttackTrigger at 0.827s
+[Info   :Extra Attack System] [System] Clip: AttackRage - 12 events
+[Info   :Extra Attack System] [System]   Event: Speed at 0.006s
+[Info   :Extra Attack System] [System]   Event: Effect at 0.517s
+[Info   :Extra Attack System] [System]   Event: TrailOn at 2.174s
+[Info   :Extra Attack System] [System]   Event: Hit at 2.504s
+[Info   :Extra Attack System] [System]   Event: TrailOff at 2.623s
+[Info   :Extra Attack System] [System]   Event: TrailOn at 3.492s
+[Info   :Extra Attack System] [System]   Event: Hit at 3.739s
+[Info   :Extra Attack System] [System]   Event: TrailOff at 3.899s
+[Info   :Extra Attack System] [System]   Event: TrailOn at 5.133s
+[Info   :Extra Attack System] [System]   Event: Hit at 5.436s
+[Info   :Extra Attack System] [System]   Event: TrailOff at 5.567s
+[Info   :Extra Attack System] [System]   Event: Speed at 5.645s
+[Info   :Extra Attack System] [System] Clip: Protect - 4 events
+[Info   :Extra Attack System] [System]   Event: TrailOn at 1.307s
+[Info   :Extra Attack System] [System]   Event: Speed at 1.457s
+[Info   :Extra Attack System] [System]   Event: Speed at 2.841s
+[Info   :Extra Attack System] [System]   Event: Hit at 3.117s
+[Info   :Extra Attack System] [System] Clip: Attack1 - 6 events
+[Info   :Extra Attack System] [System]   Event: Speed at 0.000s
+[Info   :Extra Attack System] [System]   Event: Speed at 0.613s
+[Info   :Extra Attack System] [System]   Event: Stop at 0.682s
+[Info   :Extra Attack System] [System]   Event: TrailOn at 0.760s
+[Info   :Extra Attack System] [System]   Event: Hit at 0.890s
+[Info   :Extra Attack System] [System]   Event: TrailOff at 1.067s
+[Info   :Extra Attack System] [System] Clip: Stagger - 3 events
+[Info   :Extra Attack System] [System]   Event: Speed at 0.001s
+[Info   :Extra Attack System] [System]   Event: Speed at 0.328s
+[Info   :Extra Attack System] [System]   Event: Speed at 0.868s
+[Info   :Extra Attack System] [System] Clip: Attack2 - 4 events
+[Info   :Extra Attack System] [System]   Event: TrailOn at 0.974s
+[Info   :Extra Attack System] [System]   Event: Stop at 0.990s
+[Info   :Extra Attack System] [System]   Event: Hit at 1.172s
+[Info   :Extra Attack System] [System]   Event: TrailOff at 1.458s
+[Info   :Extra Attack System] [System] Clip: Fireball - 3 events
+[Info   :Extra Attack System] [System]   Event: Stop at 1.304s
+[Info   :Extra Attack System] [System]   Event: TrailOn at 1.406s
+[Info   :Extra Attack System] [System]   Event: Hit at 1.613s
+[Info   :Extra Attack System] [System] Clip: Idle2 - 1 events
+[Info   :Extra Attack System] [System]   Event: Effect at 1.156s
+[Info   :Extra Attack System] [System] Clip: Taunt - 1 events
+[Info   :Extra Attack System] [System]   Event: Effect at 0.414s
+[Info   :Extra Attack System] [System] Clip: Fire Crossbow - 1 events
+[Info   :Extra Attack System] [System]   Event: Hit at 0.006s
+[Info   :Extra Attack System] [System] Clip: Reload Crossbow - 1 events
+[Info   :Extra Attack System] [System]   Event: Effect at 0.000s
+[Info   :Extra Attack System] [System] Clip: Reload done - 1 events
+[Info   :Extra Attack System] [System]   Event: Effect at 0.000s
+[Info   :Extra Attack System] [System] Clip: Turn L - 2 events
+[Info   :Extra Attack System] [System]   Event: Effect at 0.490s
+[Info   :Extra Attack System] [System]   Event: Effect at 0.942s
+[Info   :Extra Attack System] [System] Clip: Flying Flap Fast R - 1 events
+[Info   :Extra Attack System] [System]   Event: Effect at 0.101s
+[Info   :Extra Attack System] [System] Clip: Flying Flap - 1 events
+[Info   :Extra Attack System] [System]   Event: Effect at 0.167s
+[Info   :Extra Attack System] [System] Clip: Take Off - 2 events
+[Info   :Extra Attack System] [System]   Event: Effect at 0.043s
+[Info   :Extra Attack System] [System]   Event: Effect at 0.353s
+[Info   :Extra Attack System] [System] Clip: Walk - 2 events
+[Info   :Extra Attack System] [System]   Event: Effect at 0.469s
+[Info   :Extra Attack System] [System]   Event: Effect at 0.956s
+[Info   :Extra Attack System] [System] Clip: Flying Flap Fast L - 1 events
+[Info   :Extra Attack System] [System]   Event: Effect at 0.131s
+[Info   :Extra Attack System] [System] Clip: Eat - 3 events
+[Info   :Extra Attack System] [System]   Event: Effect at 1.131s
+[Info   :Extra Attack System] [System]   Event: Effect at 1.939s
+[Info   :Extra Attack System] [System]   Event: Effect at 3.080s
+[Info   :Extra Attack System] [System] Clip: Turn R - 2 events
+[Info   :Extra Attack System] [System]   Event: Effect at 0.453s
+[Info   :Extra Attack System] [System]   Event: Effect at 0.943s
+[Info   :Extra Attack System] [System] Clip: Landing - 2 events
+[Info   :Extra Attack System] [System]   Event: Effect at 0.045s
+[Info   :Extra Attack System] [System]   Event: Effect at 0.354s
+[Info   :Extra Attack System] [System] Clip: Attack Talons - 1 events
+[Info   :Extra Attack System] [System]   Event: Hit at 0.936s
+[Info   :Extra Attack System] [System] Clip: Flying Flap L - 1 events
+[Info   :Extra Attack System] [System]   Event: Effect at 0.166s
+[Info   :Extra Attack System] [System] Clip: Flying Flap R - 1 events
+[Info   :Extra Attack System] [System]   Event: Effect at 0.172s
+[Info   :Extra Attack System] [System] Clip: Jog - 2 events
+[Info   :Extra Attack System] [System]   Event: Effect at 0.570s
+[Info   :Extra Attack System] [System]   Event: Effect at 0.639s
+[Info   :Extra Attack System] [System] Clip: Flying Flap Fast - 1 events
+[Info   :Extra Attack System] [System]   Event: Effect at 0.126s
+[Info   :Extra Attack System] [System] Clip: Turn R - 4 events
+[Info   :Extra Attack System] [System]   Event: FootStep at 1.502s
+[Info   :Extra Attack System] [System]   Event: FootStep at 2.037s
+[Info   :Extra Attack System] [System]   Event: FootStep at 3.502s
+[Info   :Extra Attack System] [System]   Event: FootStep at 3.992s
+[Info   :Extra Attack System] [System] Clip: Attack Swing - 6 events
+[Info   :Extra Attack System] [System]   Event: Effect at 0.000s
+[Info   :Extra Attack System] [System]   Event: Effect at 1.028s
+[Info   :Extra Attack System] [System]   Event: TrailOn at 1.894s
+[Info   :Extra Attack System] [System]   Event: Hit at 2.070s
+[Info   :Extra Attack System] [System]   Event: TrailOff at 2.328s
+[Info   :Extra Attack System] [System]   Event: FootStep at 4.334s
+[Info   :Extra Attack System] [System] Clip: IdleAlerted - 2 events
+[Info   :Extra Attack System] [System]   Event: Effect at 0.190s
+[Info   :Extra Attack System] [System]   Event: Effect at 3.881s
+[Info   :Extra Attack System] [System] Clip: Walk - 5 events
+[Info   :Extra Attack System] [System]   Event: Effect at 0.214s
+[Info   :Extra Attack System] [System]   Event: FootStep at 1.510s
+[Info   :Extra Attack System] [System]   Event: FootStep at 2.014s
+[Info   :Extra Attack System] [System]   Event: FootStep at 3.507s
+[Info   :Extra Attack System] [System]   Event: FootStep at 4.000s
+[Info   :Extra Attack System] [System] Clip: Attack Slam - 5 events
+[Info   :Extra Attack System] [System]   Event: Effect at 0.000s
+[Info   :Extra Attack System] [System]   Event: Effect at 1.550s
+[Info   :Extra Attack System] [System]   Event: Effect at 3.064s
+[Info   :Extra Attack System] [System]   Event: Hit at 3.245s
+[Info   :Extra Attack System] [System]   Event: FootStep at 5.841s
+[Info   :Extra Attack System] [System] Clip: Attack Ground Slam - 3 events
+[Info   :Extra Attack System] [System]   Event: Effect at 0.102s
+[Info   :Extra Attack System] [System]   Event: Hit at 1.658s
+[Info   :Extra Attack System] [System]   Event: Speed at 1.989s
+[Info   :Extra Attack System] [System] Clip: Arise - 10 events
+[Info   :Extra Attack System] [System]   Event: FootStep at 1.334s
+[Info   :Extra Attack System] [System]   Event: FootStep at 2.010s
+[Info   :Extra Attack System] [System]   Event: FootStep at 2.838s
+[Info   :Extra Attack System] [System]   Event: FootStep at 3.175s
+[Info   :Extra Attack System] [System]   Event: FootStep at 7.669s
+[Info   :Extra Attack System] [System]   Event: FootStep at 7.998s
+[Info   :Extra Attack System] [System]   Event: Effect at 8.272s
+[Info   :Extra Attack System] [System]   Event: Effect at 8.304s
+[Info   :Extra Attack System] [System]   Event: FootStep at 9.341s
+[Info   :Extra Attack System] [System]   Event: FootStep at 9.469s
+[Info   :Extra Attack System] [System] Clip: Turn L - 4 events
+[Info   :Extra Attack System] [System]   Event: FootStep at 1.570s
+[Info   :Extra Attack System] [System]   Event: FootStep at 2.018s
+[Info   :Extra Attack System] [System]   Event: FootStep at 3.574s
+[Info   :Extra Attack System] [System]   Event: FootStep at 4.000s
+[Info   :Extra Attack System] [System] Clip: Bite Attack - 3 events
+[Info   :Extra Attack System] [System]   Event: TrailOn at 0.375s
+[Info   :Extra Attack System] [System]   Event: Jump at 0.423s
+[Info   :Extra Attack System] [System]   Event: Hit at 0.903s
+[Info   :Extra Attack System] [System] Clip: Drain Attack Attached - 1 events
+[Info   :Extra Attack System] [System]   Event: Hit at 0.336s
+[Info   :Extra Attack System] [System] Clip: Crossbow Shoot Attack - 3 events
+[Info   :Extra Attack System] [System]   Event: Hit at 0.681s
+[Info   :Extra Attack System] [System]   Event: Effect at 1.499s
+[Info   :Extra Attack System] [System]   Event: Effect at 2.384s
+[Info   :Extra Attack System] [System] Clip: Crossbow Kolv Attack - 2 events
+[Info   :Extra Attack System] [System]   Event: Effect at 0.000s
+[Info   :Extra Attack System] [System]   Event: Hit at 0.705s
+[Info   :Extra Attack System] [System] Clip: ProtectiveSpell - 4 events
+[Info   :Extra Attack System] [System]   Event: TrailOn at 1.176s
+[Info   :Extra Attack System] [System]   Event: Speed at 1.310s
+[Info   :Extra Attack System] [System]   Event: Speed at 2.556s
+[Info   :Extra Attack System] [System]   Event: Hit at 2.805s
+[Info   :Extra Attack System] [System] Clip: Taunt - 1 events
+[Info   :Extra Attack System] [System]   Event: Hit at 1.380s
+[Info   :Extra Attack System] [System] Clip: LeapAttack - 3 events
+[Info   :Extra Attack System] [System]   Event: TrailOn at 0.937s
+[Info   :Extra Attack System] [System]   Event: Stop at 1.168s
+[Info   :Extra Attack System] [System]   Event: Hit at 1.496s
+[Info   :Extra Attack System] [System] Clip: ClawAttack - 4 events
+[Info   :Extra Attack System] [System]   Event: TrailOn at 0.427s
+[Info   :Extra Attack System] [System]   Event: Speed at 0.429s
+[Info   :Extra Attack System] [System]   Event: Hit at 0.652s
+[Info   :Extra Attack System] [System]   Event: Speed at 1.450s
+[Info   :Extra Attack System] [System] Clip: BiteAttack - 4 events
+[Info   :Extra Attack System] [System]   Event: TrailOn at 0.445s
+[Info   :Extra Attack System] [System]   Event: Speed at 0.470s
+[Info   :Extra Attack System] [System]   Event: Hit at 0.710s
+[Info   :Extra Attack System] [System]   Event: Speed at 1.192s
+[Info   :Extra Attack System] [System] Clip: Forge - 2 events
+[Info   :Extra Attack System] [System]   Event: Attach at 0.000s
+[Info   :Extra Attack System] [System]   Event: Effect at 0.260s
+[Info   :Extra Attack System] [System] Clip: drink - 1 events
+[Info   :Extra Attack System] [System]   Event: OnAttackTrigger at 1.328s
+[Info   :Extra Attack System] [System] Clip: Idle Scratch - 2 events
+[Info   :Extra Attack System] [System]   Event: Effect at 0.016s
+[Info   :Extra Attack System] [System]   Event: Effect at 2.952s
+[Info   :Extra Attack System] [System] Clip: Idle Mandible - 1 events
+[Info   :Extra Attack System] [System]   Event: Effect at 0.122s
+[Info   :Extra Attack System] [System] Clip: Walk - 4 events
+[Info   :Extra Attack System] [System]   Event: FootStep at 0.000s
+[Info   :Extra Attack System] [System]   Event: FootStep at 0.163s
+[Info   :Extra Attack System] [System]   Event: FootStep at 0.497s
+[Info   :Extra Attack System] [System]   Event: FootStep at 0.675s
+[Info   :Extra Attack System] [System] Clip: Attack Slam - 4 events
+[Info   :Extra Attack System] [System]   Event: Hit at 1.350s
+[Info   :Extra Attack System] [System]   Event: Hit at 2.075s
+[Info   :Extra Attack System] [System]   Event: Effect at 2.999s
+[Info   :Extra Attack System] [System]   Event: Effect at 3.658s
+[Info   :Extra Attack System] [System] Clip: Taunt - 1 events
+[Info   :Extra Attack System] [System]   Event: Effect at 0.000s
+[Info   :Extra Attack System] [System] Clip: Attack Ram Root Motion - 1 events
+[Info   :Extra Attack System] [System]   Event: Hit at 1.175s
+[Info   :Extra Attack System] [System] Clip: Walk Slow - 4 events
+[Info   :Extra Attack System] [System]   Event: FootStep at 0.334s
+[Info   :Extra Attack System] [System]   Event: FootStep at 1.012s
+[Info   :Extra Attack System] [System]   Event: FootStep at 1.345s
+[Info   :Extra Attack System] [System]   Event: FootStep at 2.002s
+[Info   :Extra Attack System] [System] Clip: Turn L - 4 events
+[Info   :Extra Attack System] [System]   Event: FootStep at 0.169s
+[Info   :Extra Attack System] [System]   Event: FootStep at 0.535s
+[Info   :Extra Attack System] [System]   Event: FootStep at 0.669s
+[Info   :Extra Attack System] [System]   Event: FootStep at 1.001s
+[Info   :Extra Attack System] [System] Clip: Attack Mandible - 1 events
+[Info   :Extra Attack System] [System]   Event: Hit at 0.683s
+[Info   :Extra Attack System] [System] Clip: Turn R - 4 events
+[Info   :Extra Attack System] [System]   Event: FootStep at 0.169s
+[Info   :Extra Attack System] [System]   Event: FootStep at 0.535s
+[Info   :Extra Attack System] [System]   Event: FootStep at 0.681s
+[Info   :Extra Attack System] [System]   Event: FootStep at 1.001s
+[Info   :Extra Attack System] [System] Clip: Attack Screech - 2 events
+[Info   :Extra Attack System] [System]   Event: Effect at 0.054s
+[Info   :Extra Attack System] [System]   Event: Hit at 1.214s
+[Info   :Extra Attack System] [System] Clip: Idle Alerted - 2 events
+[Info   :Extra Attack System] [System]   Event: Effect at 0.727s
+[Info   :Extra Attack System] [System]   Event: Effect at 1.497s
+[Info   :Extra Attack System] [System] Clip: Run L - 2 events
+[Info   :Extra Attack System] [System]   Event: Effect at 0.532s
+[Info   :Extra Attack System] [System]   Event: Effect at 1.206s
+[Info   :Extra Attack System] [System] Clip: Run - 2 events
+[Info   :Extra Attack System] [System]   Event: Effect at 0.536s
+[Info   :Extra Attack System] [System]   Event: Effect at 1.204s
+[Info   :Extra Attack System] [System] Clip: Attack Claws - 5 events
+[Info   :Extra Attack System] [System]   Event: Effect at 0.264s
+[Info   :Extra Attack System] [System]   Event: Effect at 0.773s
+[Info   :Extra Attack System] [System]   Event: Hit at 1.031s
+[Info   :Extra Attack System] [System]   Event: Effect at 1.855s
+[Info   :Extra Attack System] [System]   Event: Effect at 2.761s
+[Info   :Extra Attack System] [System] Clip: Attack Poison Breath - 6 events
+[Info   :Extra Attack System] [System]   Event: Effect at 0.858s
+[Info   :Extra Attack System] [System]   Event: Hit at 1.334s
+[Info   :Extra Attack System] [System]   Event: Effect at 1.935s
+[Info   :Extra Attack System] [System]   Event: Effect at 2.897s
+[Info   :Extra Attack System] [System]   Event: Effect at 3.918s
+[Info   :Extra Attack System] [System]   Event: Effect at 4.594s
+[Info   :Extra Attack System] [System] Clip: Run R - 2 events
+[Info   :Extra Attack System] [System]   Event: Effect at 0.541s
+[Info   :Extra Attack System] [System]   Event: Effect at 1.209s
+[Info   :Extra Attack System] [System] Clip: Turn R - 1 events
+[Info   :Extra Attack System] [System]   Event: Effect at 0.781s
+[Info   :Extra Attack System] [System] Clip: Attack Wing Spin - 7 events
+[Info   :Extra Attack System] [System]   Event: Speed at 0.126s
+[Info   :Extra Attack System] [System]   Event: Effect at 0.655s
+[Info   :Extra Attack System] [System]   Event: Speed at 0.685s
+[Info   :Extra Attack System] [System]   Event: Hit at 0.734s
+[Info   :Extra Attack System] [System]   Event: Effect at 1.475s
+[Info   :Extra Attack System] [System]   Event: Speed at 1.821s
+[Info   :Extra Attack System] [System]   Event: Effect at 2.281s
+[Info   :Extra Attack System] [System] Clip: Taunt - 2 events
+[Info   :Extra Attack System] [System]   Event: Effect at 0.037s
+[Info   :Extra Attack System] [System]   Event: Effect at 2.372s
+[Info   :Extra Attack System] [System] Clip: Attack Air Drop - 2 events
+[Info   :Extra Attack System] [System]   Event: Hit at 1.169s
+[Info   :Extra Attack System] [System]   Event: Drop at 4.482s
+[Info   :Extra Attack System] [System] Clip: Walk L - 2 events
+[Info   :Extra Attack System] [System]   Event: Effect at 0.823s
+[Info   :Extra Attack System] [System]   Event: Effect at 1.775s
+[Info   :Extra Attack System] [System] Clip: Walk - 2 events
+[Info   :Extra Attack System] [System]   Event: Effect at 0.795s
+[Info   :Extra Attack System] [System]   Event: Effect at 1.809s
+[Info   :Extra Attack System] [System] Clip: Idle - 2 events
+[Info   :Extra Attack System] [System]   Event: Effect at 0.882s
+[Info   :Extra Attack System] [System]   Event: Effect at 1.839s
+[Info   :Extra Attack System] [System] Clip: Walk R - 2 events
+[Info   :Extra Attack System] [System]   Event: Effect at 0.809s
+[Info   :Extra Attack System] [System]   Event: Effect at 1.792s
+[Info   :Extra Attack System] [System] Clip: Attack Swoop - 1 events
+[Info   :Extra Attack System] [System]   Event: Hit at 0.140s
+[Info   :Extra Attack System] [System] Clip: Turn L - 1 events
+[Info   :Extra Attack System] [System]   Event: Effect at 0.712s
+[Info   :Extra Attack System] [System] Clip: DualAxes Attack 3 2 - 5 events
+[Info   :Extra Attack System] [System]   Event: TrailOn at 0.262s
+[Info   :Extra Attack System] [System]   Event: Hit at 0.335s
+[Info   :Extra Attack System] [System]   Event: Hit at 0.553s
+[Info   :Extra Attack System] [System]   Event: TrailOff at 0.674s
+[Info   :Extra Attack System] [System]   Event: Chain at 0.706s
+[Info   :Extra Attack System] [System] Clip: DualAxes Attack 1 - 4 events
+[Info   :Extra Attack System] [System]   Event: TrailOn at 0.125s
+[Info   :Extra Attack System] [System]   Event: Hit at 0.211s
+[Info   :Extra Attack System] [System]   Event: Chain at 0.257s
+[Info   :Extra Attack System] [System]   Event: TrailOff at 0.353s
+[Info   :Extra Attack System] [System] Clip: DualAxes Attack 2 2 - 4 events
+[Info   :Extra Attack System] [System]   Event: TrailOn at 0.287s
+[Info   :Extra Attack System] [System]   Event: Hit at 0.372s
+[Info   :Extra Attack System] [System]   Event: Chain at 0.533s
+[Info   :Extra Attack System] [System]   Event: TrailOff at 0.563s
+[Info   :Extra Attack System] [System] Clip: DualAxes Attack Cleave - 3 events
+[Info   :Extra Attack System] [System]   Event: TrailOn at 0.817s
+[Info   :Extra Attack System] [System]   Event: Hit at 0.915s
+[Info   :Extra Attack System] [System]   Event: TrailOff at 1.083s
+[Info   :Extra Attack System] [System] Clip: DualAxes Attack 4 - 4 events
+[Info   :Extra Attack System] [System]   Event: TrailOn at 0.240s
+[Info   :Extra Attack System] [System]   Event: Hit at 0.367s
+[Info   :Extra Attack System] [System]   Event: Hit at 0.540s
+[Info   :Extra Attack System] [System]   Event: TrailOff at 0.630s
+[Info   :Extra Attack System] [System] Clip: BattleAxe_Combo3 - 6 events
+[Info   :Extra Attack System] [System]   Event: Speed at 0.155s
+[Info   :Extra Attack System] [System]   Event: Speed at 0.213s
+[Info   :Extra Attack System] [System]   Event: TrailOn at 0.232s
+[Info   :Extra Attack System] [System]   Event: TrailOff at 0.515s
+[Info   :Extra Attack System] [System]   Event: OnAttackTrigger at 0.529s
+[Info   :Extra Attack System] [System]   Event: Speed at 0.534s
+[Info   :Extra Attack System] [System] Clip: Bow Aim Recoil - 1 events
+[Info   :Extra Attack System] [System]   Event: OnAttackTrigger at 0.167s
+[Info   :Extra Attack System] [System] Clip: Idle shiver - 2 events
+[Info   :Extra Attack System] [System]   Event: Effect at 0.000s
+[Info   :Extra Attack System] [System]   Event: Effect at 0.000s
+[Info   :Extra Attack System] [System] Clip: Attack Tick Drop - 3 events
+[Info   :Extra Attack System] [System]   Event: Effect at 0.000s
+[Info   :Extra Attack System] [System]   Event: Effect at 0.000s
+[Info   :Extra Attack System] [System]   Event: Hit at 0.396s
+[Info   :Extra Attack System] [System] Clip: Attack Spit - 2 events
+[Info   :Extra Attack System] [System]   Event: Effect at 0.000s
+[Info   :Extra Attack System] [System]   Event: Hit at 1.500s
+[Info   :Extra Attack System] [System] Clip: Taunt - 1 events
+[Info   :Extra Attack System] [System]   Event: Hit at 2.066s
+[Info   :Extra Attack System] [System] Clip: Attack Shake - 5 events
+[Info   :Extra Attack System] [System]   Event: Effect at 0.000s
+[Info   :Extra Attack System] [System]   Event: Hit at 2.016s
+[Info   :Extra Attack System] [System]   Event: Hit at 2.168s
+[Info   :Extra Attack System] [System]   Event: Hit at 2.364s
+[Info   :Extra Attack System] [System]   Event: Effect at 3.113s
+[Info   :Extra Attack System] [System] Clip: Charge Staff Attack 2 - 1 events
+[Info   :Extra Attack System] [System]   Event: Hit at 0.301s
+[Info   :Extra Attack System] [System] Clip: Axe combo 3 - 5 events
+[Info   :Extra Attack System] [System]   Event: Speed at 0.594s
+[Info   :Extra Attack System] [System]   Event: TrailOn at 0.609s
+[Info   :Extra Attack System] [System]   Event: Hit at 0.796s
+[Info   :Extra Attack System] [System]   Event: Speed at 0.840s
+[Info   :Extra Attack System] [System]   Event: TrailOff at 0.850s
+[Info   :Extra Attack System] [System] Clip: Ground Staff Attack - 3 events
+[Info   :Extra Attack System] [System]   Event: Speed at 0.613s
+[Info   :Extra Attack System] [System]   Event: Speed at 0.732s
+[Info   :Extra Attack System] [System]   Event: Hit at 1.078s
+[Info   :Extra Attack System] [System] Clip: knife_slash0 - 6 events
+[Info   :Extra Attack System] [System]   Event: TrailOn at 0.134s
+[Info   :Extra Attack System] [System]   Event: Speed at 0.157s
+[Info   :Extra Attack System] [System]   Event: OnAttackTrigger at 0.256s
+[Info   :Extra Attack System] [System]   Event: Speed at 0.340s
+[Info   :Extra Attack System] [System]   Event: Chain at 0.365s
+[Info   :Extra Attack System] [System]   Event: TrailOff at 0.439s
+[Info   :Extra Attack System] [System] Clip: knife_slash1 - 6 events
+[Info   :Extra Attack System] [System]   Event: TrailOn at 0.122s
+[Info   :Extra Attack System] [System]   Event: Speed at 0.153s
+[Info   :Extra Attack System] [System]   Event: OnAttackTrigger at 0.216s
+[Info   :Extra Attack System] [System]   Event: Speed at 0.405s
+[Info   :Extra Attack System] [System]   Event: TrailOff at 0.455s
+[Info   :Extra Attack System] [System]   Event: Chain at 0.485s
+[Info   :Extra Attack System] [System] Clip: Beam Staff Attack - 1 events
+[Info   :Extra Attack System] [System]   Event: Hit at 0.352s
+[Info   :Extra Attack System] [System] Clip: Axe combo 2 - 6 events
+[Info   :Extra Attack System] [System]   Event: TrailOn at 0.480s
+[Info   :Extra Attack System] [System]   Event: Speed at 0.485s
+[Info   :Extra Attack System] [System]   Event: Hit at 0.726s
+[Info   :Extra Attack System] [System]   Event: Speed at 0.824s
+[Info   :Extra Attack System] [System]   Event: TrailOff at 0.855s
+[Info   :Extra Attack System] [System]   Event: Chain at 0.900s
+[Info   :Extra Attack System] [System] Clip: Skeleton Summon - 1 events
+[Info   :Extra Attack System] [System]   Event: Hit at 0.169s
+[Info   :Extra Attack System] [System] Clip: BattleAxe1 - 6 events
+[Info   :Extra Attack System] [System]   Event: Speed at 0.079s
+[Info   :Extra Attack System] [System]   Event: Speed at 1.118s
+[Info   :Extra Attack System] [System]   Event: TrailOn at 1.131s
+[Info   :Extra Attack System] [System]   Event: OnAttackTrigger at 1.393s
+[Info   :Extra Attack System] [System]   Event: Speed at 1.632s
+[Info   :Extra Attack System] [System]   Event: TrailOff at 1.646s
+[Info   :Extra Attack System] [System] Clip: Fireball Staff Attacks (2) - 2 events
+[Info   :Extra Attack System] [System]   Event: Effect at 0.000s
+[Info   :Extra Attack System] [System]   Event: Hit at 0.499s
+[Info   :Extra Attack System] [System] Clip: Knife JumpAttack - 7 events
+[Info   :Extra Attack System] [System]   Event: Speed at 0.000s
+[Info   :Extra Attack System] [System]   Event: Speed at 0.204s
+[Info   :Extra Attack System] [System]   Event: TrailOn at 0.608s
+[Info   :Extra Attack System] [System]   Event: Speed at 0.693s
+[Info   :Extra Attack System] [System]   Event: Hit at 0.802s
+[Info   :Extra Attack System] [System]   Event: Speed at 0.869s
+[Info   :Extra Attack System] [System]   Event: TrailOff at 0.900s
+[Info   :Extra Attack System] [System] Clip: Lightning Staff Recharge - 2 events
+[Info   :Extra Attack System] [System]   Event: Attach at 0.000s
+[Info   :Extra Attack System] [System]   Event: Effect at 0.182s
+[Info   :Extra Attack System] [System] Clip: Lightning Staff Recharge Done - 1 events
+[Info   :Extra Attack System] [System]   Event: Effect at 0.000s
+[Info   :Extra Attack System] [System] Clip: MaceAltAttack - 5 events
+[Info   :Extra Attack System] [System]   Event: Speed at 0.976s
+[Info   :Extra Attack System] [System]   Event: TrailOn at 0.990s
+[Info   :Extra Attack System] [System]   Event: Hit at 1.223s
+[Info   :Extra Attack System] [System]   Event: Speed at 1.436s
+[Info   :Extra Attack System] [System]   Event: TrailOff at 1.445s
+[Info   :Extra Attack System] [System] Clip: Lightning Staff Attack - 1 events
+[Info   :Extra Attack System] [System]   Event: Hit at 0.520s
+[Info   :Extra Attack System] [System] Clip: BattleAxe2 - 4 events
+[Info   :Extra Attack System] [System]   Event: Speed at 0.212s
+[Info   :Extra Attack System] [System]   Event: TrailOn at 0.216s
+[Info   :Extra Attack System] [System]   Event: OnAttackTrigger at 0.364s
+[Info   :Extra Attack System] [System]   Event: TrailOff at 0.485s
+[Info   :Extra Attack System] [System] Clip: Axe Secondary Attack - 4 events
+[Info   :Extra Attack System] [System]   Event: TrailOn at 0.916s
+[Info   :Extra Attack System] [System]   Event: Hit at 1.122s
+[Info   :Extra Attack System] [System]   Event: TrailOff at 1.184s
+[Info   :Extra Attack System] [System]   Event: Chain at 1.513s
+[Info   :Extra Attack System] [System] Clip: Scything - 3 events
+[Info   :Extra Attack System] [System]   Event: TrailOn at 0.013s
+[Info   :Extra Attack System] [System]   Event: Hit at 0.160s
+[Info   :Extra Attack System] [System]   Event: TrailOff at 0.284s
+[Info   :Extra Attack System] [System] Clip: Fireball Staff Attacks (1) - 1 events
+[Info   :Extra Attack System] [System]   Event: Hit at 0.507s
+[Info   :Extra Attack System] [System] Clip: Atgeir360Attack - 6 events
+[Info   :Extra Attack System] [System]   Event: Speed at 0.000s
+[Info   :Extra Attack System] [System]   Event: Speed at 0.875s
+[Info   :Extra Attack System] [System]   Event: TrailOn at 1.011s
+[Info   :Extra Attack System] [System]   Event: Hit at 1.124s
+[Info   :Extra Attack System] [System]   Event: Speed at 1.581s
+[Info   :Extra Attack System] [System]   Event: TrailOff at 1.602s
+[Info   :Extra Attack System] [System] Clip: Troll Summon - 1 events
+[Info   :Extra Attack System] [System]   Event: Hit at 1.280s
+[Info   :Extra Attack System] [System] Clip: Standing Melee Attack Downward - 2 events
+[Info   :Extra Attack System] [System]   Event: Stop at 0.746s
+[Info   :Extra Attack System] [System]   Event: OnAttackTrigger at 0.802s
+[Info   :Extra Attack System] [System] Clip: Attack Slam - 1 events
+[Info   :Extra Attack System] [System]   Event: Hit at 0.864s
+[Info   :Extra Attack System] [System] Clip: Attack Light - 2 events
+[Info   :Extra Attack System] [System]   Event: Effect at 0.000s
+[Info   :Extra Attack System] [System]   Event: Hit at 0.741s
+[Info   :Extra Attack System] [System] Clip: Attack Medium - 2 events
+[Info   :Extra Attack System] [System]   Event: Effect at 0.339s
+[Info   :Extra Attack System] [System]   Event: Hit at 1.000s
+[Info   :Extra Attack System] [System] Clip: Attack Heavy - 2 events
+[Info   :Extra Attack System] [System]   Event: Effect at 0.000s
+[Info   :Extra Attack System] [System]   Event: Hit at 1.635s
+[Info   :Extra Attack System] [System] Clip: Stagger - 1 events
+[Info   :Extra Attack System] [System]   Event: Effect at 0.000s
+[Info   :Extra Attack System] [System] Clip: Attack Throw - 2 events
+[Info   :Extra Attack System] [System]   Event: Effect at 0.000s
+[Info   :Extra Attack System] [System]   Event: Hit at 1.482s
+[Info   :Extra Attack System] [System] Clip: Attack - 1 events
+[Info   :Extra Attack System] [System]   Event: Hit at 1.621s
+[Info   :Extra Attack System] [System] Clip: Attack Slash 2 - 2 events
+[Info   :Extra Attack System] [System]   Event: Effect at 0.000s
+[Info   :Extra Attack System] [System]   Event: Hit at 1.069s
+[Info   :Extra Attack System] [System] Clip: Attack Slash Combo 1 - 3 events
+[Info   :Extra Attack System] [System]   Event: Effect at 0.000s
+[Info   :Extra Attack System] [System]   Event: Hit at 0.847s
+[Info   :Extra Attack System] [System]   Event: Hit at 1.026s
+[Info   :Extra Attack System] [System] Clip: Attack Slash 4 - 2 events
+[Info   :Extra Attack System] [System]   Event: Effect at 0.000s
+[Info   :Extra Attack System] [System]   Event: Hit at 1.027s
+[Info   :Extra Attack System] [System] Clip: Turn L - 1 events
+[Info   :Extra Attack System] [System]   Event: Effect at 0.000s
+[Info   :Extra Attack System] [System] Clip: Attack Slash 1 - 2 events
+[Info   :Extra Attack System] [System]   Event: Effect at 0.000s
+[Info   :Extra Attack System] [System]   Event: Hit at 1.063s
+[Info   :Extra Attack System] [System] Clip: Attack Rush - 2 events
+[Info   :Extra Attack System] [System]   Event: Effect at 0.000s
+[Info   :Extra Attack System] [System]   Event: Hit at 1.443s
+[Info   :Extra Attack System] [System] Clip: Attack Slash Combo 2 - 3 events
+[Info   :Extra Attack System] [System]   Event: Effect at 0.000s
+[Info   :Extra Attack System] [System]   Event: Hit at 0.779s
+[Info   :Extra Attack System] [System]   Event: Hit at 0.958s
+[Info   :Extra Attack System] [System] Clip: Turn R - 1 events
+[Info   :Extra Attack System] [System]   Event: Effect at 0.000s
+[Info   :Extra Attack System] [System] Clip: Burrow - 4 events
+[Info   :Extra Attack System] [System]   Event: Effect at 0.000s
+[Info   :Extra Attack System] [System]   Event: Effect at 0.476s
+[Info   :Extra Attack System] [System]   Event: Hit at 2.535s
+[Info   :Extra Attack System] [System]   Event: Effect at 2.730s
+[Info   :Extra Attack System] [System] Clip: Attack Slash 3 - 2 events
+[Info   :Extra Attack System] [System]   Event: Effect at 0.000s
+[Info   :Extra Attack System] [System]   Event: Hit at 1.024s
+[Info   :Extra Attack System] [System] Clip: Attack Acid Spit - 2 events
+[Info   :Extra Attack System] [System]   Event: Effect at 0.000s
+[Info   :Extra Attack System] [System]   Event: Hit at 1.479s
+[Info   :Extra Attack System] [System] Clip: Attack Slash Combo 3 - 3 events
+[Info   :Extra Attack System] [System]   Event: Effect at 0.000s
+[Info   :Extra Attack System] [System]   Event: Hit at 0.942s
+[Info   :Extra Attack System] [System]   Event: Hit at 1.117s
+[Info   :Extra Attack System] [System] Clip: Get In Here - 2 events
+[Info   :Extra Attack System] [System]   Event: Effect at 0.000s
+[Info   :Extra Attack System] [System]   Event: Hit at 2.918s
+[Info   :Extra Attack System] [System] Clip: Walk R - 1 events
+[Info   :Extra Attack System] [System]   Event: Effect at 0.000s
+[Info   :Extra Attack System] [System] Clip: Walk - 1 events
+[Info   :Extra Attack System] [System]   Event: Effect at 0.000s
+[Info   :Extra Attack System] [System] Clip: Attack Bite - 2 events
+[Info   :Extra Attack System] [System]   Event: Effect at 0.000s
+[Info   :Extra Attack System] [System]   Event: Hit at 1.819s
+[Info   :Extra Attack System] [System] Clip: Walk L - 1 events
+[Info   :Extra Attack System] [System]   Event: Effect at 0.000s
+[Info   :Extra Attack System] [System] Clip: Attack Pierce - 3 events
+[Info   :Extra Attack System] [System]   Event: Effect at 0.000s
+[Info   :Extra Attack System] [System]   Event: Hit at 0.857s
+[Info   :Extra Attack System] [System]   Event: Hit at 0.960s
+[Info   :Extra Attack System] [System] Clip: StaffPoke - 2 events
+[Info   :Extra Attack System] [System]   Event: TrailOn at 0.870s
+[Info   :Extra Attack System] [System]   Event: Hit at 1.073s
+[Info   :Extra Attack System] [System] Clip: CastFireball - 3 events
+[Info   :Extra Attack System] [System]   Event: Stop at 1.300s
+[Info   :Extra Attack System] [System]   Event: TrailOn at 1.402s
+[Info   :Extra Attack System] [System]   Event: Hit at 1.608s
+[Info   :Extra Attack System] [System] Clip: Kickstep - 4 events
+[Info   :Extra Attack System] [System]   Event: Speed at 0.008s
+[Info   :Extra Attack System] [System]   Event: TrailOn at 0.009s
+[Info   :Extra Attack System] [System]   Event: Speed at 0.011s
+[Info   :Extra Attack System] [System]   Event: Hit at 0.011s
+[Info   :Extra Attack System] [System] Clip: Armature|ArmatureAction.001 - 1 events
+[Info   :Extra Attack System] [System]   Event: OnAttackTrigger at 0.664s
+[Info   :Extra Attack System] [System] === END ANIMATION EVENTS ===
+[Info   :Extra Attack System] [System] Animation Events list output completed

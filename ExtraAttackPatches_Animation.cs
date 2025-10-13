@@ -782,11 +782,6 @@ namespace ExtraAttackSystem
                     return true; // run original
                 }
 
-                    // Optional global disable for troubleshooting
-                    if (ExtraAttackPlugin.DebugDisableSetTriggerOverride.Value)
-                {
-                    return true; // run original
-                }
 
                 // Resolve player
                 Player? player = null;

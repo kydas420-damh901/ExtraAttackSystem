@@ -147,26 +147,17 @@ namespace ExtraAttackSystem
             }
         }
 
-        // Common utility for debug animator parameters
+        // Common utility for debug animator parameters (using EAS_Debug.cs)
         public static void LogAnimatorParameters(Player player, string context)
         {
-            if (!ExtraAttackPlugin.DebugAnimationParameters.Value)
+            if (!EAS_Debug.IsDebugAnimationParametersEnabled)
                 return;
 
             try
             {
                 if (TryGetPlayerAnimator(player, out Animator? animator) && animator != null)
                 {
-                    int crouchingHash = ZSyncAnimation.GetHash("crouching");
-                    int sitHash = ZSyncAnimation.GetHash("emote_sit");
-                    int chairHash = ZSyncAnimation.GetHash("emote_sitchair");
-                    bool crouchB = false, sitB = false, chairB = false;
-                    
-                    try { crouchB = animator.GetBool(crouchingHash); } catch { }
-                    try { sitB = animator.GetBool(sitHash); } catch { }
-                    try { chairB = animator.GetBool(chairHash); } catch { }
-                    
-                    ExtraAttackPlugin.LogInfo("AnimationParameters", $"{context}: crouch={crouchB} sit={sitB} sitchair={chairB}");
+                    EAS_Debug.LogAnimatorParameters(animator);
                 }
             }
             catch (Exception ex)
@@ -191,28 +182,10 @@ namespace ExtraAttackSystem
                             playerAnimators[player] = ___m_animator;
                             ExtraAttackPlugin.LogInfo("System", "Animator cached successfully");
 
-                            if (ExtraAttackPlugin.DebugAnimationParameters.Value && !parametersLogged)
+                            if (EAS_Debug.IsDebugAnimationParametersEnabled && !parametersLogged)
                             {
                                 parametersLogged = true;
-                                ExtraAttackPlugin.LogInfo("System", "=== DEBUG: ANIMATOR PARAMETERS ===");
-                                AnimatorControllerParameter[] parameters = ___m_animator.parameters;
-                                ExtraAttackPlugin.LogInfo("System", $"Total parameters: {parameters.Length}");
-
-                                foreach (var param in parameters)
-                                {
-                                    string typeStr = param.type switch
-                                    {
-                                        AnimatorControllerParameterType.Float => "Float",
-                                        AnimatorControllerParameterType.Int => "Int",
-                                        AnimatorControllerParameterType.Bool => "Bool",
-                                        AnimatorControllerParameterType.Trigger => "Trigger",
-                                        _ => "Unknown"
-                                    };
-
-                                    ExtraAttackPlugin.LogInfo("System", $"  {typeStr.PadRight(10)} | {param.name}");
-                                }
-
-                                ExtraAttackPlugin.LogInfo("System", "=== END ANIMATOR PARAMETERS ===");
+                                LogAnimatorParameters(player, "Animator cached");
                             }
                         }
                     }

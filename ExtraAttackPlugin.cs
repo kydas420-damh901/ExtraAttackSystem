@@ -30,16 +30,14 @@ namespace ExtraAttackSystem
         // Harmony instance
         private readonly Harmony harmony = new Harmony(PluginGUID);
 
-        // Cached debug toggles for performance
-        private static bool cachedDebugClipNames;
-        private static bool cachedDebugAnimationEvents;
-        private static bool cachedDebugAnimationClips;
-        private static bool cachedDebugAnimationParameters;
+        // Cached debug toggles for performance (all debug categories)
+        private static bool cachedDebugSystemMessages;
         private static bool cachedDebugAttackTriggers;
         private static bool cachedDebugDamageCalculation;
-        private static bool cachedDebugSystemMessages;
         private static bool cachedDebugPerformanceMetrics;
         private static bool cachedDebugAOCOperations;
+        private static bool cachedDebugAnimationParameters;
+        private static bool cachedDebugClipNames;
 
         // General config - keys & cooldowns
         // Q/T/G keys for extra attacks
@@ -47,29 +45,25 @@ namespace ExtraAttackSystem
         public static ConfigEntry<KeyboardShortcut> ExtraAttackKey_T = null!;
         public static ConfigEntry<KeyboardShortcut> ExtraAttackKey_G = null!;
 
-
-        // Debug configurations - Individual categories
-        public static ConfigEntry<bool> DebugClipNames = null!;
-        public static ConfigEntry<bool> DebugAnimationEvents = null!;
-        public static ConfigEntry<bool> DebugAnimationClips = null!;
-        public static ConfigEntry<bool> DebugAnimationParameters = null!;
+        // Debug configurations - All debug categories
+        public static ConfigEntry<bool> DebugSystemMessages = null!;
         public static ConfigEntry<bool> DebugAttackTriggers = null!;
         public static ConfigEntry<bool> DebugDamageCalculation = null!;
-        public static ConfigEntry<bool> DebugSystemMessages = null!;
         public static ConfigEntry<bool> DebugPerformanceMetrics = null!;
         public static ConfigEntry<bool> DebugAOCOperations = null!;
-        public static ConfigEntry<bool> DebugDisableSetTriggerOverride = null!;
+        public static ConfigEntry<bool> DebugAnimationEventsList = null!;
+        public static ConfigEntry<bool> DebugAnimationClipsList = null!;
+        public static ConfigEntry<bool> DebugAnimationParameters = null!;
+        public static ConfigEntry<bool> DebugClipNames = null!;
         
-        // Cached debug flags for performance (all controlled by System Messages)
+        // Cached debug flags for performance (all categories)
         public static bool IsDebugSystemMessagesEnabled => cachedDebugSystemMessages;
-        public static bool IsDebugAttackTriggersEnabled => cachedDebugSystemMessages && cachedDebugAttackTriggers;
-        public static bool IsDebugDamageCalculationEnabled => cachedDebugSystemMessages && cachedDebugDamageCalculation;
-        public static bool IsDebugAnimationClipsEnabled => cachedDebugSystemMessages && cachedDebugAnimationClips;
-        public static bool IsDebugAnimationEventsEnabled => cachedDebugSystemMessages && cachedDebugAnimationEvents;
-        public static bool IsDebugAnimationParametersEnabled => cachedDebugSystemMessages && cachedDebugAnimationParameters;
-        public static bool IsDebugPerformanceMetricsEnabled => cachedDebugSystemMessages && cachedDebugPerformanceMetrics;
-        public static bool IsDebugClipNamesEnabled => cachedDebugSystemMessages && cachedDebugClipNames;
-        public static bool IsDebugAOCOperationsEnabled => cachedDebugSystemMessages && cachedDebugAOCOperations;
+        public static bool IsDebugAttackTriggersEnabled => cachedDebugAttackTriggers;
+        public static bool IsDebugDamageCalculationEnabled => cachedDebugDamageCalculation;
+        public static bool IsDebugPerformanceMetricsEnabled => cachedDebugPerformanceMetrics;
+        public static bool IsDebugAOCOperationsEnabled => cachedDebugAOCOperations;
+        public static bool IsDebugAnimationParametersEnabled => cachedDebugAnimationParameters;
+        public static bool IsDebugClipNamesEnabled => cachedDebugClipNames;
         
         // ========================================================================
         // 3 - COMPAT
@@ -172,16 +166,24 @@ namespace ExtraAttackSystem
         private void InitializeDebugConfigs()
         {
             // ========================================================================
-            // MASTER CONTROL
+            // SYSTEM MESSAGES
             // ========================================================================
             
-            // Essential system messages (master control for all debug messages)
-            DebugSystemMessages = Config.Bind("1 - Master Control", "System Messages (Master Switch)", false,
-                "Master control: Enable/disable all debug messages at once");
+            // System messages
+            DebugSystemMessages = Config.Bind("1 - System Messages", "System Messages", false,
+                "Enable/disable system messages");
             cachedDebugSystemMessages = DebugSystemMessages.Value;
             DebugSystemMessages.SettingChanged += (s, e) => {
                 cachedDebugSystemMessages = DebugSystemMessages.Value;
-                LogInfo("Config", $"DebugSystemMessages (Master Control) changed to: {cachedDebugSystemMessages}");
+                LogInfo("System", $"DebugSystemMessages changed to: {cachedDebugSystemMessages}");
+                if (cachedDebugSystemMessages)
+                {
+                    LogInfo("System", "System Messages debug enabled - will log system messages during gameplay");
+                }
+                else
+                {
+                    LogInfo("System", "System Messages debug disabled - no more system message logs will be output");
+                }
             };
 
             // ========================================================================
@@ -190,20 +192,36 @@ namespace ExtraAttackSystem
             
             // Attack trigger detection and processing
             DebugAttackTriggers = Config.Bind("2 - Attack System", "Attack Triggers", false,
-                "Log attack trigger detection and processing (requires System Messages enabled)");
+                "Output attack trigger detection and processing to debug console");
             cachedDebugAttackTriggers = DebugAttackTriggers.Value;
             DebugAttackTriggers.SettingChanged += (s, e) => {
                 cachedDebugAttackTriggers = DebugAttackTriggers.Value;
-                if (cachedDebugSystemMessages) LogInfo("Config", $"DebugAttackTriggers changed to: {cachedDebugAttackTriggers}");
+                LogInfo("System", $"DebugAttackTriggers changed to: {cachedDebugAttackTriggers}");
+                if (cachedDebugAttackTriggers)
+                {
+                    LogInfo("System", "Attack Triggers debug enabled - will log attack triggers during gameplay");
+                }
+                else
+                {
+                    LogInfo("System", "Attack Triggers debug disabled - no more attack trigger logs will be output");
+                }
             };
 
             // Damage calculation and restoration
             DebugDamageCalculation = Config.Bind("2 - Attack System", "Damage Calculation", false,
-                "Log damage multiplier application and restoration (requires System Messages enabled)");
+                "Output damage multiplier application and restoration to debug console");
             cachedDebugDamageCalculation = DebugDamageCalculation.Value;
             DebugDamageCalculation.SettingChanged += (s, e) => {
                 cachedDebugDamageCalculation = DebugDamageCalculation.Value;
-                if (cachedDebugSystemMessages) LogInfo("Config", $"DebugDamageCalculation changed to: {cachedDebugDamageCalculation}");
+                LogInfo("System", $"DebugDamageCalculation changed to: {cachedDebugDamageCalculation}");
+                if (cachedDebugDamageCalculation)
+                {
+                    LogInfo("System", "Damage Calculation debug enabled - will log damage calculations during attacks");
+                }
+                else
+                {
+                    LogInfo("System", "Damage Calculation debug disabled - no more damage calculation logs will be output");
+                }
             };
 
             // ========================================================================
@@ -212,68 +230,119 @@ namespace ExtraAttackSystem
 
             // AOC (Animator Override Controller) operations
             DebugAOCOperations = Config.Bind("3 - Animation System", "AOC Operations", false,
-                "Log AOC creation, switching, and animation overrides (requires System Messages enabled)");
+                "Output AOC creation, switching, and animation overrides to debug console");
             cachedDebugAOCOperations = DebugAOCOperations.Value;
             DebugAOCOperations.SettingChanged += (s, e) => {
                 cachedDebugAOCOperations = DebugAOCOperations.Value;
-                if (cachedDebugSystemMessages) LogInfo("Config", $"DebugAOCOperations changed to: {cachedDebugAOCOperations}");
-            };
-            
-            // Animation clip information
-            DebugAnimationClips = Config.Bind("3 - Animation System", "Animation Clips", false,
-                "Log AnimationClip information during AOC creation (requires System Messages enabled)");
-            cachedDebugAnimationClips = DebugAnimationClips.Value;
-            DebugAnimationClips.SettingChanged += (s, e) => {
-                cachedDebugAnimationClips = DebugAnimationClips.Value;
-                if (cachedDebugSystemMessages) LogInfo("Config", $"DebugAnimationClips changed to: {cachedDebugAnimationClips}");
-            };
-
-            // Animation events
-            DebugAnimationEvents = Config.Bind("3 - Animation System", "Animation Events", false,
-                "Log AnimationEvent information during AOC creation (requires System Messages enabled)");
-            cachedDebugAnimationEvents = DebugAnimationEvents.Value;
-            DebugAnimationEvents.SettingChanged += (s, e) => {
-                cachedDebugAnimationEvents = DebugAnimationEvents.Value;
-                if (cachedDebugSystemMessages) LogInfo("Config", $"DebugAnimationEvents changed to: {cachedDebugAnimationEvents}");
+                LogInfo("System", $"DebugAOCOperations changed to: {cachedDebugAOCOperations}");
+                if (cachedDebugAOCOperations)
+                {
+                    LogInfo("System", "AOC Operations debug enabled - will log AOC operations during gameplay");
+                }
+                else
+                {
+                    LogInfo("System", "AOC Operations debug disabled - no more AOC operation logs will be output");
+                }
             };
 
-            // Animator parameters
+            // Animation Events List (one-time output)
+            DebugAnimationEventsList = Config.Bind("4 - Debug Lists", "Animation Events List", false,
+                "Output all animation events from clips to debug console for timing analysis");
+            DebugAnimationEventsList.SettingChanged += (s, e) => {
+                LogInfo("System", $"DebugAnimationEventsList changed to: {DebugAnimationEventsList.Value}");
+                if (DebugAnimationEventsList.Value)
+                {
+                    LogInfo("System", "Animation Events list output requested");
+                    EAS_Debug.LogAllAnimationEvents();
+                    LogInfo("System", "Animation Events list output completed");
+                }
+                else
+                {
+                    // Simple log for OFF to prevent freeze
+                    UnityEngine.Debug.Log("[Extra Attack System] Animation Events list output disabled");
+                }
+            };
+
+            // Animation Clips List (one-time output)
+            DebugAnimationClipsList = Config.Bind("4 - Debug Lists", "Animation Clips List", false,
+                "Output all animation clips and their properties to debug console");
+            DebugAnimationClipsList.SettingChanged += (s, e) => {
+                LogInfo("System", $"DebugAnimationClipsList changed to: {DebugAnimationClipsList.Value}");
+                if (DebugAnimationClipsList.Value)
+                {
+                    LogInfo("System", "Animation Clips list output requested");
+                    EAS_Debug.LogAllAnimationClips();
+                    LogInfo("System", "Animation Clips list output completed");
+                }
+                else
+                {
+                    // Simple log for OFF to prevent freeze
+                    UnityEngine.Debug.Log("[Extra Attack System] Animation Clips list output disabled");
+                }
+            };
+
+
+            // Animation Parameters Debug
             DebugAnimationParameters = Config.Bind("3 - Animation System", "Animation Parameters", false,
-                "Log Animator parameters during initialization (requires System Messages enabled)");
+                "Output animator parameters and their current values during operations");
             cachedDebugAnimationParameters = DebugAnimationParameters.Value;
             DebugAnimationParameters.SettingChanged += (s, e) => {
                 cachedDebugAnimationParameters = DebugAnimationParameters.Value;
-                if (cachedDebugSystemMessages) LogInfo("Config", $"DebugAnimationParameters changed to: {cachedDebugAnimationParameters}");
+                LogInfo("System", $"DebugAnimationParameters changed to: {cachedDebugAnimationParameters}");
+                if (cachedDebugAnimationParameters)
+                {
+                    LogInfo("System", "Animation Parameters debug enabled - will log animator parameters during operations");
+                }
+                else
+                {
+                    LogInfo("System", "Animation Parameters debug disabled - no more animator parameter logs will be output");
+                }
             };
 
-            // Current playing animation names
-            DebugClipNames = Config.Bind("3 - Animation System", "Current Playing Animations", false,
-                "Log which animation clips are currently playing when pressing Q/T/G keys (requires System Messages enabled)");
+            // Clip Names Debug
+            DebugClipNames = Config.Bind("3 - Animation System", "Clip Names", false,
+                "Log clip names during operations for debugging");
             cachedDebugClipNames = DebugClipNames.Value;
             DebugClipNames.SettingChanged += (s, e) => {
                 cachedDebugClipNames = DebugClipNames.Value;
-                if (cachedDebugSystemMessages) LogInfo("Config", $"DebugClipNames changed to: {cachedDebugClipNames}");
+                LogInfo("System", $"DebugClipNames changed to: {cachedDebugClipNames}");
+                if (cachedDebugClipNames)
+                {
+                    LogInfo("System", "Clip Names debug enabled - will log clip names during operations");
+                }
+                else
+                {
+                    LogInfo("System", "Clip Names debug disabled - no more clip name logs will be output");
+                }
             };
+            
+            
+            
+            
+            // Initialize EAS_Debug system
+            EAS_Debug.Initialize();
 
             // ========================================================================
             // ADVANCED DEBUG
             // ========================================================================
             
             // Performance metrics
-            DebugPerformanceMetrics = Config.Bind("4 - Advanced Debug", "Performance Metrics", false,
-                "Log performance measurements (timings, allocations) (requires System Messages enabled)");
+            DebugPerformanceMetrics = Config.Bind("5 - Advanced Debug", "Performance Metrics", false,
+                "Log performance measurements (timings, allocations)");
             cachedDebugPerformanceMetrics = DebugPerformanceMetrics.Value;
             DebugPerformanceMetrics.SettingChanged += (s, e) => {
                 cachedDebugPerformanceMetrics = DebugPerformanceMetrics.Value;
-                if (cachedDebugSystemMessages) LogInfo("Config", $"DebugPerformanceMetrics changed to: {cachedDebugPerformanceMetrics}");
+                LogInfo("System", $"DebugPerformanceMetrics changed to: {cachedDebugPerformanceMetrics}");
+                if (cachedDebugPerformanceMetrics)
+                {
+                    LogInfo("System", "Performance Metrics debug enabled - will log performance measurements during gameplay");
+                }
+                else
+                {
+                    LogInfo("System", "Performance Metrics debug disabled - no more performance metric logs will be output");
+                }
             };
             
-            // SetTrigger override debug
-            DebugDisableSetTriggerOverride = Config.Bind("4 - Advanced Debug", "Disable SetTrigger Override", false,
-                "Disable SetTrigger override for debugging (requires System Messages enabled)");
-            DebugDisableSetTriggerOverride.SettingChanged += (s, e) => {
-                if (cachedDebugSystemMessages) LogInfo("Config", $"DebugDisableSetTriggerOverride changed to: {DebugDisableSetTriggerOverride.Value}");
-            };
 
             LogInfo("System", "Debug configuration initialized");
         }

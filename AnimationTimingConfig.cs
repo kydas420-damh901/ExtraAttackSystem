@@ -52,6 +52,7 @@ namespace ExtraAttackSystem
             public float TrailOffTiming { get; set; }
             public float ChainTiming { get; set; }
             public float SpeedTiming { get; set; }
+            public float SpeedMultiplier { get; set; }
             public float DodgeMortalTiming { get; set; }
 
             // Attack Detection Parameters - calculated from vanilla data per weapon type
@@ -1122,41 +1123,42 @@ namespace ExtraAttackSystem
             };
         }
         
-        // Calculate trail on timing based on clip length and weapon type
-        private static float CalculateTrailOnTiming(float clipLength, string weaponType)
+        // Get vanilla speed timing for weapon type
+        private static float GetVanillaSpeedTimingForWeaponType(string weaponType)
         {
-            // Get vanilla clip length and trail on timing for this weapon type
-            float vanillaClipLength = GetVanillaClipLengthForWeaponType(weaponType);
-            float vanillaTrailOnTiming = GetVanillaTrailOnTimingForWeaponType(weaponType);
-            
-            if (vanillaClipLength > 0 && vanillaTrailOnTiming > 0)
+            return weaponType switch
             {
-                // Maintain the same ratio as vanilla (return as ratio 0.0-1.0)
-                float ratio = vanillaTrailOnTiming / vanillaClipLength;
-                return Math.Min(1.0f, ratio); // Cap at 1.0
-            }
-            
-            // Fallback to default ratio if vanilla data not found
-            return 0.35f; // Return as ratio, not seconds
+                "Axes" => 0.456f,        // axe_swing: Speed=0.456
+                "BattleAxes" => 0.300f,  // BattleAxeAltAttack: Speed=0.300
+                "GreatSwords" => 0.461f, // Greatsword BaseAttack (1): Speed=0.461
+                "Knives" => 0.250f,      // knife_slash0: Speed=0.250
+                "Spears" => 0.470f,      // 2Hand-Spear-Attack1: Speed=0.470
+                "Polearms" => 0.500f,    // Atgeir360Attack: Speed=0.500
+                "Fists" => 0.600f,       // Punchstep 1: Speed=0.600
+                "Swords" => 0.472f,      // Attack1: Speed=0.472 (fallback for secondary)
+                "Clubs" => 0.472f,       // Attack1: Speed=0.472 (fallback for secondary)
+                _ => 0.45f
+            };
         }
         
-        // Calculate trail off timing based on clip length and weapon type
-        private static float CalculateTrailOffTiming(float clipLength, string weaponType)
+        // Get vanilla dodge mortal timing for weapon type
+        private static float GetVanillaDodgeMortalTimingForWeaponType(string weaponType)
         {
-            // Get vanilla clip length and trail off timing for this weapon type
-            float vanillaClipLength = GetVanillaClipLengthForWeaponType(weaponType);
-            float vanillaTrailOffTiming = GetVanillaTrailOffTimingForWeaponType(weaponType);
-            
-            if (vanillaClipLength > 0 && vanillaTrailOffTiming > 0)
+            return weaponType switch
             {
-                // Maintain the same ratio as vanilla (return as ratio 0.0-1.0)
-                float ratio = vanillaTrailOffTiming / vanillaClipLength;
-                return Math.Min(1.0f, ratio); // Cap at 1.0
-            }
-            
-            // Fallback to default ratio if vanilla data not found
-            return 0.70f; // Return as ratio, not seconds
+                "Axes" => 0.870f,        // axe_swing: DodgeMortal=0.870
+                "BattleAxes" => 0.840f,  // BattleAxeAltAttack: DodgeMortal=0.840
+                "GreatSwords" => 0.850f, // Greatsword BaseAttack (1): DodgeMortal=0.850
+                "Knives" => 0.850f,      // knife_slash0: DodgeMortal=0.850
+                "Spears" => 0.900f,      // 2Hand-Spear-Attack1: DodgeMortal=0.900
+                "Polearms" => 0.900f,    // Atgeir360Attack: DodgeMortal=0.900
+                "Fists" => 0.900f,       // Punchstep 1: DodgeMortal=0.900
+                "Swords" => 0.850f,      // Attack1: DodgeMortal=0.850 (fallback for secondary)
+                "Clubs" => 0.850f,       // Attack1: DodgeMortal=0.850 (fallback for secondary)
+                _ => 0.85f
+            };
         }
+        
         
         // Calculate attack range based on weapon type and mode
         private static float CalculateAttackRange(string weaponType, string mode)
