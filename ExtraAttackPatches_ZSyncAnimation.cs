@@ -25,9 +25,9 @@ namespace ExtraAttackSystem
                     }
 
                     // Check if this is an extra attack trigger
-                    var mode = ExtraAttackUtils.GetAttackMode(player);
+                    var mode = EAS_CommonUtils.GetAttackMode(player);
                     
-                    if (mode != ExtraAttackUtils.AttackMode.Normal)
+                    if (mode != EAS_CommonUtils.AttackMode.Normal)
                     {
                         // Apply custom AOC for extra attacks
                         var animator = AnimationManager.GetPlayerAnimator(player);

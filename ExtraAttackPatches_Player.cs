@@ -96,8 +96,8 @@ namespace ExtraAttackSystem
                     {
                         if (previouslyInAttack && !currentlyInAttack)
                         {
-                            var currentMode = ExtraAttackUtils.GetAttackMode(__instance);
-                            if (currentMode != ExtraAttackUtils.AttackMode.Normal)
+                            var currentMode = EAS_CommonUtils.GetAttackMode(__instance);
+                            if (currentMode != EAS_CommonUtils.AttackMode.Normal)
                             {
                                 if (ExtraAttackPatches_Core.TryGetPlayerAnimator(__instance, out Animator? animator) && animator != null)
                                 {
@@ -159,14 +159,14 @@ namespace ExtraAttackSystem
                                 }
 
                                 // Reset mode to Normal when Extra attack finishes
-                                ExtraAttackUtils.SetAttackMode(__instance, ExtraAttackUtils.AttackMode.Normal);
+                                EAS_CommonUtils.SetAttackMode(__instance, EAS_CommonUtils.AttackMode.Normal);
                             }
                             else
                             {
                                 // Keep vanilla chain: do not clear any custom block window here
-                                if (ExtraAttackUtils.HasBlockPrimaryDuringChainWindow(__instance))
+                                if (EAS_CommonUtils.HasBlockPrimaryDuringChainWindow(__instance))
                                 {
-                                    ExtraAttackUtils.ClearBlockPrimaryDuringChainWindow(__instance);
+                                    EAS_CommonUtils.ClearBlockPrimaryDuringChainWindow(__instance);
                                     ExtraAttackPlugin.LogInfo("COMBO", "Cleared LMB chain block window after Normal attack end");
                                 }
                             }
@@ -260,7 +260,7 @@ namespace ExtraAttackSystem
                 if ((rightItem != null && ExtraAttackExclusionConfig.ShouldBlockExtraForItem(rightItem)) ||
                     (leftItem != null && ExtraAttackExclusionConfig.ShouldBlockExtraForItem(leftItem)))
                 {
-                    ExtraAttackUtils.ShowMessage(player, "extra_attack_tool_bomb_blocked");
+                    EAS_CommonUtils.ShowMessage(player, "extra_attack_tool_bomb_blocked");
                     return true;
                 }
 
@@ -289,17 +289,17 @@ namespace ExtraAttackSystem
                     return false;
                 }
 
-                if (ExtraAttackUtils.IsPlayerOnCooldown(player, ExtraAttackUtils.AttackMode.secondary_Q))
+                if (EAS_CommonUtils.IsPlayerOnCooldown(player, EAS_CommonUtils.AttackMode.secondary_Q))
                 {
-                    float remaining = ExtraAttackUtils.GetPlayerCooldownRemaining(player, ExtraAttackUtils.AttackMode.secondary_Q);
-                    ExtraAttackUtils.ShowMessage(player, "extra_attack_cooldown", remaining.ToString("F1"));
+                    float remaining = EAS_CommonUtils.GetPlayerCooldownRemaining(player, EAS_CommonUtils.AttackMode.secondary_Q);
+                    EAS_CommonUtils.ShowMessage(player, "extra_attack_cooldown", remaining.ToString("F1"));
                     return false;
                 }
 
                 ItemDrop.ItemData weapon = player.GetCurrentWeapon();
                 if (weapon == null)
                 {
-                    ExtraAttackUtils.ShowMessage(player, "extra_attack_no_weapon");
+                    EAS_CommonUtils.ShowMessage(player, "extra_attack_no_weapon");
                     return false;
                 }
 
@@ -310,10 +310,10 @@ namespace ExtraAttackSystem
                 }
 
                 // NEW: per-style stamina check for Q using effective cost
-                float staminaCost1 = ExtraAttackUtils.GetEffectiveStaminaCost(player, weapon, ExtraAttackUtils.AttackMode.secondary_Q);
+                float staminaCost1 = EAS_CommonUtils.GetEffectiveStaminaCost(player, weapon, EAS_CommonUtils.AttackMode.secondary_Q);
                 if (player.GetStamina() < staminaCost1)
                 {
-                    ExtraAttackUtils.ShowMessage(player, "extra_attack_no_stamina");
+                    EAS_CommonUtils.ShowMessage(player, "extra_attack_no_stamina");
                     return false;
                 }
 
@@ -333,33 +333,33 @@ namespace ExtraAttackSystem
                     return false;
                 }
 
-                var mode = buttonName == "T" ? ExtraAttackUtils.AttackMode.secondary_T : ExtraAttackUtils.AttackMode.secondary_G;
-                if (ExtraAttackUtils.IsPlayerOnCooldown(player, mode))
+                var mode = buttonName == "T" ? EAS_CommonUtils.AttackMode.secondary_T : EAS_CommonUtils.AttackMode.secondary_G;
+                if (EAS_CommonUtils.IsPlayerOnCooldown(player, mode))
                 {
-                    float remaining = ExtraAttackUtils.GetPlayerCooldownRemaining(player, mode);
-                    ExtraAttackUtils.ShowMessage(player, "extra_attack_cooldown", remaining.ToString("F1"));
+                    float remaining = EAS_CommonUtils.GetPlayerCooldownRemaining(player, mode);
+                    EAS_CommonUtils.ShowMessage(player, "extra_attack_cooldown", remaining.ToString("F1"));
                     return false;
                 }
 
                 ItemDrop.ItemData weapon = player.GetCurrentWeapon();
                 if (weapon == null)
                 {
-                    ExtraAttackUtils.ShowMessage(player, "extra_attack_no_weapon");
+                    EAS_CommonUtils.ShowMessage(player, "extra_attack_no_weapon");
                     return false;
                 }
 
                 // Secondary attack must be defined for T/G route as we trigger StartAttack with secondary flag
                 if (!weapon.HaveSecondaryAttack())
                 {
-                    ExtraAttackUtils.ShowMessage(player, "extra_attack_no_secondary");
+                    EAS_CommonUtils.ShowMessage(player, "extra_attack_no_secondary");
                     return false;
                 }
 
                 // NEW: per-style stamina check for T/G using effective cost
-                float staminaCost2 = ExtraAttackUtils.GetEffectiveStaminaCost(player, weapon, mode);
+                float staminaCost2 = EAS_CommonUtils.GetEffectiveStaminaCost(player, weapon, mode);
                 if (player.GetStamina() < staminaCost2)
                 {
-                    ExtraAttackUtils.ShowMessage(player, "extra_attack_no_stamina");
+                    EAS_CommonUtils.ShowMessage(player, "extra_attack_no_stamina");
                     return false;
                 }
 
@@ -409,8 +409,8 @@ namespace ExtraAttackSystem
                         ExtraAttackPatches_Animation.InitializeAOC(player, animator);
                     }
 
-                    var mode = buttonName == "T" ? ExtraAttackUtils.AttackMode.secondary_T : ExtraAttackUtils.AttackMode.secondary_G;
-                    ExtraAttackUtils.SetAttackMode(player, mode);
+                    var mode = buttonName == "T" ? EAS_CommonUtils.AttackMode.secondary_T : EAS_CommonUtils.AttackMode.secondary_G;
+                    EAS_CommonUtils.SetAttackMode(player, mode);
 
                     // NOTE: Removed: Do not call Player.StopEmote() before attack to avoid emoteID change -> UpdateEmote emote_stop
 
@@ -433,7 +433,7 @@ namespace ExtraAttackSystem
                     // AOC is already set at equipment change time - no need to switch during attack
 
 
-                    ExtraAttackUtils.SetPlayerCooldown(player, mode);
+                    EAS_CommonUtils.SetPlayerCooldown(player, mode);
 
                     // Diagnostic: runtime animator controller state just before StartAttack
                     var rac = animator.runtimeAnimatorController;
@@ -444,7 +444,7 @@ namespace ExtraAttackSystem
                     // Keep vanilla chain: do not manually call ResetChain here; Attack.Start handles it in vanilla
 
                     // Mark bypass for our own StartAttack call
-                    ExtraAttackUtils.MarkBypassNextStartAttack(player);
+                    EAS_CommonUtils.MarkBypassNextStartAttack(player);
                     player.StartAttack(null, true);
 
                     // Diagnostics: capture animator parameters immediately after StartAttack
@@ -453,7 +453,7 @@ namespace ExtraAttackSystem
                 catch (Exception ex)
                 {
                     ExtraAttackPlugin.LogError("System", $"Error in {buttonName} button: {ex}");
-                    ExtraAttackUtils.SetAttackMode(player, ExtraAttackUtils.AttackMode.Normal);
+                    EAS_CommonUtils.SetAttackMode(player, EAS_CommonUtils.AttackMode.Normal);
                 }
             }
 
@@ -482,32 +482,32 @@ namespace ExtraAttackSystem
                     }
 
                     // Get attack mode for AOC application (after sitting check)
-                    var mode = ExtraAttackUtils.GetAttackMode(player);
+                    var mode = EAS_CommonUtils.GetAttackMode(player);
                     
                     TriggerExtraAttackWithMode(player, mode);
                 }
                 catch (Exception ex)
                 {
                     ExtraAttackPlugin.LogError("System", $"Error in Extra Attack (Q): {ex.Message}");
-                    ExtraAttackUtils.SetAttackMode(player, ExtraAttackUtils.AttackMode.Normal);
+                    EAS_CommonUtils.SetAttackMode(player, EAS_CommonUtils.AttackMode.Normal);
                 }
             }
 
             // NEW: Separate methods for Q/T/G
             private static void TriggerExtraAttack_Q(Player player)
             {
-                TriggerExtraAttackWithMode(player, ExtraAttackUtils.AttackMode.secondary_Q);
+                TriggerExtraAttackWithMode(player, EAS_CommonUtils.AttackMode.secondary_Q);
             }
             private static void TriggerExtraAttack_T(Player player)
             {
-                TriggerExtraAttackWithMode(player, ExtraAttackUtils.AttackMode.secondary_T);
+                TriggerExtraAttackWithMode(player, EAS_CommonUtils.AttackMode.secondary_T);
             }
             private static void TriggerExtraAttack_G(Player player)
             {
-                TriggerExtraAttackWithMode(player, ExtraAttackUtils.AttackMode.secondary_G);
+                TriggerExtraAttackWithMode(player, EAS_CommonUtils.AttackMode.secondary_G);
             }
 
-            private static void TriggerExtraAttackWithMode(Player player, ExtraAttackUtils.AttackMode mode)
+            private static void TriggerExtraAttackWithMode(Player player, EAS_CommonUtils.AttackMode mode)
             {
                 try
                 {
@@ -549,7 +549,7 @@ namespace ExtraAttackSystem
                     }
 
                     // Set the specified mode instead of always using secondary_Q
-                    ExtraAttackUtils.SetAttackMode(player, mode);
+                    EAS_CommonUtils.SetAttackMode(player, mode);
                     
                     // The vanilla SetControls will handle emote state; we avoid explicit intervention here.
 
@@ -571,10 +571,10 @@ namespace ExtraAttackSystem
                     
 
                     
-                    ExtraAttackUtils.SetPlayerCooldown(player, mode);
+                    EAS_CommonUtils.SetPlayerCooldown(player, mode);
 
                     // Mark bypass for our own StartAttack call
-                    ExtraAttackUtils.MarkBypassNextStartAttack(player);
+                    EAS_CommonUtils.MarkBypassNextStartAttack(player);
                     player.StartAttack(null, true);
 
                     // Diagnostics: capture animator parameters immediately after StartAttack
@@ -583,7 +583,7 @@ namespace ExtraAttackSystem
                 catch (Exception ex)
                 {
                     ExtraAttackPlugin.LogError("System", $"Error in Extra Attack ({mode}): {ex.Message}");
-                    ExtraAttackUtils.SetAttackMode(player, ExtraAttackUtils.AttackMode.Normal);
+                    EAS_CommonUtils.SetAttackMode(player, EAS_CommonUtils.AttackMode.Normal);
                 }
             }
         }
@@ -727,9 +727,9 @@ namespace ExtraAttackSystem
                     ExtraAttackPatches_Animation.InitializeAOC(player, animator);
                     
                     // Pre-generate Q/T/G AOCs for current equipment (generation only, no application)
-                    ExtraAttackPatches_Animation.BuildOrGetAOCFor(player, animator, ExtraAttackUtils.AttackMode.secondary_Q);
-                    ExtraAttackPatches_Animation.BuildOrGetAOCFor(player, animator, ExtraAttackUtils.AttackMode.secondary_T);
-                    ExtraAttackPatches_Animation.BuildOrGetAOCFor(player, animator, ExtraAttackUtils.AttackMode.secondary_G);
+                    ExtraAttackPatches_Animation.BuildOrGetAOCFor(player, animator, EAS_CommonUtils.AttackMode.secondary_Q);
+                    ExtraAttackPatches_Animation.BuildOrGetAOCFor(player, animator, EAS_CommonUtils.AttackMode.secondary_T);
+                    ExtraAttackPatches_Animation.BuildOrGetAOCFor(player, animator, EAS_CommonUtils.AttackMode.secondary_G);
                     
                     if (ExtraAttackPlugin.DebugAOCOperations.Value)
                     {

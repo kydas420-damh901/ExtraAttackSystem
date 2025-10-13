@@ -187,5 +187,5 @@ ExtraAttackSystem 変更履歴メモ
 - Original コントローラーを保持するため、Revert 時のバニラ復帰が常に安定する。
 
 ■ 適用タイミングの方針
-- AOC の適用は Attack.Start の Prefix（Attack_Start_NullifyPrevious_Patch）で、ExtraAttackUtils.ConsumeBypassNextStartAttack(player) が true の場合のみ実行する。
+- AOC の適用は Attack.Start の Prefix（Attack_Start_NullifyPrevious_Patch）で、EAS_CommonUtils.ConsumeBypassNextStartAttack(player) が true の場合のみ実行する。
 - Player 側（TriggerNormalAttack/TriggerExtraAttack）での ApplyStyleAOC 呼び出しは維持しない（コメントアウトのまま）。二重適用を避け、バニラのトリガ順序に沿う。

@@ -16,8 +16,9 @@ namespace ExtraAttackSystem
         public static readonly Dictionary<string, UnityEngine.RuntimeAnimatorController> CustomRuntimeControllers = new();
         public static readonly Dictionary<string, float> ExternalClipLengthCache = new();
         
-        // Cache for vanilla clip lengths to avoid repeated searches
-        private static readonly Dictionary<string, float> VanillaClipLengthCache = new();
+        
+        // Flag to prevent duplicate animation logging
+        private static bool _animationsLogged = false;
         
         // Cache for external clip lengths with change detection
         private static readonly Dictionary<string, float> CachedExternalClipLengths = new();
@@ -25,7 +26,7 @@ namespace ExtraAttackSystem
         private static bool _clipLengthCacheInitialized = false;
         
         // Default clip lengths for common animations (based on actual vanilla values from List_AnimatorClips.txt)
-        private static readonly Dictionary<string, float> DefaultClipLengths = new Dictionary<string, float>
+        public static readonly Dictionary<string, float> DefaultClipLengths = new Dictionary<string, float>
         {
             // Sword animations (from actual vanilla data)
             { "Sword-Attack-R4", 1.4f },  // Based on Sword-Attack-R4: 1.400s
@@ -220,9 +221,9 @@ namespace ExtraAttackSystem
                 }
                 
                 // Create Q/T/G mappings for each weapon type
-                string qExternalClip = GetExternalClipForWeaponType(weaponType, "Q");
-                string tExternalClip = GetExternalClipForWeaponType(weaponType, "T");
-                string gExternalClip = GetExternalClipForWeaponType(weaponType, "G");
+                string qExternalClip = AnimationTimingConfig.GetExternalClipForWeaponType(weaponType, "Q");
+                string tExternalClip = AnimationTimingConfig.GetExternalClipForWeaponType(weaponType, "T");
+                string gExternalClip = AnimationTimingConfig.GetExternalClipForWeaponType(weaponType, "G");
                 
                 if (!string.IsNullOrEmpty(qExternalClip))
                 {
@@ -240,10 +241,15 @@ namespace ExtraAttackSystem
 
             if (ExternalAnimations.Count > 0)
             {
-                ExtraAttackPlugin.LogInfo("System", "Available animations:");
-                foreach (var anim in ExternalAnimations.Keys)
+                // Log available animations only once during initialization
+                if (!_animationsLogged)
                 {
-                    ExtraAttackPlugin.LogInfo("System", $"  - {anim}");
+                    ExtraAttackPlugin.LogInfo("System", "Available animations:");
+                    foreach (var anim in ExternalAnimations.Keys)
+                    {
+                        ExtraAttackPlugin.LogInfo("System", $"  - {anim}");
+                    }
+                    _animationsLogged = true;
                 }
 
                 // ========================================================================
@@ -572,30 +578,6 @@ namespace ExtraAttackSystem
             return -1f;
         }
 
-        // Pre-cache vanilla clip lengths during initialization (simplified approach)
-        public static void PreCacheVanillaClipLengths()
-        {
-            try
-            {
-                ExtraAttackPlugin.LogInfo("System", "Pre-caching vanilla clip lengths from default values...");
-                
-                // Pre-cache all default clip lengths
-                int cachedCount = 0;
-                foreach (var kvp in DefaultClipLengths)
-                {
-                    VanillaClipLengthCache[kvp.Key] = kvp.Value;
-                    cachedCount++;
-                }
-                
-                ExtraAttackPlugin.LogInfo("System", $"Pre-cached {cachedCount} vanilla clip lengths from default values");
-            }
-            catch (Exception ex)
-            {
-                ExtraAttackPlugin.LogError("System", $"Error pre-caching vanilla clip lengths: {ex.Message}");
-            }
-        }
-        
-
         // Pre-cache external clip lengths with change detection
         public static void PreCacheExternalClipLengths()
         {
@@ -692,22 +674,12 @@ namespace ExtraAttackSystem
             {
                 if (string.IsNullOrEmpty(vanillaClipName)) return -1f;
                 
-                // First check cache
-                if (VanillaClipLengthCache.TryGetValue(vanillaClipName, out float cachedLength))
-                {
-                    return cachedLength;
-                }
-                
-                // Use default values directly (simplified approach)
+                // Use default values directly
                 if (DefaultClipLengths.TryGetValue(vanillaClipName, out float defaultLength))
                 {
-                    VanillaClipLengthCache[vanillaClipName] = defaultLength;
                     ExtraAttackPlugin.LogInfo("Config", $"Using default clip length for {vanillaClipName}: {defaultLength:F3}s");
                     return defaultLength;
                 }
-                
-                // Cache negative result to avoid repeated searches
-                VanillaClipLengthCache[vanillaClipName] = -1f;
             }
             catch (Exception ex)
             {
@@ -1085,7 +1057,7 @@ namespace ExtraAttackSystem
                 // Q mode: use weapon's own secondary attack
                 // 自分の武器種のバニラクリップ → 自分の武器種の外部クリップ
                 string vanillaClip = GetWeaponSecondaryAnimation(weaponType);
-                string externalClip = GetExternalClipForWeaponType(weaponType, "Q");
+                string externalClip = AnimationTimingConfig.GetExternalClipForWeaponType(weaponType, "Q");
                 if (!string.IsNullOrEmpty(vanillaClip) && !string.IsNullOrEmpty(externalClip))
                 {
                     mapping[vanillaClip] = externalClip;
@@ -1096,7 +1068,7 @@ namespace ExtraAttackSystem
                 // T mode: use different weapon type secondary attack
                 // 自分の武器種のバニラクリップ → 異なる武器種の外部クリップ
                 string vanillaClip = GetWeaponSecondaryAnimation(weaponType);
-                string externalClip = GetExternalClipForWeaponType(weaponType, "T");
+                string externalClip = AnimationTimingConfig.GetExternalClipForWeaponType(weaponType, "T");
                 if (!string.IsNullOrEmpty(vanillaClip) && !string.IsNullOrEmpty(externalClip))
                 {
                     mapping[vanillaClip] = externalClip;
@@ -1107,7 +1079,7 @@ namespace ExtraAttackSystem
                 // G mode: use different weapon type secondary attack
                 // 自分の武器種のバニラクリップ → さらに異なる武器種の外部クリップ
                 string vanillaClip = GetWeaponSecondaryAnimation(weaponType);
-                string externalClip = GetExternalClipForWeaponType(weaponType, "G");
+                string externalClip = AnimationTimingConfig.GetExternalClipForWeaponType(weaponType, "G");
                 if (!string.IsNullOrEmpty(vanillaClip) && !string.IsNullOrEmpty(externalClip))
                 {
                     mapping[vanillaClip] = externalClip;
@@ -1118,54 +1090,6 @@ namespace ExtraAttackSystem
         }
 
 
-        // Get external clip for weapon type and mode
-        private static string GetExternalClipForWeaponType(string weaponType, string mode)
-        {
-            // Q/T/G modes use completely different animation clips
-            switch (weaponType)
-            {
-                case "Swords":
-                    return mode == "Q" ? "2Hand-Sword-Attack8External" :
-                           mode == "T" ? "2Hand_Skill01_WhirlWindExternal" :
-                           "Eas_GreatSword_JumpAttackExternal";
-                case "Axes":
-                    return mode == "Q" ? "OneHand_Up_Attack_B_1External" :
-                           mode == "T" ? "2Hand-Sword-Attack8External" :
-                           "Eas_GreatSword_JumpAttackExternal";
-                case "Clubs":
-                    return mode == "Q" ? "Eas_GreatSword_CastingExternal" :
-                           mode == "T" ? "2Hand_Skill01_WhirlWindExternal" :
-                           "2Hand-Sword-Attack8External";
-                case "Spears":
-                    return mode == "Q" ? "Eas_GreatSword_JumpAttackExternal" :
-                           mode == "T" ? "2Hand_Skill01_WhirlWindExternal" :
-                           "2Hand-Sword-Attack8External";
-                case "GreatSwords":
-                    return mode == "Q" ? "2Hand-Sword-Attack8External" :
-                           mode == "T" ? "2Hand_Skill01_WhirlWindExternal" :
-                           "Eas_GreatSword_JumpAttackExternal";
-                case "BattleAxes":
-                    return mode == "Q" ? "2Hand_Skill01_WhirlWindExternal" :
-                           mode == "T" ? "2Hand-Sword-Attack8External" :
-                           "Eas_GreatSword_JumpAttackExternal";
-                case "Polearms":
-                    return mode == "Q" ? "Eas_GreatSword_JumpAttackExternal" :
-                           mode == "T" ? "2Hand-Sword-Attack8External" :
-                           "2Hand_Skill01_WhirlWindExternal";
-                case "Knives":
-                    return mode == "Q" ? "ChargeAttkExternal" :
-                           mode == "T" ? "Eas_GreatSword_JumpAttackExternal" :
-                           "2Hand-Sword-Attack8External";
-                case "Fists":
-                    return mode == "Q" ? "Flying Knee Punch ComboExternal" :
-                           mode == "T" ? "2Hand_Skill01_WhirlWindExternal" :
-                           "Eas_GreatSword_JumpAttackExternal";
-                default:
-                    return mode == "Q" ? "2Hand-Sword-Attack8External" :
-                           mode == "T" ? "2Hand-Sword-Attack8External" :
-                           "BattleAxeAltAttackExternal";
-            }
-        }
 
         // Create animation mappings for individual weapon settings
         private static Dictionary<string, string> CreateIndividualWeaponAnimationMappings(string weaponName, AnimationTimingConfig.AnimationTiming timing)

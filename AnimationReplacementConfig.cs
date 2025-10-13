@@ -216,9 +216,7 @@ namespace ExtraAttackSystem
                     current.AocTypes = weaponTypesConfig.AocTypes;
                     ExtraAttackPlugin.LogInfo("System", $"LoadWeaponTypesConfig: Successfully loaded {current.AocTypes.Count} weapon types from YAML");
                     
-                    // Update YAML with ratio-calculated values
-                    ExtraAttackPlugin.LogInfo("System", "LoadWeaponTypesConfig: Updating YAML with ratio-calculated values");
-                    SaveWeaponTypesConfig();
+                    ExtraAttackPlugin.LogInfo("System", "LoadWeaponTypesConfig: Successfully loaded weapon types config");
                 }
                 else
                 {
@@ -665,7 +663,6 @@ namespace ExtraAttackSystem
         {
             // Copy manager map into YAML structure and persist with comments
             SyncFromManagerToYaml();
-            SaveWeaponTypesConfig();
             SaveIndividualWeaponsConfig();
         }
 

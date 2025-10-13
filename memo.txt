@@ -157,7 +157,7 @@ public static class Attack_GetAttackStamina_Prefix
 {
     public static void Prefix(Attack __instance, Humanoid ___m_character)
     {
-        if (___m_character is Player player && ExtraAttackUtils.IsPlayerInExtraAttack(player))
+        if (___m_character is Player player && EAS_CommonUtils.IsPlayerInExtraAttack(player))
         {
             // YAMLから基準スタミナ値を取得
             float yamlBaseStamina = GetYAMLBaseStaminaCost(...);

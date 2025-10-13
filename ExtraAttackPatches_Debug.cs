@@ -12,8 +12,8 @@ namespace ExtraAttackSystem
         {
             if (__result && character == Player.m_localPlayer)
             {
-                ExtraAttackUtils.AttackMode currentMode = ExtraAttackUtils.GetAttackMode(character as Player ?? Player.m_localPlayer);
-                if (currentMode != ExtraAttackUtils.AttackMode.Normal)
+                EAS_CommonUtils.AttackMode currentMode = EAS_CommonUtils.GetAttackMode(character as Player ?? Player.m_localPlayer);
+                if (currentMode != EAS_CommonUtils.AttackMode.Normal)
                 {
                     ExtraAttackPlugin.LogInfo("Debug", $"Attack.Start: mode={currentMode}, animation={__instance.m_attackAnimation}");
                     ExtraAttackPlugin.LogInfo("Debug", $"Attack.Start: Using animation '{__instance.m_attackAnimation}' for mode {currentMode}");

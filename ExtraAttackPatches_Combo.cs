@@ -23,10 +23,10 @@ namespace ExtraAttackSystem
 
                     if (__instance is Player player && player == Player.m_localPlayer)
                     {
-                        var attackMode = ExtraAttackUtils.GetAttackMode(player);
+                        var attackMode = EAS_CommonUtils.GetAttackMode(player);
 
                         // For extra attack modes, ALWAYS clear m_previousAttack
-                        if (attackMode != ExtraAttackUtils.AttackMode.Normal)
+                        if (attackMode != EAS_CommonUtils.AttackMode.Normal)
                         {
                             var traverse = Traverse.Create(__instance);
                             Attack m_previousAttack = traverse.Field("m_previousAttack").GetValue<Attack>();
@@ -88,7 +88,7 @@ namespace ExtraAttackSystem
                 {
                     if (__instance is Player player && player == Player.m_localPlayer)
                     {
-                        var currentMode = ExtraAttackUtils.GetAttackMode(player);
+                        var currentMode = EAS_CommonUtils.GetAttackMode(player);
 
                         var traverse = Traverse.Create(__instance);
                         Attack m_previousAttack = traverse.Field("m_previousAttack").GetValue<Attack>();
@@ -181,8 +181,8 @@ namespace ExtraAttackSystem
 
                     if (character is Player player && player == Player.m_localPlayer)
                     {
-                        var attackMode = ExtraAttackUtils.GetAttackMode(player);
-                        if (attackMode != ExtraAttackUtils.AttackMode.Normal)
+                        var attackMode = EAS_CommonUtils.GetAttackMode(player);
+                        if (attackMode != EAS_CommonUtils.AttackMode.Normal)
                         {
                             if (ExtraAttackPatches_Core.TryGetPlayerAnimator(player, out Animator animator))
                             {
@@ -243,29 +243,29 @@ namespace ExtraAttackSystem
                     if (__instance is Player player && player == Player.m_localPlayer)
                     {
                         // Allow our own StartAttack call once
-                        if (ExtraAttackUtils.ConsumeBypassNextStartAttack(player))
+                        if (EAS_CommonUtils.ConsumeBypassNextStartAttack(player))
                         {
                             return true;
                         }
 
-                        var mode = ExtraAttackUtils.GetAttackMode(player);
-                        bool inExtra = mode != ExtraAttackUtils.AttackMode.Normal;
+                        var mode = EAS_CommonUtils.GetAttackMode(player);
+                        bool inExtra = mode != EAS_CommonUtils.AttackMode.Normal;
 
                         // Block during extra attack modes or while AC is initializing (transition)
                         bool duringTransition = ExtraAttackPatches_Animation.IsAOCInitializing;
 
                         // Consume per-input block flags first
-                        if (!secondaryAttack && ExtraAttackUtils.ConsumeBlockNextPrimary(player))
+                        if (!secondaryAttack && EAS_CommonUtils.ConsumeBlockNextPrimary(player))
                         {
                             __result = false; return false;
                         }
-                        if (secondaryAttack && ExtraAttackUtils.ConsumeBlockNextSecondary(player))
+                        if (secondaryAttack && EAS_CommonUtils.ConsumeBlockNextSecondary(player))
                         {
                             __result = false; return false;
                         }
 
                         // Continuous chain window block for LMB
-                        if (!secondaryAttack && ExtraAttackUtils.HasBlockPrimaryDuringChainWindow(player))
+                        if (!secondaryAttack && EAS_CommonUtils.HasBlockPrimaryDuringChainWindow(player))
                         {
                             __result = false; return false;
                         }

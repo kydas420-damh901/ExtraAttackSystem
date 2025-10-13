@@ -154,8 +154,8 @@ namespace ExtraAttackSystem
 
                     if (character is Player player && player == Player.m_localPlayer && animator != null)
                     {
-                        var mode = ExtraAttackUtils.GetAttackMode(player);
-                        if (mode != ExtraAttackUtils.AttackMode.Normal)
+                        var mode = EAS_CommonUtils.GetAttackMode(player);
+                        if (mode != EAS_CommonUtils.AttackMode.Normal)
                         {
                             if (ExtraAttackPatches_Core.TryGetCurrentClipInfo(player, out string clipName, out AnimationClip clip))
                             {

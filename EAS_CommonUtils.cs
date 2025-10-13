@@ -1,11 +1,21 @@
+using System;
 using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Text;
 using UnityEngine;
 using Jotunn.Managers;
 using HarmonyLib;
+using YamlDotNet.Serialization;
+using YamlDotNet.Serialization.NamingConventions;
 
 namespace ExtraAttackSystem
 {
-    public static class ExtraAttackUtils
+    /// <summary>
+    /// 共通処理をまとめるユーティリティクラス
+    /// 重複した処理を統一し、コードの保守性を向上させる
+    /// </summary>
+    public static class EAS_CommonUtils
     {
         // Attack mode enum
         public enum AttackMode
@@ -142,7 +152,6 @@ namespace ExtraAttackSystem
 
 
 
-
         // Localization helper methods
         public static string GetLocalizedString(string key, params object[] args)
         {
@@ -229,7 +238,9 @@ namespace ExtraAttackSystem
         }
 
 
-        // Get weapon type string from skill type and weapon name
+        /// <summary>
+        /// 武器タイプ判定の統一ロジック
+        /// </summary>
         public static string GetWeaponTypeFromSkill(Skills.SkillType skillType, ItemDrop.ItemData? weapon = null)
         {
             // First determine base weapon type from skill
@@ -269,7 +280,7 @@ namespace ExtraAttackSystem
         // Legacy method for backward compatibility
         public static string GetWeaponTypeFromSkill(Skills.SkillType skillType)
         {
-            return GetWeaponTypeFromSkill(skillType, (ItemDrop.ItemData?)null);
+            return GetWeaponTypeFromSkill(skillType, null);
         }
 
         // Get effective eitr cost for attack
@@ -370,6 +381,213 @@ namespace ExtraAttackSystem
         {
             // Secondary attacks are not blocked by default
             return false;
+        }
+
+        /// <summary>
+        /// アニメーションクリップ長取得の統一ロジック
+        /// </summary>
+        public static float GetClipLength(string clipName, bool isExternal = true)
+        {
+            try
+            {
+                if (isExternal)
+                {
+                    // External animation clip
+                    if (AnimationManager.ExternalAnimations.TryGetValue(clipName, out AnimationClip clip) && clip != null)
+                    {
+                        return clip.length;
+                    }
+                }
+                else
+                {
+                    // Vanilla animation clip - use default values
+                    if (AnimationManager.DefaultClipLengths.TryGetValue(clipName, out float defaultLength))
+                    {
+                        return defaultLength;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                ExtraAttackPlugin.LogError("System", $"Error getting clip length for {clipName}: {ex.Message}");
+            }
+            
+            return -1f; // Indicate no valid clip found
+        }
+
+        /// <summary>
+        /// YAMLファイルの読み込み処理の統一
+        /// </summary>
+        public static T LoadYamlConfig<T>(string filePath, T defaultConfig) where T : new()
+        {
+            try
+            {
+                if (!File.Exists(filePath))
+                {
+                    ExtraAttackPlugin.LogInfo("Config", $"Config file not found: {filePath}");
+                    return defaultConfig;
+                }
+
+                string yamlContent = File.ReadAllText(filePath, Encoding.UTF8);
+                if (string.IsNullOrWhiteSpace(yamlContent))
+                {
+                    ExtraAttackPlugin.LogWarning("Config", $"Config file is empty: {filePath}");
+                    return defaultConfig;
+                }
+
+                // Clean up YAML content
+                yamlContent = CleanupYamlContent(yamlContent);
+
+                var deserializer = new DeserializerBuilder()
+                    .IgnoreUnmatchedProperties()
+                    .Build();
+
+                var config = deserializer.Deserialize<T>(yamlContent);
+                return config ?? defaultConfig;
+            }
+            catch (Exception ex)
+            {
+                ExtraAttackPlugin.LogError("System", $"Error loading YAML config from {filePath}: {ex.Message}");
+                return defaultConfig;
+            }
+        }
+
+        /// <summary>
+        /// YAMLファイルの保存処理の統一
+        /// </summary>
+        public static void SaveYamlConfig<T>(T config, string filePath, string header = "")
+        {
+            try
+            {
+                var serializer = new SerializerBuilder()
+                    .WithNamingConvention(CamelCaseNamingConvention.Instance)
+                    .Build();
+
+                var yaml = serializer.Serialize(config);
+                
+                var sb = new StringBuilder();
+                if (!string.IsNullOrEmpty(header))
+                {
+                    sb.AppendLine(header);
+                    sb.AppendLine();
+                }
+                sb.Append(yaml);
+
+                File.WriteAllText(filePath, sb.ToString(), Encoding.UTF8);
+                ExtraAttackPlugin.LogInfo("Config", $"Saved YAML config to: {filePath}");
+            }
+            catch (Exception ex)
+            {
+                ExtraAttackPlugin.LogError("System", $"Error saving YAML config to {filePath}: {ex.Message}");
+            }
+        }
+
+        /// <summary>
+        /// YAMLコンテンツのクリーンアップ処理
+        /// </summary>
+        public static string CleanupYamlContent(string yamlContent)
+        {
+            if (string.IsNullOrEmpty(yamlContent))
+                return yamlContent;
+
+            var lines = yamlContent.Split('\n');
+            var cleanedLines = new List<string>();
+            
+            foreach (var line in lines)
+            {
+                // Skip lines that start with random characters (like "8e36e9a1")
+                if (line.Trim().Length > 0 && !line.Trim().StartsWith("#") && 
+                    !line.Trim().StartsWith("Default:") && !line.Trim().StartsWith("WeaponTypes:"))
+                {
+                    // Check if line looks like a random string (contains only alphanumeric characters and is short)
+                    if (line.Trim().Length < 10 && 
+                        System.Text.RegularExpressions.Regex.IsMatch(line.Trim(), "^[a-zA-Z0-9]+$"))
+                    {
+                        ExtraAttackPlugin.LogInfo("Config", $"Skipping malformed line: {line.Trim()}");
+                        continue;
+                    }
+                }
+                cleanedLines.Add(line);
+            }
+            
+            return string.Join("\n", cleanedLines);
+        }
+
+        /// <summary>
+        /// 設定ファイルの存在確認と生成判定の統一ロジック
+        /// </summary>
+        public static bool ShouldCreateOrRegenerateConfig(string filePath, string requiredContent = "")
+        {
+            if (!File.Exists(filePath))
+            {
+                ExtraAttackPlugin.LogInfo("Config", $"Config file not found: {filePath}");
+                return true;
+            }
+
+            try
+            {
+                string content = File.ReadAllText(filePath, Encoding.UTF8).Trim();
+                if (string.IsNullOrEmpty(content))
+                {
+                    ExtraAttackPlugin.LogInfo("Config", $"Config file is empty: {filePath}");
+                    return true;
+                }
+
+                // Check if file has required content
+                if (!string.IsNullOrEmpty(requiredContent) && !content.Contains(requiredContent))
+                {
+                    ExtraAttackPlugin.LogInfo("Config", $"Config file missing required content '{requiredContent}': {filePath}");
+                    return true;
+                }
+
+                ExtraAttackPlugin.LogInfo("Config", $"Config file exists and has content: {filePath}");
+                return false;
+            }
+            catch (Exception ex)
+            {
+                ExtraAttackPlugin.LogError("System", $"Error checking config file {filePath}: {ex.Message}");
+                return true; // Regenerate on error
+            }
+        }
+
+        /// <summary>
+        /// デバッグログの統一出力
+        /// </summary>
+        public static void LogDebugInfo(string category, string context, Dictionary<string, object> data)
+        {
+            if (!ExtraAttackPlugin.IsDebugSystemMessagesEnabled)
+                return;
+
+            var sb = new StringBuilder();
+            sb.AppendLine($"[{category}] {context}");
+            
+            foreach (var kvp in data)
+            {
+                sb.AppendLine($"  {kvp.Key}: {kvp.Value}");
+            }
+            
+            ExtraAttackPlugin.LogInfo(category, sb.ToString());
+        }
+
+        /// <summary>
+        /// 設定ディレクトリのパス取得
+        /// </summary>
+        public static string GetConfigFolderPath()
+        {
+            return Path.Combine(BepInEx.Paths.ConfigPath, "ExtraAttackSystem");
+        }
+
+        /// <summary>
+        /// 設定ディレクトリの初期化
+        /// </summary>
+        public static void EnsureConfigDirectoryExists()
+        {
+            string configPath = GetConfigFolderPath();
+            if (!Directory.Exists(configPath))
+            {
+                Directory.CreateDirectory(configPath);
+                ExtraAttackPlugin.LogInfo("Config", $"Created config directory: {configPath}");
+            }
         }
 
     }

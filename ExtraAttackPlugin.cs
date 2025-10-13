@@ -393,14 +393,6 @@ namespace ExtraAttackSystem
                 {
                     LogInfo("System", "GenerateAllYamlConfigs: Starting unified YAML generation for all 6 config files");
                 }
-                
-                // 0. Initialize AnimationManager first to populate ReplacementMap
-                if (IsDebugSystemMessagesEnabled)
-                {
-                    LogInfo("System", "Initializing AnimationManager...");
-                }
-                AnimationManager.InitializeAnimationMaps();
-                
                 // 1. AnimationReplacementConfig (2 files)
                 if (IsDebugSystemMessagesEnabled)
                 {

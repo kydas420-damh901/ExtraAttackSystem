@@ -20,14 +20,14 @@ namespace ExtraAttackSystem
         {
             try
             {
-                var attackMode = ExtraAttackUtils.GetAttackMode(player);
+                var attackMode = EAS_CommonUtils.GetAttackMode(player);
 
                 // Greatsword YAML key unification: when equipped and Style mode active, force clipName
                 ItemDrop.ItemData weapon = player.GetCurrentWeapon();
                 bool isGreatsword = weapon != null &&
                                     weapon.m_shared.m_skillType == Skills.SkillType.Swords &&
                                     weapon.m_shared.m_itemType == ItemDrop.ItemData.ItemType.TwoHandedWeapon;
-                if (isGreatsword && attackMode != ExtraAttackUtils.AttackMode.Normal)
+                if (isGreatsword && attackMode != EAS_CommonUtils.AttackMode.Normal)
                 {
                     clipName = "greatsword_secondary";
                 }
@@ -35,17 +35,17 @@ namespace ExtraAttackSystem
                 // Prefer style-based suffix, then fallback to legacy suffixes (_Q/_T/_G), then no suffix
                 string styleSuffix = attackMode switch
                 {
-                    ExtraAttackUtils.AttackMode.secondary_Q => "_secondary_Q",
-                    ExtraAttackUtils.AttackMode.secondary_T => "_secondary_T",
-                    ExtraAttackUtils.AttackMode.secondary_G => "_secondary_G",
+                    EAS_CommonUtils.AttackMode.secondary_Q => "_secondary_Q",
+                    EAS_CommonUtils.AttackMode.secondary_T => "_secondary_T",
+                    EAS_CommonUtils.AttackMode.secondary_G => "_secondary_G",
                     _ => string.Empty
                 };
 
                 string legacySuffix = attackMode switch
                 {
-                    ExtraAttackUtils.AttackMode.secondary_Q => "_Q",
-                    ExtraAttackUtils.AttackMode.secondary_T => "_T",
-                    ExtraAttackUtils.AttackMode.secondary_G => "_G",
+                    EAS_CommonUtils.AttackMode.secondary_Q => "_Q",
+                    EAS_CommonUtils.AttackMode.secondary_T => "_T",
+                    EAS_CommonUtils.AttackMode.secondary_G => "_G",
                     _ => string.Empty
                 };
 
@@ -163,7 +163,7 @@ namespace ExtraAttackSystem
                 try
                 {
                     playerAnimators.Remove(__instance);
-                    ExtraAttackUtils.CleanupPlayer(__instance);
+                    EAS_CommonUtils.CleanupPlayer(__instance);
                     ExtraAttackPlugin.LogInfo("System", "Cleaned up player data");
                 }
                 catch (Exception ex)

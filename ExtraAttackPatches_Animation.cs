@@ -75,9 +75,9 @@ namespace ExtraAttackSystem
             try
             {
                 // Pre-generate base weapon type AOCs (these are always needed)
-                BuildOrGetAOCFor(player, animator, ExtraAttackUtils.AttackMode.secondary_Q);
-                BuildOrGetAOCFor(player, animator, ExtraAttackUtils.AttackMode.secondary_T);
-                BuildOrGetAOCFor(player, animator, ExtraAttackUtils.AttackMode.secondary_G);
+                BuildOrGetAOCFor(player, animator, EAS_CommonUtils.AttackMode.secondary_Q);
+                BuildOrGetAOCFor(player, animator, EAS_CommonUtils.AttackMode.secondary_T);
+                BuildOrGetAOCFor(player, animator, EAS_CommonUtils.AttackMode.secondary_G);
                 
                 
                 // Individual weapon AOCs will be generated on-demand when equipment changes
@@ -96,14 +96,14 @@ namespace ExtraAttackSystem
             try
             {
                 // Determine current attack mode once for suffix candidates
-                var mode = ExtraAttackSystem.ExtraAttackUtils.GetAttackMode(player);
+                var mode = ExtraAttackSystem.EAS_CommonUtils.GetAttackMode(player);
 
                 // Map attack mode to unified secondary suffix
                 string secondarySuffix = mode switch
                 {
-                    ExtraAttackUtils.AttackMode.secondary_Q => "_secondary_Q",
-                    ExtraAttackUtils.AttackMode.secondary_T => "_secondary_T",
-                    ExtraAttackUtils.AttackMode.secondary_G => "_secondary_G",
+                    EAS_CommonUtils.AttackMode.secondary_Q => "_secondary_Q",
+                    EAS_CommonUtils.AttackMode.secondary_T => "_secondary_T",
+                    EAS_CommonUtils.AttackMode.secondary_G => "_secondary_G",
                     _ => string.Empty
                 };
         
@@ -166,16 +166,16 @@ namespace ExtraAttackSystem
             try
             {
                 // Priority 1: expected style based on current attack mode
-                ExtraAttackUtils.AttackMode mode = ExtraAttackUtils.AttackMode.Normal;
+                EAS_CommonUtils.AttackMode mode = EAS_CommonUtils.AttackMode.Normal;
                 if (Player.m_localPlayer != null)
                 {
-                    mode = ExtraAttackUtils.GetAttackMode(Player.m_localPlayer);
+                    mode = EAS_CommonUtils.GetAttackMode(Player.m_localPlayer);
                 }
                 string expectedPrefix = mode switch
                 {
-                    ExtraAttackUtils.AttackMode.secondary_Q => "secondary_Q",
-                    ExtraAttackUtils.AttackMode.secondary_T => "secondary_T",
-                    ExtraAttackUtils.AttackMode.secondary_G => "secondary_G",
+                    EAS_CommonUtils.AttackMode.secondary_Q => "secondary_Q",
+                    EAS_CommonUtils.AttackMode.secondary_T => "secondary_T",
+                    EAS_CommonUtils.AttackMode.secondary_G => "secondary_G",
                     _ => string.Empty
                 };
 
@@ -229,7 +229,7 @@ namespace ExtraAttackSystem
         }
 
         // NEW: Build or get AnimatorOverrideController for a given style and weapon pairing
-        public static RuntimeAnimatorController? BuildOrGetAOCFor(Player player, Animator animator, ExtraAttackUtils.AttackMode mode)
+        public static RuntimeAnimatorController? BuildOrGetAOCFor(Player player, Animator animator, EAS_CommonUtils.AttackMode mode)
         {
             try
             {
@@ -245,7 +245,7 @@ namespace ExtraAttackSystem
                 // Check if individual weapon has YAML configuration before generating AOC
                 if (!string.IsNullOrEmpty(rightIdent))
                 {
-                    string modePrefix = mode == ExtraAttackUtils.AttackMode.secondary_Q ? "secondary_Q" : mode == ExtraAttackUtils.AttackMode.secondary_T ? "secondary_T" : "secondary_G";
+                    string modePrefix = mode == EAS_CommonUtils.AttackMode.secondary_Q ? "secondary_Q" : mode == EAS_CommonUtils.AttackMode.secondary_T ? "secondary_T" : "secondary_G";
                     string individualWeaponKey = $"{modePrefix}_{rightIdent}";
                     
                     // Only generate individual weapon AOC if it exists in YAML
@@ -262,7 +262,7 @@ namespace ExtraAttackSystem
                 // Create item/type specific maps as needed based on current equipment
                 EnsureItemStyleMaps(rightSkill, leftSkill, leftIsShield, leftIsTorch, rightIdent);
                 // NEW: Ensure secondary maps exist (item/type/left variants) for current equipment
-                string secondaryPrefix = mode == ExtraAttackUtils.AttackMode.secondary_Q ? "secondary_Q" : mode == ExtraAttackUtils.AttackMode.secondary_T ? "secondary_T" : "secondary_G";
+                string secondaryPrefix = mode == EAS_CommonUtils.AttackMode.secondary_Q ? "secondary_Q" : mode == EAS_CommonUtils.AttackMode.secondary_T ? "secondary_T" : "secondary_G";
                 EnsureItemSecondaryMaps(rightSkill, leftSkill, leftIsShield, leftIsTorch, rightIdent, secondaryPrefix);
 
                 // NEW: Prefer secondary_Q/T/G maps first, fallback to existing style maps
@@ -331,7 +331,7 @@ namespace ExtraAttackSystem
                 {
                     switch (mode)
                     {
-                        case ExtraAttackUtils.AttackMode.secondary_Q:
+                        case EAS_CommonUtils.AttackMode.secondary_Q:
                             // Prefer item-specific map; fallback to weapon-type map if available
                             string typeKey1 = AnimationManager.ReplacementMap.ContainsKey($"secondary_Q_{rightSkill}") ? $"secondary_Q_{rightSkill}" : "secondary_Q";
                             baseKey = string.IsNullOrEmpty(rightIdent) ? typeKey1 : $"secondary_Q_{rightIdent}";
@@ -340,7 +340,7 @@ namespace ExtraAttackSystem
                                 baseKey = typeKey1;
                             }
                             break;
-                        case ExtraAttackUtils.AttackMode.secondary_T:
+                        case EAS_CommonUtils.AttackMode.secondary_T:
                             {
                                 string typeKey2 = AnimationManager.ReplacementMap.ContainsKey($"secondary_T_{rightSkill}") ? $"secondary_T_{rightSkill}" : "secondary_T_Swords";
                                 baseKey = string.IsNullOrEmpty(rightIdent) ? typeKey2 : $"secondary_T_{rightIdent}";
@@ -350,7 +350,7 @@ namespace ExtraAttackSystem
                             }
                         }
                         break;
-                        case ExtraAttackUtils.AttackMode.secondary_G:
+                        case EAS_CommonUtils.AttackMode.secondary_G:
                         {
                                 string typeKey3 = AnimationManager.ReplacementMap.ContainsKey($"secondary_G_{rightSkill}") ? $"secondary_G_{rightSkill}" : "secondary_G_Swords";
                                 baseKey = string.IsNullOrEmpty(rightIdent) ? typeKey3 : $"secondary_G_{rightIdent}";
@@ -459,7 +459,7 @@ namespace ExtraAttackSystem
                 }
         
                 // Cache per mode + weapon type + resolved key (equipment-specific)
-                string styleKey = mode == ExtraAttackUtils.AttackMode.secondary_Q ? "secondary_Q" : mode == ExtraAttackUtils.AttackMode.secondary_T ? "secondary_T" : "secondary_G";
+                string styleKey = mode == EAS_CommonUtils.AttackMode.secondary_Q ? "secondary_Q" : mode == EAS_CommonUtils.AttackMode.secondary_T ? "secondary_T" : "secondary_G";
                 // Include base controller identity and weapon type to avoid cache collisions across different weapon controllers
                 string baseId = original != null ? (original.name ?? "null") : "null";
                 string cacheWeaponType = GetWeaponTypeFromSkillType(rightSkill, right);
@@ -717,7 +717,7 @@ namespace ExtraAttackSystem
         }
 
         // NEW: Apply style-specific AnimatorOverrideController just before attack
-        public static void ApplyStyleAOC(Player player, Animator animator, ExtraAttackUtils.AttackMode mode)
+        public static void ApplyStyleAOC(Player player, Animator animator, EAS_CommonUtils.AttackMode mode)
         {
             try
             {
@@ -744,7 +744,7 @@ namespace ExtraAttackSystem
         
 
         // NEW: Diagnostic helper. Currently no-op to avoid API guessing; keeps compile-safe.
-        public static void ScrubMissingRootMotionOverrides(RuntimeAnimatorController desired, Animator animator, ExtraAttackUtils.AttackMode mode)
+        public static void ScrubMissingRootMotionOverrides(RuntimeAnimatorController desired, Animator animator, EAS_CommonUtils.AttackMode mode)
         {
             try
             {

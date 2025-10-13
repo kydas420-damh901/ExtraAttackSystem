@@ -98,11 +98,8 @@ namespace ExtraAttackSystem
                 
                 // Ensure AnimationManager is initialized before we try to use ReplacementMap
                 ExtraAttackPlugin.LogInfo("System", $"AnimationTimingConfig.Initialize: ReplacementMap.Count = {AnimationManager.ReplacementMap.Count}");
-                if (AnimationManager.ReplacementMap.Count == 0)
-                {
-                    ExtraAttackPlugin.LogInfo("System", "AnimationManager.ReplacementMap is empty, initializing AnimationManager first");
-                    AnimationManager.InitializeAnimationMaps();
-                }
+                // Note: AnimationManager.InitializeAnimationMaps() is called by ExtraAttackPlugin.cs
+                // No need to call it again here
                 
                 if (!Directory.Exists(ConfigFolderPath))
                 {
@@ -210,28 +207,62 @@ namespace ExtraAttackSystem
         // Get timing for specific animation using weapon type config
         public static AnimationTiming GetTiming(string animationName)
         {
-            // Use weapon type config instead of old config
-            // Extract weapon type and attack mode from animation name
-            string weaponType = "Swords"; // Default fallback
-            string attackMode = "Q"; // Default fallback
+            // This method is called for custom animations (External animations)
+            // We need to determine which weapon type and mode this animation belongs to
             
+            // Check if this is a secondary animation with _secondary_Q/T/G suffix
             if (animationName.Contains("_secondary_Q"))
             {
-                attackMode = "Q";
-                weaponType = CapitalizeFirstLetter(animationName.Replace("_secondary_Q", ""));
+                string weaponType = CapitalizeFirstLetter(animationName.Replace("_secondary_Q", ""));
+                return GetWeaponTypeTiming(weaponType, "Q");
             }
             else if (animationName.Contains("_secondary_T"))
             {
-                attackMode = "T";
-                weaponType = CapitalizeFirstLetter(animationName.Replace("_secondary_T", ""));
+                string weaponType = CapitalizeFirstLetter(animationName.Replace("_secondary_T", ""));
+                return GetWeaponTypeTiming(weaponType, "T");
             }
             else if (animationName.Contains("_secondary_G"))
             {
-                attackMode = "G";
-                weaponType = CapitalizeFirstLetter(animationName.Replace("_secondary_G", ""));
+                string weaponType = CapitalizeFirstLetter(animationName.Replace("_secondary_G", ""));
+                return GetWeaponTypeTiming(weaponType, "G");
             }
             
-            return GetWeaponTypeTiming(weaponType, attackMode);
+            // For custom animations without _secondary suffix, calculate timing based on actual clip length
+            // Get the actual length of the custom animation
+            float clipLength = AnimationManager.GetExternalClipLengthSmart(animationName);
+            
+            if (clipLength > 0)
+            {
+                // Calculate timing based on clip length with reasonable ratios
+                return new AnimationTiming
+                {
+                    HitTiming = clipLength * 0.6f,        // Hit at 60% of animation
+                    TrailOnTiming = clipLength * 0.2f,    // Trail starts at 20%
+                    TrailOffTiming = clipLength * 0.9f,   // Trail ends at 90%
+                    AttackRange = 2.0f,
+                    AttackHeight = 1.0f,
+                    SpeedTiming = clipLength,
+                    ChainTiming = clipLength * 0.85f,
+                    DodgeMortalTiming = clipLength,
+                    SpeedMultiplier = 1.0f
+                };
+            }
+            else
+            {
+                // Fallback to default timing if clip length not found
+                return new AnimationTiming
+                {
+                    HitTiming = 0.5f,
+                    TrailOnTiming = 0.3f,
+                    TrailOffTiming = 0.8f,
+                    AttackRange = 2.0f,
+                    AttackHeight = 1.0f,
+                    SpeedTiming = 1.0f,
+                    ChainTiming = 0.85f,
+                    DodgeMortalTiming = 1.0f,
+                    SpeedMultiplier = 1.0f
+                };
+            }
         }
 
         // Check if specific animation config exists using weapon type config
@@ -735,27 +766,6 @@ namespace ExtraAttackSystem
             
             ExtraAttackPlugin.LogInfo("System", $"CreateTimingForWeaponType: {key} -> clipLength = {clipLength:F3}s");
             
-            // Debug: Check if ReplacementMap has the key
-            if (AnimationManager.ReplacementMap.ContainsKey(weaponType))
-            {
-                var weaponMap = AnimationManager.ReplacementMap[weaponType];
-                ExtraAttackPlugin.LogInfo("System", $"CreateTimingForWeaponType: ReplacementMap[{weaponType}] has {weaponMap.Count} entries: {string.Join(", ", weaponMap.Keys)}");
-                
-                var secondaryKey = $"secondary_{mode}";
-                if (weaponMap.ContainsKey(secondaryKey))
-                {
-                    var externalClipName = weaponMap[secondaryKey];
-                    ExtraAttackPlugin.LogInfo("System", $"CreateTimingForWeaponType: Found {secondaryKey} -> {externalClipName}");
-                }
-                else
-                {
-                    ExtraAttackPlugin.LogInfo("System", $"CreateTimingForWeaponType: {secondaryKey} not found in ReplacementMap[{weaponType}]");
-                }
-            }
-            else
-            {
-                ExtraAttackPlugin.LogInfo("System", $"CreateTimingForWeaponType: ReplacementMap does not contain {weaponType}");
-            }
             
             if (clipLength > 0)
             {
@@ -864,7 +874,7 @@ namespace ExtraAttackSystem
             return weaponType; // Fallback to same weapon type
         }
         
-        // Get adjusted clip length from ReplacementMap, fallback to vanilla if external not found
+        // Get adjusted clip length using AnimationManager's working logic
         private static float GetAdjustedClipLength(string key)
         {
             try
@@ -877,34 +887,31 @@ namespace ExtraAttackSystem
                     var weaponType = parts[0]; // Swords, Axes, etc.
                     var mode = parts[2]; // Q, T, G
                     
-                    if (AnimationManager.ReplacementMap.TryGetValue(weaponType, out var weaponMap) && 
-                        weaponMap != null && weaponMap.Count > 0)
+                    // Use AnimationManager's working GetExternalClipForWeaponType method
+                    string externalClipName = GetExternalClipForWeaponType(weaponType, mode);
+                    
+                    if (!string.IsNullOrEmpty(externalClipName))
                     {
-                        // Look for secondary_{mode} in the weapon map
-                        var secondaryKey = $"secondary_{mode}";
-                        if (weaponMap.TryGetValue(secondaryKey, out var externalClipName) && 
-                            !string.IsNullOrEmpty(externalClipName))
+                        // Get actual clip length from AnimationManager (with smart caching)
+                        float clipLength = AnimationManager.GetExternalClipLengthSmart(externalClipName);
+                        
+                        if (clipLength > 0)
                         {
-                            // Get actual clip length from AnimationManager (with smart caching)
-                            float clipLength = AnimationManager.GetExternalClipLengthSmart(externalClipName);
-                            
-                            if (clipLength > 0)
+                            ExtraAttackPlugin.LogInfo("System", $"GetAdjustedClipLength: {key} -> {externalClipName} = {clipLength:F3}s");
+                            return clipLength;
+                        }
+                        else
+                        {
+                            // If external clip length is not found, try to get it from ExternalAnimations directly
+                            if (AnimationManager.ExternalAnimations.TryGetValue(externalClipName, out var clip))
                             {
-                                return clipLength;
+                                float directClipLength = clip.length;
+                                ExtraAttackPlugin.LogInfo("System", $"GetAdjustedClipLength: Direct clip length for {externalClipName} = {directClipLength:F3}s");
+                                return directClipLength;
                             }
                             else
                             {
-                                // If external clip length is not found, try to get it from ExternalAnimations directly
-                                if (AnimationManager.ExternalAnimations.TryGetValue(externalClipName, out var clip))
-                                {
-                                    float directClipLength = clip.length;
-                                    ExtraAttackPlugin.LogInfo("System", $"GetAdjustedClipLength: Direct clip length for {externalClipName} = {directClipLength:F3}s");
-                                    return directClipLength;
-                                }
-                                else
-                                {
-                                    ExtraAttackPlugin.LogWarning("System", $"GetAdjustedClipLength: External clip not found in ExternalAnimations: {externalClipName}");
-                                }
+                                ExtraAttackPlugin.LogWarning("System", $"GetAdjustedClipLength: External clip not found in ExternalAnimations: {externalClipName}");
                             }
                         }
                     }
@@ -916,6 +923,55 @@ namespace ExtraAttackSystem
             }
             
             return -1f; // Indicate no valid clip found
+        }
+        
+        // Get external clip for weapon type and mode (integrated from AnimationManager)
+        public static string GetExternalClipForWeaponType(string weaponType, string mode)
+        {
+            // Q/T/G modes use completely different animation clips
+            switch (weaponType)
+            {
+                case "Swords":
+                    return mode == "Q" ? "2Hand-Sword-Attack8External" :
+                           mode == "T" ? "2Hand_Skill01_WhirlWindExternal" :
+                           "Eas_GreatSword_JumpAttackExternal";
+                case "Axes":
+                    return mode == "Q" ? "OneHand_Up_Attack_B_1External" :
+                           mode == "T" ? "2Hand-Sword-Attack8External" :
+                           "Eas_GreatSword_JumpAttackExternal";
+                case "Clubs":
+                    return mode == "Q" ? "Eas_GreatSword_CastingExternal" :
+                           mode == "T" ? "2Hand_Skill01_WhirlWindExternal" :
+                           "2Hand-Sword-Attack8External";
+                case "Spears":
+                    return mode == "Q" ? "Eas_GreatSword_JumpAttackExternal" :
+                           mode == "T" ? "2Hand_Skill01_WhirlWindExternal" :
+                           "2Hand-Sword-Attack8External";
+                case "GreatSwords":
+                    return mode == "Q" ? "2Hand-Sword-Attack8External" :
+                           mode == "T" ? "2Hand_Skill01_WhirlWindExternal" :
+                           "Eas_GreatSword_JumpAttackExternal";
+                case "BattleAxes":
+                    return mode == "Q" ? "2Hand_Skill01_WhirlWindExternal" :
+                           mode == "T" ? "2Hand-Sword-Attack8External" :
+                           "Eas_GreatSword_JumpAttackExternal";
+                case "Polearms":
+                    return mode == "Q" ? "Eas_GreatSword_JumpAttackExternal" :
+                           mode == "T" ? "2Hand-Sword-Attack8External" :
+                           "2Hand_Skill01_WhirlWindExternal";
+                case "Knives":
+                    return mode == "Q" ? "ChargeAttkExternal" :
+                           mode == "T" ? "Eas_GreatSword_JumpAttackExternal" :
+                           "2Hand-Sword-Attack8External";
+                case "Fists":
+                    return mode == "Q" ? "Flying Knee Punch ComboExternal" :
+                           mode == "T" ? "2Hand_Skill01_WhirlWindExternal" :
+                           "Eas_GreatSword_JumpAttackExternal";
+                default:
+                    return mode == "Q" ? "2Hand-Sword-Attack8External" :
+                           mode == "T" ? "2Hand-Sword-Attack8External" :
+                           "BattleAxeAltAttackExternal";
+            }
         }
         
         // Get vanilla clip length for weapon type

@@ -33,9 +33,9 @@ namespace ExtraAttackSystem
                     Character character = ___m_character;
                     if (character is Player player && player == Player.m_localPlayer)
                     {
-                        var attackMode = ExtraAttackUtils.GetAttackMode(player);
+                        var attackMode = EAS_CommonUtils.GetAttackMode(player);
 
-                        if (attackMode != ExtraAttackUtils.AttackMode.Normal)
+                        if (attackMode != EAS_CommonUtils.AttackMode.Normal)
                         {
                             if (ExtraAttackPatches_Core.TryGetCurrentClipInfo(player, out string clipName, out AnimationClip clip))
                             {
@@ -135,15 +135,15 @@ namespace ExtraAttackSystem
                     if (player == null || player != Player.m_localPlayer)
                         return;
 
-                    var mode = ExtraAttackUtils.GetAttackMode(player);
-                    if (mode == ExtraAttackUtils.AttackMode.Normal)
+                    var mode = EAS_CommonUtils.GetAttackMode(player);
+                    if (mode == EAS_CommonUtils.AttackMode.Normal)
                         return;
 
                     var weapon = ___m_weapon;
                     if (weapon == null)
                         return;
 
-                    float cost = ExtraAttackUtils.GetEffectiveStaminaCost(__instance, player, weapon, mode);
+                    float cost = EAS_CommonUtils.GetEffectiveStaminaCost(__instance, player, weapon, mode);
                     __result = cost;
                 }
                 catch (System.Exception ex)
@@ -171,7 +171,7 @@ namespace ExtraAttackSystem
                     }
 
                     // Only handle when in our extra attack modes
-                    if (!ExtraAttackUtils.IsPlayerInExtraAttack(player))
+                    if (!EAS_CommonUtils.IsPlayerInExtraAttack(player))
                     {
                         return;
                     }
@@ -206,20 +206,20 @@ namespace ExtraAttackSystem
             {
                 try
                 {
-                    if (___m_character is Player player && ExtraAttackUtils.IsPlayerInExtraAttack(player))
+                    if (___m_character is Player player && EAS_CommonUtils.IsPlayerInExtraAttack(player))
                     {
                         // Get weapon and attack mode for extra attack
                         var weapon = player.GetCurrentWeapon();
                         // Get current attack mode from player state
-                        ExtraAttackUtils.AttackMode attackMode = ExtraAttackUtils.AttackMode.secondary_Q; // Default fallback
-                        if (ExtraAttackPlugin.IsExtraAttackKey_QPressed()) attackMode = ExtraAttackUtils.AttackMode.secondary_Q;
-                        else if (ExtraAttackPlugin.IsExtraAttackKey_TPressed()) attackMode = ExtraAttackUtils.AttackMode.secondary_T;
-                        else if (ExtraAttackPlugin.IsExtraAttackKey_GPressed()) attackMode = ExtraAttackUtils.AttackMode.secondary_G;
+                        EAS_CommonUtils.AttackMode attackMode = EAS_CommonUtils.AttackMode.secondary_Q; // Default fallback
+                        if (ExtraAttackPlugin.IsExtraAttackKey_QPressed()) attackMode = EAS_CommonUtils.AttackMode.secondary_Q;
+                        else if (ExtraAttackPlugin.IsExtraAttackKey_TPressed()) attackMode = EAS_CommonUtils.AttackMode.secondary_T;
+                        else if (ExtraAttackPlugin.IsExtraAttackKey_GPressed()) attackMode = EAS_CommonUtils.AttackMode.secondary_G;
                         
                         if (weapon != null)
                         {
                             // Get base stamina cost from YAML config
-                            string weaponType = ExtraAttackUtils.GetWeaponTypeFromSkill(weapon.m_shared.m_skillType, weapon);
+                            string weaponType = EAS_CommonUtils.GetWeaponTypeFromSkill(weapon.m_shared.m_skillType, weapon);
                             string modeString = attackMode.ToString();
                             
                             var attackCost = ExtraAttackCostConfig.GetAttackCost(weaponType, modeString);
@@ -255,20 +255,20 @@ namespace ExtraAttackSystem
             {
                 try
                 {
-                    if (___m_character is Player player && ExtraAttackUtils.IsPlayerInExtraAttack(player))
+                    if (___m_character is Player player && EAS_CommonUtils.IsPlayerInExtraAttack(player))
                     {
                         // Get weapon and attack mode for extra attack
                         var weapon = player.GetCurrentWeapon();
                         // Get current attack mode from player state
-                        ExtraAttackUtils.AttackMode attackMode = ExtraAttackUtils.AttackMode.secondary_Q; // Default fallback
-                        if (ExtraAttackPlugin.IsExtraAttackKey_QPressed()) attackMode = ExtraAttackUtils.AttackMode.secondary_Q;
-                        else if (ExtraAttackPlugin.IsExtraAttackKey_TPressed()) attackMode = ExtraAttackUtils.AttackMode.secondary_T;
-                        else if (ExtraAttackPlugin.IsExtraAttackKey_GPressed()) attackMode = ExtraAttackUtils.AttackMode.secondary_G;
+                        EAS_CommonUtils.AttackMode attackMode = EAS_CommonUtils.AttackMode.secondary_Q; // Default fallback
+                        if (ExtraAttackPlugin.IsExtraAttackKey_QPressed()) attackMode = EAS_CommonUtils.AttackMode.secondary_Q;
+                        else if (ExtraAttackPlugin.IsExtraAttackKey_TPressed()) attackMode = EAS_CommonUtils.AttackMode.secondary_T;
+                        else if (ExtraAttackPlugin.IsExtraAttackKey_GPressed()) attackMode = EAS_CommonUtils.AttackMode.secondary_G;
                         
                         if (weapon != null)
                         {
                             // Get base eitr cost from YAML config
-                            string weaponType = ExtraAttackUtils.GetWeaponTypeFromSkill(weapon.m_shared.m_skillType, weapon);
+                            string weaponType = EAS_CommonUtils.GetWeaponTypeFromSkill(weapon.m_shared.m_skillType, weapon);
                             string modeString = attackMode.ToString();
                             
                             var attackCost = ExtraAttackCostConfig.GetAttackCost(weaponType, modeString);
