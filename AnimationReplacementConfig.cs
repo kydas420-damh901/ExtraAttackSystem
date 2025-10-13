@@ -8,7 +8,7 @@ using YamlDotNet.Serialization.NamingConventions;
 
 namespace ExtraAttackSystem
 {
-    // Manage YAML for animation replacement maps; keeps AnimationManager.ReplacementMap in sync
+    // Manage YAML for animation replacement maps; keeps AnimationManager.AnimationReplacementMap in sync
     public static class AnimationReplacementConfig
     {
         // Use folder name without GUID to meet expected path: BepInEx\config\ExtraAttackSystem
@@ -91,7 +91,7 @@ namespace ExtraAttackSystem
 
         // ConvertDirectMappingsToAocTypes method removed - YAML is already in 2-layer format
 
-        // Initialize: create or load YAML, then apply to AnimationManager.ReplacementMap
+        // Initialize: create or load YAML, then apply to AnimationManager.AnimationReplacementMap
         public static void Initialize()
         {
             try
@@ -310,10 +310,10 @@ namespace ExtraAttackSystem
                     var clipName = clipMapping.Value;
                     
                     // Check if the clip actually exists
-                    if (AnimationManager.ExternalAnimations.ContainsKey(clipName))
+                    if (AnimationManager.CustomAnimationClips.ContainsKey(clipName))
                     {
                         weaponMappings[clipKey] = clipName;
-                        ExtraAttackPlugin.LogInfo("System", $"CreateDefaultWeaponTypesConfigForYaml: Added {weaponType}.{clipKey} = {clipName} (length: {AnimationManager.ExternalAnimations[clipName].length:F3}s)");
+                        ExtraAttackPlugin.LogInfo("System", $"CreateDefaultWeaponTypesConfigForYaml: Added {weaponType}.{clipKey} = {clipName} (length: {AnimationManager.CustomAnimationClips[clipName].length:F3}s)");
                     }
                     else
                     {
@@ -416,7 +416,7 @@ namespace ExtraAttackSystem
         }
 
 
-        // Create YAML from current AnimationManager.ReplacementMap and save with bilingual comments
+        // Create YAML from current AnimationManager.AnimationReplacementMap and save with bilingual comments
         private static void CreateDefaultFromManager()
         {
             // Copy data from manager into our YAML structure
@@ -425,7 +425,7 @@ namespace ExtraAttackSystem
             SaveIndividualWeaponsConfig();
         }
 
-        // Copy AnimationManager.ReplacementMap -> current.Maps
+        // Copy AnimationManager.AnimationReplacementMap -> current.Maps
         private static void SyncFromManagerToYaml()
         {
             // Ensure Maps is available
@@ -447,9 +447,9 @@ namespace ExtraAttackSystem
             current.AocItems.Clear();
             
             
-            foreach (var style in AnimationManager.ReplacementMap.Keys)
+            foreach (var style in AnimationManager.AnimationReplacementMap.Keys)
             {
-                var src = AnimationManager.ReplacementMap[style];
+                var src = AnimationManager.AnimationReplacementMap[style];
                 current.Maps[style] = src.ToDictionary(k => k.Key, v => v.Value);
                 
                 // Categorize into types/items based on new naming convention
@@ -496,7 +496,7 @@ namespace ExtraAttackSystem
             return true;
         }
 
-        // Apply YAML mappings back to AnimationManager.ReplacementMap (override/merge)
+        // Apply YAML mappings back to AnimationManager.AnimationReplacementMap (override/merge)
         private static void ApplyToManager()
         {
             // Prevent infinite loop
@@ -574,12 +574,12 @@ namespace ExtraAttackSystem
             {
                 foreach (var weaponType in current.AocTypes)
                 {
-                    if (!AnimationManager.ReplacementMap.ContainsKey(weaponType.Key))
+                    if (!AnimationManager.AnimationReplacementMap.ContainsKey(weaponType.Key))
                     {
-                        AnimationManager.ReplacementMap[weaponType.Key] = new Dictionary<string, string>();
+                        AnimationManager.AnimationReplacementMap[weaponType.Key] = new Dictionary<string, string>();
                     }
 
-                    var target = AnimationManager.ReplacementMap[weaponType.Key];
+                    var target = AnimationManager.AnimationReplacementMap[weaponType.Key];
                     if (weaponType.Value != null)
                     {
                         foreach (var kvp in weaponType.Value)
@@ -605,12 +605,12 @@ namespace ExtraAttackSystem
             {
             foreach (var style in current.Maps)
             {
-                if (!AnimationManager.ReplacementMap.ContainsKey(style.Key))
+                if (!AnimationManager.AnimationReplacementMap.ContainsKey(style.Key))
                 {
-                    AnimationManager.ReplacementMap[style.Key] = new Dictionary<string, string>();
+                    AnimationManager.AnimationReplacementMap[style.Key] = new Dictionary<string, string>();
                 }
 
-                var target = AnimationManager.ReplacementMap[style.Key];
+                var target = AnimationManager.AnimationReplacementMap[style.Key];
                 // Guard: skip null style map values
                 if (style.Value == null)
                 {
@@ -633,11 +633,11 @@ namespace ExtraAttackSystem
             {
                 foreach (var style in current.AocItems)
                 {
-                    if (!AnimationManager.ReplacementMap.ContainsKey(style.Key))
+                    if (!AnimationManager.AnimationReplacementMap.ContainsKey(style.Key))
                     {
-                        AnimationManager.ReplacementMap[style.Key] = new Dictionary<string, string>();
+                        AnimationManager.AnimationReplacementMap[style.Key] = new Dictionary<string, string>();
                     }
-                    var target = AnimationManager.ReplacementMap[style.Key];
+                    var target = AnimationManager.AnimationReplacementMap[style.Key];
                     if (style.Value == null) continue;
                     foreach (var kvp in style.Value)
                     {
@@ -658,7 +658,7 @@ namespace ExtraAttackSystem
             }
         }
 
-        // Save current AnimationManager.ReplacementMap back to YAML for user editing
+        // Save current AnimationManager.AnimationReplacementMap back to YAML for user editing
         public static void SaveFromManager()
         {
             // Copy manager map into YAML structure and persist with comments
@@ -679,16 +679,16 @@ namespace ExtraAttackSystem
                 sb.AppendLine("# ============================================================================");
                 sb.AppendLine();
 
-                // Get weapon type data directly from AnimationManager.ReplacementMap
+                // Get weapon type data directly from AnimationManager.AnimationReplacementMap
                 var weaponTypeGroups = new Dictionary<string, Dictionary<string, string>>();
                 
                 // Ensure the weapon types used in validation conditions are always included (alphabetical order)
                 string[] weaponTypes = { "Axes", "BattleAxes", "Clubs", "Fists", "GreatSwords", "Knives", "Polearms", "Spears", "Swords" };
                 
                 // Check if ReplacementMap has data, if not use default mappings
-                bool hasReplacementMapData = AnimationManager.ReplacementMap.Count > 0;
-                ExtraAttackPlugin.LogInfo("System", $"SaveWeaponTypesConfig: ReplacementMap.Count = {AnimationManager.ReplacementMap.Count}, hasData = {hasReplacementMapData}");
-                ExtraAttackPlugin.LogInfo("System", $"SaveWeaponTypesConfig: ReplacementMap keys: {string.Join(", ", AnimationManager.ReplacementMap.Keys)}");
+                bool hasReplacementMapData = AnimationManager.AnimationReplacementMap.Count > 0;
+                ExtraAttackPlugin.LogInfo("System", $"SaveWeaponTypesConfig: ReplacementMap.Count = {AnimationManager.AnimationReplacementMap.Count}, hasData = {hasReplacementMapData}");
+                ExtraAttackPlugin.LogInfo("System", $"SaveWeaponTypesConfig: ReplacementMap keys: {string.Join(", ", AnimationManager.AnimationReplacementMap.Keys)}");
                 
                 ExtraAttackPlugin.LogInfo("System", $"SaveWeaponTypesConfig: About to check hasReplacementMapData = {hasReplacementMapData}");
                 
@@ -704,9 +704,9 @@ namespace ExtraAttackSystem
                     ExtraAttackPlugin.LogInfo("System", "SaveWeaponTypesConfig: ReplacementMap has data, processing weapon types");
                 foreach (var weaponType in weaponTypes)
                 {
-                    if (AnimationManager.ReplacementMap.ContainsKey(weaponType))
+                    if (AnimationManager.AnimationReplacementMap.ContainsKey(weaponType))
                     {
-                        var weaponMap = AnimationManager.ReplacementMap[weaponType];
+                        var weaponMap = AnimationManager.AnimationReplacementMap[weaponType];
                             ExtraAttackPlugin.LogInfo("System", $"SaveWeaponTypesConfig: Processing {weaponType}, weaponMap keys: {string.Join(", ", weaponMap.Keys)}");
                             ExtraAttackPlugin.LogInfo("System", $"SaveWeaponTypesConfig: Processing {weaponType}, weaponMap values: {string.Join(", ", weaponMap.Values)}");
                         // Use 2-layer structure: secondary_Q/T/G: external with ratio calculation

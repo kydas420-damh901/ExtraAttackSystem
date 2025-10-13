@@ -11,22 +11,19 @@ namespace ExtraAttackSystem
     {
         // AssetBundle and Animation system
         private static AssetBundle? asset;
-        public static readonly Dictionary<string, Dictionary<string, string>> ReplacementMap = new();
-        public static readonly Dictionary<string, AnimationClip> ExternalAnimations = new();
-        public static readonly Dictionary<string, UnityEngine.RuntimeAnimatorController> CustomRuntimeControllers = new();
-        public static readonly Dictionary<string, float> ExternalClipLengthCache = new();
-        
+        public static readonly Dictionary<string, Dictionary<string, string>> AnimationReplacementMap = new();
+        public static readonly Dictionary<string, AnimationClip> CustomAnimationClips = new();
+        public static readonly Dictionary<string, UnityEngine.RuntimeAnimatorController> AnimatorControllerCache = new();
         
         // Flag to prevent duplicate animation logging
         private static bool _animationsLogged = false;
         
-        // Cache for external clip lengths with change detection
-        private static readonly Dictionary<string, float> CachedExternalClipLengths = new();
-        private static readonly Dictionary<string, float> LastKnownClipLengths = new();
+        // Cache for external clip lengths
+        private static readonly Dictionary<string, float> CustomClipLengthCache = new();
         private static bool _clipLengthCacheInitialized = false;
         
         // Default clip lengths for common animations (based on actual vanilla values from List_AnimatorClips.txt)
-        public static readonly Dictionary<string, float> DefaultClipLengths = new Dictionary<string, float>
+        public static readonly Dictionary<string, float> VanillaClipLengths = new Dictionary<string, float>
         {
             // Sword animations (from actual vanilla data)
             { "Sword-Attack-R4", 1.4f },  // Based on Sword-Attack-R4: 1.400s
@@ -100,7 +97,7 @@ namespace ExtraAttackSystem
                     foreach (var clip in animationClips)
                     {
                         string externalName = clip.name + "External";
-                        ExternalAnimations[externalName] = clip;
+                        CustomAnimationClips[externalName] = clip;
                         if (ExtraAttackPlugin.IsDebugSystemMessagesEnabled)
                         {
                             ExtraAttackPlugin.LogInfo("System", $"Loaded animation: {clip.name} -> {externalName}");
@@ -108,9 +105,9 @@ namespace ExtraAttackSystem
                     }
 
                     ExtraAttackPlugin.LogInfo("System", $"Successfully loaded {animationClips.Length} animations from AssetBundle");
-                    ExtraAttackPlugin.LogInfo("System", $"ExternalAnimations dictionary now has {ExternalAnimations.Count} entries");
+                    ExtraAttackPlugin.LogInfo("System", $"CustomAnimationClips dictionary now has {CustomAnimationClips.Count} entries");
                     // Add AnimationEvents to external animations for attack detection
-                    AnimationEventManager.AddEventsToExternalAnimations();
+                    AnimationEventManager.AddEventsToCustomAnimations();
                 }
                 else
                 {
@@ -120,10 +117,7 @@ namespace ExtraAttackSystem
                 // Initialize animation replacement maps
                 InitializeAnimationMaps();
                 
-                // Pre-cache vanilla clip lengths for better performance
-                PreCacheVanillaClipLengths();
-                
-                // Pre-cache external clip lengths with change detection
+                // Pre-cache external clip lengths
                 PreCacheExternalClipLengths();
             }
             catch (Exception ex)
@@ -215,9 +209,9 @@ namespace ExtraAttackSystem
             // Create basic weapon type mappings for secondary_Q, secondary_T, secondary_G
             foreach (var weaponType in weaponTypes)
             {
-                if (!ReplacementMap.ContainsKey(weaponType))
+                if (!AnimationReplacementMap.ContainsKey(weaponType))
                 {
-                    ReplacementMap[weaponType] = new Dictionary<string, string>();
+                    AnimationReplacementMap[weaponType] = new Dictionary<string, string>();
                 }
                 
                 // Create Q/T/G mappings for each weapon type
@@ -227,25 +221,25 @@ namespace ExtraAttackSystem
                 
                 if (!string.IsNullOrEmpty(qExternalClip))
                 {
-                    ReplacementMap[weaponType]["secondary_Q"] = qExternalClip;
+                    AnimationReplacementMap[weaponType]["secondary_Q"] = qExternalClip;
                 }
                 if (!string.IsNullOrEmpty(tExternalClip))
                 {
-                    ReplacementMap[weaponType]["secondary_T"] = tExternalClip;
+                    AnimationReplacementMap[weaponType]["secondary_T"] = tExternalClip;
                 }
                 if (!string.IsNullOrEmpty(gExternalClip))
                 {
-                    ReplacementMap[weaponType]["secondary_G"] = gExternalClip;
+                    AnimationReplacementMap[weaponType]["secondary_G"] = gExternalClip;
                 }
             }
 
-            if (ExternalAnimations.Count > 0)
+            if (CustomAnimationClips.Count > 0)
             {
                 // Log available animations only once during initialization
                 if (!_animationsLogged)
                 {
                     ExtraAttackPlugin.LogInfo("System", "Available animations:");
-                    foreach (var anim in ExternalAnimations.Keys)
+                    foreach (var anim in CustomAnimationClips.Keys)
                     {
                         ExtraAttackPlugin.LogInfo("System", $"  - {anim}");
                     }
@@ -275,58 +269,58 @@ namespace ExtraAttackSystem
                     string weaponType = right.ToString();
                     
                     // Check if weapon type has Q/T/G mappings
-                    bool hasQ = ReplacementMap.ContainsKey(weaponType) && ReplacementMap[weaponType].ContainsKey("secondary_Q");
-                    bool hasT = ReplacementMap.ContainsKey(weaponType) && ReplacementMap[weaponType].ContainsKey("secondary_T");
-                    bool hasG = ReplacementMap.ContainsKey(weaponType) && ReplacementMap[weaponType].ContainsKey("secondary_G");
+                    bool hasQ = AnimationReplacementMap.ContainsKey(weaponType) && AnimationReplacementMap[weaponType].ContainsKey("secondary_Q");
+                    bool hasT = AnimationReplacementMap.ContainsKey(weaponType) && AnimationReplacementMap[weaponType].ContainsKey("secondary_T");
+                    bool hasG = AnimationReplacementMap.ContainsKey(weaponType) && AnimationReplacementMap[weaponType].ContainsKey("secondary_G");
 
                     foreach (var left in oneHandSkills)
                     {
                         // Q-mode combos: copy from weapon type if available
                         string qComboKey = $"secondary_Q_{right}_Left{left}";
-                        if (!ReplacementMap.ContainsKey(qComboKey) && hasQ)
+                        if (!AnimationReplacementMap.ContainsKey(qComboKey) && hasQ)
                         {
                             string vanillaClip = GetWeaponAnimationName(weaponType);
-                            string externalClip = ReplacementMap[weaponType]["secondary_Q"];
-                            ReplacementMap[qComboKey] = new Dictionary<string, string> { { vanillaClip, externalClip } };
+                            string externalClip = AnimationReplacementMap[weaponType]["secondary_Q"];
+                            AnimationReplacementMap[qComboKey] = new Dictionary<string, string> { { vanillaClip, externalClip } };
                             combosCreated += 1;
                         }
 
                         // T-mode combos: copy from weapon type if available
                         string tComboKey = $"secondary_T_{right}_Left{left}";
-                        if (!ReplacementMap.ContainsKey(tComboKey) && hasT)
+                        if (!AnimationReplacementMap.ContainsKey(tComboKey) && hasT)
                         {
                             string vanillaClip = GetWeaponAnimationName(weaponType);
-                            string externalClip = ReplacementMap[weaponType]["secondary_T"];
-                            ReplacementMap[tComboKey] = new Dictionary<string, string> { { vanillaClip, externalClip } };
+                            string externalClip = AnimationReplacementMap[weaponType]["secondary_T"];
+                            AnimationReplacementMap[tComboKey] = new Dictionary<string, string> { { vanillaClip, externalClip } };
                             combosCreated += 1;
                         }
 
                         // G-mode combos: copy from weapon type if available
                         string gComboKey = $"secondary_G_{right}_Left{left}";
-                        if (!ReplacementMap.ContainsKey(gComboKey) && hasG)
+                        if (!AnimationReplacementMap.ContainsKey(gComboKey) && hasG)
                         {
                             string vanillaClip = GetWeaponAnimationName(weaponType);
-                            string externalClip = ReplacementMap[weaponType]["secondary_G"];
-                            ReplacementMap[gComboKey] = new Dictionary<string, string> { { vanillaClip, externalClip } };
+                            string externalClip = AnimationReplacementMap[weaponType]["secondary_G"];
+                            AnimationReplacementMap[gComboKey] = new Dictionary<string, string> { { vanillaClip, externalClip } };
                             combosCreated += 1;
                         }
                     }
                 }
 
                 // Stats
-                int totalKeys = ReplacementMap.Count;
-                int totalMappings = ReplacementMap.Values.Sum(m => m.Count);
+                int totalKeys = AnimationReplacementMap.Count;
+                int totalMappings = AnimationReplacementMap.Values.Sum(m => m.Count);
 
                 ExtraAttackPlugin.LogInfo("System", "Animation replacement maps initialized:");
                 
                 // Log weapon type specific mappings
                 foreach (var weaponType in weaponTypes)
                 {
-                    if (ReplacementMap.ContainsKey(weaponType))
+                    if (AnimationReplacementMap.ContainsKey(weaponType))
                     {
-                        var qCount = ReplacementMap[weaponType].ContainsKey("secondary_Q") ? 1 : 0;
-                        var tCount = ReplacementMap[weaponType].ContainsKey("secondary_T") ? 1 : 0;
-                        var gCount = ReplacementMap[weaponType].ContainsKey("secondary_G") ? 1 : 0;
+                        var qCount = AnimationReplacementMap[weaponType].ContainsKey("secondary_Q") ? 1 : 0;
+                        var tCount = AnimationReplacementMap[weaponType].ContainsKey("secondary_T") ? 1 : 0;
+                        var gCount = AnimationReplacementMap[weaponType].ContainsKey("secondary_G") ? 1 : 0;
                         
                         ExtraAttackPlugin.LogInfo("System", $"  {weaponType}: Q={qCount}, T={tCount}, G={gCount}");
                     }
@@ -405,9 +399,9 @@ namespace ExtraAttackSystem
                 {
                     string name = animation.name;
                 
-                if (replacement.TryGetValue(name, out string value) && ExternalAnimations.ContainsKey(value))
+                if (replacement.TryGetValue(name, out string value) && CustomAnimationClips.ContainsKey(value))
                 {
-                    AnimationClip newClip = UnityEngine.Object.Instantiate(ExternalAnimations[value]);
+                    AnimationClip newClip = UnityEngine.Object.Instantiate(CustomAnimationClips[value]);
                     newClip.name = name;
                     anims.Add(new KeyValuePair<AnimationClip, AnimationClip>(animation, newClip));
                 }
@@ -554,42 +548,16 @@ namespace ExtraAttackSystem
             }
         }
 
-        // Helper: cache and return external clip length
-        public static float GetExternalClipLength(string externalName)
-        {
-            try
-            {
-                if (string.IsNullOrEmpty(externalName)) return -1f;
-                if (ExternalClipLengthCache.TryGetValue(externalName, out float cached))
-                {
-                    return cached;
-                }
-                if (ExternalAnimations.TryGetValue(externalName, out AnimationClip clip) && clip != null)
-                {
-                    float len = clip.length;
-                    ExternalClipLengthCache[externalName] = len;
-                    return len;
-                }
-            }
-            catch (Exception ex)
-            {
-                ExtraAttackPlugin.LogError("AOC", $"GetExternalClipLength error: {ex.Message}");
-            }
-            return -1f;
-        }
-
-        // Pre-cache external clip lengths with change detection
+        // Pre-cache external clip lengths
         public static void PreCacheExternalClipLengths()
         {
             try
             {
-                ExtraAttackPlugin.LogInfo("System", "Pre-caching external clip lengths with change detection...");
+                ExtraAttackPlugin.LogInfo("System", "Pre-caching external clip lengths...");
                 
-                bool hasChanges = false;
                 int cachedCount = 0;
-                int changedCount = 0;
                 
-                foreach (var kvp in ExternalAnimations)
+                foreach (var kvp in CustomAnimationClips)
                 {
                     string clipName = kvp.Key;
                     AnimationClip clip = kvp.Value;
@@ -597,40 +565,12 @@ namespace ExtraAttackSystem
                     if (clip != null)
                     {
                         float currentLength = clip.length;
-                        
-                        // Check if this clip has changed
-                        if (LastKnownClipLengths.TryGetValue(clipName, out float lastLength))
-                        {
-                            if (Math.Abs(currentLength - lastLength) > 0.001f) // Allow small floating point differences
-                            {
-                                hasChanges = true;
-                                changedCount++;
-                                ExtraAttackPlugin.LogInfo("System", $"Clip length changed for {clipName}: {lastLength:F3}s -> {currentLength:F3}s");
-                            }
-                        }
-                        else
-                        {
-                            // New clip
-                            hasChanges = true;
-                            changedCount++;
-                        }
-                        
-                        // Update cache
-                        CachedExternalClipLengths[clipName] = currentLength;
-                        LastKnownClipLengths[clipName] = currentLength;
+                        CustomClipLengthCache[clipName] = currentLength;
                         cachedCount++;
                     }
                 }
                 
-                if (hasChanges)
-                {
-                    ExtraAttackPlugin.LogInfo("System", $"Pre-cached {cachedCount} external clip lengths ({changedCount} changed)");
-                }
-                else
-                {
-                    ExtraAttackPlugin.LogInfo("System", $"Pre-cached {cachedCount} external clip lengths (no changes detected)");
-                }
-                
+                ExtraAttackPlugin.LogInfo("System", $"Pre-cached {cachedCount} external clip lengths");
                 _clipLengthCacheInitialized = true;
             }
             catch (Exception ex)
@@ -647,16 +587,16 @@ namespace ExtraAttackSystem
                 if (string.IsNullOrEmpty(externalName)) return -1f;
                 
                 // Check if cache is initialized and has this clip
-                if (_clipLengthCacheInitialized && CachedExternalClipLengths.TryGetValue(externalName, out float cachedLength))
+                if (_clipLengthCacheInitialized && CustomClipLengthCache.TryGetValue(externalName, out float cachedLength))
                 {
                     return cachedLength;
                 }
                 
                 // Fallback to direct lookup
-                if (ExternalAnimations.TryGetValue(externalName, out AnimationClip clip) && clip != null)
+                if (CustomAnimationClips.TryGetValue(externalName, out AnimationClip clip) && clip != null)
                 {
                     float length = clip.length;
-                    CachedExternalClipLengths[externalName] = length;
+                    CustomClipLengthCache[externalName] = length;
                     return length;
                 }
             }
@@ -675,7 +615,7 @@ namespace ExtraAttackSystem
                 if (string.IsNullOrEmpty(vanillaClipName)) return -1f;
                 
                 // Use default values directly
-                if (DefaultClipLengths.TryGetValue(vanillaClipName, out float defaultLength))
+                if (VanillaClipLengths.TryGetValue(vanillaClipName, out float defaultLength))
                 {
                     ExtraAttackPlugin.LogInfo("Config", $"Using default clip length for {vanillaClipName}: {defaultLength:F3}s");
                     return defaultLength;
@@ -790,20 +730,21 @@ namespace ExtraAttackSystem
                 UnityEngine.RuntimeAnimatorController? original = null;
                 if (keepOriginal)
                 {
-                    CustomRuntimeControllers.TryGetValue("Original", out original);
+                    AnimatorControllerCache.TryGetValue("Original", out original);
                 }
 
                 // Remove all cached controllers
-                CustomRuntimeControllers.Clear();
+                AnimatorControllerCache.Clear();
 
                 // Restore Original when requested
                 if (keepOriginal && original != null)
                 {
-                    CustomRuntimeControllers["Original"] = original;
+                    AnimatorControllerCache["Original"] = original;
                 }
 
                 // Clear external clip length cache to force re-evaluation after reload
-                ExternalClipLengthCache.Clear();
+                CustomClipLengthCache.Clear();
+                _clipLengthCacheInitialized = false;
 
             }
             catch (Exception ex)
@@ -901,7 +842,7 @@ namespace ExtraAttackSystem
             };
         }
 
-        // Apply weapon type specific settings to ReplacementMap
+        // Apply weapon type specific settings to AnimationReplacementMap
         public static void ApplyWeaponTypeSettings()
         {
             ExtraAttackPlugin.LogInfo("System", "ApplyWeaponTypeSettings: START");
@@ -945,16 +886,16 @@ namespace ExtraAttackSystem
                         
                         ExtraAttackPlugin.LogInfo("System", $"ApplyWeaponTypeSettings: animationMappings.Count = {animationMappings.Count}");
                         
-                        // Apply to ReplacementMap - create key if it doesn't exist
-                        if (!ReplacementMap.ContainsKey(weaponType))
+                        // Apply to AnimationReplacementMap - create key if it doesn't exist
+                        if (!AnimationReplacementMap.ContainsKey(weaponType))
                         {
-                            ReplacementMap[weaponType] = new Dictionary<string, string>();
-                            ExtraAttackPlugin.LogInfo("System", $"ApplyWeaponTypeSettings: Created ReplacementMap[{weaponType}]");
+                            AnimationReplacementMap[weaponType] = new Dictionary<string, string>();
+                            ExtraAttackPlugin.LogInfo("System", $"ApplyWeaponTypeSettings: Created AnimationReplacementMap[{weaponType}]");
                         }
                         
                         foreach (var mapping in animationMappings)
                         {
-                            ReplacementMap[weaponType][mapping.Key] = mapping.Value;
+                            AnimationReplacementMap[weaponType][mapping.Key] = mapping.Value;
                             ExtraAttackPlugin.LogInfo("System", $"ApplyWeaponTypeSettings: Added {weaponType}[{mapping.Key}] = {mapping.Value}");
                         }
                     }
@@ -969,16 +910,16 @@ namespace ExtraAttackSystem
                         var timing = weaponTypeConfig.IndividualWeapons[individualWeapon];
                         
                         // Create individual weapon key if it doesn't exist
-                        if (!ReplacementMap.ContainsKey(individualWeapon))
+                        if (!AnimationReplacementMap.ContainsKey(individualWeapon))
                         {
-                            ReplacementMap[individualWeapon] = new Dictionary<string, string>();
+                            AnimationReplacementMap[individualWeapon] = new Dictionary<string, string>();
                         }
                         
                         // Create animation mappings for individual weapon
                         var animationMappings = CreateIndividualWeaponAnimationMappings(individualWeapon, timing);
                         foreach (var mapping in animationMappings)
                         {
-                            ReplacementMap[individualWeapon][mapping.Key] = mapping.Value;
+                            AnimationReplacementMap[individualWeapon][mapping.Key] = mapping.Value;
                         }
                     }
                 }
@@ -988,7 +929,7 @@ namespace ExtraAttackSystem
                     CreateSampleIndividualWeaponEntries();
                 }
 
-                ExtraAttackPlugin.LogInfo("System", "Applied weapon type specific animation mappings to ReplacementMap");
+                ExtraAttackPlugin.LogInfo("System", "Applied weapon type specific animation mappings to AnimationReplacementMap");
             }
             catch (Exception ex)
             {
@@ -1012,28 +953,28 @@ namespace ExtraAttackSystem
 
                 foreach (var weaponKey in sampleWeapons)
                 {
-                    if (!ReplacementMap.ContainsKey(weaponKey))
+                    if (!AnimationReplacementMap.ContainsKey(weaponKey))
                     {
-                        ReplacementMap[weaponKey] = new Dictionary<string, string>();
+                        AnimationReplacementMap[weaponKey] = new Dictionary<string, string>();
                     }
 
                     // Add sample animation mappings
-                    if (ExternalAnimations.Count > 0)
+                    if (CustomAnimationClips.Count > 0)
                     {
                         // Q mode: Great sword secondary attack (own weapon type)
                         if (weaponKey.Contains("_Q_"))
                         {
-                            ReplacementMap[weaponKey]["Greatsword Secondary Attack"] = "2Hand-Sword-Attack8External";
+                            AnimationReplacementMap[weaponKey]["Greatsword Secondary Attack"] = "2Hand-Sword-Attack8External";
                         }
                         // T mode: Battle axe secondary attack (different weapon type)
                         else if (weaponKey.Contains("_T_"))
                         {
-                            ReplacementMap[weaponKey]["BattleAxeAltAttack"] = "BattleAxeAltAttackExternal";
+                            AnimationReplacementMap[weaponKey]["BattleAxeAltAttack"] = "0MGSA_Attack_Ground01External";
                         }
                         // G mode: Polearm 360 attack (different weapon type)
                         else if (weaponKey.Contains("_G_"))
                         {
-                            ReplacementMap[weaponKey]["Atgeir360Attack"] = "2Hand_Skill01_WhirlWindExternal";
+                            AnimationReplacementMap[weaponKey]["Atgeir360Attack"] = "2Hand_Skill01_WhirlWindExternal";
                         }
                     }
                 }
@@ -1187,15 +1128,15 @@ namespace ExtraAttackSystem
                 int animationIndex = 0;
                 foreach (var weaponType in weaponTypes)
                 {
-                    if (!ReplacementMap.ContainsKey(weaponType))
+                    if (!AnimationReplacementMap.ContainsKey(weaponType))
                     {
-                        ReplacementMap[weaponType] = new Dictionary<string, string>();
+                        AnimationReplacementMap[weaponType] = new Dictionary<string, string>();
                     }
                     
                     // Add Q, T, G mappings for each weapon type using unified key format
-                    ReplacementMap[weaponType]["secondary_Q"] = defaultAnimations[animationIndex++];
-                    ReplacementMap[weaponType]["secondary_T"] = defaultAnimations[animationIndex++];
-                    ReplacementMap[weaponType]["secondary_G"] = defaultAnimations[animationIndex++];
+                    AnimationReplacementMap[weaponType]["secondary_Q"] = defaultAnimations[animationIndex++];
+                    AnimationReplacementMap[weaponType]["secondary_T"] = defaultAnimations[animationIndex++];
+                    AnimationReplacementMap[weaponType]["secondary_G"] = defaultAnimations[animationIndex++];
                     
                     ExtraAttackPlugin.LogInfo("System", $"CreateDefaultWeaponTypeMappings: Added {weaponType} with Q/T/G mappings");
                 }

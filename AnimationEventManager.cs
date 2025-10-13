@@ -63,17 +63,13 @@ namespace ExtraAttackSystem
 
             // Apply events to clip
             clip.events = events.ToArray();
-
-            ExtraAttackPlugin.LogInfo("System",
-                $"Added {events.Count} AnimationEvents to [{clip.name}] using YAML key [{configKey}]: " +
-                $"TrailOn={trailOnTiming:F3}s, Hit={hitTiming:F3}s, TrailOff={trailOffTiming:F3}s");
         }
 
         // Add events to all external animations
-        public static void AddEventsToExternalAnimations()
+        public static void AddEventsToCustomAnimations()
         {
             int count = 0;
-            foreach (var kvp in AnimationManager.ExternalAnimations)
+            foreach (var kvp in AnimationManager.CustomAnimationClips)
             {
                 string animName = kvp.Key;
                 AnimationClip clip = kvp.Value;
@@ -90,15 +86,12 @@ namespace ExtraAttackSystem
                 // Fallback: if clip already has events, keep them; otherwise add default events
                 if (clip.events != null && clip.events.Length > 0)
                 {
-                    ExtraAttackPlugin.LogInfo("System", $"[{animName}] already has {clip.events.Length} events, keeping existing (no YAML match)");
                     continue;
                 }
         
                 AddAnimationEvents(clip);
                 count++;
             }
-        
-            ExtraAttackPlugin.LogInfo("System", $"Added/updated AnimationEvents on {count} clips");
         }
         
         // Resolve YAML key from ReplacementMap by reverse lookup of external clip name
@@ -108,7 +101,7 @@ namespace ExtraAttackSystem
             if (clip == null) return null;
             string externalName = clip.name;
         
-            foreach (var entry in AnimationManager.ReplacementMap)
+            foreach (var entry in AnimationManager.AnimationReplacementMap)
             {
                 string mapKey = entry.Key;
                 string? suffix = null;

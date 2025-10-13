@@ -72,11 +72,6 @@ namespace ExtraAttackSystem
                                 __instance.m_attackHeightChar2 = timing.AttackHeightChar2;
                                 __instance.m_maxYAngle = timing.MaxYAngle;
 
-                                if (ExtraAttackPlugin.IsDebugAOCOperationsEnabled)
-                                {
-                                    ExtraAttackPlugin.LogInfo("AOC",
-                                        $"Applied attack params from YAML: [{configKey}] Range={timing.AttackRange:F2}, Height={timing.AttackHeight:F2}, Angle={timing.AttackAngle:F1}");
-                                }
                             }
                         }
                     }
@@ -106,11 +101,6 @@ namespace ExtraAttackSystem
                         __instance.m_maxYAngle = original.maxYAngle;
 
                         originalParams.Remove(__instance);
-
-                        if (ExtraAttackPlugin.IsDebugAOCOperationsEnabled)
-                        {
-                            ExtraAttackPlugin.LogInfo("AOC", "Restored original attack params");
-                        }
                     }
                 }
                 catch (Exception ex)

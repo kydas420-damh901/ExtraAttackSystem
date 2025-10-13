@@ -107,28 +107,9 @@ namespace ExtraAttackSystem
             }
         }
 
-        // Common utility for debug animator parameters (using EAS_Debug.cs)
-        public static void LogAnimatorParameters(Player player, string context)
-        {
-            // Animation Parameters is now a list-type debug - use LogAllAnimationParameters instead
-            try
-            {
-                if (TryGetPlayerAnimator(player, out Animator? animator) && animator != null)
-                {
-                    EAS_Debug.LogAllAnimationParameters();
-                }
-            }
-            catch (Exception ex)
-            {
-                ExtraAttackPlugin.LogError("System", $"Error in LogAnimatorParameters: {ex.Message}");
-            }
-        }
-
         [HarmonyPatch(typeof(CharacterAnimEvent), "CustomFixedUpdate")]
         public static class CharacterAnimEvent_CacheAnimator_Patch
         {
-            private static bool parametersLogged = false;
-
             public static void Postfix(ref Animator ___m_animator, Character ___m_character)
             {
                 try
@@ -139,12 +120,6 @@ namespace ExtraAttackSystem
                         {
                             playerAnimators[player] = ___m_animator;
                             ExtraAttackPlugin.LogInfo("System", "Animator cached successfully");
-
-                            if (!parametersLogged)
-                            {
-                                parametersLogged = true;
-                                LogAnimatorParameters(player, "Animator cached");
-                            }
                         }
                     }
                 }

@@ -103,7 +103,7 @@ namespace ExtraAttackSystem
                     {
                         // For normal attacks, revert to original AOC
                         var animator = AnimationManager.GetPlayerAnimator(player);
-                        if (animator != null && AnimationManager.CustomRuntimeControllers.TryGetValue("Original", out var originalController))
+                        if (animator != null && AnimationManager.AnimatorControllerCache.TryGetValue("Original", out var originalController))
                         {
                             AnimationManager.FastReplaceRAC(player, originalController);
                             

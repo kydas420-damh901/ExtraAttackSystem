@@ -118,6 +118,73 @@ dualaxes_secondary		[DualAxes Attack Cleave] - Length: 1.900s, FrameRate: 30, Le
  [Kickstep] - Length: 1.833s, FrameRate: 30, Legacy: False, Events: 4
 [throw_spear] - Length: 1.133s, FrameRate: 30, Legacy: False, Events: 5
 
+greatsword
+[Info   :Extra Attack System] [System] attackRange: 2.6
+[Info   :Extra Attack System] [System] attackHeight: 1
+[Info   :Extra Attack System] [System] attackOffset: 0
+[Info   :Extra Attack System] [System] attackAngle: 90
+[Info   :Extra Attack System] [System] attackRayWidth: 0.5
+[Info   :Extra Attack System] [System] attackRayWidthCharExtra: 0
+[Info   :Extra Attack System] [System] attackHeightChar1: -0.63
+[Info   :Extra Attack System] [System] attackHeightChar2: 0.71
+[Info   :Extra Attack System] [System] maxYAngle: 0
+
+battleaxe
+[Info   :Extra Attack System] [System] Vanilla HitTiming: 0.450
+[Info   :Extra Attack System] [System] Vanilla TrailOnTiming: 0.350
+[Info   :Extra Attack System] [System] Vanilla TrailOffTiming: 0.700
+[Info   :Extra Attack System] [System] Vanilla SpeedTiming: 0.000
+[Info   :Extra Attack System] [System] Vanilla DodgeMortalTiming: 0.000
+
+clubs
+[Info   :Extra Attack System] [System] === VANILLA TIMING VALUES: MaceAltAttack ===
+[Info   :Extra Attack System] [System] Vanilla HitTiming: 0.450
+[Info   :Extra Attack System] [System] Vanilla TrailOnTiming: 0.350
+[Info   :Extra Attack System] [System] Vanilla TrailOffTiming: 0.700
+[Info   :Extra Attack System] [System] Vanilla SpeedTiming: 0.000
+[Info   :Extra Attack System] [System] Vanilla DodgeMortalTiming: 0.000
+
+swords
+[Info   :Extra Attack System] [System] Vanilla HitTiming: 0.450
+[Info   :Extra Attack System] [System] Vanilla TrailOnTiming: 0.350
+[Info   :Extra Attack System] [System] Vanilla TrailOffTiming: 0.700
+[Info   :Extra Attack System] [System] Vanilla SpeedTiming: 0.000
+[Info   :Extra Attack System] [System] Vanilla DodgeMortalTiming: 0.000
+
+axe
+[Info   :Extra Attack System] [System] Vanilla HitTiming: 0.450
+[Info   :Extra Attack System] [System] Vanilla TrailOnTiming: 0.350
+[Info   :Extra Attack System] [System] Vanilla TrailOffTiming: 0.700
+[Info   :Extra Attack System] [System] Vanilla SpeedTiming: 0.000
+[Info   :Extra Attack System] [System] Vanilla DodgeMortalTiming: 0.000
+
+polearms
+[Info   :Extra Attack System] [System] Vanilla HitTiming: 0.450
+[Info   :Extra Attack System] [System] Vanilla TrailOnTiming: 0.350
+[Info   :Extra Attack System] [System] Vanilla TrailOffTiming: 0.700
+[Info   :Extra Attack System] [System] Vanilla SpeedTiming: 0.000
+[Info   :Extra Attack System] [System] Vanilla DodgeMortalTiming: 0.000
+
+Knives
+[Info   :Extra Attack System] [System] Vanilla HitTiming: 0.450
+[Info   :Extra Attack System] [System] Vanilla TrailOnTiming: 0.350
+[Info   :Extra Attack System] [System] Vanilla TrailOffTiming: 0.700
+[Info   :Extra Attack System] [System] Vanilla SpeedTiming: 0.000
+[Info   :Extra Attack System] [System] Vanilla DodgeMortalTiming: 0.000
+
+dual knives
+[Info   :Extra Attack System] [System] Vanilla HitTiming: 0.450
+[Info   :Extra Attack System] [System] Vanilla TrailOnTiming: 0.350
+[Info   :Extra Attack System] [System] Vanilla TrailOffTiming: 0.700
+[Info   :Extra Attack System] [System] Vanilla SpeedTiming: 0.000
+[Info   :Extra Attack System] [System] Vanilla DodgeMortalTiming: 0.000
+
+
+
+
+
+
+
 
 
 1. 根本的な問題
@@ -132,20 +199,13 @@ YAML読み込み: ファイルは存在し、内容も読み込まれている
 🛠️ 修正内容
 1. デバッグログの追加
 
-// AnimationReplacementConfig.cs に追加
-ExtraAttackPlugin.LogInfo("System", $"LoadWeaponTypesConfig: ConfigFolderPath: {ConfigFolderPath}");
-ExtraAttackPlugin.LogInfo("System", $"LoadWeaponTypesConfig: WeaponTypesConfigFilePath: {WeaponTypesConfigFilePath}");
-ExtraAttackPlugin.LogInfo("System", $"LoadWeaponTypesConfig: File exists: {File.Exists(WeaponTypesConfigFilePath)}");
-ExtraAttackPlugin.LogInfo("System", $"LoadWeaponTypesConfig: YAML content length: {yaml.Length}");
-ExtraAttackPlugin.LogInfo("System", $"LoadWeaponTypesConfig: YAML contains 'AocTypes:': {yaml.Contains("AocTypes:")}");
-ExtraAttackPlugin.LogInfo("System", $"LoadWeaponTypesConfig: After deserialization:");
-ExtraAttackPlugin.LogInfo("System", $"  - config.AocTypes is null: {weaponTypesConfig.AocTypes == null}");
-ExtraAttackPlugin.LogInfo("System", $"  - config.AocTypes.Count: {weaponTypesConfig.AocTypes?.Count ?? -1}");
-ExtraAttackPlugin.LogInfo("System", $"  - config.Axes is null: {weaponTypesConfig.Axes == null}");
-ExtraAttackPlugin.LogInfo("System", $"  - config.Axes.Count: {weaponTypesConfig.Axes?.Count ?? -1}");
+
+
+
 
 // 統一前: ea_secondary_Q, ea_secondary_T, ea_secondary_G
 // 統一後: secondary_Q, secondary_T, secondary_G
+
 
 
 

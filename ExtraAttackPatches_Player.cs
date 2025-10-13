@@ -101,9 +101,9 @@ namespace ExtraAttackSystem
                             {
                                 if (ExtraAttackPatches_Core.TryGetPlayerAnimator(__instance, out Animator? animator) && animator != null)
                                 {
-                                    if (AnimationManager.CustomRuntimeControllers.ContainsKey("Original"))
+                                    if (AnimationManager.AnimatorControllerCache.ContainsKey("Original"))
                                     {
-                                        var originalController = AnimationManager.CustomRuntimeControllers["Original"];
+                                        var originalController = AnimationManager.AnimatorControllerCache["Original"];
                                         // Restore only emote flags across controller swap, and only if currently in emote
                                         int emoteSitHash = ZSyncAnimation.GetHash("emote_sit");
                                         int emoteSitChairHash = ZSyncAnimation.GetHash("emote_sitchair");
@@ -404,7 +404,7 @@ namespace ExtraAttackSystem
                     }
 
                     // Ensure AOCs are initialized at least once
-                    if (!AnimationManager.CustomRuntimeControllers.ContainsKey("Original"))
+                    if (!AnimationManager.AnimatorControllerCache.ContainsKey("Original"))
                     {
                         ExtraAttackPatches_Animation.InitializeAOC(player, animator);
                     }
@@ -448,7 +448,6 @@ namespace ExtraAttackSystem
                     player.StartAttack(null, true);
 
                     // Diagnostics: capture animator parameters immediately after StartAttack
-                    ExtraAttackPatches_Core.LogAnimatorParameters(player, $"[{buttonName}] After StartAttack");
                 }
                 catch (Exception ex)
                 {
@@ -543,7 +542,7 @@ namespace ExtraAttackSystem
                     }
 
                     // Ensure AOCs are initialized at least once
-                    if (!AnimationManager.CustomRuntimeControllers.ContainsKey("Original"))
+                    if (!AnimationManager.AnimatorControllerCache.ContainsKey("Original"))
                     {
                         ExtraAttackPatches_Animation.InitializeAOC(player, animator);
                     }
@@ -578,7 +577,6 @@ namespace ExtraAttackSystem
                     player.StartAttack(null, true);
 
                     // Diagnostics: capture animator parameters immediately after StartAttack
-                    ExtraAttackPatches_Core.LogAnimatorParameters(player, $"[{mode}] After StartAttack");
                 }
                 catch (Exception ex)
                 {

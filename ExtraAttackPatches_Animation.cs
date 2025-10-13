@@ -34,12 +34,12 @@ namespace ExtraAttackSystem
         
         
                 // Cache original runtime controller once
-                if (!AnimationManager.CustomRuntimeControllers.ContainsKey("Original"))
+                if (!AnimationManager.AnimatorControllerCache.ContainsKey("Original"))
                 {
                     var original = animator.runtimeAnimatorController;
                     if (original != null)
                     {
-                        AnimationManager.CustomRuntimeControllers["Original"] = original;
+                        AnimationManager.AnimatorControllerCache["Original"] = original;
                     }
                 }
         
@@ -181,7 +181,7 @@ namespace ExtraAttackSystem
 
                 if (!string.IsNullOrEmpty(expectedPrefix))
                 {
-                    foreach (var entry in AnimationManager.ReplacementMap)
+                    foreach (var entry in AnimationManager.AnimationReplacementMap)
                     {
                         if (!entry.Key.StartsWith(expectedPrefix, StringComparison.Ordinal))
                         {
@@ -200,7 +200,7 @@ namespace ExtraAttackSystem
                 }
 
                 // Priority 2: scan all maps and infer style suffix
-                foreach (var entry in AnimationManager.ReplacementMap)
+                foreach (var entry in AnimationManager.AnimationReplacementMap)
                 {
                     string key = entry.Key;
                     string suffix = key.StartsWith("secondary_Q", StringComparison.Ordinal) ? "_secondary_Q" :
@@ -249,7 +249,7 @@ namespace ExtraAttackSystem
                     string individualWeaponKey = $"{modePrefix}_{rightIdent}";
                     
                     // Only generate individual weapon AOC if it exists in YAML
-                    if (!AnimationManager.ReplacementMap.ContainsKey(individualWeaponKey) || AnimationManager.ReplacementMap[individualWeaponKey].Count == 0)
+                    if (!AnimationManager.AnimationReplacementMap.ContainsKey(individualWeaponKey) || AnimationManager.AnimationReplacementMap[individualWeaponKey].Count == 0)
                     {
                         if (ExtraAttackPlugin.DebugAOCOperations.Value)
                         {
@@ -276,8 +276,8 @@ namespace ExtraAttackSystem
                     
                     // Check if weapon type has the mode mapping
                     // âœ… ä¿®æ­£: ç›´æŽ¥ãƒ¢ãƒ¼ãƒ‰ã‚­ãƒ¼ï¼ˆsecondary_Q/T/Gï¼‰ã§æ¤œç´¢
-                    bool hasWeaponTypeMapping = AnimationManager.ReplacementMap.ContainsKey(currentWeaponType) && 
-                                              AnimationManager.ReplacementMap[currentWeaponType].ContainsKey(secondaryPrefix);
+                    bool hasWeaponTypeMapping = AnimationManager.AnimationReplacementMap.ContainsKey(currentWeaponType) && 
+                                              AnimationManager.AnimationReplacementMap[currentWeaponType].ContainsKey(secondaryPrefix);
                     
                     string baseKeySec = hasWeaponTypeMapping ? currentWeaponType : string.Empty;
                     
@@ -285,7 +285,7 @@ namespace ExtraAttackSystem
                     if (!string.IsNullOrEmpty(rightIdent))
                     {
                         string individualKey = $"{secondaryPrefix}_{rightIdent}";
-                        if (AnimationManager.ReplacementMap.ContainsKey(individualKey) && AnimationManager.ReplacementMap[individualKey].Count > 0)
+                        if (AnimationManager.AnimationReplacementMap.ContainsKey(individualKey) && AnimationManager.AnimationReplacementMap[individualKey].Count > 0)
                         {
                             baseKeySec = individualKey;
                         }
@@ -296,7 +296,7 @@ namespace ExtraAttackSystem
                     if (leftIsShield)
                     {
                         string candidate = $"{baseKeySec}_LeftShield";
-                        if (AnimationManager.ReplacementMap.ContainsKey(candidate) && AnimationManager.ReplacementMap[candidate].Count > 0)
+                        if (AnimationManager.AnimationReplacementMap.ContainsKey(candidate) && AnimationManager.AnimationReplacementMap[candidate].Count > 0)
                         {
                             resolvedKeySec = candidate;
                         }
@@ -304,7 +304,7 @@ namespace ExtraAttackSystem
                     else if (leftIsTorch)
                     {
                         string candidate = $"{baseKeySec}_LeftTorch";
-                        if (AnimationManager.ReplacementMap.ContainsKey(candidate) && AnimationManager.ReplacementMap[candidate].Count > 0)
+                        if (AnimationManager.AnimationReplacementMap.ContainsKey(candidate) && AnimationManager.AnimationReplacementMap[candidate].Count > 0)
                         {
                             resolvedKeySec = candidate;
                         }
@@ -312,7 +312,7 @@ namespace ExtraAttackSystem
                     else if (leftSkill != Skills.SkillType.None)
                     {
                         string candidate = $"{baseKeySec}_Left{leftSkill}";
-                        if (AnimationManager.ReplacementMap.ContainsKey(candidate) && AnimationManager.ReplacementMap[candidate].Count > 0)
+                        if (AnimationManager.AnimationReplacementMap.ContainsKey(candidate) && AnimationManager.AnimationReplacementMap[candidate].Count > 0)
                         {
                             resolvedKeySec = candidate;
                         }
@@ -333,18 +333,18 @@ namespace ExtraAttackSystem
                     {
                         case EAS_CommonUtils.AttackMode.secondary_Q:
                             // Prefer item-specific map; fallback to weapon-type map if available
-                            string typeKey1 = AnimationManager.ReplacementMap.ContainsKey($"secondary_Q_{rightSkill}") ? $"secondary_Q_{rightSkill}" : "secondary_Q";
+                            string typeKey1 = AnimationManager.AnimationReplacementMap.ContainsKey($"secondary_Q_{rightSkill}") ? $"secondary_Q_{rightSkill}" : "secondary_Q";
                             baseKey = string.IsNullOrEmpty(rightIdent) ? typeKey1 : $"secondary_Q_{rightIdent}";
-                            if (!AnimationManager.ReplacementMap.ContainsKey(baseKey) || AnimationManager.ReplacementMap[baseKey].Count == 0)
+                            if (!AnimationManager.AnimationReplacementMap.ContainsKey(baseKey) || AnimationManager.AnimationReplacementMap[baseKey].Count == 0)
                             {
                                 baseKey = typeKey1;
                             }
                             break;
                         case EAS_CommonUtils.AttackMode.secondary_T:
                             {
-                                string typeKey2 = AnimationManager.ReplacementMap.ContainsKey($"secondary_T_{rightSkill}") ? $"secondary_T_{rightSkill}" : "secondary_T_Swords";
+                                string typeKey2 = AnimationManager.AnimationReplacementMap.ContainsKey($"secondary_T_{rightSkill}") ? $"secondary_T_{rightSkill}" : "secondary_T_Swords";
                                 baseKey = string.IsNullOrEmpty(rightIdent) ? typeKey2 : $"secondary_T_{rightIdent}";
-                            if (!AnimationManager.ReplacementMap.ContainsKey(baseKey) || AnimationManager.ReplacementMap[baseKey].Count == 0)
+                            if (!AnimationManager.AnimationReplacementMap.ContainsKey(baseKey) || AnimationManager.AnimationReplacementMap[baseKey].Count == 0)
                             {
                                 baseKey = typeKey2;
                             }
@@ -352,9 +352,9 @@ namespace ExtraAttackSystem
                         break;
                         case EAS_CommonUtils.AttackMode.secondary_G:
                         {
-                                string typeKey3 = AnimationManager.ReplacementMap.ContainsKey($"secondary_G_{rightSkill}") ? $"secondary_G_{rightSkill}" : "secondary_G_Swords";
+                                string typeKey3 = AnimationManager.AnimationReplacementMap.ContainsKey($"secondary_G_{rightSkill}") ? $"secondary_G_{rightSkill}" : "secondary_G_Swords";
                                 baseKey = string.IsNullOrEmpty(rightIdent) ? typeKey3 : $"secondary_G_{rightIdent}";
-                            if (!AnimationManager.ReplacementMap.ContainsKey(baseKey) || AnimationManager.ReplacementMap[baseKey].Count == 0)
+                            if (!AnimationManager.AnimationReplacementMap.ContainsKey(baseKey) || AnimationManager.AnimationReplacementMap[baseKey].Count == 0)
                             {
                                 baseKey = typeKey3;
                             }
@@ -370,7 +370,7 @@ namespace ExtraAttackSystem
                 if (leftIsShield)
                 {
                     string candidate = $"{baseKey}_LeftShield";
-                    if (AnimationManager.ReplacementMap.ContainsKey(candidate) && AnimationManager.ReplacementMap[candidate].Count > 0)
+                    if (AnimationManager.AnimationReplacementMap.ContainsKey(candidate) && AnimationManager.AnimationReplacementMap[candidate].Count > 0)
                     {
                         resolvedKey = candidate;
                     }
@@ -378,7 +378,7 @@ namespace ExtraAttackSystem
                 else if (leftIsTorch)
                 {
                     string candidate = $"{baseKey}_LeftTorch";
-                    if (AnimationManager.ReplacementMap.ContainsKey(candidate) && AnimationManager.ReplacementMap[candidate].Count > 0)
+                    if (AnimationManager.AnimationReplacementMap.ContainsKey(candidate) && AnimationManager.AnimationReplacementMap[candidate].Count > 0)
                     {
                         resolvedKey = candidate;
                     }
@@ -386,7 +386,7 @@ namespace ExtraAttackSystem
                 else if (leftSkill != Skills.SkillType.None)
                 {
                     string candidate = $"{baseKey}_Left{leftSkill}";
-                    if (AnimationManager.ReplacementMap.ContainsKey(candidate) && AnimationManager.ReplacementMap[candidate].Count > 0)
+                    if (AnimationManager.AnimationReplacementMap.ContainsKey(candidate) && AnimationManager.AnimationReplacementMap[candidate].Count > 0)
                     {
                         resolvedKey = candidate;
                         }
@@ -397,9 +397,9 @@ namespace ExtraAttackSystem
                 Dictionary<string, string>? map = null;
                 
                 // For weapon type structure, get the mode mapping from the weapon type
-                if (!string.IsNullOrEmpty(baseKey) && AnimationManager.ReplacementMap.ContainsKey(baseKey))
+                if (!string.IsNullOrEmpty(baseKey) && AnimationManager.AnimationReplacementMap.ContainsKey(baseKey))
                 {
-                    var weaponTypeMap = AnimationManager.ReplacementMap[baseKey];
+                    var weaponTypeMap = AnimationManager.AnimationReplacementMap[baseKey];
                     
                     // NEW: ç›´æŽ¥ãƒ¢ãƒ¼ãƒ‰ã‚­ãƒ¼ï¼ˆsecondary_Q/T/Gï¼‰ã§æ¤œç´¢
                     if (weaponTypeMap.ContainsKey(secondaryPrefix))
@@ -418,11 +418,11 @@ namespace ExtraAttackSystem
                 // Fallback to direct key lookup
                 if (map == null)
                 {
-                if (AnimationManager.ReplacementMap.TryGetValue(resolvedKey, out var m) && m.Count > 0)
+                if (AnimationManager.AnimationReplacementMap.TryGetValue(resolvedKey, out var m) && m != null && m.Count > 0)
                 {
                     map = m;
                 }
-                else if (AnimationManager.ReplacementMap.TryGetValue(baseKey, out var m2) && m2.Count > 0)
+                else if (AnimationManager.AnimationReplacementMap.TryGetValue(baseKey, out var m2) && m2 != null && m2.Count > 0)
                 {
                     map = m2;
                     }
@@ -430,9 +430,9 @@ namespace ExtraAttackSystem
 
                 var original = animator.runtimeAnimatorController;
                 // Diagnostic: compute how many overrides have corresponding external clips loaded
-                int externalResolved = map != null ? System.Linq.Enumerable.Count(map.Values, v => AnimationManager.ExternalAnimations.ContainsKey(v)) : 0;
-                int externalMissing = map != null ? System.Linq.Enumerable.Count(map.Values, v => !AnimationManager.ExternalAnimations.ContainsKey(v)) : 0;
-                int externalTotal = AnimationManager.ExternalAnimations.Count;
+                int externalResolved = map != null ? System.Linq.Enumerable.Count(map.Values, v => AnimationManager.CustomAnimationClips.ContainsKey(v)) : 0;
+                int externalMissing = map != null ? System.Linq.Enumerable.Count(map.Values, v => !AnimationManager.CustomAnimationClips.ContainsKey(v)) : 0;
+                int externalTotal = AnimationManager.CustomAnimationClips.Count;
                 string originalName = (original is AnimatorOverrideController) ? "AnimatorOverrideController" : (original?.name ?? "null");
                 string mapKey = map == null ? "<none>" : resolvedKey;
         
@@ -467,15 +467,15 @@ namespace ExtraAttackSystem
                 if (cacheWeaponType == "Unarmed") cacheWeaponType = "Fists";
                 string cacheKey = $"{cacheWeaponType}:{styleKey}:{resolvedKey}:{baseId}";
         
-                if (!AnimationManager.CustomRuntimeControllers.TryGetValue(cacheKey, out var controller) || controller == null)
+                if (!AnimationManager.AnimatorControllerCache.TryGetValue(cacheKey, out var controller) || controller == null)
                 {
-                    var originalNonNull = original ?? (AnimationManager.CustomRuntimeControllers.ContainsKey("Original") ? AnimationManager.CustomRuntimeControllers["Original"] : null);
+                    var originalNonNull = original ?? (AnimationManager.AnimatorControllerCache.ContainsKey("Original") ? AnimationManager.AnimatorControllerCache["Original"] : null);
                     if (originalNonNull == null)
                     {
                         return original;
                     }
                     controller = AnimationManager.MakeAOC(map, originalNonNull, player);
-                    AnimationManager.CustomRuntimeControllers[cacheKey] = controller;
+                    AnimationManager.AnimatorControllerCache[cacheKey] = controller;
                     if (ExtraAttackPlugin.DebugAOCOperations.Value)
                     {
                     }
@@ -579,25 +579,25 @@ namespace ExtraAttackSystem
                 // Helper to copy from first available source; fallback to base type if specific left variant missing
                 bool Ensure(string targetKey, params string[] fallbackSourceKeys)
                 {
-                    if (!AnimationManager.ReplacementMap.ContainsKey(targetKey))
+                    if (!AnimationManager.AnimationReplacementMap.ContainsKey(targetKey))
                     {
                         Dictionary<string, string>? source = null;
                         foreach (var fk in fallbackSourceKeys)
                         {
-                            if (AnimationManager.ReplacementMap.ContainsKey(fk) && AnimationManager.ReplacementMap[fk].Count > 0)
+                            if (AnimationManager.AnimationReplacementMap.ContainsKey(fk) && AnimationManager.AnimationReplacementMap[fk].Count > 0)
                             {
-                                source = new Dictionary<string, string>(AnimationManager.ReplacementMap[fk]);
+                                source = new Dictionary<string, string>(AnimationManager.AnimationReplacementMap[fk]);
                                 break;
                             }
                         }
-                        AnimationManager.ReplacementMap[targetKey] = source ?? new Dictionary<string, string>();
+                        AnimationManager.AnimationReplacementMap[targetKey] = source ?? new Dictionary<string, string>();
                         created = true;
                         if (ExtraAttackPlugin.DebugAOCOperations.Value)
                         {
                             string fromKey = source != null ? "copied" : "empty";
                         }
                     }
-                    return AnimationManager.ReplacementMap[targetKey].Count > 0;
+                    return AnimationManager.AnimationReplacementMap[targetKey].Count > 0;
                 }
         
                 // Q mode base and combos
@@ -616,7 +616,7 @@ namespace ExtraAttackSystem
                 }
         
                 // T mode base and combos (fallback to per-type or swords)
-                string style2Type = rightSkill == Skills.SkillType.Swords || AnimationManager.ReplacementMap.ContainsKey($"secondary_T_{rightSkill}") ? $"secondary_T_{rightSkill}" : "secondary_T_Swords";
+                string style2Type = rightSkill == Skills.SkillType.Swords || AnimationManager.AnimationReplacementMap.ContainsKey($"secondary_T_{rightSkill}") ? $"secondary_T_{rightSkill}" : "secondary_T_Swords";
                 Ensure($"secondary_T_{rightIdent}", style2Type);
                 if (leftIsShield)
                 {
@@ -632,7 +632,7 @@ namespace ExtraAttackSystem
                 }
         
                 // G mode base and combos (fallback to per-type or swords)
-                string style3Type = rightSkill == Skills.SkillType.Swords || AnimationManager.ReplacementMap.ContainsKey($"secondary_G_{rightSkill}") ? $"secondary_G_{rightSkill}" : "secondary_G_Swords";
+                string style3Type = rightSkill == Skills.SkillType.Swords || AnimationManager.AnimationReplacementMap.ContainsKey($"secondary_G_{rightSkill}") ? $"secondary_G_{rightSkill}" : "secondary_G_Swords";
                 Ensure($"secondary_G_{rightIdent}", style3Type);
                 if (leftIsShield)
                 {
@@ -670,29 +670,29 @@ namespace ExtraAttackSystem
                 // Helper to copy from first available source; fallback to base secondary type if specific left variant missing
                 bool Ensure(string targetKey, params string[] fallbackSourceKeys)
                 {
-                    if (!AnimationManager.ReplacementMap.ContainsKey(targetKey))
+                    if (!AnimationManager.AnimationReplacementMap.ContainsKey(targetKey))
                     {
                         Dictionary<string, string>? source = null;
                         foreach (var fk in fallbackSourceKeys)
                         {
-                            if (AnimationManager.ReplacementMap.ContainsKey(fk) && AnimationManager.ReplacementMap[fk].Count > 0)
+                            if (AnimationManager.AnimationReplacementMap.ContainsKey(fk) && AnimationManager.AnimationReplacementMap[fk].Count > 0)
                             {
-                                source = new Dictionary<string, string>(AnimationManager.ReplacementMap[fk]);
+                                source = new Dictionary<string, string>(AnimationManager.AnimationReplacementMap[fk]);
                                 break;
                             }
                         }
-                        AnimationManager.ReplacementMap[targetKey] = source ?? new Dictionary<string, string>();
+                        AnimationManager.AnimationReplacementMap[targetKey] = source ?? new Dictionary<string, string>();
                         created = true;
                 if (ExtraAttackPlugin.DebugAOCOperations.Value)
                 {
                             string fromKey = source != null ? "copied" : "empty";
                         }
                     }
-                    return AnimationManager.ReplacementMap[targetKey].Count > 0;
+                    return AnimationManager.AnimationReplacementMap[targetKey].Count > 0;
                 }
 
                 // Secondary base and combos
-                string typeKeySec = AnimationManager.ReplacementMap.ContainsKey($"{secondaryPrefix}_{rightSkill}") ? $"{secondaryPrefix}_{rightSkill}" : secondaryPrefix;
+                string typeKeySec = AnimationManager.AnimationReplacementMap.ContainsKey($"{secondaryPrefix}_{rightSkill}") ? $"{secondaryPrefix}_{rightSkill}" : secondaryPrefix;
                 Ensure($"{secondaryPrefix}_{rightIdent}", typeKeySec);
                 if (leftIsShield)
                 {

@@ -393,7 +393,7 @@ namespace ExtraAttackSystem
                 if (isExternal)
                 {
                     // External animation clip
-                    if (AnimationManager.ExternalAnimations.TryGetValue(clipName, out AnimationClip clip) && clip != null)
+                    if (AnimationManager.CustomAnimationClips.TryGetValue(clipName, out AnimationClip clip) && clip != null)
                     {
                         return clip.length;
                     }
@@ -401,7 +401,7 @@ namespace ExtraAttackSystem
                 else
                 {
                     // Vanilla animation clip - use default values
-                    if (AnimationManager.DefaultClipLengths.TryGetValue(clipName, out float defaultLength))
+                    if (AnimationManager.VanillaClipLengths.TryGetValue(clipName, out float defaultLength))
                     {
                         return defaultLength;
                     }

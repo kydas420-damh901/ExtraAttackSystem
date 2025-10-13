@@ -38,6 +38,7 @@ namespace ExtraAttackSystem
         private static bool cachedDebugAOCOperations;
         private static bool cachedDebugClipNames;
         private static bool cachedDebugCombo;
+        private static bool cachedDebugAnimationParametersList;
 
         // General config - keys & cooldowns
         // Q/T/G keys for extra attacks
@@ -66,6 +67,7 @@ namespace ExtraAttackSystem
         public static bool IsDebugAOCOperationsEnabled => cachedDebugAOCOperations;
         public static bool IsDebugComboEnabled => cachedDebugCombo;
         public static bool IsDebugClipNamesEnabled => cachedDebugClipNames;
+        public static bool IsDebugAnimationParametersListEnabled => cachedDebugAnimationParametersList;
         
         // ========================================================================
         // 3 - COMPAT
@@ -318,7 +320,9 @@ namespace ExtraAttackSystem
             // Animation Parameters List (one-time output)
             DebugAnimationParametersList = Config.Bind("4 - Debug Lists", "Animation Parameters List", false,
                 "Output all animator parameters and their current values to debug console");
+            cachedDebugAnimationParametersList = DebugAnimationParametersList.Value;
             DebugAnimationParametersList.SettingChanged += (s, e) => {
+                cachedDebugAnimationParametersList = DebugAnimationParametersList.Value;
                 LogInfo("System", $"DebugAnimationParametersList changed to: {DebugAnimationParametersList.Value}");
                 if (DebugAnimationParametersList.Value)
                 {
@@ -503,8 +507,19 @@ namespace ExtraAttackSystem
 
     public static void LogInfo(string category, string message)
     {
-        // Always log essential system messages
-        if (category is "System" or "AOC" or "AttackTriggers" or "COMBO" or "AnimationParameters" or "Diag")
+        // Check if logging is enabled for this category
+        bool shouldLog = category switch
+        {
+            "System" => IsDebugSystemMessagesEnabled,
+            "AOC" => IsDebugAOCOperationsEnabled,
+            "AttackTriggers" => IsDebugAttackTriggersEnabled,
+            "COMBO" => IsDebugComboEnabled,
+            "AnimationParameters" => IsDebugAnimationParametersListEnabled,
+            "Diag" => IsDebugDamageCalculationEnabled,
+            _ => false
+        };
+        
+        if (shouldLog)
         {
             ExtraAttackLogger.LogInfo($"[{category}] {message}");
         }
