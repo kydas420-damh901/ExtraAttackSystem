@@ -75,7 +75,10 @@ namespace ExtraAttackSystem
                 // Guard: Chainloader.PluginInfos may be null/empty early in lifecycle
                 if (Chainloader.PluginInfos == null || Chainloader.PluginInfos.Count == 0)
                 {
-                    LogInfo("System", "Dual-wield mod detection: PluginInfos not ready");
+                    if (IsDebugSystemMessagesEnabled)
+                    {
+                        LogInfo("System", "Dual Wield or Dual Wielder mod detection: PluginInfos not ready");
+                    }
                     return;
                 }
 
@@ -144,14 +147,20 @@ namespace ExtraAttackSystem
                     {
                         dualWieldModDetected = true;
                         detectedDualWieldModName = foundName;
-                        LogInfo("System", $"Dual-wield mod detected: {detectedDualWieldModName} - {foundReason}");
+                        if (IsDebugSystemMessagesEnabled)
+                        {
+                            LogInfo("System", $"Dual-wield mod detected: {detectedDualWieldModName} - {foundReason}");
+                        }
                         break;
                     }
                 }
 
                 if (!dualWieldModDetected)
                 {
-                    LogInfo("System", "Dual-wield mod not detected");
+                    if (IsDebugSystemMessagesEnabled)
+                    {
+                        LogInfo("System", "Dual-wield mod not detected");
+                    }
                 }
             }
             catch (Exception ex)
@@ -344,7 +353,10 @@ namespace ExtraAttackSystem
             };
             
 
-            LogInfo("System", "Debug configuration initialized");
+            if (IsDebugSystemMessagesEnabled)
+            {
+                LogInfo("System", "Debug configuration initialized");
+            }
         }
 
         // Generate all 6 YAML config files in one unified process
@@ -352,19 +364,34 @@ namespace ExtraAttackSystem
         {
             try
             {
-                LogInfo("System", "GenerateAllYamlConfigs: Starting unified YAML generation for all 6 config files");
+                if (IsDebugSystemMessagesEnabled)
+                {
+                    LogInfo("System", "GenerateAllYamlConfigs: Starting unified YAML generation for all 6 config files");
+                }
                 
                 // 1. AnimationReplacementConfig (2 files)
-                LogInfo("System", "Generating AnimationReplacementConfig files...");
+                if (IsDebugSystemMessagesEnabled)
+                {
+                    LogInfo("System", "Generating AnimationReplacementConfig files...");
+                }
                 AnimationReplacementConfig.Initialize();
                 
                 // 2. AnimationTimingConfig (4 files)
-                LogInfo("System", "Generating AnimationTimingConfig files...");
-                LogInfo("System", "About to call AnimationTimingConfig.Initialize()");
+                if (IsDebugSystemMessagesEnabled)
+                {
+                    LogInfo("System", "Generating AnimationTimingConfig files...");
+                }
+                if (IsDebugSystemMessagesEnabled)
+                {
+                    LogInfo("System", "About to call AnimationTimingConfig.Initialize()");
+                }
                 try
                 {
                     AnimationTimingConfig.Initialize();
-                    LogInfo("System", "AnimationTimingConfig.Initialize completed successfully");
+                    if (IsDebugSystemMessagesEnabled)
+                    {
+                        LogInfo("System", "AnimationTimingConfig.Initialize completed successfully");
+                    }
                 }
                 catch (Exception ex)
                 {
@@ -373,10 +400,16 @@ namespace ExtraAttackSystem
                 }
                 
                 // 3. ExtraAttackExclusionConfig (1 file)
-                LogInfo("System", "Generating ExtraAttackExclusionConfig file...");
+                if (IsDebugSystemMessagesEnabled)
+                {
+                    LogInfo("System", "Generating ExtraAttackExclusionConfig file...");
+                }
                 ExtraAttackExclusionConfig.Initialize();
                 
-                LogInfo("System", "GenerateAllYamlConfigs: Successfully generated all 6 YAML config files");
+                if (IsDebugSystemMessagesEnabled)
+                {
+                    LogInfo("System", "GenerateAllYamlConfigs: Successfully generated all 6 YAML config files");
+                }
             }
             catch (Exception ex)
             {
@@ -436,7 +469,10 @@ namespace ExtraAttackSystem
         try
         {
             harmony.PatchAll();
-            LogInfo("System", "Harmony patches applied successfully");
+            if (IsDebugSystemMessagesEnabled)
+            {
+                LogInfo("System", "Harmony patches applied successfully");
+            }
         }
         catch (Exception ex)
         {

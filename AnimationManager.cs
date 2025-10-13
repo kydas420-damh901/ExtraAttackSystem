@@ -91,13 +91,19 @@ namespace ExtraAttackSystem
                 {
                     // Load animation clips
                     var animationClips = asset.LoadAllAssets<AnimationClip>();
-                    ExtraAttackPlugin.LogInfo("System", $"Found {animationClips.Length} animation clips in AssetBundle");
+                    if (ExtraAttackPlugin.IsDebugSystemMessagesEnabled)
+                    {
+                        ExtraAttackPlugin.LogInfo("System", $"Found {animationClips.Length} animation clips in AssetBundle");
+                    }
 
                     foreach (var clip in animationClips)
                     {
                         string externalName = clip.name + "External";
                         ExternalAnimations[externalName] = clip;
-                        ExtraAttackPlugin.LogInfo("System", $"Loaded animation: {clip.name} -> {externalName}");
+                        if (ExtraAttackPlugin.IsDebugSystemMessagesEnabled)
+                        {
+                            ExtraAttackPlugin.LogInfo("System", $"Loaded animation: {clip.name} -> {externalName}");
+                        }
                     }
 
                     ExtraAttackPlugin.LogInfo("System", $"Successfully loaded {animationClips.Length} animations from AssetBundle");
