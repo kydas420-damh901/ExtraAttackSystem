@@ -192,10 +192,38 @@ namespace ExtraAttackSystem
                     return;
                 }
 
-                // YAML file exists - that's all we need to know
-                ExtraAttackPlugin.LogInfo("System", "LoadWeaponTypesConfig: YAML file exists, keeping existing AocTypes");
+                // Read and parse YAML content
+                string yaml = File.ReadAllText(WeaponTypesConfigFilePath);
                 
-                // Don't modify current.AocTypes - keep whatever is already there
+                if (string.IsNullOrWhiteSpace(yaml))
+                {
+                    ExtraAttackPlugin.LogWarning("System", "LoadWeaponTypesConfig: YAML file is empty");
+                    return;
+                }
+                
+                // Clean up YAML content
+                yaml = CleanupYamlContent(yaml);
+                
+                // Deserialize YAML content
+                var deserializer = new DeserializerBuilder()
+                    .WithNamingConvention(NullNamingConvention.Instance)
+                    .Build();
+
+                var weaponTypesConfig = deserializer.Deserialize<ReplacementYaml>(yaml);
+                
+                if (weaponTypesConfig?.AocTypes != null && weaponTypesConfig.AocTypes.Count > 0)
+                {
+                    current.AocTypes = weaponTypesConfig.AocTypes;
+                    ExtraAttackPlugin.LogInfo("System", $"LoadWeaponTypesConfig: Successfully loaded {current.AocTypes.Count} weapon types from YAML");
+                    
+                    // Update YAML with ratio-calculated values
+                    ExtraAttackPlugin.LogInfo("System", "LoadWeaponTypesConfig: Updating YAML with ratio-calculated values");
+                    SaveWeaponTypesConfig();
+                }
+                else
+                {
+                    ExtraAttackPlugin.LogWarning("System", "LoadWeaponTypesConfig: AocTypes is empty after deserialization");
+                }
                 
                 // Note: ApplyToManager() will be called by the caller to avoid infinite loop
             }
@@ -216,57 +244,57 @@ namespace ExtraAttackSystem
 
             // Define default mappings with 2-layer structure
             var defaultMappings = new Dictionary<string, Dictionary<string, string>>
-            {
-                ["Swords"] = new Dictionary<string, string>
                 {
+                    ["Swords"] = new Dictionary<string, string>
+                    {
                     ["secondary_Q"] = "Sw-Ma-GS-Up_Attack_A_1External",
                     ["secondary_T"] = "Sw-Ma-GS-Up_Attack_A_2External",
                     ["secondary_G"] = "Sw-Ma-GS-Up_Attack_A_3External"
-                },
-                ["Axes"] = new Dictionary<string, string>
-                {
+                    },
+                    ["Axes"] = new Dictionary<string, string>
+                    {
                     ["secondary_Q"] = "OneHand_Up_Attack_B_1External",
                     ["secondary_T"] = "OneHand_Up_Attack_B_2External",
                     ["secondary_G"] = "OneHand_Up_Attack_B_3External"
-                },
-                ["Clubs"] = new Dictionary<string, string>
-                {
+                    },
+                    ["Clubs"] = new Dictionary<string, string>
+                    {
                     ["secondary_Q"] = "0MWA_DualWield_Attack02External",
                     ["secondary_T"] = "MWA_RightHand_Attack03External",
                     ["secondary_G"] = "Shield@ShieldAttack01External"
-                },
-                ["Spears"] = new Dictionary<string, string>
-                {
+                    },
+                    ["Spears"] = new Dictionary<string, string>
+                    {
                     ["secondary_Q"] = "Shield@ShieldAttack02External",
                     ["secondary_T"] = "Attack04External",
                     ["secondary_G"] = "0MGSA_Attack_Dash01External"
-                },
-                ["GreatSwords"] = new Dictionary<string, string>
-                {
+                    },
+                    ["GreatSwords"] = new Dictionary<string, string>
+                    {
                     ["secondary_Q"] = "2Hand-Sword-Attack8External",
                     ["secondary_T"] = "2Hand_Skill01_WhirlWindExternal",
                     ["secondary_G"] = "Eas_GreatSword_Combo1External"
-                },
-                ["BattleAxes"] = new Dictionary<string, string>
-                {
+                    },
+                    ["BattleAxes"] = new Dictionary<string, string>
+                    {
                     ["secondary_Q"] = "0MGSA_Attack_Dash02External",
                     ["secondary_T"] = "0MGSA_Attack_Ground01External",
                     ["secondary_G"] = "0MGSA_Attack_Ground02External"
-                },
-                ["Polearms"] = new Dictionary<string, string>
-                {
+                    },
+                    ["Polearms"] = new Dictionary<string, string>
+                    {
                     ["secondary_Q"] = "Pa_1handShiled_attack02External",
                     ["secondary_T"] = "Attack_ShieldExternal",
                     ["secondary_G"] = "0DS_Attack_07External"
-                },
-                ["Knives"] = new Dictionary<string, string>
-                {
+                    },
+                    ["Knives"] = new Dictionary<string, string>
+                    {
                     ["secondary_Q"] = "ChargeAttkExternal",
                     ["secondary_T"] = "HardAttkExternal",
                     ["secondary_G"] = "StrongAttk3External"
-                },
-                ["Fists"] = new Dictionary<string, string>
-                {
+                    },
+                    ["Fists"] = new Dictionary<string, string>
+                    {
                     ["secondary_Q"] = "Flying Knee Punch ComboExternal",
                     ["secondary_T"] = "Eas_GreatSword_SlideAttackExternal",
                     ["secondary_G"] = "Eas_GreatSwordSlash_01External"
@@ -557,9 +585,9 @@ namespace ExtraAttackSystem
             s_isApplyingToManager = true;
             
             try
-            {
-                // If AocTypes is empty, only use default mappings if no YAML file exists or is empty
-                if (current.AocTypes == null || current.AocTypes.Count == 0)
+        {
+            // If AocTypes is empty, only use default mappings if no YAML file exists or is empty
+            if (current.AocTypes == null || current.AocTypes.Count == 0)
             {
                 // Check if YAML file exists and has content
                 bool yamlExists = File.Exists(WeaponTypesConfigFilePath);
@@ -585,9 +613,9 @@ namespace ExtraAttackSystem
                     {
                         ExtraAttackPlugin.LogInfo("System", "ApplyToManager: YAML file does not exist, creating default config");
                         CreateDefaultWeaponTypesConfig();
-                    }
-                    else
-                    {
+                }
+                else
+                {
                         ExtraAttackPlugin.LogInfo("System", "ApplyToManager: YAML file exists but has no content, regenerating");
                         SaveWeaponTypesConfig();
                     }
@@ -786,11 +814,17 @@ namespace ExtraAttackSystem
                             var externalClipName = kvp.Value;
                             // Calculate ratio-based value using existing AnimationTimingConfig methods
                             var mode = kvp.Key.Replace("secondary_", "");
+                            
+                            // Ensure AnimationTimingConfig is initialized
+                            ExtraAttackPlugin.LogInfo("System", $"SaveWeaponTypesConfig: Getting timing for {weaponType}.{mode}");
+                            AnimationTimingConfig.Initialize();
+                            
                             var timing = AnimationTimingConfig.GetWeaponTypeTiming(weaponType, mode);
+                            ExtraAttackPlugin.LogInfo("System", $"SaveWeaponTypesConfig: Got timing for {weaponType}.{mode}: Hit={timing.HitTiming:F3}s, TrailOn={timing.TrailOnTiming:F3}s, TrailOff={timing.TrailOffTiming:F3}s");
                             var ratioValue = $"{externalClipName}|Hit:{timing.HitTiming:F3}s|TrailOn:{timing.TrailOnTiming:F3}s|TrailOff:{timing.TrailOffTiming:F3}s";
                             weaponTypeGroups[weaponType][kvp.Key] = ratioValue;
                             ExtraAttackPlugin.LogInfo("System", $"SaveWeaponTypesConfig: Found {weaponType}.{kvp.Key} = {externalClipName} -> ratio calculated: {ratioValue}");
-                        }
+                            }
                         }
                         else
                         {
@@ -825,16 +859,16 @@ namespace ExtraAttackSystem
                     {
                         // Output in Q/T/G order
                         var modes = new[] { "secondary_Q", "secondary_T", "secondary_G" };
-                        foreach (var mode in modes)
-                        {
+                    foreach (var mode in modes)
+                    {
                             if (weaponMap.ContainsKey(mode))
                             {
                                 sb.AppendLine($"    {mode}: {weaponMap[mode]}  # Vanilla: {mode} | Replacement: {weaponMap[mode]}");
                             }
                         }
-                    }
-                    else
-                    {
+                        }
+                        else
+                        {
                         sb.AppendLine($"    # No mappings defined for {weaponType}");
                     }
                     sb.AppendLine();

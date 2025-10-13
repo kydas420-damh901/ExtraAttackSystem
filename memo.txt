@@ -60,7 +60,6 @@ staff
 判定・ダメージ・スタミナ消費 音の有無、VFXの有無 を yaml で設定可能 ※将来的にはsound VFX を差し替えられるように。現在は未実装
 
 ・本MODで用意するアニメーション（ assetbundle 内アニメーション）
-武器種類別にACを用意する
 animation timing などはコード内で設定
 animation clip もすべて指定
 
@@ -106,16 +105,18 @@ Torch + Sword or Axe or Club or Spear or Knife
 他の武器種、個別武器も上記ルールに合わせて指定 
 ※現在は、QTGすべて装備している武器のセカンダリ攻撃を設定
 
-トリガー名
-axe_secondary
-sword_secondary
-mace_secondary
-atgeir_secondary
-battleaxe_secondary
-knife_secondary
-dual_knives_secondary
-greatsword_secondary
-dualaxes_secondary
+トリガー名とクリップ名とイベント名
+axe_secondary			[Axe Secondary Attack] - Length: 1.400s, FrameRate: 30, Legacy: False, Events: 0
+sword_secondary			[Sword-Attack-R4] - Length: 1.400s, FrameRate: 30, Legacy: False, Events: 0
+mace_secondary			[MaceAltAttack] - Length: 1.400s, FrameRate: 30, Legacy: False, Events: 0
+atgeir_secondary		[Atgeir360Attack] - Length: 2.167s, FrameRate: 30, Legacy: False, Events: 6
+battleaxe_secondary		[BattleAxeAltAttack] - Length: 0.857s, FrameRate: 30, Legacy: False, Events: 5
+knife_secondary			[Knife JumpAttack] - Length: 1.400s, FrameRate: 30, Legacy: False, Events: 0
+dual_knives_secondary	[Knife Attack Leap] - Length: 1.500s, FrameRate: 30, Legacy: False, Events: 2
+greatsword_secondary	[Greatsword Secondary Attack] - Length: 1.400s, FrameRate: 30, Legacy: False, Events: 0
+dualaxes_secondary		[DualAxes Attack Cleave] - Length: 1.900s, FrameRate: 30, Legacy: False, Events: 3
+
+
 
 
 
@@ -186,3 +187,55 @@ AnimationReplacement_IndividualWeapons.yaml このファイルだけ
 全yaml 中身があれば、何もしない＝ユーザー設定維持
 
 
+「1フレームだけ座り状態が見える」──これは Animatorのステートが一瞬 sit にあることが原因です。
+これはカスタムアニメーションやAOC切り替えが遅れて適用されるせいで、その1フレだけ「バニラの座り状態」が走ってしまうという典型的な問題です。
+
+✅ 原因を整理すると：
+状態	内容
+初期状態	プレイヤーが sit ステートに入っている（または残っている）
+カスタムアニメを再生	SetTrigger() や Play() を実行
+でも	AnimatorのRuntimeControllerやステートが切り替わる前に1フレーム描画される
+結果	一瞬だけ sit の姿勢が表示される → その後に正しいアニメ再生される
+✅ 解決アプローチ一覧
+① 永続AOC運用 + バニラ相当Idleへの即時切り替え（推奨）
+// 座り状態フラグを解除
+animator.SetBool(ZSyncAnimation.GetHash("emote_sit"), false);
+
+// Idleステートを即時に指定
+animator.Play("Idle", 0, 0f);
+
+// 少し待ってから Trigger
+ZSyncAnimation.SetTrigger(animator, "MaceAltAttack");
+
+
+Play("Idle") を Trigger直前に実行するのが重要。これで1フレームの sit 表示を消せます。
+
+② 永続AOCを導入して、そもそもACの切り替えを避ける
+
+RuntimeAnimatorController の差し替えは1フレーム遅れる
+
+永続AOCを使えば Animator の中身（Clipマッピング）だけを変えるため、ステート維持されやすい
+
+→ sit → Idle への移行が安定しやすくなる
+
+③ カスタムTrigger前に一度 Animator をリセット（危険あり）
+animator.Rebind();
+animator.Update(0f);
+
+
+Rebind() はすべてのパラメータを初期化するため、慎重に使う必要あり
+
+sit 状態も解除されるが、他の挙動に副作用が出やすい
+
+④ 専用の「待機状態アニメ（Idle準備アニメ）」を作る
+
+sit から attack へ直接切り替えるのではなく、
+
+sit → idle短アニメ → attack という短い中継アニメを用意する
+
+✅ 最も現実的な対応は？
+
+Trigger前に Play("Idle") を挟む
+AnimatorControllerは永続AOC方式にする
+
+この2つを併用すれば、ほとんどのケースで「座りが一瞬表示される」問題は解消されます。
