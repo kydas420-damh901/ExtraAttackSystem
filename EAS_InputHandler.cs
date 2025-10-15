@@ -406,9 +406,6 @@ namespace ExtraAttackSystem
                     // Update AOC replacementMap for this mode (永続AOC)
                     EAS_AnimationManager.UpdateAOCForMode(player, weaponType, mode.ToString());
                     
-                    // Apply timing
-                    var timing = EAS_AnimationTiming.GetTiming($"{weaponType}_{mode}");
-                    ApplyAnimationTiming(player, timing);
                 }
                 
                 // Call StartAttack - this will trigger the Humanoid.StartAttack patch
@@ -442,41 +439,6 @@ namespace ExtraAttackSystem
             }
         }
 
-        private static void ApplyAnimationTiming(Player player, EAS_AnimationTiming.AnimationTiming timing)
-        {
-            try
-            {
-                // Apply timing to player's attack system using reflection
-                var attackField = typeof(Character).GetField("m_attack", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-                if (attackField != null)
-                {
-                    var attack = attackField.GetValue(player);
-                    if (attack != null)
-                    {
-                        // Set timing values using reflection
-                        var hitTimingField = attack.GetType().GetField("m_hitTime", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-                        var trailOnField = attack.GetType().GetField("m_trailOnTime", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-                        var trailOffField = attack.GetType().GetField("m_trailOffTime", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-                        
-                        if (hitTimingField != null)
-                            hitTimingField.SetValue(attack, timing.HitTiming);
-                        if (trailOnField != null)
-                            trailOnField.SetValue(attack, timing.TrailOnTiming);
-                        if (trailOffField != null)
-                            trailOffField.SetValue(attack, timing.TrailOffTiming);
-                    }
-                }
-                
-                if (ExtraAttackSystemPlugin.IsDebugSystemMessagesEnabled)
-                {
-                    ExtraAttackSystemPlugin.LogInfo("System", $"Applied timing - Hit: {timing.HitTiming:F3}s, TrailOn: {timing.TrailOnTiming:F3}s, TrailOff: {timing.TrailOffTiming:F3}s");
-                }
-            }
-            catch (System.Exception ex)
-            {
-                ExtraAttackSystemPlugin.LogError("System", $"Error applying animation timing: {ex.Message}");
-            }
-        }
 
         // Get trigger name for attack mode
         public static string GetTriggerNameForMode(AttackMode mode)

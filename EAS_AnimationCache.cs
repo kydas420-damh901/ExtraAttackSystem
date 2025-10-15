@@ -250,12 +250,12 @@ namespace ExtraAttackSystem
             var events = new List<AnimationEvent>();
 
             // Hitイベント
-            if (timing.HitTiming > 0)
+            if (timing.EnableHit && timing.HitTiming > 0)
             {
                 events.Add(new AnimationEvent
                 {
                     time = timing.HitTiming,
-                    functionName = "Hit",
+                    functionName = "OnAttackTrigger",
                     stringParameter = "Hit"
                 });
             }
@@ -357,6 +357,31 @@ namespace ExtraAttackSystem
             catch (Exception ex)
             {
                 ExtraAttackSystemPlugin.LogError("System", $"Error clearing cache: {ex.Message}");
+            }
+        }
+
+        public static void RecreateCache(string weaponType)
+        {
+            try
+            {
+                ExtraAttackSystemPlugin.LogInfo("System", $"Recreating cache for weapon type: {weaponType}");
+                
+                var modes = new[] { "secondary_Q", "secondary_T", "secondary_G" };
+                int successCount = 0;
+                
+                foreach (var mode in modes)
+                {
+                    if (CreateCacheForMode(weaponType, mode))
+                    {
+                        successCount++;
+                    }
+                }
+                
+                ExtraAttackSystemPlugin.LogInfo("System", $"Cache recreated for {weaponType}: {successCount} clips created");
+            }
+            catch (Exception ex)
+            {
+                ExtraAttackSystemPlugin.LogError("System", $"Error recreating cache for {weaponType}: {ex.Message}");
             }
         }
     }

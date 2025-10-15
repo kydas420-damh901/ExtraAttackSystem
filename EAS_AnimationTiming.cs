@@ -275,10 +275,14 @@ namespace ExtraAttackSystem
         // Get vanilla timing for weapon type
         private static AnimationTiming GetVanillaTimingForWeaponType(string weaponType)
         {
-            // Get vanilla clip length
-            float vanillaClipLength = GetVanillaClipLengthForWeaponType(weaponType);
+            // Use VanillaTimings dictionary if available
+            if (VanillaTimings.TryGetValue(weaponType, out var vanillaTiming))
+            {
+                return vanillaTiming;
+            }
             
-            // Get vanilla timing values
+            // Fallback to individual methods if not found in dictionary
+            float vanillaClipLength = GetVanillaClipLengthForWeaponType(weaponType);
             float vanillaHitTiming = GetVanillaHitTimingForWeaponType(weaponType);
             float vanillaTrailOnTiming = GetVanillaTrailOnTimingForWeaponType(weaponType);
             float vanillaTrailOffTiming = GetVanillaTrailOffTimingForWeaponType(weaponType);
@@ -386,7 +390,7 @@ namespace ExtraAttackSystem
                     CreateDefaultWeaponTypeConfig();
                     return;
                 }
-
+                
                 var deserializer = new DeserializerBuilder().IgnoreUnmatchedProperties().Build();
                 var yamlContent = File.ReadAllText(WeaponTypesConfigFilePath);
                 
@@ -620,17 +624,46 @@ namespace ExtraAttackSystem
         }
 
         // Get YAML config for weapon type and mode
-        private static AnimationTimingConfig GetYAMLConfig(string weaponType, string mode)
+        public static AnimationTimingConfig GetYAMLConfig(string weaponType, string mode)
         {
             // Try to get specific weapon type and mode config
-            if (weaponTypeConfig.WeaponTypes.TryGetValue(weaponType, out var weaponConfigs) &&
-                weaponConfigs.TryGetValue(mode, out var config))
+            if (weaponTypeConfig?.WeaponTypes?.TryGetValue(weaponType, out var weaponConfigs) == true)
             {
-                return config;
+                if (weaponConfigs.TryGetValue(mode, out var config))
+                {
+                    return config;
+                }
             }
             
             // Fallback to default config
-            return weaponTypeConfig.Default;
+            return weaponTypeConfig?.Default ?? new AnimationTimingConfig();
+        }
+
+        // Get timing config directly from weapon type and mode (without animation name parsing)
+        public static AnimationTimingConfig GetTimingDirect(string weaponType, string mode)
+        {
+            return GetYAMLConfig(weaponType, mode);
+        }
+
+        // Reload YAML configuration (F6 key)
+        public static void Reload()
+        {
+            try
+            {
+                ExtraAttackSystemPlugin.LogInfo("System", "F6: Reloading AnimationTiming configuration...");
+                
+                // Clear cache
+                weaponTypeConfig = null!;
+                
+                // Reload configuration
+                LoadWeaponTypeConfig();
+                
+                ExtraAttackSystemPlugin.LogInfo("System", "F6: AnimationTiming configuration reloaded successfully");
+            }
+            catch (System.Exception ex)
+            {
+                ExtraAttackSystemPlugin.LogError("System", $"F6: Error reloading AnimationTiming configuration: {ex.Message}");
+            }
         }
     }
 }

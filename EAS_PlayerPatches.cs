@@ -4,6 +4,62 @@ using System.Collections.Generic;
 
 namespace ExtraAttackSystem
 {
+    // Store original attack parameters for restoration
+    public class AttackParams
+    {
+        public float m_attackRange;
+        public float m_attackHeight;
+        public float m_attackAngle;
+        public float m_attackRayWidth;
+        public float m_attackRayWidthCharExtra;
+        public float m_attackHeightChar1;
+        public float m_attackHeightChar2;
+        public float m_maxYAngle;
+    }
+
+    public static class EAS_PlayerPatches
+    {
+        // Store original attack parameters
+        private static readonly Dictionary<Attack, AttackParams> _originalAttackParams = new();
+
+        // Store original attack parameters for restoration
+        public static void StoreOriginalAttackParams(Attack attack)
+        {
+            if (attack != null && !_originalAttackParams.ContainsKey(attack))
+            {
+                _originalAttackParams[attack] = new AttackParams
+                {
+                    m_attackRange = attack.m_attackRange,
+                    m_attackHeight = attack.m_attackHeight,
+                    m_attackAngle = attack.m_attackAngle,
+                    m_attackRayWidth = attack.m_attackRayWidth,
+                    m_attackRayWidthCharExtra = attack.m_attackRayWidthCharExtra,
+                    m_attackHeightChar1 = attack.m_attackHeightChar1,
+                    m_attackHeightChar2 = attack.m_attackHeightChar2,
+                    m_maxYAngle = attack.m_maxYAngle
+                };
+            }
+        }
+
+        // Restore original attack parameters
+        public static void RestoreOriginalAttackParams(Attack attack)
+        {
+            if (attack != null && _originalAttackParams.TryGetValue(attack, out var originalParams))
+            {
+                attack.m_attackRange = originalParams.m_attackRange;
+                attack.m_attackHeight = originalParams.m_attackHeight;
+                attack.m_attackAngle = originalParams.m_attackAngle;
+                attack.m_attackRayWidth = originalParams.m_attackRayWidth;
+                attack.m_attackRayWidthCharExtra = originalParams.m_attackRayWidthCharExtra;
+                attack.m_attackHeightChar1 = originalParams.m_attackHeightChar1;
+                attack.m_attackHeightChar2 = originalParams.m_attackHeightChar2;
+                attack.m_maxYAngle = originalParams.m_maxYAngle;
+                
+                _originalAttackParams.Remove(attack);
+            }
+        }
+    }
+
     [HarmonyPatch(typeof(Player), "Update")]
     public static class Player_Update_Patch
     {
@@ -85,10 +141,8 @@ namespace ExtraAttackSystem
                         attackMode == EAS_InputHandler.AttackMode.secondary_T || 
                         attackMode == EAS_InputHandler.AttackMode.secondary_G)
                     {
-                        // TODO: 一時的なデバッグログ - QTG攻撃検出確認用（問題解決後に削除予定）
-                        ExtraAttackSystemPlugin.LogInfo("System", $"QTG attack detected: {attackMode}, continuing with vanilla StartAttack");
-                        // Let vanilla method handle the rest (attack detection, damage, etc.)
-                        return true; // Continue with original method - バニラの攻撃判定も実行
+                        // QTG attack detected - parameters will be applied in DoMeleeAttack
+                        return true; // Continue with original method
                     }
                 }
 
@@ -98,21 +152,6 @@ namespace ExtraAttackSystem
             {
                 ExtraAttackSystemPlugin.LogError("System", $"Error in Humanoid_StartAttack_Patch: {ex.Message}");
                 return true;
-            }
-        }
-
-        static void Postfix(Humanoid __instance, Character target, bool secondaryAttack, bool __result)
-        {
-            if (__instance is Player player && player == Player.m_localPlayer)
-            {
-                var attackMode = EAS_InputHandler.GetAttackMode(player);
-                if (attackMode == EAS_InputHandler.AttackMode.secondary_Q || 
-                    attackMode == EAS_InputHandler.AttackMode.secondary_T || 
-                    attackMode == EAS_InputHandler.AttackMode.secondary_G)
-                {
-                    // TODO: 一時的なデバッグログ - バニラStartAttack完了確認用（問題解決後に削除予定）
-                    ExtraAttackSystemPlugin.LogInfo("System", $"Vanilla StartAttack completed for {attackMode}, result: {__result}");
-                }
             }
         }
     }
@@ -140,30 +179,11 @@ namespace ExtraAttackSystem
         }
     }
 
+
     [HarmonyPatch(typeof(Attack), "DoMeleeAttack")]
     public static class Attack_DoMeleeAttack_Patch
     {
-        private static Dictionary<Attack, AttackParams> originalParams = new Dictionary<Attack, AttackParams>();
-        
-        static Attack_DoMeleeAttack_Patch()
-        {
-            ExtraAttackSystemPlugin.LogInfo("System", "Attack_DoMeleeAttack_Patch constructor called - patch registered");
-        }
-        
-        private class AttackParams
-        {
-            public float attackRange;
-            public float attackHeight;
-            public float attackOffset;
-            public float attackAngle;
-            public float attackRayWidth;
-            public float attackRayWidthCharExtra;
-            public float attackHeightChar1;
-            public float attackHeightChar2;
-            public float maxYAngle;
-        }
-        
-        static bool Prefix(Attack __instance, Character ___m_character)
+        static void Prefix(Attack __instance, Character ___m_character)
         {
             try
             {
@@ -171,86 +191,54 @@ namespace ExtraAttackSystem
                 if (character is Player player && player == Player.m_localPlayer)
                 {
                     var attackMode = EAS_InputHandler.GetAttackMode(player);
-                    ExtraAttackSystemPlugin.LogInfo("System", $"Attack.DoMeleeAttack called - attackMode: {attackMode}");
-
                     if (attackMode != EAS_InputHandler.AttackMode.Normal)
                     {
-                        // Get weapon type and mode for timing configuration
+                        // Get weapon and timing configuration
                         var weapon = player.GetCurrentWeapon();
                         if (weapon != null)
                         {
                             string weaponType = EAS_InputHandler.GetWeaponTypeFromSkill(
                                 weapon.m_shared.m_skillType, weapon);
+                            var timing = EAS_AnimationTiming.GetTimingDirect(weaponType, attackMode.ToString());
                             
-                            // Get timing configuration
-                            var timing = EAS_AnimationTiming.GetTiming($"{weaponType}_{attackMode}");
-
-                            // Check if hit is enabled
-                            if (!timing.EnableHit)
+                            if (timing != null)
                             {
-                                ExtraAttackSystemPlugin.LogInfo("System", 
-                                    $"Skipped DoMeleeAttack: [{weaponType}_{attackMode}] EnableHit=false");
-                                return false; // Skip DoMeleeAttack
+                                // Store original attack parameters
+                                EAS_PlayerPatches.StoreOriginalAttackParams(__instance);
+                                
+                                // Apply YAML attack parameters directly to Attack instance
+                                __instance.m_attackRange = timing.AttackRange;
+                                __instance.m_attackHeight = timing.AttackHeight;
+                                __instance.m_attackAngle = timing.AttackAngle;
+                                __instance.m_attackRayWidth = timing.AttackRayWidth;
+                                __instance.m_attackRayWidthCharExtra = timing.AttackRayWidthCharExtra;
+                                __instance.m_attackHeightChar1 = timing.AttackHeightChar1;
+                                __instance.m_attackHeightChar2 = timing.AttackHeightChar2;
+                                __instance.m_maxYAngle = timing.MaxYAngle;
                             }
-
-                            // Store original parameters
-                            originalParams[__instance] = new AttackParams
-                            {
-                                attackRange = __instance.m_attackRange,
-                                attackHeight = __instance.m_attackHeight,
-                                attackOffset = __instance.m_attackOffset,
-                                attackAngle = __instance.m_attackAngle,
-                                attackRayWidth = __instance.m_attackRayWidth,
-                                attackRayWidthCharExtra = __instance.m_attackRayWidthCharExtra,
-                                attackHeightChar1 = __instance.m_attackHeightChar1,
-                                attackHeightChar2 = __instance.m_attackHeightChar2,
-                                maxYAngle = __instance.m_maxYAngle
-                            };
-
-                            // Apply YAML attack parameters
-                            __instance.m_attackRange = timing.AttackRange;
-                            __instance.m_attackHeight = timing.AttackHeight;
-                            __instance.m_attackOffset = timing.AttackOffset;
-                            __instance.m_attackAngle = timing.AttackAngle;
-                            __instance.m_attackRayWidth = timing.AttackRayWidth;
-                            __instance.m_attackRayWidthCharExtra = timing.AttackRayWidthCharExtra;
-                            __instance.m_attackHeightChar1 = timing.AttackHeightChar1;
-                            __instance.m_attackHeightChar2 = timing.AttackHeightChar2;
-                            __instance.m_maxYAngle = timing.MaxYAngle;
-
-                            ExtraAttackSystemPlugin.LogInfo("System", 
-                                $"Applied custom attack parameters for {weaponType}_{attackMode}: " +
-                                $"Range={timing.AttackRange}, Height={timing.AttackHeight}, Angle={timing.AttackAngle}");
                         }
                     }
                 }
             }
             catch (System.Exception ex)
             {
-                ExtraAttackSystemPlugin.LogError("System", $"Error in Attack_DoMeleeAttack_Patch Prefix: {ex.Message}");
+                ExtraAttackSystemPlugin.LogError("System", $"Error in Attack_DoMeleeAttack_Patch: {ex.Message}");
             }
-
-            return true; // Continue with original method
         }
 
-        static void Postfix(Attack __instance)
+        static void Postfix(Attack __instance, Character ___m_character)
         {
             try
             {
-                // Restore original parameters
-                if (originalParams.TryGetValue(__instance, out var original))
+                Character character = ___m_character;
+                if (character is Player player && player == Player.m_localPlayer)
                 {
-                    __instance.m_attackRange = original.attackRange;
-                    __instance.m_attackHeight = original.attackHeight;
-                    __instance.m_attackOffset = original.attackOffset;
-                    __instance.m_attackAngle = original.attackAngle;
-                    __instance.m_attackRayWidth = original.attackRayWidth;
-                    __instance.m_attackRayWidthCharExtra = original.attackRayWidthCharExtra;
-                    __instance.m_attackHeightChar1 = original.attackHeightChar1;
-                    __instance.m_attackHeightChar2 = original.attackHeightChar2;
-                    __instance.m_maxYAngle = original.maxYAngle;
-
-                    originalParams.Remove(__instance);
+                    var attackMode = EAS_InputHandler.GetAttackMode(player);
+                    if (attackMode != EAS_InputHandler.AttackMode.Normal)
+                    {
+                        // Restore original attack parameters
+                        EAS_PlayerPatches.RestoreOriginalAttackParams(__instance);
+                    }
                 }
             }
             catch (System.Exception ex)

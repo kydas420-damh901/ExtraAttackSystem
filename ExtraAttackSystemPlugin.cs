@@ -47,6 +47,7 @@ namespace ExtraAttackSystem
         // Debug key bindings
         public static ConfigEntry<KeyboardShortcut> DebugWeaponParamsKey = null!;
         public static ConfigEntry<KeyboardShortcut> DebugAllWeaponsKey = null!;
+        public static ConfigEntry<KeyboardShortcut> ReloadConfigKey = null!;
 
         // Debug toggles for different data types
         public static ConfigEntry<bool> DebugWeaponAttackParams = null!;
@@ -110,6 +111,7 @@ namespace ExtraAttackSystem
             // Debug key bindings
             DebugWeaponParamsKey = Config.Bind("Debug", "Debug Weapon Params Key", new KeyboardShortcut(KeyCode.F9), "Key to log current weapon attack parameters");
             DebugAllWeaponsKey = Config.Bind("Debug", "Debug All Weapons Key", new KeyboardShortcut(KeyCode.F10), "Key to log all weapon types attack parameters");
+            ReloadConfigKey = Config.Bind("Debug", "Reload Config Key", new KeyboardShortcut(KeyCode.F6), "Key to reload all YAML configuration files");
 
             // Debug toggles for different data types
             DebugWeaponAttackParams = Config.Bind("Debug", "Log Weapon Attack Parameters", true, "Log weapon attack parameters (range, height, angle, etc.)");
@@ -126,6 +128,9 @@ namespace ExtraAttackSystem
 
         private void InitializeSubsystems()
         {
+            // Initialize animation timing first (other systems depend on YAML config)
+            EAS_AnimationTiming.Initialize();
+
             // Initialize animation manager and get asset bundle path
             string assetBundlePath = EAS_AnimationManager.Initialize();
 
@@ -143,9 +148,6 @@ namespace ExtraAttackSystem
 
             // Initialize exclusion config
             EAS_ExclusionConfig.Initialize();
-
-            // Initialize animation timing
-            EAS_AnimationTiming.Initialize();
 
             ExtraAttackLogger.LogInfo("All subsystems initialized successfully");
         }
@@ -166,6 +168,68 @@ namespace ExtraAttackSystem
             ExtraAttackLogger.LogError($"[{category}] {message}");
         }
 
+        // Reload all YAML configuration files (F6 key)
+        private static void ReloadAllConfigurations()
+        {
+            try
+            {
+                LogInfo("System", "F6: Reloading all configuration files...");
+                
+                // Show message to player
+                if (Player.m_localPlayer != null)
+                {
+                    Player.m_localPlayer.Message(MessageHud.MessageType.Center, "Reloading Extra Attack System configurations...", 0, null);
+                }
+                
+                // Reload AnimationTiming configuration
+                EAS_AnimationTiming.Reload();
+                
+                // Reload Cost configuration
+                EAS_CostConfig.ReloadCostConfig();
+                
+                // Reload Replacement configuration
+                EAS_Replacement.Reload();
+                
+                // Reload Exclusion configuration
+                EAS_ExclusionConfig.Reload();
+                
+                // Clear animation cache to force regeneration with new timing values
+                EAS_AnimationCache.ClearCache();
+                
+                // Recreate cache for current weapon type
+                if (Player.m_localPlayer != null)
+                {
+                    var weapon = Player.m_localPlayer.GetCurrentWeapon();
+                    if (weapon != null)
+                    {
+                        string weaponType = EAS_InputHandler.GetWeaponTypeFromSkill(weapon.m_shared.m_skillType, weapon);
+                        EAS_AnimationCache.RecreateCache(weaponType);
+                    }
+                }
+                
+                // Force update AOCs to use new timing values
+                EAS_AnimationManager.ForceUpdateAllAOCs();
+                
+                LogInfo("System", "F6: All configuration files reloaded successfully");
+                
+                // Show success message to player
+                if (Player.m_localPlayer != null)
+                {
+                    Player.m_localPlayer.Message(MessageHud.MessageType.Center, "Extra Attack System configurations reloaded successfully!", 0, null);
+                }
+            }
+            catch (System.Exception ex)
+            {
+                LogError("System", $"F6: Error reloading configurations: {ex.Message}");
+                
+                // Show error message to player
+                if (Player.m_localPlayer != null)
+                {
+                    Player.m_localPlayer.Message(MessageHud.MessageType.Center, $"Error reloading configurations: {ex.Message}", 0, null);
+                }
+            }
+        }
+
         private void Update()
         {
             // Check debug key bindings
@@ -177,6 +241,11 @@ namespace ExtraAttackSystem
             if (DebugAllWeaponsKey.Value.IsDown())
             {
                 EAS_Debug.LogAllWeaponTypes();
+            }
+            
+            if (ReloadConfigKey.Value.IsDown())
+            {
+                ReloadAllConfigurations();
             }
         }
 

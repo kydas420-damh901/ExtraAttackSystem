@@ -848,5 +848,44 @@ namespace ExtraAttackSystem
                 _ => "Sword-Attack-R4" // Default fallback
             };
         }
+
+        // Force update all AOCs after cache clear (F6 reload)
+        public static void ForceUpdateAllAOCs()
+        {
+            try
+            {
+                ExtraAttackSystemPlugin.LogInfo("System", "ForceUpdateAllAOCs: Starting AOC update after cache clear...");
+                
+                if (Player.m_localPlayer == null)
+                {
+                    ExtraAttackSystemPlugin.LogInfo("System", "ForceUpdateAllAOCs: No local player, skipping AOC update");
+                    return;
+                }
+
+                var player = Player.m_localPlayer;
+                var weapon = player.GetCurrentWeapon();
+                if (weapon == null)
+                {
+                    ExtraAttackSystemPlugin.LogInfo("System", "ForceUpdateAllAOCs: No weapon equipped, skipping AOC update");
+                    return;
+                }
+
+                string weaponType = EAS_InputHandler.GetWeaponTypeFromSkill(weapon.m_shared.m_skillType, weapon);
+                ExtraAttackSystemPlugin.LogInfo("System", $"ForceUpdateAllAOCs: Updating AOCs for weapon type: {weaponType}");
+
+                // Update AOCs for all modes
+                var modes = new[] { "secondary_Q", "secondary_T", "secondary_G" };
+                foreach (var mode in modes)
+                {
+                    UpdateAOCForMode(player, weaponType, mode);
+                }
+
+                ExtraAttackSystemPlugin.LogInfo("System", "ForceUpdateAllAOCs: AOC update completed");
+            }
+            catch (System.Exception ex)
+            {
+                ExtraAttackSystemPlugin.LogError("System", $"ForceUpdateAllAOCs: Error updating AOCs: {ex.Message}");
+            }
+        }
     }
 }
