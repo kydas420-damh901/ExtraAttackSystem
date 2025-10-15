@@ -1,0 +1,213 @@
+# Extra Attack System - 仕様書
+重い処理は使わない
+バニラの仕様を尊重
+目的はアニメーションを追加する土台を作りたい
+今後、別MODで、このMODをcore として、スキルやクラスを追加MODを作る
+たとえば、 戦士クラスを追加して、レベルが上がると、
+カスタムアニメーションをもったスキルを取得する、など
+
+## 基本仕様
+- Q 押下 → ExtraAttackQ アニメーション（装備している武器のセカンダリー攻撃属性）
+- T 押下 → ExtraAttackT アニメーション（装備している武器のセカンダリー攻撃属性）
+- G 押下 → ExtraAttackG アニメーション（装備している武器のセカンダリー攻撃属性）
+
+## 攻撃モード
+- Normal - 左クリック（バニラアニメーション）
+- secondary_Q - Qキー攻撃
+- secondary_T - Tキー攻撃  
+- secondary_G - Gキー攻撃
+
+## キー設定
+- ExtraAttackKey_Q - Qキー設定  EASのメイン攻撃
+- ExtraAttackKey_T - Tキー設定  サブ1 オフにできる
+- ExtraAttackKey_G - Gキー設定  サブ2 オフにできる
+
+## アニメーションシステム
+- AssetBundleからカスタムアニメーション読み込み
+- AnimationReplacementMap - 武器タイプとアニメーションのマッピング
+- CustomAnimationClips - カスタムアニメーションクリップ
+- AnimatorControllerCache - アニメーターコントローラーキャッシュ
+
+## 攻撃判定
+- セカンダリー攻撃として処理
+- 武器タイプ別の攻撃パラメータ
+- タイミング設定（HitTiming, TrailOnTiming, TrailOffTiming等）
+
+
+## 永続AOC仕様
+- 永続的なAOC管理
+- 武器タイプ別のAOC生成
+- アニメーション置換の永続化
+
+## アニメーション置換実装
+- m_animatorを使用したアニメーター制御
+- RPCSetTriggerによるネットワーク同期
+- assembly-valheim.dllのpublicize済み
+- バニラアニメーションの置き換え
+- カスタムアニメーションの適用
+
+## ファイル構造
+ExtraAttackSystemPlugin.cs メイン
+EAS_AnimationTiming.cs  animation event 攻撃パラメータ管理
+EAS_AnimationManager.cs カスタムアニメーション管理
+EAS_CostConfig.cs       コスト管理 stamina eitr cooldown
+EAS_Debug.cs            デバッグ用コード
+EAS_ExclusionConfig.cs EAS除外武器管理
+
+
+## 実装方針
+- 段階的に実装
+- 各段階で動作確認
+
+
+## Configuration Manager 仕様
+
+1 General
+QTGのキー切り替え
+TGの無効化と有効化
+
+2 Debug log
+各種デバッグログのオンオフ
+
+3 List Data の取得
+レガシーにあるList データ取得を実装
+
+
+## 命名規則
+skilltype と trigger クリップ名 が バニラでバラバラなので統一する
+例： greatsword_Q greatsword_T greatsword_G
+
+
+Trigger                 Cripname length
+axe_secondary			[Axe Secondary Attack] - Length: 1.400s, FrameRate: 30, Legacy: False, Events: 0
+sword_secondary			[Sword-Attack-R4] - Length: 1.400s, FrameRate: 30, Legacy: False, Events: 0
+mace_secondary			[MaceAltAttack] - Length: 1.400s, FrameRate: 30, Legacy: False, Events: 0
+atgeir_secondary		[Atgeir360Attack] - Length: 2.167s, FrameRate: 30, Legacy: False, Events: 6
+battleaxe_secondary		[BattleAxeAltAttack] - Length: 0.857s, FrameRate: 30, Legacy: False, Events: 5
+knife_secondary			[Knife JumpAttack] - Length: 1.400s, FrameRate: 30, Legacy: False, Events: 0
+dual_knives_secondary	[Knife Attack Leap] - Length: 1.500s, FrameRate: 30, Legacy: False, Events: 2
+greatsword_secondary	[Greatsword Secondary Attack] - Length: 1.400s, FrameRate: 30, Legacy: False, Events: 0
+dualaxes_secondary		[DualAxes Attack Cleave] - Length: 1.900s, FrameRate: 30, Legacy: False, Events: 3
+unarmed_kick            [Kickstep] - Length: 1.833s, FrameRate: 30, Legacy: False, Events: 4
+spear_throw             [throw_spear] - Length: 1.133s, FrameRate: 30, Legacy: False, Events: 5
+
+## 武器種別AOC
+バニラの武器種類ごとにAOC用意
+
+1H
+axe
+sword
+mace
+spear
+knife
+torch
+1H + Shield
+axe + shiled
+sword + shiled
+mace + shiled
+spear + shiled
+knife + shiled
+torch + Shield
+※shieldのAOCはオンオフ可能。オフで各1Hのカスタムアニメーション
+
+2H
+unarmed
+polearm
+battleaxe
+dual knives
+greatsword
+dualaxes
+fist
+bow
+cross bow
+stuff - elementalmagic
+stuff - blood magic
+
+
+
+## 残っていた問題
+    
+
+## レガシーから必要な追加機能
+
+### コスト管理（ExtraAttackCostConfig.cs）
+- スタミナ消費設定
+- Eitr消費設定  
+- cooldown時間設定
+- 武器タイプ別のコスト管理
+
+### 除外設定（ExtraAttackExclusionConfig.cs）
+- 除外アイテム名管理
+- 除外アイテムタイプ管理
+- 除外プレハブ名管理
+- 建築用装備等の除外
+装備除外設定
+EASのシステムを適用したくないアイテムをyamlで管理
+建築用装備等。これはレガシーにあるコードで実装できていた
+
+
+cooldown仕様
+- 攻撃使用後の待機時間
+- ボタン別cooldown（Q/T/Gそれぞれ独立）
+- プレイヤー別cooldown追跡
+- 残り時間の表示と管理
+
+### デバッグシステム（EAS_Debug.cs）
+- アニメーションイベントログ
+- アニメーションクリップログ
+- アニメーションパラメータログ
+- 各種デバッグログのオンオフ
+
+### 武器タイプ判定
+- SkillTypeと両手持ちかどうかで武器タイプ変換
+- 装備武器の判定
+- 武器特性の取得
+
+### プレイヤー管理
+- プレイヤー別の状態管理
+- プレイヤー別のcooldown管理
+- プレイヤー別の攻撃モード管理
+
+## マルチ対応
+- ネットワーク同期
+- ZSyncAnimationを使用したアニメーション同期
+- プレイヤー別の攻撃状態同期
+- cooldown状態の同期
+
+
+## 実装に失敗した機能と実装したい機能
+レガシーではまった部分
+キー名があわず、値を取得できない
+アニメーション再生前、後、つまりAOCが置き換わる時の
+よくある「1フレームだけアニメーションが表示されない」原因
+emote との互換性 
+
+AOCを切り替える直前にAnimatorが評価されている
+runtimeAnimatorController を差し替えた瞬間、再評価が1F遅れる
+Animator.Play()を直後に呼ばないと、Default Stateが再生されないことがある
+解決策
+AOCを設定した直後、明示的に再生命令を入れる：
+animator.runtimeAnimatorController = overrideController;
+animator.Play("Idle", 0, 0f); // 必ずアニメーションをリセット再生
+これで「1フレームだけ表示されない」「前のアニメーションが残る」問題を防げます。
+
+
+
+Dual weild & Dualweilder の互換性
+yamlでアニメーション置き換え管理
+    読み込んだアニメーションのlength に合わせて、 
+    バニラのlengthとタイミングで比率計算した者を割り当てる
+    さらに、その比率をyamlで調整可能
+
+yamlでanimation timing とパラメーターの任意変更
+    判定・ダメージ・スタミナeitr消費 音 VFXの有無 を yamlで設定可能
+    ※将来的にはsound VFX を差し替えられる
+
+個別武器ごとのアニメーションの置き換え
+    ユーザーが指定フォルダにファイルをおいてアニメーションを追加できる
+    yaml から 武器名 を指定して、ＱＴＧ を置き換え可能
+
+バニラアニメーションの置き換え これは別ＭＯＤになる可能性あり
+    通常攻撃セカンダリ、各種アイドルアニメの置き換え
+
+

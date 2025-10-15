@@ -188,54 +188,6 @@ namespace ExtraAttackSystem
             }
         }
 
-        public static float GetEffectiveStaminaCost(Player player, ItemDrop.ItemData weapon, AttackMode mode)
-        {
-            // Simplified: Just return base cost from YAML
-            // The actual stamina calculation with all modifiers is now handled by Attack_GetAttackStamina_Prefix
-            if (player == null || weapon == null)
-            {
-                return 0f;
-            }
-
-            float baseCost = 0f;
-            
-            // Get base stamina cost from CostConfig
-            try
-            {
-                string weaponType = GetWeaponTypeFromSkill(weapon.m_shared.m_skillType, weapon);
-                string modeString = mode.ToString();
-                
-                var attackCost = ExtraAttackCostConfig.GetAttackCost(weaponType, modeString);
-                if (attackCost != null && attackCost.StaminaCost > 0f)
-                {
-                    baseCost = attackCost.StaminaCost;
-                    if (ExtraAttackPlugin.IsDebugAOCOperationsEnabled)
-                    {
-                        ExtraAttackPlugin.LogInfo("System", $"Using CostConfig base stamina cost: {weaponType}_{modeString} = {baseCost}");
-                    }
-                }
-                
-               // Use default if CostConfig not available
-                if (baseCost <= 0f)
-                {
-                   baseCost = 20f; // Default base stamina cost (バニラのセカンダリ攻撃と同じ値)
-                }
-            }
-            catch (System.Exception ex)
-            {
-                ExtraAttackPlugin.LogError("System", $"Error getting CostConfig stamina cost, using default: {ex.Message}");
-                baseCost = 20f; // Default base stamina cost (バニラのセカンダリ攻撃と同じ値)
-            }
-            
-            return baseCost;
-        }
-
-        public static float GetEffectiveStaminaCost(Attack attack, Player player, ItemDrop.ItemData weapon, AttackMode mode)
-        {
-            // Simplified: Just return base cost from YAML
-            // The actual stamina calculation with all modifiers is now handled by Attack_GetAttackStamina_Prefix
-            return GetEffectiveStaminaCost(player, weapon, mode);
-        }
 
 
         /// <summary>
@@ -246,14 +198,14 @@ namespace ExtraAttackSystem
             // First determine base weapon type from skill
             string baseType = skillType switch
             {
-                Skills.SkillType.Swords => "Swords",
-                Skills.SkillType.Axes => "Axes", // Both regular axes and battle axes use Axes skill
-                Skills.SkillType.Clubs => "Clubs",
-                Skills.SkillType.Spears => "Spears",
-                Skills.SkillType.Polearms => "Polearms",
-                Skills.SkillType.Knives => "Knives",
-                Skills.SkillType.Unarmed => "Fists",
-                _ => "Swords" // Default fallback
+                Skills.SkillType.Swords => "Sword",
+                Skills.SkillType.Axes => "Axe", // Both regular axes and battle axes use Axes skill
+                Skills.SkillType.Clubs => "Club",
+                Skills.SkillType.Spears => "Spear",
+                Skills.SkillType.Polearms => "Polearm",
+                Skills.SkillType.Knives => "Knife",
+                Skills.SkillType.Unarmed => "Fist",
+                _ => "Sword" // Default fallback
             };
 
             // Refine weapon type based on two-handed status for GreatSwords and BattleAxes
@@ -262,15 +214,15 @@ namespace ExtraAttackSystem
                 bool isTwoHanded = weapon.m_shared.m_itemType == ItemDrop.ItemData.ItemType.TwoHandedWeapon;
                 
                 // Check for GreatSwords (two-handed swords)
-                if (baseType == "Swords" && isTwoHanded)
+                if (baseType == "Sword" && isTwoHanded)
                 {
-                    return "GreatSwords";
+                    return "Greatsword";
                 }
                 
                 // Check for BattleAxes (two-handed axes)
-                if (baseType == "Axes" && isTwoHanded)
+                if (baseType == "Axe" && isTwoHanded)
                 {
-                    return "BattleAxes";
+                    return "Battleaxe";
                 }
             }
 

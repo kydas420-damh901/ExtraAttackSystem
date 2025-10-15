@@ -111,37 +111,6 @@ namespace ExtraAttackSystem
 
             // Use centralized GetCurrentHitIndex from ExtraAttackPatches_Core
         }
-        [HarmonyPatch(typeof(Attack), "GetAttackStamina")]
-        public static class Attack_GetAttackStamina_Postfix
-        {
-            public static void Postfix(Attack __instance, ref float __result, Humanoid ___m_character, ItemDrop.ItemData ___m_weapon)
-            {
-                try
-                {
-                    if (__instance == null || ___m_character == null)
-                        return;
-
-                    var player = ___m_character as Player;
-                    if (player == null || player != Player.m_localPlayer)
-                        return;
-
-                    var mode = EAS_CommonUtils.GetAttackMode(player);
-                    if (mode == EAS_CommonUtils.AttackMode.Normal)
-                        return;
-
-                    var weapon = ___m_weapon;
-                    if (weapon == null)
-                        return;
-
-                    float cost = EAS_CommonUtils.GetEffectiveStaminaCost(__instance, player, weapon, mode);
-                    __result = cost;
-                }
-                catch (System.Exception ex)
-                {
-                    ExtraAttackPlugin.LogError("System", $"Error in GetAttackStamina Postfix: {ex.Message}");
-                }
-            }
-        }
         [HarmonyPatch(typeof(Attack), nameof(Attack.Stop))]
         public static class Attack_Stop_RevertAOC_Postfix
         {
@@ -185,101 +154,6 @@ namespace ExtraAttackSystem
                 catch (Exception ex)
                 {
                     ExtraAttackPlugin.LogError("System", $"Error in Attack.Stop Postfix: {ex.Message}");
-                }
-            }
-        }
-
-        [HarmonyPatch(typeof(Attack), "GetAttackStamina")]
-        public static class Attack_GetAttackStamina_Prefix
-        {
-            public static void Prefix(Attack __instance, Humanoid ___m_character)
-            {
-                try
-                {
-                    if (___m_character is Player player && EAS_CommonUtils.IsPlayerInExtraAttack(player))
-                    {
-                        // Get weapon and attack mode for extra attack
-                        var weapon = player.GetCurrentWeapon();
-                        // Get current attack mode from player state
-                        EAS_CommonUtils.AttackMode attackMode = EAS_CommonUtils.AttackMode.secondary_Q; // Default fallback
-                        if (ExtraAttackPlugin.IsExtraAttackKey_QPressed()) attackMode = EAS_CommonUtils.AttackMode.secondary_Q;
-                        else if (ExtraAttackPlugin.IsExtraAttackKey_TPressed()) attackMode = EAS_CommonUtils.AttackMode.secondary_T;
-                        else if (ExtraAttackPlugin.IsExtraAttackKey_GPressed()) attackMode = EAS_CommonUtils.AttackMode.secondary_G;
-                        
-                        if (weapon != null)
-                        {
-                            // Get base stamina cost from YAML config
-                            string weaponType = EAS_CommonUtils.GetWeaponTypeFromSkill(weapon.m_shared.m_skillType, weapon);
-                            string modeString = attackMode.ToString();
-                            
-                            var attackCost = ExtraAttackCostConfig.GetAttackCost(weaponType, modeString);
-                            if (attackCost != null && attackCost.StaminaCost > 0f)
-                            {
-                                // Override m_attackStamina with YAML base value
-                                // Vanilla calculation will continue with:
-                                // - Equipment modifiers
-                                // - SEMan modifiers  
-                                // - Skill modifiers (-33%)
-                                // - HP modifiers
-                                __instance.m_attackStamina = attackCost.StaminaCost;
-                                
-                                if (ExtraAttackPlugin.IsDebugAOCOperationsEnabled)
-                                {
-                                    ExtraAttackPlugin.LogInfo("System", $"Overrode m_attackStamina for {weaponType}_{modeString}: {attackCost.StaminaCost}");
-                                }
-                            }
-                        }
-                    }
-                }
-                catch (Exception ex)
-                {
-                    ExtraAttackPlugin.LogError("System", $"Error in Attack_GetAttackStamina_Prefix: {ex.Message}");
-                }
-            }
-        }
-
-        [HarmonyPatch(typeof(Attack), "GetAttackEitr")]
-        public static class Attack_GetAttackEitr_Prefix
-        {
-            public static void Prefix(Attack __instance, Humanoid ___m_character)
-            {
-                try
-                {
-                    if (___m_character is Player player && EAS_CommonUtils.IsPlayerInExtraAttack(player))
-                    {
-                        // Get weapon and attack mode for extra attack
-                        var weapon = player.GetCurrentWeapon();
-                        // Get current attack mode from player state
-                        EAS_CommonUtils.AttackMode attackMode = EAS_CommonUtils.AttackMode.secondary_Q; // Default fallback
-                        if (ExtraAttackPlugin.IsExtraAttackKey_QPressed()) attackMode = EAS_CommonUtils.AttackMode.secondary_Q;
-                        else if (ExtraAttackPlugin.IsExtraAttackKey_TPressed()) attackMode = EAS_CommonUtils.AttackMode.secondary_T;
-                        else if (ExtraAttackPlugin.IsExtraAttackKey_GPressed()) attackMode = EAS_CommonUtils.AttackMode.secondary_G;
-                        
-                        if (weapon != null)
-                        {
-                            // Get base eitr cost from YAML config
-                            string weaponType = EAS_CommonUtils.GetWeaponTypeFromSkill(weapon.m_shared.m_skillType, weapon);
-                            string modeString = attackMode.ToString();
-                            
-                            var attackCost = ExtraAttackCostConfig.GetAttackCost(weaponType, modeString);
-                            if (attackCost != null && attackCost.EitrCost > 0f)
-                            {
-                                // Override m_attackEitr with YAML base value
-                                // Vanilla calculation will continue with:
-                                // - Skill modifiers (-33%)
-                                __instance.m_attackEitr = attackCost.EitrCost;
-                                
-                                if (ExtraAttackPlugin.IsDebugAOCOperationsEnabled)
-                                {
-                                    ExtraAttackPlugin.LogInfo("System", $"Overrode m_attackEitr for {weaponType}_{modeString}: {attackCost.EitrCost}");
-                                }
-                            }
-                        }
-                    }
-                }
-                catch (Exception ex)
-                {
-                    ExtraAttackPlugin.LogError("System", $"Error in Attack_GetAttackEitr_Prefix: {ex.Message}");
                 }
             }
         }

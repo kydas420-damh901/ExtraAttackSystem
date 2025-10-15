@@ -53,7 +53,7 @@ namespace ExtraAttackSystem
         {
             if (!File.Exists(ConfigFilePath))
             {
-                ExtraAttackPlugin.LogInfo("Config", "ExtraAttackExclusion.yaml not found, will create");
+                ExtraAttackPlugin.LogInfo("System", "ExtraAttackExclusion.yaml not found, will create");
                 return true;
             }
 
@@ -63,18 +63,18 @@ namespace ExtraAttackSystem
                 string content = File.ReadAllText(ConfigFilePath, Encoding.UTF8).Trim();
                 if (string.IsNullOrEmpty(content))
                 {
-                    ExtraAttackPlugin.LogInfo("Config", "ExtraAttackExclusion.yaml is empty, will regenerate");
+                    ExtraAttackPlugin.LogInfo("System", "ExtraAttackExclusion.yaml is empty, will regenerate");
                     return true;
                 }
 
                 // Check if file has actual exclusion data
                 if (!content.Contains("ExcludedItemNames:") && !content.Contains("ExcludedItemTypes:") && !content.Contains("ExcludedPrefabNames:"))
                 {
-                    ExtraAttackPlugin.LogInfo("Config", "ExtraAttackExclusion.yaml has no exclusion data, will regenerate");
+                    ExtraAttackPlugin.LogInfo("System", "ExtraAttackExclusion.yaml has no exclusion data, will regenerate");
                     return true;
                 }
 
-                ExtraAttackPlugin.LogInfo("Config", "ExtraAttackExclusion.yaml exists and has content, skipping generation");
+                ExtraAttackPlugin.LogInfo("System", "ExtraAttackExclusion.yaml exists and has content, skipping generation");
                 return false;
             }
             catch (Exception ex)

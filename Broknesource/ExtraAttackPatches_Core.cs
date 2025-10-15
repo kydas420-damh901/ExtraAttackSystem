@@ -22,17 +22,7 @@ namespace ExtraAttackSystem
             {
                 var attackMode = EAS_CommonUtils.GetAttackMode(player);
 
-                // Greatsword YAML key unification: when equipped and Style mode active, force clipName
-                ItemDrop.ItemData weapon = player.GetCurrentWeapon();
-                bool isGreatsword = weapon != null &&
-                                    weapon.m_shared.m_skillType == Skills.SkillType.Swords &&
-                                    weapon.m_shared.m_itemType == ItemDrop.ItemData.ItemType.TwoHandedWeapon;
-                if (isGreatsword && attackMode != EAS_CommonUtils.AttackMode.Normal)
-                {
-                    clipName = "greatsword_secondary";
-                }
-
-                // Prefer style-based suffix, then fallback to legacy suffixes (_Q/_T/_G), then no suffix
+                // Build unified key format: WeaponType_secondary_Mode
                 string styleSuffix = attackMode switch
                 {
                     EAS_CommonUtils.AttackMode.secondary_Q => "_secondary_Q",
@@ -41,27 +31,13 @@ namespace ExtraAttackSystem
                     _ => string.Empty
                 };
 
-                string legacySuffix = attackMode switch
+                // Build key with weapon type and mode
+                ItemDrop.ItemData weapon = player.GetCurrentWeapon();
+                if (weapon != null && !string.IsNullOrEmpty(styleSuffix))
                 {
-                    EAS_CommonUtils.AttackMode.secondary_Q => "_Q",
-                    EAS_CommonUtils.AttackMode.secondary_T => "_T",
-                    EAS_CommonUtils.AttackMode.secondary_G => "_G",
-                    _ => string.Empty
-                };
-
-                var suffixCandidates = new List<string>();
-                if (!string.IsNullOrEmpty(styleSuffix)) suffixCandidates.Add(styleSuffix);
-                if (!string.IsNullOrEmpty(legacySuffix)) suffixCandidates.Add(legacySuffix);
-                suffixCandidates.Add(string.Empty);
-
-                // Try keys in order: clip + suffix, clip
-                foreach (var suffix in suffixCandidates)
-                {
-                    string keyBase = string.IsNullOrEmpty(suffix)
-                        ? clipName
-                        : $"{clipName}{suffix}";
-
-                    if (AnimationTimingConfig.HasConfig(keyBase)) return keyBase;
+                    string weaponType = EAS_CommonUtils.GetWeaponTypeFromSkill(weapon.m_shared!.m_skillType, weapon);
+                    string unifiedKey = $"{weaponType}{styleSuffix}";
+                    if (AnimationTimingConfig.HasConfig(unifiedKey)) return unifiedKey;
                 }
 
                 // Final fallback

@@ -4,15 +4,24 @@
 		<LangVersion>latest</LangVersion>
 		<Nullable>enable</Nullable>
 		<Deterministic>true</Deterministic>
-		<Version>0.7.6</Version>
-		<AssemblyVersion>0.7.6.0</AssemblyVersion>
-		<FileVersion>0.7.6.0</FileVersion>
-		<InformationalVersion>0.7.6-stamina-eitr+20250112</InformationalVersion>
+		<Version>0.8.7</Version>
+		<AssemblyVersion>0.8.7.0</AssemblyVersion>
+		<FileVersion>0.8.7.0</FileVersion>
+		<InformationalVersion>0.8.7-rebuild+20250112</InformationalVersion>
 	</PropertyGroup>
 	<ItemGroup>
 	  <Compile Remove="memo_List_decompilesources\**" />
+	  <Compile Remove="Broknesource\**" />
 	  <EmbeddedResource Remove="memo_List_decompilesources\**" />
+	  <EmbeddedResource Remove="Broknesource\**" />
 	  <None Remove="memo_List_decompilesources\**" />
+	  <None Remove="Broknesource\**" />
+	  <None Remove="memo_changes.txt" />
+	  <None Remove="memo_sitting_state_issue.txt" />
+	  <None Remove="memo.md" />
+	  <None Remove="memo.txt" />
+	  <None Remove="README.md" />
+	  <None Remove="tatus" />
 	</ItemGroup>
 	<ItemGroup>
 	  <None Remove="AnimationReplacement.yaml" />

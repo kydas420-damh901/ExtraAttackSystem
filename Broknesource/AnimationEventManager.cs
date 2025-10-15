@@ -103,19 +103,18 @@ namespace ExtraAttackSystem
         
             foreach (var entry in AnimationManager.AnimationReplacementMap)
             {
-                string mapKey = entry.Key;
-                string? suffix = null;
-                if (mapKey.StartsWith("secondary_Q", System.StringComparison.Ordinal)) suffix = "secondary_Q";
-                else if (mapKey.StartsWith("secondary_T", System.StringComparison.Ordinal)) suffix = "secondary_T";
-                else if (mapKey.StartsWith("secondary_G", System.StringComparison.Ordinal)) suffix = "secondary_G";
-                else continue; // ignore legacy style maps here
+                string weaponType = entry.Key; // weaponType (e.g., "Greatsword", "Sword", "Axe")
+                var weaponMappings = entry.Value; // Dictionary<string, string> (mode -> animationName)
         
-                foreach (var kv in entry.Value)
+                foreach (var kv in weaponMappings)
                 {
-                    if (kv.Value == externalName)
+                    string modeKey = kv.Key; // mode key (e.g., "secondary_T", "secondary_Q", "secondary_G")
+                    string animationName = kv.Value; // external animation name
+                    
+                    if (animationName == externalName)
                     {
-                        string vanillaName = kv.Key;
-                        string cfg = $"{vanillaName}_{suffix!}";
+                        // Found matching animation, construct config key: weaponType_modeKey
+                        string cfg = $"{weaponType}_{modeKey}";
                         if (AnimationTimingConfig.HasConfig(cfg))
                         {
                             return cfg;

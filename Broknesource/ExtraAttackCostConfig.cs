@@ -133,7 +133,7 @@ namespace ExtraAttackSystem
                    };
 
             // Weapon type specific costs and cooldowns
-            var weaponTypes = new[] { "Swords", "Axes", "Clubs", "Spears", "GreatSwords", "BattleAxes", "Polearms", "Knives", "Fists" };
+            var weaponTypes = new[] { "Sword", "Axe", "Club", "Spear", "Greatsword", "Battleaxe", "Polearm", "Knife", "Fist" };
             var modes = new[] { "secondary_Q", "secondary_T", "secondary_G" };
 
             foreach (var weaponType in weaponTypes)
@@ -145,11 +145,11 @@ namespace ExtraAttackSystem
                            // Different costs per weapon type (affected by skill bonuses)
                            var cost = weaponType switch
                            {
-                               "GreatSwords" => new AttackCost { StaminaCost = 20.0f, EitrCost = 0.0f, CooldownSec = 0.0f },  // バニラセカンダリと同じ、エイトル0、クールダウン0
-                               "BattleAxes" => new AttackCost { StaminaCost = 20.0f, EitrCost = 0.0f, CooldownSec = 0.0f },   // バニラセカンダリと同じ、エイトル0、クールダウン0
-                               "Polearms" => new AttackCost { StaminaCost = 20.0f, EitrCost = 0.0f, CooldownSec = 0.0f },     // バニラセカンダリと同じ、エイトル0、クールダウン0
-                               "Knives" => new AttackCost { StaminaCost = 20.0f, EitrCost = 0.0f, CooldownSec = 0.0f },       // バニラセカンダリと同じ、エイトル0、クールダウン0
-                               "Fists" => new AttackCost { StaminaCost = 20.0f, EitrCost = 0.0f, CooldownSec = 0.0f },        // バニラセカンダリと同じ、エイトル0、クールダウン0
+                               "Greatsword" => new AttackCost { StaminaCost = 20.0f, EitrCost = 0.0f, CooldownSec = 0.0f },  // バニラセカンダリと同じ、エイトル0、クールダウン0
+                               "Battleaxe" => new AttackCost { StaminaCost = 20.0f, EitrCost = 0.0f, CooldownSec = 0.0f },   // バニラセカンダリと同じ、エイトル0、クールダウン0
+                               "Polearm" => new AttackCost { StaminaCost = 20.0f, EitrCost = 0.0f, CooldownSec = 0.0f },     // バニラセカンダリと同じ、エイトル0、クールダウン0
+                               "Knife" => new AttackCost { StaminaCost = 20.0f, EitrCost = 0.0f, CooldownSec = 0.0f },       // バニラセカンダリと同じ、エイトル0、クールダウン0
+                               "Fist" => new AttackCost { StaminaCost = 20.0f, EitrCost = 0.0f, CooldownSec = 0.0f },        // バニラセカンダリと同じ、エイトル0、クールダウン0
                                _ => new AttackCost { StaminaCost = 20.0f, EitrCost = 0.0f, CooldownSec = 0.0f }                // バニラセカンダリと同じ、エイトル0、クールダウン0
                            };
                     
@@ -255,6 +255,15 @@ namespace ExtraAttackSystem
             {
                 return $"secondary_{attackMode}";
             }
+            else if (attackMode.Contains("_secondary_"))
+            {
+                // Extract mode from WeaponType_secondary_Mode format
+                var parts = attackMode.Split('_');
+                if (parts.Length >= 3)
+                {
+                    return $"secondary_{parts[parts.Length - 1]}";
+                }
+            }
             
             return attackMode;
         }
@@ -279,5 +288,6 @@ namespace ExtraAttackSystem
                 }
             }
         }
+
     }
 }

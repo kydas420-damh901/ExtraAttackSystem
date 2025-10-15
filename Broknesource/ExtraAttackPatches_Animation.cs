@@ -401,11 +401,11 @@ namespace ExtraAttackSystem
                 {
                     var weaponTypeMap = AnimationManager.AnimationReplacementMap[baseKey];
                     
-                    // NEW: ç›´æŽ¥ãƒ¢ãƒ¼ãƒ‰ã‚­ãƒ¼ï¼ˆsecondary_Q/T/Gï¼‰ã§æ¤œç´¢
+                    // Direct mode key (secondary_Q/T/G) search
                     if (weaponTypeMap.ContainsKey(secondaryPrefix))
                     {
                         string externalClip = weaponTypeMap[secondaryPrefix];
-                        // ãƒãƒ‹ãƒ©ã‚¯ãƒªãƒƒãƒ—åã‚’å–å¾—ã—ã¦ãƒžãƒƒãƒ”ãƒ³ã‚°ã‚’ä½œæˆ
+                        // Get vanilla clip name and create mapping
                         string modeKey = secondaryPrefix.Replace("secondary_", "");
                         string vanillaClip = GetVanillaClipName(baseKey, modeKey);
                         map = new Dictionary<string, string> { { vanillaClip, externalClip } };
@@ -463,8 +463,6 @@ namespace ExtraAttackSystem
                 // Include base controller identity and weapon type to avoid cache collisions across different weapon controllers
                 string baseId = original != null ? (original.name ?? "null") : "null";
                 string cacheWeaponType = GetWeaponTypeFromSkillType(rightSkill, right);
-                // Map "Unarmed" to "Fists" for consistency
-                if (cacheWeaponType == "Unarmed") cacheWeaponType = "Fists";
                 string cacheKey = $"{cacheWeaponType}:{styleKey}:{resolvedKey}:{baseId}";
         
                 if (!AnimationManager.AnimatorControllerCache.TryGetValue(cacheKey, out var controller) || controller == null)
@@ -494,7 +492,6 @@ namespace ExtraAttackSystem
         }
 
         // Get weapon type from skill type and weapon data
-        // ã‚¹ã‚­ãƒ«ã‚¿ã‚¤ãƒ—ã¨æ­¦å™¨ãƒ‡ãƒ¼ã‚¿ã‹ã‚‰æ­¦å™¨ã‚¿ã‚¤ãƒ—ã‚’åˆ¤å®šã™ã‚‹
         private static string GetWeaponTypeFromSkillType(Skills.SkillType skillType, ItemDrop.ItemData? weaponData = null)
         {
             if (ExtraAttackPlugin.DebugAOCOperations.Value)
@@ -516,51 +513,56 @@ namespace ExtraAttackSystem
                 var itemTypeStr = weaponData?.m_shared?.m_itemType.ToString() ?? "null";
             }
             
+            // Convert SkillType to WeaponType based on weapon characteristics (singular WeaponType)
             // Battle Axe is Axes skill type + 2H, Great Sword is Swords skill type + 2H
             if (skillType == Skills.SkillType.Axes)
             {
                 if (is2H)
                 {
-                    if (ExtraAttackPlugin.DebugAOCOperations.Value)
-                    {
-                    }
-                    return "BattleAxes";
+                    return "Battleaxe"; // 2H axes (singular, lowercase 'a')
                 }
                 else
-                    return "Axes";
+                {
+                    return "Axe"; // 1H axes (singular)
+                }
             }
             else if (skillType == Skills.SkillType.Swords)
             {
                 if (is2H)
                 {
-                    if (ExtraAttackPlugin.DebugAOCOperations.Value)
-                    {
-                    }
-                    return "GreatSwords";
+                    return "Greatsword"; // 2H swords (singular, lowercase 's')
                 }
                 else
-                    return "Swords";
+                {
+                    return "Sword"; // 1H swords (singular)
+                }
             }
-            
-            return skillType.ToString();
+            // For other skill types, convert to singular WeaponType
+            return skillType.ToString() switch
+            {
+                "Clubs" => "Club",
+                "Spears" => "Spear",
+                "Polearms" => "Polearm",
+                "Knives" => "Knife",
+                _ => skillType.ToString()
+            };
         }
 
         // Get vanilla clip name for weapon type and mode
-        // è£…å‚™ã—ã¦ã„ã‚‹æ­¦å™¨ã®å®Ÿéš›ã®ã‚»ã‚«ãƒ³ãƒ€ãƒªã‚¢ãƒ‹ãƒ¡ãƒ¼ã‚·ãƒ§ãƒ³ã‚¯ãƒªãƒƒãƒ—åã‚’è¿”ã™
         private static string GetVanillaClipName(string weaponType, string mode)
         {
-            // Always return the equipped weapon's secondary trigger name
+            // Always return the equipped weapon's secondary trigger name (singular WeaponType)
             return weaponType switch
             {
-                "Swords" => "Sword-Attack-R4", // sword_secondary trigger
-                "GreatSwords" => "Greatsword Secondary Attack", // greatsword_secondary trigger
-                "Axes" => "Axe Secondary Attack", // axe_secondary trigger
-                "Clubs" => "MaceAltAttack", // club_secondary trigger
-                "Spears" => "throw_spear", // spear_throw trigger
-                "BattleAxes" => "BattleAxeAltAttack", // battleaxe_secondary trigger
-                "Polearms" => "Atgeir360Attack", // polearm_secondary trigger
-                "Knives" => "Knife JumpAttack", // knife_secondary trigger
-                "Fists" => "Kickstep", // fist_secondary trigger
+                "Sword" => "Sword-Attack-R4", // sword_secondary trigger
+                "Greatsword" => "Greatsword Secondary Attack", // greatsword_secondary trigger
+                "Axe" => "Axe Secondary Attack", // axe_secondary trigger
+                "Battleaxe" => "BattleAxeAltAttack", // battleaxe_secondary trigger
+                "Club" => "MaceAltAttack", // club_secondary trigger
+                "Spear" => "throw_spear", // spear_throw trigger
+                "Polearm" => "Atgeir360Attack", // polearm_secondary trigger
+                "Knife" => "Knife JumpAttack", // knife_secondary trigger
+                "Unarmed" => "Kickstep", // unarmed -> fist_secondary trigger
                 _ => "Sword-Attack-R4"
             };
         }

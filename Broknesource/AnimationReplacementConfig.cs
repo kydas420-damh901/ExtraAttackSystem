@@ -129,7 +129,7 @@ namespace ExtraAttackSystem
         {
             if (!File.Exists(WeaponTypesConfigFilePath))
             {
-                ExtraAttackPlugin.LogInfo("Config", "AnimationReplacement_WeaponTypes.yaml not found, will create");
+                ExtraAttackPlugin.LogInfo("System", "AnimationReplacement_WeaponTypes.yaml not found, will create");
                 return true;
             }
 
@@ -139,18 +139,18 @@ namespace ExtraAttackSystem
                 string content = File.ReadAllText(WeaponTypesConfigFilePath, Encoding.UTF8).Trim();
                 if (string.IsNullOrEmpty(content))
                 {
-                    ExtraAttackPlugin.LogInfo("Config", "AnimationReplacement_WeaponTypes.yaml is empty, will regenerate");
+                    ExtraAttackPlugin.LogInfo("System", "AnimationReplacement_WeaponTypes.yaml is empty, will regenerate");
                     return true;
                 }
 
                 // Check if file has actual AOC type data
                 if (!content.Contains("AocTypes:") || !content.Contains("secondary_"))
                 {
-                    ExtraAttackPlugin.LogInfo("Config", "AnimationReplacement_WeaponTypes.yaml has no AOC type data, will regenerate");
+                    ExtraAttackPlugin.LogInfo("System", "AnimationReplacement_WeaponTypes.yaml has no AOC type data, will regenerate");
                     return true;
                 }
 
-                ExtraAttackPlugin.LogInfo("Config", "AnimationReplacement_WeaponTypes.yaml exists and has content, skipping generation");
+                ExtraAttackPlugin.LogInfo("System", "AnimationReplacement_WeaponTypes.yaml exists and has content, skipping generation");
                 return false;
             }
             catch (Exception ex)
@@ -167,11 +167,11 @@ namespace ExtraAttackSystem
             // ファイルが存在する場合は、内容が空でも再生成しない（ユーザー設定維持）
             if (!File.Exists(IndividualWeaponsConfigFilePath))
             {
-                ExtraAttackPlugin.LogInfo("Config", "AnimationReplacement_IndividualWeapons.yaml: File does not exist, will create default");
+                ExtraAttackPlugin.LogInfo("System", "AnimationReplacement_IndividualWeapons.yaml: File does not exist, will create default");
                 return true;
             }
             
-            ExtraAttackPlugin.LogInfo("Config", "AnimationReplacement_IndividualWeapons.yaml: File exists, will not regenerate (user settings preserved)");
+            ExtraAttackPlugin.LogInfo("System", "AnimationReplacement_IndividualWeapons.yaml: File exists, will not regenerate (user settings preserved)");
             return false;
         }
 
@@ -215,18 +215,6 @@ namespace ExtraAttackSystem
                 {
                     current.AocTypes = weaponTypesConfig.AocTypes;
                     ExtraAttackPlugin.LogInfo("System", $"LoadWeaponTypesConfig: Successfully loaded {current.AocTypes.Count} weapon types from YAML");
-                    
-                    // Debug: Show loaded weapon types
-                    foreach (var weaponType in current.AocTypes)
-                    {
-                        ExtraAttackPlugin.LogInfo("System", $"LoadWeaponTypesConfig: Loaded weapon type: {weaponType.Key} with {weaponType.Value.Count} mappings");
-                        foreach (var mapping in weaponType.Value)
-                        {
-                            ExtraAttackPlugin.LogInfo("System", $"LoadWeaponTypesConfig:   {mapping.Key} -> {mapping.Value}");
-                        }
-                    }
-                    
-                    ExtraAttackPlugin.LogInfo("System", "LoadWeaponTypesConfig: Successfully loaded weapon types config");
                 }
                 else
                 {
@@ -543,48 +531,32 @@ namespace ExtraAttackSystem
                     }
                 }
                 
-                if (!yamlExists || !yamlHasContent)
+                if (!yamlExists)
                 {
-                    if (!yamlExists)
-                    {
-                        ExtraAttackPlugin.LogInfo("System", "ApplyToManager: YAML file does not exist, creating default config");
-                        SaveWeaponTypesConfig();
+                    ExtraAttackPlugin.LogInfo("System", "ApplyToManager: YAML file does not exist, creating default config");
+                    SaveWeaponTypesConfig();
+                    // Note: LoadWeaponTypesConfig() will be called by the caller to avoid infinite loop
+                    ExtraAttackPlugin.LogInfo("System", $"ApplyToManager: Generated YAML, will be loaded by caller");
                 }
-                else
+                else if (!yamlHasContent)
                 {
-                        ExtraAttackPlugin.LogInfo("System", "ApplyToManager: YAML file exists but has no content, regenerating");
-                        SaveWeaponTypesConfig();
-                    }
-                    
+                    ExtraAttackPlugin.LogInfo("System", "ApplyToManager: YAML file exists but has no content, regenerating");
+                    SaveWeaponTypesConfig();
                     // Note: LoadWeaponTypesConfig() will be called by the caller to avoid infinite loop
                     ExtraAttackPlugin.LogInfo("System", $"ApplyToManager: Generated YAML, will be loaded by caller");
                 }
                 else
                 {
-                    ExtraAttackPlugin.LogInfo("System", "ApplyToManager: AocTypes is empty but YAML file exists with content - attempting to reload");
-                    try
-                    {
-                        LoadWeaponTypesConfig();
-                        if (current.AocTypes != null && current.AocTypes.Count > 0)
-                        {
-                            ExtraAttackPlugin.LogInfo("System", $"ApplyToManager: Successfully reloaded YAML with {current.AocTypes.Count} weapon types");
-                        }
-                        else
-                        {
-                            ExtraAttackPlugin.LogWarning("System", "ApplyToManager: YAML reload failed, but YAML file exists - keeping existing AocTypes");
-                        }
-                    }
-                    catch (Exception ex)
-                    {
-                        ExtraAttackPlugin.LogError("System", $"ApplyToManager: Error reloading YAML: {ex.Message}");
-                        ExtraAttackPlugin.LogWarning("System", "ApplyToManager: YAML file exists but has errors - keeping existing AocTypes");
-                    }
+                    ExtraAttackPlugin.LogInfo("System", "ApplyToManager: YAML file exists with content but AocTypes is empty - YAML content may have parsing issues");
+                    // Don't overwrite user's YAML file - just log the issue
+                    ExtraAttackPlugin.LogWarning("System", "ApplyToManager: YAML file exists with content but failed to parse - keeping existing AocTypes");
                 }
             }
             
-            // Process AocTypes (weapon types) first
+            // Process AocTypes (weapon types) - primary source for animation mappings
             if (current.AocTypes != null && current.AocTypes.Count > 0)
             {
+                ExtraAttackPlugin.LogInfo("System", $"ApplyToManager: Processing {current.AocTypes.Count} weapon types from YAML");
                 foreach (var weaponType in current.AocTypes)
                 {
                     if (!AnimationManager.AnimationReplacementMap.ContainsKey(weaponType.Key))
@@ -610,7 +582,37 @@ namespace ExtraAttackSystem
             }
             else
             {
-                ExtraAttackPlugin.LogInfo("System", "ApplyToManager: current.AocTypes is null or empty - will be handled by AnimationManager");
+                // Fallback: Create mappings using hardcoded values if no YAML data
+                ExtraAttackPlugin.LogInfo("System", "ApplyToManager: No YAML data, creating fallback mappings");
+                var weaponTypes = new[] { "Sword", "Axe", "Club", "Spear", "Greatsword", "Battleaxe", "Polearm", "Knife", "Fist", "Unarmed" };
+                
+                foreach (var weaponType in weaponTypes)
+                {
+                    if (!AnimationManager.AnimationReplacementMap.ContainsKey(weaponType))
+                    {
+                        AnimationManager.AnimationReplacementMap[weaponType] = new Dictionary<string, string>();
+                    }
+                    
+                    var target = AnimationManager.AnimationReplacementMap[weaponType];
+                    string qExternalClip = AnimationTimingConfig.GetExternalClipForWeaponType(weaponType, "Q");
+                    string tExternalClip = AnimationTimingConfig.GetExternalClipForWeaponType(weaponType, "T");
+                    string gExternalClip = AnimationTimingConfig.GetExternalClipForWeaponType(weaponType, "G");
+                    
+                    if (!string.IsNullOrEmpty(qExternalClip))
+                    {
+                        target["secondary_Q"] = qExternalClip;
+                    }
+                    if (!string.IsNullOrEmpty(tExternalClip))
+                    {
+                        target["secondary_T"] = tExternalClip;
+                    }
+                    if (!string.IsNullOrEmpty(gExternalClip))
+                    {
+                        target["secondary_G"] = gExternalClip;
+                    }
+                    
+                    ExtraAttackPlugin.LogInfo("System", $"ApplyToManager: Fallback {weaponType} -> Q={qExternalClip}, T={tExternalClip}, G={gExternalClip}");
+                }
             }
             
             // Debug: Show final state

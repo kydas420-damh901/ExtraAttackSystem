@@ -39,6 +39,8 @@ namespace ExtraAttackSystem
         private static bool cachedDebugClipNames;
         private static bool cachedDebugCombo;
         private static bool cachedDebugAnimationParametersList;
+        private static bool cachedDebugAnimationEventsList;
+        private static bool cachedDebugAnimationClipsList;
 
         // General config - keys & cooldowns
         // Q/T/G keys for extra attacks
@@ -68,6 +70,8 @@ namespace ExtraAttackSystem
         public static bool IsDebugComboEnabled => cachedDebugCombo;
         public static bool IsDebugClipNamesEnabled => cachedDebugClipNames;
         public static bool IsDebugAnimationParametersListEnabled => cachedDebugAnimationParametersList;
+        public static bool IsDebugAnimationEventsListEnabled => cachedDebugAnimationEventsList;
+        public static bool IsDebugAnimationClipsListEnabled => cachedDebugAnimationClipsList;
         
         // ========================================================================
         // 3 - COMPAT
@@ -190,12 +194,10 @@ namespace ExtraAttackSystem
                 cachedDebugSystemMessages = DebugSystemMessages.Value;
                 if (cachedDebugSystemMessages)
                 {
-                    LogInfo("System", $"DebugSystemMessages changed to: {cachedDebugSystemMessages}");
-                    LogInfo("System", "System Messages debug enabled - will log system messages during gameplay");
+                    UnityEngine.Debug.Log($"[Extra Attack System] System Messages debug enabled");
                 }
                 else
                 {
-                    // Simple log for OFF to prevent freeze
                     UnityEngine.Debug.Log("[Extra Attack System] System Messages debug disabled");
                 }
             };
@@ -212,12 +214,10 @@ namespace ExtraAttackSystem
                 cachedDebugAttackTriggers = DebugAttackTriggers.Value;
                 if (cachedDebugAttackTriggers)
                 {
-                    LogInfo("System", $"DebugAttackTriggers changed to: {cachedDebugAttackTriggers}");
-                    LogInfo("System", "Attack Triggers debug enabled - will log attack triggers during gameplay");
+                    UnityEngine.Debug.Log("[Extra Attack System] Attack Triggers debug enabled");
                 }
                 else
                 {
-                    // Simple log for OFF to prevent freeze
                     UnityEngine.Debug.Log("[Extra Attack System] Attack Triggers debug disabled");
                 }
             };
@@ -230,12 +230,10 @@ namespace ExtraAttackSystem
                 cachedDebugDamageCalculation = DebugDamageCalculation.Value;
                 if (cachedDebugDamageCalculation)
                 {
-                    LogInfo("System", $"DebugDamageCalculation changed to: {cachedDebugDamageCalculation}");
-                    LogInfo("System", "Damage Calculation debug enabled - will log damage calculations during attacks");
+                    UnityEngine.Debug.Log("[Extra Attack System] Damage Calculation debug enabled");
                 }
                 else
                 {
-                    // Simple log for OFF to prevent freeze
                     UnityEngine.Debug.Log("[Extra Attack System] Damage Calculation debug disabled");
                 }
             };
@@ -252,12 +250,10 @@ namespace ExtraAttackSystem
                 cachedDebugAOCOperations = DebugAOCOperations.Value;
                 if (cachedDebugAOCOperations)
                 {
-                    LogInfo("System", $"DebugAOCOperations changed to: {cachedDebugAOCOperations}");
-                    LogInfo("System", "AOC Operations debug enabled - will log AOC operations during gameplay");
+                    UnityEngine.Debug.Log("[Extra Attack System] AOC Operations debug enabled");
                 }
                 else
                 {
-                    // Simple log for OFF to prevent freeze
                     UnityEngine.Debug.Log("[Extra Attack System] AOC Operations debug disabled");
                 }
             };
@@ -270,12 +266,10 @@ namespace ExtraAttackSystem
                 cachedDebugCombo = DebugCombo.Value;
                 if (cachedDebugCombo)
                 {
-                    LogInfo("System", $"DebugCombo changed to: {cachedDebugCombo}");
-                    LogInfo("System", "Combo System debug enabled - will log combo prevention during gameplay");
+                    UnityEngine.Debug.Log("[Extra Attack System] Combo System debug enabled");
                 }
                 else
                 {
-                    // Simple log for OFF to prevent freeze
                     UnityEngine.Debug.Log("[Extra Attack System] Combo System debug disabled");
                 }
             };
@@ -283,17 +277,16 @@ namespace ExtraAttackSystem
             // Animation Events List (one-time output)
             DebugAnimationEventsList = Config.Bind("4 - Debug Lists", "Animation Events List", false,
                 "Output all animation events from clips to debug console for timing analysis");
+            cachedDebugAnimationEventsList = DebugAnimationEventsList.Value;
             DebugAnimationEventsList.SettingChanged += (s, e) => {
-                LogInfo("System", $"DebugAnimationEventsList changed to: {DebugAnimationEventsList.Value}");
+                cachedDebugAnimationEventsList = DebugAnimationEventsList.Value;
                 if (DebugAnimationEventsList.Value)
                 {
-                    LogInfo("System", "Animation Events list output requested");
+                    UnityEngine.Debug.Log("[Extra Attack System] Animation Events list output enabled");
                     EAS_Debug.LogAllAnimationEvents();
-                    LogInfo("System", "Animation Events list output completed");
                 }
                 else
                 {
-                    // Simple log for OFF to prevent freeze
                     UnityEngine.Debug.Log("[Extra Attack System] Animation Events list output disabled");
                 }
             };
@@ -301,17 +294,16 @@ namespace ExtraAttackSystem
             // Animation Clips List (one-time output)
             DebugAnimationClipsList = Config.Bind("4 - Debug Lists", "Animation Clips List", false,
                 "Output all animation clips and their properties to debug console");
+            cachedDebugAnimationClipsList = DebugAnimationClipsList.Value;
             DebugAnimationClipsList.SettingChanged += (s, e) => {
-                LogInfo("System", $"DebugAnimationClipsList changed to: {DebugAnimationClipsList.Value}");
+                cachedDebugAnimationClipsList = DebugAnimationClipsList.Value;
                 if (DebugAnimationClipsList.Value)
                 {
-                    LogInfo("System", "Animation Clips list output requested");
+                    UnityEngine.Debug.Log("[Extra Attack System] Animation Clips list output enabled");
                     EAS_Debug.LogAllAnimationClips();
-                    LogInfo("System", "Animation Clips list output completed");
                 }
                 else
                 {
-                    // Simple log for OFF to prevent freeze
                     UnityEngine.Debug.Log("[Extra Attack System] Animation Clips list output disabled");
                 }
             };
@@ -323,16 +315,13 @@ namespace ExtraAttackSystem
             cachedDebugAnimationParametersList = DebugAnimationParametersList.Value;
             DebugAnimationParametersList.SettingChanged += (s, e) => {
                 cachedDebugAnimationParametersList = DebugAnimationParametersList.Value;
-                LogInfo("System", $"DebugAnimationParametersList changed to: {DebugAnimationParametersList.Value}");
                 if (DebugAnimationParametersList.Value)
                 {
-                    LogInfo("System", "Animation Parameters list output requested");
+                    UnityEngine.Debug.Log("[Extra Attack System] Animation Parameters list output enabled");
                     EAS_Debug.LogAllAnimationParameters();
-                    LogInfo("System", "Animation Parameters list output completed");
                 }
                 else
                 {
-                    // Simple log for OFF to prevent freeze
                     UnityEngine.Debug.Log("[Extra Attack System] Animation Parameters list output disabled");
                 }
             };
@@ -466,7 +455,7 @@ namespace ExtraAttackSystem
                 GenerateAllYamlConfigs();
                 
                 // Apply weapon type settings to populate ReplacementMap after generating YAML
-                AnimationManager.ApplyWeaponTypeSettings();
+                // ApplyWeaponTypeSettings removed - AnimationReplacementConfig.ApplyToManager handles all mappings
                 
                 // Generate cost config file
                 ExtraAttackCostConfig.GenerateCostConfig();
@@ -516,6 +505,10 @@ namespace ExtraAttackSystem
             "COMBO" => IsDebugComboEnabled,
             "AnimationParameters" => IsDebugAnimationParametersListEnabled,
             "Diag" => IsDebugDamageCalculationEnabled,
+            "ClipNames" => IsDebugClipNamesEnabled,
+            "Events" => IsDebugAnimationEventsListEnabled,
+            "Clips" => IsDebugAnimationClipsListEnabled,
+            "Performance" => IsDebugPerformanceMetricsEnabled,
             _ => false
         };
         

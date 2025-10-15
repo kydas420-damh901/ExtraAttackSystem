@@ -52,6 +52,8 @@ namespace ExtraAttackSystem
             {
                 if (__instance == null || !__instance.IsOwner())
                     return;
+                
+                ExtraAttackPlugin.LogInfo("Debug", $"Player_Update_Patch called for {__instance.GetPlayerName()}");
 
                 try
                 {
@@ -59,6 +61,10 @@ namespace ExtraAttackSystem
                     if (Input.GetKeyDown(KeyCode.F6))
                     {
                         ExtraAttackPlugin.LogInfo("System", "F6 pressed: Starting YAML reload process");
+                        
+                        // Clear existing YAML data to force regeneration with singular weapon type names
+                        ExtraAttackPlugin.LogInfo("System", "F6: Clearing existing YAML data to force regeneration");
+                        AnimationManager.AnimationReplacementMap.Clear();
                         
                         // What: Reload YAML configs from BepInEx\config\ExtraAttackSystem
                         // Why: Apply user edits without restarting the game
@@ -161,9 +167,6 @@ namespace ExtraAttackSystem
                                         }
                                     }
                                 }
-
-                                // Reset mode to Normal when Extra attack finishes
-                                EAS_CommonUtils.SetAttackMode(__instance, EAS_CommonUtils.AttackMode.Normal);
                             }
                             else
                             {
@@ -209,10 +212,16 @@ namespace ExtraAttackSystem
                     // G key: Custom Attack 2 (secondary_G)
                     if (ExtraAttackPlugin.IsExtraAttackKey_GPressed() && !testButton1Pressed)
                     {
+                        ExtraAttackPlugin.LogInfo("Debug", $"G key pressed - CanPerformExtraAttack check for {__instance.GetPlayerName()}");
                         if (CanPerformExtraAttack(__instance))
                         {
+                            ExtraAttackPlugin.LogInfo("Debug", $"G key: Triggering ExtraAttack_G for {__instance.GetPlayerName()}");
                             TriggerExtraAttack_G(__instance);
                             testButton1Pressed = true;
+                        }
+                        else
+                        {
+                            ExtraAttackPlugin.LogInfo("Debug", $"G key: Cannot perform extra attack for {__instance.GetPlayerName()}");
                         }
                     }
                     else if (!ExtraAttackPlugin.IsExtraAttackKey_GPressed())
@@ -314,7 +323,9 @@ namespace ExtraAttackSystem
                 }
 
                 // NEW: per-style stamina check for Q using effective cost
-                float staminaCost1 = EAS_CommonUtils.GetEffectiveStaminaCost(player, weapon, EAS_CommonUtils.AttackMode.secondary_Q);
+                string weaponType = EAS_CommonUtils.GetWeaponTypeFromSkill(weapon.m_shared.m_skillType, weapon);
+                var attackCost = ExtraAttackCostConfig.GetAttackCost(weaponType, "secondary_Q");
+                float staminaCost1 = attackCost?.StaminaCost ?? 20f;
                 if (player.GetStamina() < staminaCost1)
                 {
                     EAS_CommonUtils.ShowMessage(player, "extra_attack_no_stamina");
@@ -360,7 +371,9 @@ namespace ExtraAttackSystem
                 }
 
                 // NEW: per-style stamina check for T/G using effective cost
-                float staminaCost2 = EAS_CommonUtils.GetEffectiveStaminaCost(player, weapon, mode);
+                string weaponType = EAS_CommonUtils.GetWeaponTypeFromSkill(weapon.m_shared.m_skillType, weapon);
+                var attackCost = ExtraAttackCostConfig.GetAttackCost(weaponType, mode.ToString());
+                float staminaCost2 = attackCost?.StaminaCost ?? 20f;
                 if (player.GetStamina() < staminaCost2)
                 {
                     EAS_CommonUtils.ShowMessage(player, "extra_attack_no_stamina");
@@ -429,15 +442,13 @@ namespace ExtraAttackSystem
                     {
                         try { crouchTogglePre = player.IsCrouching(); } catch { }
                     }
+                    // AOC is already set at equipment change time - no need to switch during attack
+                    EAS_CommonUtils.SetPlayerCooldown(player, mode);
+                    
                     if (ExtraAttackPlugin.DebugAOCOperations.Value)
                     {
                         ExtraAttackPlugin.LogInfo("AOC", $"[{buttonName}] Pre-ApplyAOC: crouchToggle={crouchTogglePre} stamina={player.GetStamina():F1}");
                     }
-                    
-                    // AOC is already set at equipment change time - no need to switch during attack
-
-
-                    EAS_CommonUtils.SetPlayerCooldown(player, mode);
 
                     // Diagnostic: runtime animator controller state just before StartAttack
                     var rac = animator.runtimeAnimatorController;
@@ -567,14 +578,12 @@ namespace ExtraAttackSystem
                     {
                         try { crouchTogglePre = player.IsCrouching(); } catch { }
                     }
+                    EAS_CommonUtils.SetPlayerCooldown(player, mode);
+                    
                     if (ExtraAttackPlugin.DebugAOCOperations.Value)
                     {
                         ExtraAttackPlugin.LogInfo("AOC", $"[{mode}] Pre-ApplyAOC: crouchToggle={crouchTogglePre} stamina={player.GetStamina():F1}");
                     }
-                    
-
-                    
-                    EAS_CommonUtils.SetPlayerCooldown(player, mode);
 
                     // Mark bypass for our own StartAttack call
                     EAS_CommonUtils.MarkBypassNextStartAttack(player);
