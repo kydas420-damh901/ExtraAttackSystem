@@ -75,80 +75,89 @@ namespace ExtraAttackSystem
         {
             ["Sword"] = new AnimationTiming
             {
-                HitTiming = 0.5f, TrailOnTiming = 0.3f, TrailOffTiming = 0.8f,
-                ChainTiming = 0.85f, SpeedTiming = 1.0f, DodgeMortalTiming = 1.0f,
-                ClipLength = 1.2f, AttackRange = 2.0f, AttackHeight = 1.0f,
-                AttackOffset = 0.0f, AttackAngle = 120.0f, AttackRayWidth = 0.5f,
-                AttackRayWidthCharExtra = 0.1f, AttackHeightChar1 = 1.0f, AttackHeightChar2 = 0.8f,
-                MaxYAngle = 45.0f, EnableHit = true, EnableSound = true
+                HitTiming = 0.244f, TrailOnTiming = 0.184f, TrailOffTiming = 0.270f,
+                ChainTiming = 0.0f, SpeedTiming = 1.0f, DodgeMortalTiming = 1.0f,
+                ClipLength = 1.4f, AttackRange = 2.7f, AttackHeight = 1.0f,
+                AttackOffset = 0.0f, AttackAngle = 10.0f, AttackRayWidth = 0.7f,
+                AttackRayWidthCharExtra = 0.0f, AttackHeightChar1 = 0.0f, AttackHeightChar2 = 0.0f,
+                MaxYAngle = 0.0f, EnableHit = true, EnableSound = true
             },
             ["Greatsword"] = new AnimationTiming
             {
                 HitTiming = 0.6f, TrailOnTiming = 0.4f, TrailOffTiming = 0.9f,
-                ChainTiming = 0.9f, SpeedTiming = 1.0f, DodgeMortalTiming = 1.0f,
-                ClipLength = 1.8f, AttackRange = 2.5f, AttackHeight = 1.2f,
-                AttackOffset = 0.0f, AttackAngle = 140.0f, AttackRayWidth = 0.6f,
-                AttackRayWidthCharExtra = 0.15f, AttackHeightChar1 = 1.1f, AttackHeightChar2 = 0.9f,
-                MaxYAngle = 50.0f, EnableHit = true, EnableSound = true
+                ChainTiming = 0.0f, SpeedTiming = 1.0f, DodgeMortalTiming = 1.0f,
+                ClipLength = 1.4f, AttackRange = 3.0f, AttackHeight = 1.0f,
+                AttackOffset = 0.0f, AttackAngle = 30.0f, AttackRayWidth = 0.5f,
+                AttackRayWidthCharExtra = 0.0f, AttackHeightChar1 = 0.0f, AttackHeightChar2 = 0.0f,
+                MaxYAngle = 0.0f, EnableHit = true, EnableSound = true
             },
             ["Axe"] = new AnimationTiming
             {
                 HitTiming = 0.4f, TrailOnTiming = 0.2f, TrailOffTiming = 0.7f,
-                ChainTiming = 0.8f, SpeedTiming = 1.0f, DodgeMortalTiming = 1.0f,
-                ClipLength = 1.0f, AttackRange = 1.8f, AttackHeight = 0.9f,
-                AttackOffset = 0.0f, AttackAngle = 100.0f, AttackRayWidth = 0.4f,
-                AttackRayWidthCharExtra = 0.1f, AttackHeightChar1 = 0.9f, AttackHeightChar2 = 0.7f,
-                MaxYAngle = 40.0f, EnableHit = true, EnableSound = true
+                ChainTiming = 0.0f, SpeedTiming = 1.0f, DodgeMortalTiming = 1.0f,
+                ClipLength = 1.4f, AttackRange = 2.2f, AttackHeight = 0.6f,
+                AttackOffset = 0.0f, AttackAngle = 90.0f, AttackRayWidth = 0.0f,
+                AttackRayWidthCharExtra = 0.0f, AttackHeightChar1 = 0.0f, AttackHeightChar2 = 0.0f,
+                MaxYAngle = 0.0f, EnableHit = true, EnableSound = true
             },
             ["Club"] = new AnimationTiming
             {
                 HitTiming = 0.7f, TrailOnTiming = 0.5f, TrailOffTiming = 1.0f,
-                ChainTiming = 0.95f, SpeedTiming = 1.0f, DodgeMortalTiming = 1.0f,
-                ClipLength = 2.0f, AttackRange = 2.2f, AttackHeight = 1.1f,
-                AttackOffset = 0.0f, AttackAngle = 130.0f, AttackRayWidth = 0.55f,
-                AttackRayWidthCharExtra = 0.12f, AttackHeightChar1 = 1.05f, AttackHeightChar2 = 0.85f,
-                MaxYAngle = 47.0f, EnableHit = true, EnableSound = true
+                ChainTiming = 0.0f, SpeedTiming = 1.0f, DodgeMortalTiming = 1.0f,
+                ClipLength = 1.4f, AttackRange = 2.5f, AttackHeight = 0.8f,
+                AttackOffset = 0.0f, AttackAngle = 30.0f, AttackRayWidth = 0.3f,
+                AttackRayWidthCharExtra = 0.0f, AttackHeightChar1 = 0.0f, AttackHeightChar2 = 0.0f,
+                MaxYAngle = 0.0f, EnableHit = true, EnableSound = true
             },
             ["Spear"] = new AnimationTiming
             {
                 HitTiming = 0.3f, TrailOnTiming = 0.1f, TrailOffTiming = 0.6f,
-                ChainTiming = 0.7f, SpeedTiming = 1.0f, DodgeMortalTiming = 1.0f,
-                ClipLength = 0.8f, AttackRange = 3.0f, AttackHeight = 0.8f,
-                AttackOffset = 0.0f, AttackAngle = 60.0f, AttackRayWidth = 0.3f,
-                AttackRayWidthCharExtra = 0.05f, AttackHeightChar1 = 0.8f, AttackHeightChar2 = 0.6f,
-                MaxYAngle = 30.0f, EnableHit = true, EnableSound = true
+                ChainTiming = 0.0f, SpeedTiming = 1.0f, DodgeMortalTiming = 1.0f,
+                ClipLength = 1.133f, AttackRange = 1.0f, AttackHeight = 1.5f,
+                AttackOffset = 0.2f, AttackAngle = 90.0f, AttackRayWidth = 0.0f,
+                AttackRayWidthCharExtra = 0.0f, AttackHeightChar1 = 0.6f, AttackHeightChar2 = 0.6f,
+                MaxYAngle = 0.0f, EnableHit = true, EnableSound = true
             },
             ["Knife"] = new AnimationTiming
             {
                 HitTiming = 0.2f, TrailOnTiming = 0.1f, TrailOffTiming = 0.4f,
-                ChainTiming = 0.6f, SpeedTiming = 1.0f, DodgeMortalTiming = 1.0f,
-                ClipLength = 0.6f, AttackRange = 1.5f, AttackHeight = 0.7f,
-                AttackOffset = 0.0f, AttackAngle = 90.0f, AttackRayWidth = 0.3f,
-                AttackRayWidthCharExtra = 0.08f, AttackHeightChar1 = 0.7f, AttackHeightChar2 = 0.5f,
-                MaxYAngle = 35.0f, EnableHit = true, EnableSound = true
+                ChainTiming = 0.0f, SpeedTiming = 1.0f, DodgeMortalTiming = 1.0f,
+                ClipLength = 1.4f, AttackRange = 1.8f, AttackHeight = 0.5f,
+                AttackOffset = 0.0f, AttackAngle = 45.0f, AttackRayWidth = 0.3f,
+                AttackRayWidthCharExtra = 0.0f, AttackHeightChar1 = 0.34f, AttackHeightChar2 = -0.34f,
+                MaxYAngle = 0.0f, EnableHit = true, EnableSound = true
             },
             ["Battleaxe"] = new AnimationTiming
             {
                 HitTiming = 0.8f, TrailOnTiming = 0.6f, TrailOffTiming = 1.1f,
-                ChainTiming = 1.0f, SpeedTiming = 1.0f, DodgeMortalTiming = 1.0f,
-                ClipLength = 2.2f, AttackRange = 2.8f, AttackHeight = 1.3f,
-                AttackOffset = 0.0f, AttackAngle = 150.0f, AttackRayWidth = 0.7f,
-                AttackRayWidthCharExtra = 0.18f, AttackHeightChar1 = 1.2f, AttackHeightChar2 = 1.0f,
-                MaxYAngle = 55.0f, EnableHit = true, EnableSound = true
+                ChainTiming = 0.0f, SpeedTiming = 1.0f, DodgeMortalTiming = 1.0f,
+                ClipLength = 0.857f, AttackRange = 2.5f, AttackHeight = 1.0f,
+                AttackOffset = 0.0f, AttackAngle = 30.0f, AttackRayWidth = 0.5f,
+                AttackRayWidthCharExtra = 0.0f, AttackHeightChar1 = 0.0f, AttackHeightChar2 = 0.0f,
+                MaxYAngle = 0.0f, EnableHit = true, EnableSound = true
             },
             ["Polearm"] = new AnimationTiming
             {
                 HitTiming = 0.9f, TrailOnTiming = 0.7f, TrailOffTiming = 1.2f,
-                ChainTiming = 1.1f, SpeedTiming = 1.0f, DodgeMortalTiming = 1.0f,
-                ClipLength = 2.5f, AttackRange = 3.2f, AttackHeight = 1.4f,
-                AttackOffset = 0.0f, AttackAngle = 160.0f, AttackRayWidth = 0.8f,
-                AttackRayWidthCharExtra = 0.2f, AttackHeightChar1 = 1.3f, AttackHeightChar2 = 1.1f,
-                MaxYAngle = 60.0f, EnableHit = true, EnableSound = true
+                ChainTiming = 0.0f, SpeedTiming = 1.0f, DodgeMortalTiming = 1.0f,
+                ClipLength = 2.167f, AttackRange = 3.0f, AttackHeight = 1.0f,
+                AttackOffset = 0.0f, AttackAngle = 360.0f, AttackRayWidth = 0.3f,
+                AttackRayWidthCharExtra = 0.0f, AttackHeightChar1 = 0.0f, AttackHeightChar2 = 0.0f,
+                MaxYAngle = 0.0f, EnableHit = true, EnableSound = true
             },
             ["Fist"] = new AnimationTiming
             {
                 HitTiming = 0.15f, TrailOnTiming = 0.05f, TrailOffTiming = 0.3f,
-                ChainTiming = 0.5f, SpeedTiming = 1.0f, DodgeMortalTiming = 1.0f,
+                ChainTiming = 0.0f, SpeedTiming = 1.0f, DodgeMortalTiming = 1.0f,
+                ClipLength = 0.5f, AttackRange = 1.2f, AttackHeight = 0.6f,
+                AttackOffset = 0.0f, AttackAngle = 80.0f, AttackRayWidth = 0.25f,
+                AttackRayWidthCharExtra = 0.05f, AttackHeightChar1 = 0.6f, AttackHeightChar2 = 0.4f,
+                MaxYAngle = 30.0f, EnableHit = true, EnableSound = true
+            },
+            ["Unarmed"] = new AnimationTiming
+            {
+                HitTiming = 0.15f, TrailOnTiming = 0.05f, TrailOffTiming = 0.3f,
+                ChainTiming = 0.0f, SpeedTiming = 1.0f, DodgeMortalTiming = 1.0f,
                 ClipLength = 0.5f, AttackRange = 1.2f, AttackHeight = 0.6f,
                 AttackOffset = 0.0f, AttackAngle = 80.0f, AttackRayWidth = 0.25f,
                 AttackRayWidthCharExtra = 0.05f, AttackHeightChar1 = 0.6f, AttackHeightChar2 = 0.4f,
@@ -250,7 +259,16 @@ namespace ExtraAttackSystem
         // Get weapon type from animation name
         private static string GetWeaponTypeFromAnimationName(string animationName)
         {
-            if (animationName.Contains("Sword") || animationName.Contains("sword"))
+            // AnimationManager.csの武器判定ロジックと整合性を取る
+            // より具体的な武器種を先に判定
+            if (animationName.Contains("Great") || animationName.Contains("great"))
+                return "Greatsword";
+            else if (animationName.Contains("Battle") || animationName.Contains("battle"))
+                return "Battleaxe";
+            else if (animationName.Contains("Pole") || animationName.Contains("pole"))
+                return "Polearm";
+            // 基本的な武器種は後で判定
+            else if (animationName.Contains("Sword") || animationName.Contains("sword"))
                 return "Sword";
             else if (animationName.Contains("Axe") || animationName.Contains("axe"))
                 return "Axe";
@@ -260,14 +278,11 @@ namespace ExtraAttackSystem
                 return "Spear";
             else if (animationName.Contains("Knife") || animationName.Contains("knife"))
                 return "Knife";
+            // FistとUnarmedは別々に扱う
             else if (animationName.Contains("Fist") || animationName.Contains("fist"))
                 return "Fist";
-            else if (animationName.Contains("Great") || animationName.Contains("great"))
-                return "Greatsword";
-            else if (animationName.Contains("Battle") || animationName.Contains("battle"))
-                return "Battleaxe";
-            else if (animationName.Contains("Pole") || animationName.Contains("pole"))
-                return "Polearm";
+            else if (animationName.Contains("Unarmed") || animationName.Contains("unarmed"))
+                return "Unarmed";
             else
                 return "Sword"; // Default fallback
         }
@@ -390,7 +405,7 @@ namespace ExtraAttackSystem
                     CreateDefaultWeaponTypeConfig();
                     return;
                 }
-                
+
                 var deserializer = new DeserializerBuilder().IgnoreUnmatchedProperties().Build();
                 var yamlContent = File.ReadAllText(WeaponTypesConfigFilePath);
                 
@@ -511,10 +526,10 @@ namespace ExtraAttackSystem
             {
                 "Sword" => new AnimationTimingConfig  // From $item_sword_blackmetal
                 {
-                    AttackRange = 2.7f,
+                    AttackRange = 2.4f,
                     AttackHeight = 1.0f,
-                    AttackAngle = 10.0f,
-                    AttackRayWidth = 0.7f,
+                    AttackAngle = 90.0f,
+                    AttackRayWidth = 0.5f,
                     AttackRayWidthCharExtra = 0.0f,
                     AttackHeightChar1 = 0.0f,
                     AttackHeightChar2 = 0.0f,
@@ -522,79 +537,79 @@ namespace ExtraAttackSystem
                 },
                 "Greatsword" => new AnimationTimingConfig  // From $item_sword_krom
                 {
-                    AttackRange = 3.0f,
+                    AttackRange = 2.6f,
                     AttackHeight = 1.0f,
-                    AttackAngle = 30.0f,
+                    AttackAngle = 90.0f,
                     AttackRayWidth = 0.5f,
                     AttackRayWidthCharExtra = 0.0f,
-                    AttackHeightChar1 = 0.0f,
-                    AttackHeightChar2 = 0.0f,
+                    AttackHeightChar1 = -0.63f,
+                    AttackHeightChar2 = 0.71f,
                     MaxYAngle = 0.0f
                 },
-                "Axe" => new AnimationTimingConfig  // From $item_axe_bronze
+                "Axe" => new AnimationTimingConfig  // From $item_axe_berzerkr
                 {
                     AttackRange = 2.2f,
-                    AttackHeight = 0.6f,
-                    AttackAngle = 90.0f,
-                    AttackRayWidth = 0.0f,
-                    AttackRayWidthCharExtra = 0.0f,
-                    AttackHeightChar1 = 0.0f,
-                    AttackHeightChar2 = 0.0f,
-                    MaxYAngle = 0.0f
-                },
-                "Club" => new AnimationTimingConfig  // From $item_mace_iron
-                {
-                    AttackRange = 2.5f,
                     AttackHeight = 0.8f,
-                    AttackAngle = 30.0f,
+                    AttackAngle = 90.0f,
                     AttackRayWidth = 0.3f,
                     AttackRayWidthCharExtra = 0.0f,
                     AttackHeightChar1 = 0.0f,
                     AttackHeightChar2 = 0.0f,
                     MaxYAngle = 0.0f
                 },
-                "Spear" => new AnimationTimingConfig  // Spear uses projectile, use default melee values
+                "Club" => new AnimationTimingConfig  // From $item_club
                 {
-                    AttackRange = 2.5f,
-                    AttackHeight = 1.0f,
-                    AttackAngle = 60.0f,
+                    AttackRange = 2.4f,
+                    AttackHeight = 0.8f,
+                    AttackAngle = 90.0f,
                     AttackRayWidth = 0.3f,
                     AttackRayWidthCharExtra = 0.0f,
-                    AttackHeightChar1 = 0.0f,
-                    AttackHeightChar2 = 0.0f,
+                    AttackHeightChar1 = -0.66f,
+                    AttackHeightChar2 = 0.8f,
                     MaxYAngle = 0.0f
                 },
-                "Knife" => new AnimationTimingConfig  // From $item_knife_copper
+                "Spear" => new AnimationTimingConfig  // From $item_spear_bronze
+                {
+                    AttackRange = 1.9f,
+                    AttackHeight = 1.5f,
+                    AttackAngle = 40.0f,
+                    AttackRayWidth = 0.5f,
+                    AttackRayWidthCharExtra = -0.08f,
+                    AttackHeightChar1 = -0.66f,
+                    AttackHeightChar2 = 0.64f,
+                    MaxYAngle = 0.0f
+                },
+                "Knife" => new AnimationTimingConfig  // From $item_knife_blackmetal
                 {
                     AttackRange = 1.8f,
-                    AttackHeight = 0.5f,
-                    AttackAngle = 45.0f,
-                    AttackRayWidth = 0.3f,
+                    AttackHeight = 0.8f,
+                    AttackAngle = 60.0f,
+                    AttackRayWidth = 0.2f,
                     AttackRayWidthCharExtra = 0.0f,
-                    AttackHeightChar1 = 0.34f,
-                    AttackHeightChar2 = -0.34f,
+                    AttackHeightChar1 = -0.55f,
+                    AttackHeightChar2 = 1.0f,
                     MaxYAngle = 0.0f
                 },
                 "Battleaxe" => new AnimationTimingConfig  // From $item_battleaxe_crystal
                 {
                     AttackRange = 2.5f,
                     AttackHeight = 1.0f,
-                    AttackAngle = 30.0f,
+                    AttackAngle = 90.0f,
                     AttackRayWidth = 0.5f,
                     AttackRayWidthCharExtra = 0.0f,
-                    AttackHeightChar1 = 0.0f,
-                    AttackHeightChar2 = 0.0f,
+                    AttackHeightChar1 = -0.66f,
+                    AttackHeightChar2 = 0.8f,
                     MaxYAngle = 0.0f
                 },
                 "Polearm" => new AnimationTimingConfig  // From $item_atgeir_bronze
                 {
-                    AttackRange = 3.0f,
+                    AttackRange = 3.2f,
                     AttackHeight = 1.0f,
-                    AttackAngle = 360.0f,
+                    AttackAngle = 20.0f,
                     AttackRayWidth = 0.3f,
                     AttackRayWidthCharExtra = 0.0f,
-                    AttackHeightChar1 = 0.0f,
-                    AttackHeightChar2 = 0.0f,
+                    AttackHeightChar1 = -0.66f,
+                    AttackHeightChar2 = 0.7f,
                     MaxYAngle = 0.0f
                 },
                 "Fist" => new AnimationTimingConfig  // From Unarmed skill
@@ -633,9 +648,18 @@ namespace ExtraAttackSystem
                 {
                     return config;
                 }
+                else
+                {
+                    ExtraAttackSystemPlugin.LogWarning("System", $"Mode {mode} not found in weapon type {weaponType}");
+                }
+            }
+            else
+            {
+                ExtraAttackSystemPlugin.LogWarning("System", $"Weapon type {weaponType} not found in YAML config");
             }
             
             // Fallback to default config
+            ExtraAttackSystemPlugin.LogWarning("System", $"No YAML config found for {weaponType}_{mode}, using default");
             return weaponTypeConfig?.Default ?? new AnimationTimingConfig();
         }
 

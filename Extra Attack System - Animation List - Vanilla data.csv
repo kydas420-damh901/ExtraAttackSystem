@@ -1,0 +1,47 @@
+,"WepomTypes
+EAS setting name",Sword,Polearm,Greatsword,Axe,Battleaxe,Unarmed,Fist,Club,Spear,Knife,Dualknives,Dualaxes
+,Skill Type,Swords,Polearms,Swords,Axes,Axes,Unarmed,Unarmed,Clubs,Spears,Knives,Knives,Axes
+,item Tpye,OneHandedWeapon,TwoHandedWeapon,TwoHandedWeapon,OneHandedWeapon,TwoHandedWeapon,TwoHandedWeapon,TwoHandedWeapon,OneHandedWeapo,OneHandedWeapon,OneHandedWeapon,TwoHandedWeapon,TwoHandedWeapon
+,m_attackType:,Horizontal,Horizontal,Horizontal,Vertical,Horizontal,Horizontal,Horizontal,Vertical,Projectile,Horizontal,Horizontal,Horizontal
+,m_attackRange:,2.7,3,3,2.2,2.5,2,2,2.5,1,1.8,1.8,2.2
+,m_attackHeight:,1,1,1,0.6,1,1,1,0.8,1.5,0.5,0.5,0.6
+,m_attackOffset:,0,0,0,0,0,0,0,0,0.2,0,0,0
+,m_attackAngle:,10,360,30,90,30,25,25,30,90,45,45,90
+,m_attackRayWidth:,0.7,0.3,0.5,0,0.5,0.3,0.3,0.3,0,0.3,0.3,0
+,m_attackRayWidthCharExtra:,0,0,0,0,0,0,0,0,0,0,0,0
+,m_attackHeightChar1:,0,0,0,0,0,0,0,0,0.6,0.34,0.34,0
+,m_attackHeightChar2:,0,0,0,0,0,0,0,0,0.6,-0.34,-0.34,0
+,m_maxYAngle:,0,0,0,0,0,0,0,0,0,0,0,0
+,m_attackOriginJoint:,,,,,,,,,,,,
+,m_lowerDamagePerHit:, True, False, True, False, True, True, True, True, True, True, True, False
+,m_hitTerrain:, True, True, True, True, True, True, True, True, True, True, True, True
+,m_hitFriendly:, False, False, False, False, False, False, False, False, False, False, False, False
+,m_hitThroughWalls:, False, True, False, False, False, False, False, False, False, False, False, False
+,m_multiHit:, True, True, True, True, True, True, True, True, True, True, True, True
+,m_pickaxeSpecial:, False, False, False, False, False, False, False, False, False, False, False, False
+,m_hitPointtype:, Closest, Closest, Closest, Closest, Closest, Closest, Closest, Closest, Closest, Closest, Closest, Closest
+,,,,,,,,,,,,,
+,m_attackAnimation:,sword_secondary,atgeir_secondary,greatsword_secondary,axe_secondary,battleaxe_secondary,unarmed_kick,unarmed_kick,mace_secondary,spear_throw,knife_secondary,dual_knives_secondary,dualaxes_secondary
+,,,,,,,,,,,,,
+,m_chargeAnimationBool:,,,,,,,,,,,,
+,m_attackRandomAnimations:,0,0,0,0,0,0,0,0,0,0,0,0
+,m_attackChainLevels:,0,0,0,0,0,0,0,0,0,0,0,0
+,m_loopingAttack:, False, False, False, False, False, False, False, False, False, False, False, False
+,m_attackStartNoise:,10,10,10,10,10,10,10,10,10,2,2,10
+,m_attackHitNoise:,30,30,30,40,30,30,30,30,30,5,5,40
+,m_speedFactor:,0.2,0.2,0.2,0.2,0.1,0.2,0.2,0.2,0.3,0,0,0.2
+,m_speedFactorRotation:,0.2,0.2,0,0.2,0.1,0.2,0.2,0,5,0,0,0.2
+,m_lastChainDamageMultiplier:,2,2,2,2,2,2,2,2,2,2,2,2
+,,,,,,,,,,,,,
+,Clip Nmae,Sword-Attack-R4,Atgeir360Attack,Greatsword Secondary Attack,Axe Secondary Attack,BattleAxeAltAttack,Kickstep,Kickstep,MaceAltAttack,throw_spear,nife JumpAttack,Knife Attack Leap,DualAxes Attack Cleave
+,Length:,1.400s,2.167s,1.400s,1.400s,0.857s,1.833s,1.833s,1.400s,1.133s,1.400s,1.500s,1.900s
+,FrameRate:,30,30,30,30,30,30,30,30,30,30,30,30
+,Legacy:,FALSE,FALSE,FALSE,FALSE,FALSE,FALSE,FALSE,FALSE,FALSE,FALSE,FALSE,FALSE
+,Events:,0,6,0,3,5,5,5,3,5,0,2,3
+,,Event: Speed at 0.000s,Event: Speed at 0.000s,Event: TrailOn at 0.719s,Event: TrailOn at 0.916s,Event: Speed at 0.216s,Event: Speed at 0.459s,Event: Speed at 0.459s,Event: Speed at 0.976s,Event: Speed at 0.000s,Event: Speed at 0.000s,Event: TrailOn at 0.478s,Event: TrailOn at 0.817s
+,,Event: TrailOn at 0.184s,Event: Speed at 0.875s,Event: Hit at 0.959s,Event: Hit at 1.122s,Event: TrailOn at 0.222s,Event: TrailOn at 0.486s,Event: TrailOn at 0.486s,Event: TrailOn at 0.990s,Event: Speed at 0.499s,Event: Speed at 0.204s,Event: Hit at 0.839s,Event: Hit at 0.915s
+,,Event: Speed at 0.184s,Event: TrailOn at 1.011s,Event: TrailOff at 0.980s,Event: TrailOff at 1.184s,Event: Hit at 0.464s,Event: Speed at 0.581s,Event: Speed at 0.581s,Event: Hit at 1.223s,Event: TrailOn at 0.509s,Event: TrailOn at 0.608s,,Event: TrailOff at 1.083s
+,,Event: Hit at 0.244s,Event: Hit at 1.124s,,Event: Chain at 1.513s,Event: TrailOff at 0.521s,Event: Hit at 0.593s,Event: Hit at 0.593s,Event: Speed at 1.436s,Event: OnAttackTrigger at 0.739s,Event: Speed at 0.693s,,
+,,Event: Speed at 0.254s,Event: Speed at 1.581s,,,Event: Speed at 0.526s,,,Event: TrailOff at 1.445s,Event: Speed at 0.797s,Event: Hit at 0.802s,,
+,,Event: TrailOff at 0.270s,Event: TrailOff at 1.602s,,,,,,,,Event: Speed at 0.869s,,
+,,,,,,,,,,,Event: TrailOff at 0.900s,,

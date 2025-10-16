@@ -141,8 +141,51 @@ namespace ExtraAttackSystem
                         attackMode == EAS_InputHandler.AttackMode.secondary_T || 
                         attackMode == EAS_InputHandler.AttackMode.secondary_G)
                     {
-                        // QTG attack detected - parameters will be applied in DoMeleeAttack
-                        return true; // Continue with original method
+                        // Apply YAML values to weapon's m_secondaryAttack before vanilla StartAttack
+                        var weapon = player.GetCurrentWeapon();
+                        if (weapon != null && weapon.m_shared.m_secondaryAttack != null)
+                        {
+                            string weaponType = EAS_InputHandler.GetWeaponTypeFromSkill(weapon.m_shared.m_skillType, weapon);
+                            var timing = EAS_AnimationTiming.GetTimingDirect(weaponType, attackMode.ToString());
+                            
+                            if (timing != null)
+                            {
+                                // TODO: 一時的なデバッグログ - 武器値適用確認用（問題解決後に削除予定）
+                                // Debug: Log original values
+                                ExtraAttackSystemPlugin.LogInfo("System", $"Original weapon values - Range: {weapon.m_shared.m_secondaryAttack.m_attackRange}, Height: {weapon.m_shared.m_secondaryAttack.m_attackHeight}, Angle: {weapon.m_shared.m_secondaryAttack.m_attackAngle}");
+                                
+                                // Debug: Log YAML values
+                                ExtraAttackSystemPlugin.LogInfo("System", $"YAML values - Range: {timing.AttackRange}, Height: {timing.AttackHeight}, Angle: {timing.AttackAngle}");
+                                
+                                // Store original values for restoration
+                                EAS_PlayerPatches.StoreOriginalAttackParams(weapon.m_shared.m_secondaryAttack);
+                                
+                                // Apply YAML values to weapon's secondary attack
+                                weapon.m_shared.m_secondaryAttack.m_attackRange = timing.AttackRange;
+                                weapon.m_shared.m_secondaryAttack.m_attackHeight = timing.AttackHeight;
+                                weapon.m_shared.m_secondaryAttack.m_attackAngle = timing.AttackAngle;
+                                weapon.m_shared.m_secondaryAttack.m_attackRayWidth = timing.AttackRayWidth;
+                                weapon.m_shared.m_secondaryAttack.m_attackRayWidthCharExtra = timing.AttackRayWidthCharExtra;
+                                weapon.m_shared.m_secondaryAttack.m_attackHeightChar1 = timing.AttackHeightChar1;
+                                weapon.m_shared.m_secondaryAttack.m_attackHeightChar2 = timing.AttackHeightChar2;
+                                weapon.m_shared.m_secondaryAttack.m_maxYAngle = timing.MaxYAngle;
+                                
+                                // Debug: Log applied values
+                                ExtraAttackSystemPlugin.LogInfo("System", $"Applied weapon values - Range: {weapon.m_shared.m_secondaryAttack.m_attackRange}, Height: {weapon.m_shared.m_secondaryAttack.m_attackHeight}, Angle: {weapon.m_shared.m_secondaryAttack.m_attackAngle}");
+                                
+                                ExtraAttackSystemPlugin.LogInfo("System", $"Applied YAML values to weapon's m_secondaryAttack for {attackMode}");
+                            }
+                            else
+                            {
+                                // TODO: 一時的なデバッグログ - YAML設定未発見確認用（問題解決後に削除予定）
+                                ExtraAttackSystemPlugin.LogWarning("System", $"No YAML config found for {weaponType}_{attackMode}");
+                            }
+                        }
+                        
+                        // TODO: 一時的なデバッグログ - QTG攻撃検出確認用（問題解決後に削除予定）
+                        ExtraAttackSystemPlugin.LogInfo("System", $"QTG attack detected: {attackMode}, continuing with vanilla StartAttack");
+                        // Let vanilla method handle the rest (attack detection, damage, etc.)
+                        return true; // Continue with original method - バニラの攻撃判定も実行
                     }
                 }
 
@@ -152,6 +195,29 @@ namespace ExtraAttackSystem
             {
                 ExtraAttackSystemPlugin.LogError("System", $"Error in Humanoid_StartAttack_Patch: {ex.Message}");
                 return true;
+            }
+        }
+
+        static void Postfix(Humanoid __instance, Character target, bool secondaryAttack, bool __result)
+        {
+            if (__instance is Player player && player == Player.m_localPlayer)
+            {
+                var attackMode = EAS_InputHandler.GetAttackMode(player);
+                if (attackMode == EAS_InputHandler.AttackMode.secondary_Q || 
+                    attackMode == EAS_InputHandler.AttackMode.secondary_T || 
+                    attackMode == EAS_InputHandler.AttackMode.secondary_G)
+                {
+                    // Restore original weapon parameters after attack
+                    var weapon = player.GetCurrentWeapon();
+                    if (weapon != null && weapon.m_shared.m_secondaryAttack != null)
+                    {
+                        EAS_PlayerPatches.RestoreOriginalAttackParams(weapon.m_shared.m_secondaryAttack);
+                        ExtraAttackSystemPlugin.LogInfo("System", $"Restored original weapon parameters for {attackMode}");
+                    }
+                    
+                    // TODO: 一時的なデバッグログ - バニラStartAttack完了確認用（問題解決後に削除予定）
+                    ExtraAttackSystemPlugin.LogInfo("System", $"Vanilla StartAttack completed for {attackMode}, result: {__result}");
+                }
             }
         }
     }
@@ -193,57 +259,15 @@ namespace ExtraAttackSystem
                     var attackMode = EAS_InputHandler.GetAttackMode(player);
                     if (attackMode != EAS_InputHandler.AttackMode.Normal)
                     {
-                        // Get weapon and timing configuration
-                        var weapon = player.GetCurrentWeapon();
-                        if (weapon != null)
-                        {
-                            string weaponType = EAS_InputHandler.GetWeaponTypeFromSkill(
-                                weapon.m_shared.m_skillType, weapon);
-                            var timing = EAS_AnimationTiming.GetTimingDirect(weaponType, attackMode.ToString());
-                            
-                            if (timing != null)
-                            {
-                                // Store original attack parameters
-                                EAS_PlayerPatches.StoreOriginalAttackParams(__instance);
-                                
-                                // Apply YAML attack parameters directly to Attack instance
-                                __instance.m_attackRange = timing.AttackRange;
-                                __instance.m_attackHeight = timing.AttackHeight;
-                                __instance.m_attackAngle = timing.AttackAngle;
-                                __instance.m_attackRayWidth = timing.AttackRayWidth;
-                                __instance.m_attackRayWidthCharExtra = timing.AttackRayWidthCharExtra;
-                                __instance.m_attackHeightChar1 = timing.AttackHeightChar1;
-                                __instance.m_attackHeightChar2 = timing.AttackHeightChar2;
-                                __instance.m_maxYAngle = timing.MaxYAngle;
-                            }
-                        }
+                        // TODO: 一時的なデバッグログ - DoMeleeAttack値確認用（問題解決後に削除予定）
+                        // Debug: Log actual values used in DoMeleeAttack
+                        ExtraAttackSystemPlugin.LogInfo("System", $"DoMeleeAttack values - Range: {__instance.m_attackRange}, Height: {__instance.m_attackHeight}, Angle: {__instance.m_attackAngle}");
                     }
                 }
             }
             catch (System.Exception ex)
             {
                 ExtraAttackSystemPlugin.LogError("System", $"Error in Attack_DoMeleeAttack_Patch: {ex.Message}");
-            }
-        }
-
-        static void Postfix(Attack __instance, Character ___m_character)
-        {
-            try
-            {
-                Character character = ___m_character;
-                if (character is Player player && player == Player.m_localPlayer)
-                {
-                    var attackMode = EAS_InputHandler.GetAttackMode(player);
-                    if (attackMode != EAS_InputHandler.AttackMode.Normal)
-                    {
-                        // Restore original attack parameters
-                        EAS_PlayerPatches.RestoreOriginalAttackParams(__instance);
-                    }
-                }
-            }
-            catch (System.Exception ex)
-            {
-                ExtraAttackSystemPlugin.LogError("System", $"Error in Attack_DoMeleeAttack_Patch Postfix: {ex.Message}");
             }
         }
     }
